@@ -109,8 +109,16 @@ def build(name: str, single_module: bool = False):
         label = label_for(chunks[0][1], chunks[0][0], 1) if chunks else name
         body = divi_section(text_module(content, label))
     else:
+        # id="poukazy" NESMÍ být samostatná Divi sekce (Divi 5 builder se zacykloval)
+        # → slouč do předchozího chunku (= sekce Zážitky), ověřený vzor z produkce.
+        merged = []
+        for origin, chunk in chunks:
+            if merged and re.search(r'<section[^>]*\bid="poukazy"', chunk):
+                merged[-1] = (merged[-1][0], merged[-1][1] + " " + chunk)
+            else:
+                merged.append((origin, chunk))
         parts = []
-        for i, (origin, chunk) in enumerate(chunks, 1):
+        for i, (origin, chunk) in enumerate(merged, 1):
             mc = minify(chunk)
             if not mc: continue
             parts.append(divi_section(text_module(mc, label_for(chunk, origin, i))))
