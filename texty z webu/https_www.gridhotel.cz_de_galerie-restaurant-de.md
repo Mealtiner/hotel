@@ -1,0 +1,12 @@
+# Galerie
+
+URL: https://www.gridhotel.cz/de/galerie-restaurant-de/
+Načteno: 2026-07-04 00:56:39
+
+## Zdrojové URL
+- https://www.gridhotel.cz/de/galerie-restaurant-de/
+
+## Texty
+
+Galerie
+Restaurant

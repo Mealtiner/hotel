@@ -1,0 +1,913 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GRID HOTEL — Spíš uprostřed Masarykova okruhu | 4* hotel v areálu Automotodromu Brno</title>
+<meta name="description" content="GRID Hotel — 4* hotel a restaurace přímo v areálu Automotodromu Brno. 60 pokojů a 4 apartmány s výhledem na trať, gastronomie a motorsport zážitky.">
+<link rel="icon" href="../assets/logo/g-mark.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Saira+Condensed:wght@500;600;700&family=Inter:wght@300;400;500;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --graphite:#16181B;
+    --asphalt:#23262B;
+    --offwhite:#F4F2ED;
+    --red:#C20E1A;
+    --grey:#B9B7B9;
+    --maxw:1240px;
+    --ease:cubic-bezier(.22,.61,.36,1);
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{
+    font-family:'Inter',system-ui,sans-serif;
+    background:var(--graphite);
+    color:var(--offwhite);
+    line-height:1.6;
+    font-weight:300;
+    -webkit-font-smoothing:antialiased;
+    overflow-x:hidden;
+  }
+  h1,h2,h3,h4{
+    font-family:'Saira Condensed',sans-serif;
+    text-transform:uppercase;
+    font-weight:700;
+    line-height:.98;
+    letter-spacing:.01em;
+  }
+  img{display:block;max-width:100%}
+  a{color:inherit;text-decoration:none}
+  .mono{font-family:'Space Mono',monospace}
+  .red{color:var(--red)}
+  .container{max-width:var(--maxw);margin:0 auto;padding:0 32px}
+  .narrow{max-width:760px;margin:0 auto}
+  section{position:relative}
+
+  /* ===== Buttons ===== */
+  .btn{
+    display:inline-flex;align-items:center;gap:.6em;
+    font-family:'Saira Condensed',sans-serif;text-transform:uppercase;
+    font-weight:600;letter-spacing:.08em;font-size:.95rem;
+    padding:16px 34px;border:1px solid var(--red);background:var(--red);color:#fff;
+    cursor:pointer;transition:all .45s var(--ease);border-radius:1px;
+  }
+  .btn:hover{background:#a00b15;border-color:#a00b15;transform:translateY(-2px)}
+  .btn-ghost{background:transparent;border-color:rgba(255,255,255,.35);color:var(--offwhite)}
+  .btn-ghost:hover{background:rgba(255,255,255,.08);border-color:#fff;transform:translateY(-2px)}
+  .btn-dark{background:transparent;border-color:rgba(22,24,27,.3);color:var(--graphite)}
+  .btn-dark:hover{background:rgba(22,24,27,.06);border-color:var(--graphite)}
+
+  .eyebrow{
+    font-family:'Space Mono',monospace;font-size:.78rem;letter-spacing:.28em;
+    text-transform:uppercase;color:var(--red);margin-bottom:22px;display:block;
+  }
+  .eyebrow.light{color:var(--red)}
+
+  /* ===== Header ===== */
+  header{
+    position:fixed;top:0;left:0;width:100%;z-index:1000;
+    display:flex;align-items:center;justify-content:space-between;
+    padding:22px 40px;transition:all .5s var(--ease);
+  }
+  header.scrolled{
+    background:rgba(22,24,27,.92);backdrop-filter:blur(14px);
+    padding:14px 40px;box-shadow:0 1px 0 rgba(255,255,255,.06);
+  }
+  .logo img{height:38px;width:auto;transition:height .4s var(--ease)}
+  header.scrolled .logo img{height:32px}
+  .nav-center{
+    position:absolute;left:50%;transform:translateX(-50%);
+    display:flex;gap:30px;align-items:center;
+  }
+  .nav-center a{
+    font-family:'Saira Condensed',sans-serif;text-transform:uppercase;
+    font-weight:500;letter-spacing:.09em;font-size:.92rem;color:var(--offwhite);
+    position:relative;padding:4px 0;transition:color .3s;
+  }
+  .nav-center a::after{
+    content:"";position:absolute;left:0;bottom:-2px;width:0;height:1px;
+    background:var(--red);transition:width .4s var(--ease);
+  }
+  .nav-center a:hover{color:#fff}
+  .nav-center a:hover::after{width:100%}
+  .nav-right{display:flex;align-items:center;gap:20px}
+  .lang{display:flex;gap:8px;font-family:'Space Mono',monospace;font-size:.78rem;letter-spacing:.05em}
+  .lang button{background:none;border:none;color:var(--grey);cursor:pointer;padding:3px 5px;transition:color .3s;font-family:inherit;font-size:inherit}
+  .lang button.active{color:#fff}
+  .lang button:hover{color:#fff}
+  .nav-right .btn{padding:11px 24px;font-size:.85rem}
+  .hamburger{display:none;flex-direction:column;gap:5px;background:none;border:none;cursor:pointer;z-index:1100;padding:6px}
+  .hamburger span{width:26px;height:2px;background:#fff;transition:.4s var(--ease)}
+  .hamburger.open span:nth-child(1){transform:translateY(7px) rotate(45deg)}
+  .hamburger.open span:nth-child(2){opacity:0}
+  .hamburger.open span:nth-child(3){transform:translateY(-7px) rotate(-45deg)}
+
+  /* ===== Mobile nav ===== */
+  .mobile-nav{
+    position:fixed;inset:0;background:var(--graphite);z-index:1050;
+    display:flex;flex-direction:column;justify-content:center;align-items:center;gap:28px;
+    transform:translateY(-100%);transition:transform .6s var(--ease);
+  }
+  .mobile-nav.open{transform:translateY(0)}
+  .mobile-nav a{
+    font-family:'Saira Condensed',sans-serif;text-transform:uppercase;
+    font-size:2rem;font-weight:600;letter-spacing:.03em;
+  }
+  .mobile-nav .lang{margin-top:20px;font-size:.95rem}
+
+  /* ===== Hero ===== */
+  .hero{
+    height:100vh;min-height:640px;width:100%;position:relative;
+    display:flex;align-items:center;justify-content:center;text-align:center;
+    overflow:hidden;
+  }
+  .hero-bg{position:absolute;inset:0;background:url('../assets/foto/okruh-zapad-slunce.jpg') center/cover no-repeat;will-change:transform}
+  .hero-overlay{position:absolute;inset:0;background:linear-gradient(180deg,rgba(22,24,27,.55) 0%,rgba(22,24,27,.35) 40%,rgba(22,24,27,.78) 100%)}
+  .hero-content{position:relative;z-index:2;padding:0 24px;max-width:980px}
+  .hero h1{
+    font-size:clamp(2.8rem,7.2vw,6.6rem);color:#fff;margin-bottom:26px;
+    text-shadow:0 2px 30px rgba(0,0,0,.4);
+  }
+  .hero p{
+    font-size:clamp(1rem,1.6vw,1.25rem);font-weight:300;color:rgba(244,242,237,.92);
+    max-width:580px;margin:0 auto 38px;letter-spacing:.01em;
+  }
+  .scroll-ind{
+    position:absolute;bottom:34px;left:50%;transform:translateX(-50%);z-index:2;
+    display:flex;flex-direction:column;align-items:center;gap:10px;
+    font-family:'Space Mono',monospace;font-size:.7rem;letter-spacing:.25em;
+    text-transform:uppercase;color:rgba(244,242,237,.7);
+  }
+  .scroll-line{width:1px;height:46px;background:rgba(244,242,237,.5);position:relative;overflow:hidden}
+  .scroll-line::after{content:"";position:absolute;top:-46px;left:0;width:1px;height:46px;background:var(--red);animation:scrolldown 2.4s var(--ease) infinite}
+  @keyframes scrolldown{0%{top:-46px}60%,100%{top:46px}}
+
+  /* ===== Booking bar ===== */
+  .booking{
+    position:sticky;top:0;z-index:900;background:rgba(35,38,43,.96);
+    backdrop-filter:blur(12px);border-top:1px solid rgba(255,255,255,.06);
+    border-bottom:1px solid rgba(255,255,255,.06);
+    transform:translateY(-100%);transition:transform .5s var(--ease);
+  }
+  .booking.show{transform:translateY(0)}
+  .booking-inner{
+    display:flex;align-items:flex-end;gap:24px;padding:18px 32px;
+    max-width:var(--maxw);margin:0 auto;flex-wrap:wrap;
+  }
+  .booking-field{display:flex;flex-direction:column;gap:6px;flex:1;min-width:130px}
+  .booking-field label{
+    font-family:'Space Mono',monospace;font-size:.68rem;letter-spacing:.18em;
+    text-transform:uppercase;color:var(--grey);
+  }
+  .booking-field input,.booking-field select{
+    background:transparent;border:none;border-bottom:1px solid rgba(255,255,255,.2);
+    color:var(--offwhite);font-family:'Inter',sans-serif;font-size:.95rem;
+    padding:6px 0;outline:none;transition:border-color .3s;
+  }
+  .booking-field input:focus,.booking-field select:focus{border-color:var(--red)}
+  .booking-field input::-webkit-calendar-picker-indicator{filter:invert(.7)}
+  .booking-field select option{background:var(--asphalt)}
+  .booking .btn{align-self:flex-end;white-space:nowrap}
+
+  /* ===== Reveal animation ===== */
+  .reveal{opacity:0;transform:translateY(40px);transition:opacity 1.1s var(--ease),transform 1.1s var(--ease)}
+  .reveal.in{opacity:1;transform:none}
+
+  /* ===== Section shells ===== */
+  .sec-dark{background:var(--graphite);padding:120px 0}
+  .sec-asphalt{background:var(--asphalt);padding:120px 0}
+  .sec-light{background:var(--offwhite);color:var(--graphite);padding:120px 0}
+  .sec-light .eyebrow{color:var(--red)}
+
+  .sec-head{text-align:center;margin-bottom:64px}
+  .sec-head h2{font-size:clamp(2.2rem,4.5vw,3.8rem)}
+  .sec-head p{max-width:620px;margin:22px auto 0;font-size:1.05rem;opacity:.82}
+
+  /* ===== Motivation entries ===== */
+  .motiv{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:rgba(255,255,255,.08)}
+  .motiv a{
+    background:var(--graphite);padding:54px 32px;display:flex;flex-direction:column;
+    gap:14px;transition:background .5s var(--ease);position:relative;min-height:230px;
+    justify-content:flex-end;
+  }
+  .motiv a:hover{background:var(--asphalt)}
+  .motiv .num{font-family:'Space Mono',monospace;font-size:.72rem;letter-spacing:.2em;color:var(--red)}
+  .motiv h3{font-size:1.7rem;font-weight:600}
+  .motiv .arrow{font-family:'Space Mono',monospace;font-size:.8rem;letter-spacing:.15em;color:var(--grey);transition:transform .4s var(--ease),color .4s}
+  .motiv a:hover .arrow{transform:translateX(8px);color:var(--offwhite)}
+
+  /* ===== Editorial story ===== */
+  .story-img{width:100%;height:78vh;min-height:480px;overflow:hidden;position:relative}
+  .story-img img{width:100%;height:120%;object-fit:cover;position:absolute;top:-10%;left:0;will-change:transform}
+  .story-text{padding:120px 0;text-align:center}
+  .story-text h2{font-size:clamp(2rem,4vw,3.4rem);margin-bottom:30px}
+  .story-text p{font-size:1.15rem;line-height:1.85;opacity:.86;margin-bottom:20px}
+  .story-stats{display:flex;justify-content:center;gap:60px;margin-top:54px;flex-wrap:wrap}
+  .story-stats .stat{display:flex;flex-direction:column;gap:6px}
+  .story-stats .stat b{font-family:'Saira Condensed',sans-serif;font-size:2.6rem;color:var(--red);font-weight:700;line-height:1}
+  .story-stats .stat span{font-family:'Space Mono',monospace;font-size:.72rem;letter-spacing:.15em;text-transform:uppercase;color:var(--grey)}
+
+  /* ===== Rooms ===== */
+  .rooms{display:grid;grid-template-columns:repeat(4,1fr);gap:24px}
+  .room{display:flex;flex-direction:column;background:var(--asphalt);transition:transform .55s var(--ease)}
+  .room:hover{transform:translateY(-8px)}
+  .room-img{height:240px;overflow:hidden}
+  .room-img img{width:100%;height:100%;object-fit:cover;transition:transform .9s var(--ease)}
+  .room:hover .room-img img{transform:scale(1.06)}
+  .room-body{padding:28px 26px 32px;display:flex;flex-direction:column;flex:1;gap:14px}
+  .room h3{font-size:1.5rem;font-weight:600}
+  .room .feat{font-size:.92rem;opacity:.78;display:flex;flex-direction:column;gap:5px}
+  .room .feat span::before{content:"— ";color:var(--red)}
+  .room .price{font-family:'Space Mono',monospace;font-size:.85rem;color:var(--grey);margin-top:auto;padding-top:10px;letter-spacing:.04em}
+  .room .price b{color:var(--offwhite);font-size:1.35rem}
+  .room .btn{margin-top:12px;align-self:flex-start;padding:12px 24px;font-size:.82rem}
+
+  /* ===== Experiences ===== */
+  .exp{display:grid;grid-template-columns:repeat(3,1fr);gap:24px}
+  .exp-card{
+    background:var(--graphite);border:1px solid rgba(255,255,255,.08);
+    padding:40px 34px;transition:all .5s var(--ease);display:flex;flex-direction:column;gap:16px;
+  }
+  .exp-card:hover{border-color:var(--red);background:#1c1f23;transform:translateY(-6px)}
+  .exp-card .num{font-family:'Space Mono',monospace;font-size:.74rem;letter-spacing:.2em;color:var(--red)}
+  .exp-card h3{font-size:1.55rem;font-weight:600}
+  .exp-card p{font-size:.96rem;opacity:.82}
+  .exp-card .tag{margin-top:auto;font-family:'Space Mono',monospace;font-size:.72rem;letter-spacing:.12em;color:var(--grey);padding-top:8px}
+
+  /* ===== Restaurant split ===== */
+  .rest{display:grid;grid-template-columns:1fr 1fr;gap:0;align-items:stretch}
+  .rest-img{min-height:560px;background-size:cover;background-position:center}
+  .rest-text{padding:90px 70px;display:flex;flex-direction:column;justify-content:center}
+  .rest-text h2{font-size:clamp(2rem,3.5vw,3rem);margin-bottom:24px}
+  .rest-text p{font-size:1.05rem;opacity:.86;margin-bottom:18px;line-height:1.8}
+  .rest-logos{display:flex;flex-direction:column;gap:30px;margin-bottom:30px}
+  .rest-venue h4{font-size:1.4rem;font-weight:600;margin-bottom:8px}
+  .rest-venue h4 span{color:var(--red)}
+
+  /* ===== Race weekends ===== */
+  .races{display:flex;flex-direction:column;border-top:1px solid rgba(255,255,255,.12)}
+  .race-row{
+    display:grid;grid-template-columns:170px 1fr auto auto;gap:30px;align-items:center;
+    padding:32px 8px;border-bottom:1px solid rgba(255,255,255,.12);transition:background .4s,padding-left .4s var(--ease);
+  }
+  .race-row:hover{background:rgba(255,255,255,.03);padding-left:20px}
+  .race-date{font-family:'Space Mono',monospace;font-size:.95rem;color:var(--red);letter-spacing:.03em}
+  .race-name h3{font-size:1.7rem;font-weight:600}
+  .race-name p{font-size:.9rem;opacity:.7;margin-top:4px}
+  .race-pkg{font-family:'Space Mono',monospace;font-size:.85rem;color:var(--grey)}
+  .race-pkg b{color:var(--offwhite)}
+  .race-row .btn{padding:12px 26px;font-size:.82rem}
+
+  /* ===== Reviews ===== */
+  .reviews{display:grid;grid-template-columns:repeat(3,1fr);gap:30px}
+  .review{padding:42px 36px;background:#fff;border:1px solid rgba(22,24,27,.08);display:flex;flex-direction:column;gap:20px}
+  .stars{color:var(--red);font-size:1rem;letter-spacing:3px}
+  .review p{font-size:1.05rem;line-height:1.7;font-style:italic}
+  .review .who{font-family:'Space Mono',monospace;font-size:.78rem;letter-spacing:.08em;color:#666;margin-top:auto}
+  .review .who b{color:var(--graphite);display:block;font-style:normal}
+  .partners{text-align:center;margin-top:60px;font-family:'Space Mono',monospace;font-size:.82rem;letter-spacing:.14em;text-transform:uppercase;color:#888}
+  .partners b{color:var(--graphite)}
+
+  /* ===== Final CTA ===== */
+  .final-cta{
+    text-align:center;padding:140px 0;
+    background:linear-gradient(rgba(22,24,27,.7),rgba(22,24,27,.85)),url('../assets/foto/okruh-zima-letecky.jpg') center/cover fixed no-repeat;
+  }
+  .final-cta h2{font-size:clamp(2.4rem,5vw,4.4rem);margin-bottom:30px;color:#fff}
+  .final-cta p{max-width:560px;margin:0 auto 44px;font-size:1.1rem;opacity:.88}
+  .final-cta .btn-group{display:flex;gap:18px;justify-content:center;flex-wrap:wrap}
+
+  /* ===== Footer ===== */
+  footer{background:#0F1113;padding:90px 0 40px;border-top:1px solid rgba(255,255,255,.06)}
+  .foot-top{display:grid;grid-template-columns:1.4fr 1fr 1fr 1fr;gap:48px;margin-bottom:64px}
+  .foot-brand img{height:42px;margin-bottom:24px}
+  .foot-brand p{font-size:.92rem;opacity:.7;line-height:1.7;margin-bottom:20px}
+  .foot-brand .mono{font-size:.82rem;color:var(--grey);letter-spacing:.03em}
+  .foot-col h4{font-family:'Saira Condensed',sans-serif;font-size:.85rem;letter-spacing:.16em;color:var(--red);margin-bottom:20px;font-weight:600}
+  .foot-col ul{list-style:none;display:flex;flex-direction:column;gap:11px}
+  .foot-col a{font-size:.9rem;opacity:.75;transition:opacity .3s,color .3s}
+  .foot-col a:hover{opacity:1;color:#fff}
+  .newsletter{display:flex;gap:0;margin-top:8px;max-width:280px}
+  .newsletter input{flex:1;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);color:#fff;padding:11px 14px;font-size:.85rem;outline:none}
+  .newsletter input:focus{border-color:var(--red)}
+  .newsletter button{background:var(--red);border:none;color:#fff;padding:0 16px;cursor:pointer;font-family:'Saira Condensed',sans-serif;text-transform:uppercase;letter-spacing:.06em;transition:background .3s}
+  .newsletter button:hover{background:#a00b15}
+  .socials{display:flex;gap:14px;margin-top:18px}
+  .socials a{font-family:'Space Mono',monospace;font-size:.78rem;letter-spacing:.08em;color:var(--grey);transition:color .3s}
+  .socials a:hover{color:#fff}
+  .foot-bottom{
+    display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:20px;
+    padding-top:36px;border-top:1px solid rgba(255,255,255,.08);
+    font-size:.8rem;opacity:.6;
+  }
+  .foot-bottom .links{display:flex;gap:22px;flex-wrap:wrap}
+  .foot-bottom a:hover{opacity:1;color:#fff}
+  .badge{
+    display:inline-block;font-family:'Space Mono',monospace;font-size:.7rem;letter-spacing:.12em;
+    text-transform:uppercase;color:var(--grey);border:1px solid rgba(255,255,255,.15);
+    padding:6px 14px;border-radius:1px;
+  }
+
+  /* ===== Responsive ===== */
+  @media(max-width:1024px){
+    .motiv{grid-template-columns:repeat(2,1fr)}
+    .rooms{grid-template-columns:repeat(2,1fr)}
+    .exp{grid-template-columns:repeat(2,1fr)}
+    .reviews{grid-template-columns:1fr}
+    .foot-top{grid-template-columns:1fr 1fr;gap:40px}
+    .rest{grid-template-columns:1fr}
+    .rest-img{min-height:380px}
+    .rest-text{padding:70px 44px}
+  }
+  @media(max-width:768px){
+    .container{padding:0 22px}
+    header{padding:18px 22px}
+    header.scrolled{padding:12px 22px}
+    .nav-center,.nav-right .lang,.nav-right .btn{display:none}
+    .hamburger{display:flex}
+    .sec-dark,.sec-asphalt,.sec-light{padding:80px 0}
+    .story-text{padding:80px 0}
+    .motiv,.rooms,.exp{grid-template-columns:1fr}
+    .booking-inner{gap:16px;padding:16px 22px}
+    .booking-field{min-width:45%}
+    .booking .btn{width:100%}
+    .race-row{grid-template-columns:1fr;gap:10px;text-align:left}
+    .race-row .btn{justify-self:start}
+    .rest-text{padding:54px 26px}
+    .foot-top{grid-template-columns:1fr;gap:36px}
+    .story-stats{gap:36px}
+    .final-cta{background-attachment:scroll}
+  }
+/* GRID-GOLD */
+:root{--gold:#caa75f;--gold-deep:#b8954a}
+.story-stats .stat b{color:var(--gold)}
+.scroll-line::after{background:var(--gold)}
+.race-date{color:var(--gold)}
+.exp-card:hover{border-color:var(--gold);background:#1c1f23}
+.foot-col h4{color:var(--gold)}
+.badge{border-color:rgba(202,167,95,.5);color:var(--gold)}
+.story-stats .stat b{position:relative}
+.sec-head h2 .gd,.gd{color:var(--gold)}
+/* WCAG AA + úpravy V1 */
+:root{--red-text:#E5474C}
+.eyebrow{font-size:.85rem;font-weight:700;color:var(--red-text)}
+.sec-light .eyebrow{color:var(--red)}
+.motiv .num,.exp-card .num{color:var(--red-text);font-weight:700}
+.hero p,.story-text p{color:rgba(244,242,237,.96)}
+.race-name p,.exp-card .tag,.room .price{color:#cfcdc8}
+.foot-col a,.foot-bottom{color:#c7c5c0}
+.motiv a{transition:background .5s var(--ease),box-shadow .35s var(--ease)}
+.motiv a:hover{background:var(--asphalt);box-shadow:inset 3px 0 0 var(--red)}
+.motiv a:hover h3{color:#fff}
+.motiv a:hover .arrow{color:#fff}
+</style>
+</head>
+<body>
+<!-- Verze 1: Trackside Calm -->
+
+<!-- ===== HEADER ===== -->
+<header id="header">
+  <a href="#" class="logo" aria-label="GRID Hotel — domovská stránka">
+    <img src="../assets/logo/grid-hotel-negativ.png" alt="GRID Hotel logo">
+  </a>
+  <nav class="nav-center" aria-label="Hlavní navigace">
+    <a href="#pokoje">Pokoje</a>
+    <a href="#zazitky">Zážitky u okruhu</a>
+    <a href="#firemni">Firemní akce</a>
+    <a href="#restaurace">Restaurace &amp; bar</a>
+    <a href="#race">Race weekendy</a>
+    <a href="#kontakt">Kontakt</a>
+  </nav>
+  <div class="nav-right">
+    <div class="lang" role="group" aria-label="Výběr jazyka">
+      <button class="active">CZ</button>
+      <button>EN</button>
+      <button>DE</button>
+    </div>
+    <a href="#rezervace" class="btn">Rezervovat</a>
+    <button class="hamburger" id="hamburger" aria-label="Otevřít menu" aria-expanded="false">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+</header>
+
+<!-- ===== MOBILE NAV ===== -->
+<div class="mobile-nav" id="mobileNav">
+  <a href="#pokoje">Pokoje</a>
+  <a href="#zazitky">Zážitky u okruhu</a>
+  <a href="#firemni">Firemní akce</a>
+  <a href="#restaurace">Restaurace &amp; bar</a>
+  <a href="#race">Race weekendy</a>
+  <a href="#kontakt">Kontakt</a>
+  <a href="#rezervace" class="btn">Rezervovat pobyt</a>
+  <div class="lang">
+    <button class="active">CZ</button><button>EN</button><button>DE</button>
+  </div>
+</div>
+
+<!-- ===== HERO ===== -->
+<section class="hero">
+  <div class="hero-bg" id="heroBg"></div>
+  <div class="hero-overlay"></div>
+  <div class="hero-content">
+    <h1>Spíš uprostřed<br>Masarykova okruhu.</h1>
+    <p>4* hotel a restaurace přímo v areálu Automotodromu Brno. Probuď se s výhledem na trať — tam, kde se rodí motorsport.</p>
+    <a href="#rezervace" class="btn">Rezervovat pobyt</a>
+  </div>
+  <div class="scroll-ind">
+    <span>Scroll</span>
+    <div class="scroll-line"></div>
+  </div>
+</section>
+
+<!-- ===== BOOKING BAR ===== -->
+<div class="booking" id="booking">
+  <form class="booking-inner" onsubmit="return false">
+    <div class="booking-field">
+      <label for="arr">Příjezd</label>
+      <input type="date" id="arr" value="2026-07-17">
+    </div>
+    <div class="booking-field">
+      <label for="dep">Odjezd</label>
+      <input type="date" id="dep" value="2026-07-19">
+    </div>
+    <div class="booking-field">
+      <label for="guests">Hosté</label>
+      <select id="guests">
+        <option>1 host</option>
+        <option selected>2 hosté</option>
+        <option>3 hosté</option>
+        <option>4 hosté</option>
+        <option>5+ hostů</option>
+      </select>
+    </div>
+    <a href="#rezervace" class="btn">Rezervovat</a>
+  </form>
+</div>
+
+<!-- ===== MOTIVACE ===== -->
+<section class="sec-dark" id="motivace">
+  <div class="container">
+    <div class="sec-head reveal">
+      <span class="eyebrow">Kudy do GRIDu</span>
+      <h2>Proč jste přijeli k okruhu?</h2>
+    </div>
+    <div class="motiv reveal">
+      <a href="#race">
+        <span class="num">01</span>
+        <h3>Jedu na závody</h3>
+        <span class="arrow">Pobyt na race weekend →</span>
+      </a>
+      <a href="#firemni">
+        <span class="num">02</span>
+        <h3>Plánuji firemní akci</h3>
+        <span class="arrow">Konference &amp; teambuilding →</span>
+      </a>
+      <a href="#zazitky">
+        <span class="num">03</span>
+        <h3>Chci zážitek u okruhu</h3>
+        <span class="arrow">Simulátor, motokáry, jízdy →</span>
+      </a>
+      <a href="#pokoje">
+        <span class="num">04</span>
+        <h3>Hledám pobyt u Brna</h3>
+        <span class="arrow">Klid 15 minut od centra →</span>
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- ===== PŘÍBĚH MÍSTA ===== -->
+<section id="pribeh">
+  <div class="sec-asphalt story-text">
+    <div class="container narrow reveal">
+      <span class="eyebrow">Příběh místa</span>
+      <h2>Jediný hotel uvnitř trati</h2>
+      <p>GRID Hotel nestojí u okruhu — stojí v něm. Z oken se otevírá pohled přímo na Masarykův okruh, jednu z nejlegendárnějších tratí Evropy. Když utichne motor posledního stroje, zůstává ticho, které jinde nenajdete: prémiový klid uprostřed asfaltu, zatáček a historie.</p>
+      <p>Je to místo, kde se ráno probudíte do mlhy nad cílovou rovinkou a večer usnete s vůní okruhu za okny. Ne hotelový pokoj — adresa uvnitř závodu.</p>
+      <div class="story-stats">
+        <div class="stat"><b>0 m</b><span>od trati</span></div>
+        <div class="stat"><b>60+4</b><span>pokojů &amp; apartmá</span></div>
+        <div class="stat"><b>15 min</b><span>do centra Brna</span></div>
+      </div>
+    </div>
+  </div>
+  <div class="story-img reveal">
+    <img src="../assets/foto/hotel-okruh-leto.jpg" alt="Budova GRID Hotelu s Masarykovým okruhem v pozadí v letním slunci" data-parallax>
+  </div>
+</section>
+
+<!-- ===== POKOJE ===== -->
+<section class="sec-dark" id="pokoje">
+  <div class="container">
+    <div class="sec-head reveal">
+      <span class="eyebrow">Ubytování</span>
+      <h2>Pokoje s výhledem na trať</h2>
+      <p>Šedesát pokojů a čtyři apartmány v tlumených tónech asfaltu a grafitu. Čistá linie, klid a velká okna otevřená k okruhu.</p>
+    </div>
+    <div class="rooms reveal">
+      <article class="room">
+        <div class="room-img"><img src="../assets/foto/koupelna.jpg" alt="Standard pokoj GRID Hotelu — koupelna s designovým obkladem"></div>
+        <div class="room-body">
+          <h3>Standard</h3>
+          <div class="feat">
+            <span>Výhled do areálu</span>
+            <span>Pro 2 osoby</span>
+            <span>Klimatizace, smart TV</span>
+          </div>
+          <div class="price">od <b>2 490 Kč</b> / noc</div>
+          <a href="#rezervace" class="btn btn-ghost">Vybrat pokoj</a>
+        </div>
+      </article>
+      <article class="room">
+        <div class="room-img"><img src="../assets/foto/pokoj-superior.jpg" alt="Superior pokoj GRID Hotelu s pohledem na Masarykův okruh"></div>
+        <div class="room-body">
+          <h3>Superior</h3>
+          <div class="feat">
+            <span>Track view na trať</span>
+            <span>Pro 2 osoby</span>
+            <span>Prostorná pracovní zóna</span>
+          </div>
+          <div class="price">od <b>3 290 Kč</b> / noc</div>
+          <a href="#rezervace" class="btn btn-ghost">Vybrat pokoj</a>
+        </div>
+      </article>
+      <article class="room">
+        <div class="room-img"><img src="../assets/foto/pokoj-superior.jpg" alt="Superior Plus pokoj GRID Hotelu s vlastní terasou a výhledem na trať"></div>
+        <div class="room-body">
+          <h3>Superior Plus</h3>
+          <div class="feat">
+            <span>Track view + terasa</span>
+            <span>Pro 2–3 osoby</span>
+            <span>Posezení nad cílovou rovinkou</span>
+          </div>
+          <div class="price">od <b>4 190 Kč</b> / noc</div>
+          <a href="#rezervace" class="btn btn-ghost">Vybrat pokoj</a>
+        </div>
+      </article>
+      <article class="room">
+        <div class="room-img"><img src="../assets/foto/pokoj-apartma.jpg" alt="Apartmá GRID Hotelu s obývací částí a panoramatickým výhledem na okruh"></div>
+        <div class="room-body">
+          <h3>Apartmá</h3>
+          <div class="feat">
+            <span>Panorama na okruh</span>
+            <span>Pro 2–4 osoby</span>
+            <span>Oddělená obývací část</span>
+          </div>
+          <div class="price">od <b>6 490 Kč</b> / noc</div>
+          <a href="#rezervace" class="btn btn-ghost">Vybrat pokoj</a>
+        </div>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- ===== STORY IMG full bleed ===== -->
+<div class="story-img reveal">
+  <img src="../assets/foto/okruh-letecky-2.jpg" alt="Letecký pohled na zatáčky Masarykova okruhu" data-parallax>
+</div>
+
+<!-- ===== ZÁŽITKY ===== -->
+<section class="sec-asphalt" id="zazitky">
+  <div class="container">
+    <div class="sec-head reveal">
+      <span class="eyebrow">Adrenalin na dosah</span>
+      <h2>Zážitky u okruhu</h2>
+      <p>Hotel je jen začátek. Vykročte z lobby rovnou do světa motorsportu — od simulátoru přes motokáry až po skutečnou jízdu po závodní trati.</p>
+    </div>
+    <div class="exp reveal">
+      <div class="exp-card">
+        <span class="num">01</span>
+        <h3>Závodní simulátor</h3>
+        <p>Profesionální simulátor v hotelu. Projeďte si Masarykův okruh na setiny dřív, než vyjedete ven.</p>
+        <span class="tag">30 / 60 / 90 min</span>
+      </div>
+      <div class="exp-card">
+        <span class="num">02</span>
+        <h3>Motokáry</h3>
+        <p>Rychlá kola na motokárové dráze v areálu. Ideální pro skupiny i firemní souboje na čas.</p>
+        <span class="tag">Skupiny 2–20 osob</span>
+      </div>
+      <div class="exp-card">
+        <span class="num">03</span>
+        <h3>Motoškola &amp; bezpečná jízda</h3>
+        <p>Naučte se ovládat vůz v mezních situacích pod vedením instruktorů přímo na okruhu.</p>
+        <span class="tag">Auto i motocykl</span>
+      </div>
+      <div class="exp-card">
+        <span class="num">04</span>
+        <h3>Autopolygon</h3>
+        <p>Kluzná deska, brzdné manévry a vyhýbací testy na profesionálním polygonu Automotodromu.</p>
+        <span class="tag">Celodenní programy</span>
+      </div>
+      <div class="exp-card">
+        <span class="num">05</span>
+        <h3>Dárkové poukazy</h3>
+        <p>Darujte zážitek u okruhu. Poukaz na jízdu, pobyt nebo balíček — k vyzvednutí v hotelu.</p>
+        <span class="tag">Libovolná hodnota</span>
+      </div>
+      <div class="exp-card" style="display:flex;justify-content:center;align-items:center;border-style:dashed;border-color:rgba(194,14,26,.5)">
+        <a href="#rezervace" class="btn">Sestavit zážitkový balíček</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== RESTAURACE ===== -->
+<section id="restaurace">
+  <div class="rest reveal">
+    <div class="rest-img" style="background-image:url('../assets/foto/restaurace-paddock.jpg')" role="img" aria-label="Interiér Paddock Restaurantu v GRID Hotelu"></div>
+    <div class="rest-text sec-dark" style="padding-top:90px;padding-bottom:90px">
+      <span class="eyebrow">Gastronomie</span>
+      <h2>Chuť, která drží tempo</h2>
+      <p>Kuchyně GRID Hotelu spojuje sezónní suroviny s pohledem na trať. Snídaně pro jezdce, večeře pro hosty, catering pro celé race weekendy.</p>
+      <div class="rest-logos">
+        <div class="rest-venue">
+          <h4>Paddock <span>Restaurant</span></h4>
+          <p style="margin:0">À la carte i degustační menu s výhledem do areálu. Otevřeno celoročně.</p>
+        </div>
+        <div class="rest-venue">
+          <h4>GRID <span>Club &amp; terasa</span></h4>
+          <p style="margin:0">Koktejlový bar a venkovní terasa nad okruhem — místo, kde víkend nekončí cílovou vlajkou.</p>
+        </div>
+      </div>
+      <a href="#rezervace" class="btn btn-ghost" style="align-self:flex-start">Rezervovat stůl</a>
+    </div>
+  </div>
+</section>
+
+<!-- ===== Catering full bleed pair ===== -->
+<div class="story-img reveal" style="height:60vh;min-height:380px">
+  <img src="../assets/foto/catering-syry.jpg" alt="Cateringové sýrové tácy v GRID Hotelu" data-parallax>
+</div>
+
+<!-- ===== RACE WEEKENDY ===== -->
+<section class="sec-asphalt" id="race">
+  <div class="container">
+    <div class="sec-head reveal">
+      <span class="eyebrow">Sezóna 2026</span>
+      <h2>Race weekendy</h2>
+      <p>Vybrané termíny nadcházející sezóny. Ubytování přímo v areálu znamená nula minut do paddocku — a pivo na terase, jakmile dohřmí poslední kolo.</p>
+    </div>
+    <div class="races reveal">
+      <div class="race-row">
+        <div class="race-date">17.–19. 7. 2026</div>
+        <div class="race-name"><h3>MotoGP víkend</h3><p>Velká cena — vrchol sezóny na Masarykově okruhu</p></div>
+        <div class="race-pkg">balíček od <b>11 900 Kč</b></div>
+        <a href="#rezervace" class="btn">Rezervovat</a>
+      </div>
+      <div class="race-row">
+        <div class="race-date">12.–13. 9. 2026</div>
+        <div class="race-name"><h3>Track day</h3><p>Volné jízdy pro veřejnost — váš vůz na profesionální trati</p></div>
+        <div class="race-pkg">balíček od <b>6 400 Kč</b></div>
+        <a href="#rezervace" class="btn">Rezervovat</a>
+      </div>
+      <div class="race-row">
+        <div class="race-date">3.–5. 10. 2026</div>
+        <div class="race-name"><h3>Endurance 12h</h3><p>Vytrvalostní závod do tmy — atmosféra, která nekončí</p></div>
+        <div class="race-pkg">balíček od <b>8 200 Kč</b></div>
+        <a href="#rezervace" class="btn">Rezervovat</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== FIREMNÍ AKCE (anchor) + story img ===== -->
+<div id="firemni" class="story-img reveal">
+  <img src="../assets/foto/hotel-exterier.jpg" alt="Fasáda GRID Hotelu se svislým logem GRID" data-parallax>
+</div>
+<section class="sec-dark">
+  <div class="container narrow reveal" style="text-align:center">
+    <span class="eyebrow">Firemní akce</span>
+    <h2 style="font-size:clamp(2rem,4vw,3.2rem);margin-bottom:26px">Konference, kde se nedrží tempo náhodou</h2>
+    <p style="font-size:1.1rem;opacity:.86;line-height:1.85;margin-bottom:18px">Sály, paddock zázemí, motokáry a degustace pod jednou střechou. GRID Hotel zvládne konferenci na 200 lidí i intimní výjezdní zasedání s adrenalinovým programem na trati.</p>
+    <a href="#rezervace" class="btn" style="margin-top:24px">Poptat firemní akci</a>
+  </div>
+</section>
+
+<!-- ===== RECENZE ===== -->
+<section class="sec-light" id="recenze">
+  <div class="container">
+    <div class="sec-head reveal">
+      <span class="eyebrow">Ozvěny z paddocku</span>
+      <h2>Co říkají hosté</h2>
+    </div>
+    <div class="reviews reveal">
+      <div class="review">
+        <div class="stars" aria-label="Hodnocení 5 z 5">★★★★★</div>
+        <p>„Probudit se a vidět cílovou rovinku z postele — to nikde jinde nezažijete. Klid, servis a atmosféra na úrovni.“</p>
+        <div class="who"><b>Petr Novák</b>MotoGP víkend 2025</div>
+      </div>
+      <div class="review">
+        <div class="stars" aria-label="Hodnocení 5 z 5">★★★★★</div>
+        <p>„Firemní teambuilding s motokárami a večeří v Paddocku. Kolegové o tom mluví dodnes. Organizace bez chybičky.“</p>
+        <div class="who"><b>Jana Dvořáková</b>HR manažerka, firemní akce</div>
+      </div>
+      <div class="review">
+        <div class="stars" aria-label="Hodnocení 5 z 5">★★★★★</div>
+        <p>„Prémiový hotel s duší motorsportu. Tichá elegance přes den, energie okruhu o víkendu. Vrátíme se.“</p>
+        <div class="who"><b>Tomáš Marek</b>Track day 2025</div>
+      </div>
+    </div>
+    <div class="partners reveal">Partneři: <b>Automotodrom Brno</b> · Masarykův okruh</div>
+  </div>
+</section>
+
+<!-- ===== FINAL CTA ===== -->
+<section class="final-cta" id="rezervace">
+  <div class="container reveal">
+    <span class="eyebrow">Vaše místo na startu</span>
+    <h2>Připraveni nastoupit do GRIDu?</h2>
+    <p>Rezervujte pobyt s výhledem na trať, poptejte firemní akci nebo darujte zážitek u okruhu.</p>
+    <div class="btn-group">
+      <a href="#" class="btn">Rezervovat pobyt</a>
+      <a href="#firemni" class="btn btn-ghost">Poptat firemní akci</a>
+      <a href="#zazitky" class="btn btn-ghost">Koupit dárkový poukaz</a>
+    </div>
+  </div>
+</section>
+
+<!-- ===== FOOTER ===== -->
+<footer id="kontakt">
+  <div class="container">
+    <div class="foot-top">
+      <div class="foot-brand">
+        <img src="../assets/logo/grid-hotel-negativ.png" alt="GRID Hotel logo">
+        <p>4* hotel a restaurace přímo v areálu Automotodromu Brno. Spíte uprostřed Masarykova okruhu.</p>
+        <div class="mono">Ostrovačická 65, Brno<br>+420 541 000 000 · info@gridhotel.cz</div>
+        <div class="newsletter">
+          <input type="email" placeholder="Váš e-mail" aria-label="E-mail pro odběr novinek">
+          <button>OK</button>
+        </div>
+        <div class="socials">
+          <a href="#">Instagram</a><a href="#">Facebook</a><a href="#">YouTube</a>
+        </div>
+      </div>
+      <div class="foot-col">
+        <h4>Hotel</h4>
+        <ul>
+          <li><a href="#pribeh">O hotelu</a></li>
+          <li><a href="#pokoje">Pokoje &amp; apartmá</a></li>
+          <li><a href="#restaurace">Restaurace &amp; bar</a></li>
+          <li><a href="#zazitky">Zážitky u okruhu</a></li>
+          <li><a href="#firemni">Firemní akce</a></li>
+          <li><a href="#zazitky">Dárkové poukazy</a></li>
+        </ul>
+      </div>
+      <div class="foot-col">
+        <h4>Servis</h4>
+        <ul>
+          <li><a href="#">Kariéra / Práce na hotelu</a></li>
+          <li><a href="#">Časté dotazy (FAQ)</a></li>
+          <li><a href="#">Ke stažení</a></li>
+          <li><a href="#">Event alert &amp; newsletter</a></li>
+          <li><a href="#">Příjezd, parkování, GPS</a></li>
+          <li><a href="#">Partneři: Automotodrom Brno</a></li>
+        </ul>
+      </div>
+      <div class="foot-col">
+        <h4>Právní</h4>
+        <ul>
+          <li><a href="#">Provozní a fakturační údaje</a></li>
+          <li><a href="#">IČO / DIČ</a></li>
+          <li><a href="#">Ochrana osobních údajů</a></li>
+          <li><a href="#">Cookies</a></li>
+          <li><a href="#">Obchodní podmínky</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="foot-bottom">
+      <div class="links">
+        <span>© 2026 GRID Hotel</span>
+        <a href="#">Ochrana osobních údajů</a>
+        <a href="#">Cookies</a>
+      </div>
+      <span class="badge">Grafický návrh — Verze 1: Trackside Calm</span>
+    </div>
+  </div>
+</footer>
+
+<script>
+  // Header scroll state + booking bar reveal
+  const header = document.getElementById('header');
+  const booking = document.getElementById('booking');
+  const heroH = window.innerHeight;
+  function onScroll(){
+    const y = window.scrollY;
+    header.classList.toggle('scrolled', y > 60);
+    booking.classList.toggle('show', y > heroH * 0.85);
+    // hero parallax
+    const bg = document.getElementById('heroBg');
+    if (y < heroH) bg.style.transform = 'translateY(' + (y * 0.4) + 'px) scale(1.05)';
+  }
+  window.addEventListener('scroll', onScroll, {passive:true});
+  onScroll();
+
+  // Hamburger
+  const burger = document.getElementById('hamburger');
+  const mnav = document.getElementById('mobileNav');
+  burger.addEventListener('click', () => {
+    const open = mnav.classList.toggle('open');
+    burger.classList.toggle('open', open);
+    burger.setAttribute('aria-expanded', open);
+    document.body.style.overflow = open ? 'hidden' : '';
+  });
+  mnav.querySelectorAll('a').forEach(a => a.addEventListener('click', () => {
+    mnav.classList.remove('open');
+    burger.classList.remove('open');
+    burger.setAttribute('aria-expanded', false);
+    document.body.style.overflow = '';
+  }));
+
+  // Reveal on scroll
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach(e => { if (e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target); } });
+  }, {threshold:0.14, rootMargin:'0px 0px -8% 0px'});
+  document.querySelectorAll('.reveal').forEach(el => io.observe(el));
+
+  // Subtle parallax on full-bleed images
+  const pxls = document.querySelectorAll('[data-parallax]');
+  function parallax(){
+    pxls.forEach(img => {
+      const r = img.getBoundingClientRect();
+      if (r.bottom > 0 && r.top < window.innerHeight){
+        const off = (r.top - window.innerHeight/2) * -0.06;
+        img.style.transform = 'translateY(' + off + 'px)';
+      }
+    });
+  }
+  window.addEventListener('scroll', parallax, {passive:true});
+  parallax();
+
+  // Language toggle (visual only)
+  document.querySelectorAll('.lang').forEach(group => {
+    group.querySelectorAll('button').forEach(btn => {
+      btn.addEventListener('click', () => {
+        group.querySelectorAll('button').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+      });
+    });
+  });
+</script>
+<!-- GRID-SWITCHER -->
+<style>
+  #gridSwitcher{position:fixed;top:50%;left:0;transform:translateY(-50%);z-index:99999;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;line-height:1.5}
+  #gridSwitcher *{box-sizing:border-box}
+  .gsw-tab{display:flex;flex-direction:column;align-items:center;gap:9px;background:#16181B;color:#F4F2ED;border:1px solid rgba(255,255,255,.16);border-left:none;border-radius:0 10px 10px 0;padding:18px 9px;cursor:pointer;box-shadow:0 12px 34px -12px rgba(0,0,0,.7);transition:background .3s}
+  .gsw-tab:hover{background:#C20E1A}
+  .gsw-tab-i{font-size:1.05rem;color:#C20E1A;transition:color .3s}
+  .gsw-tab:hover .gsw-tab-i{color:#fff}
+  .gsw-tab-t{writing-mode:vertical-rl;text-orientation:mixed;transform:rotate(180deg);font-size:.64rem;letter-spacing:.24em;font-weight:600;text-transform:uppercase}
+  .gsw-panel{position:absolute;left:0;top:50%;width:268px;max-height:88vh;overflow-y:auto;background:rgba(17,18,21,.98);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border:1px solid rgba(255,255,255,.14);border-radius:14px;padding:16px;box-shadow:0 34px 80px -22px rgba(0,0,0,.78);color:#F4F2ED;opacity:0;visibility:hidden;transform:translateY(-50%) translateX(-118%);transition:transform .42s cubic-bezier(.22,.61,.36,1),opacity .42s,visibility .42s}
+  #gridSwitcher.gsw-open .gsw-panel{opacity:1;visibility:visible;transform:translateY(-50%) translateX(46px)}
+  .gsw-h{display:flex;align-items:center;justify-content:space-between;gap:10px;padding-bottom:12px;margin-bottom:8px;border-bottom:1px solid rgba(255,255,255,.12)}
+  .gsw-hd{font-size:.66rem;letter-spacing:.2em;text-transform:uppercase;color:#caa75f;font-weight:600}
+  .gsw-x{background:none;border:none;color:#B9B7B9;font-size:1.4rem;line-height:1;cursor:pointer;padding:0 2px}
+  .gsw-x:hover{color:#fff}
+  .gsw-home{display:flex;align-items:center;gap:8px;font-size:.82rem;color:#F4F2ED;padding:11px 12px;margin:4px 0 8px;border:1px solid rgba(255,255,255,.16);border-radius:9px;text-decoration:none;transition:.25s}
+  .gsw-home:hover{background:rgba(255,255,255,.07);border-color:rgba(255,255,255,.4)}
+  .gsw-home span{color:#C20E1A;font-weight:700}
+  .gsw-panel a[data-v]{display:flex;align-items:center;gap:10px;font-size:.86rem;color:#d9d7d2;padding:9px 12px;border-radius:8px;text-decoration:none;transition:.2s}
+  .gsw-panel a[data-v] b{font-family:'Space Mono',monospace,monospace;font-size:.74rem;color:#8b8884;min-width:24px;font-weight:700}
+  .gsw-panel a[data-v]:hover{background:rgba(255,255,255,.07);color:#fff}
+  .gsw-panel a[data-v]:hover b{color:#caa75f}
+  .gsw-panel a.gsw-active{background:rgba(194,14,26,.16);color:#fff;box-shadow:inset 2px 0 0 #C20E1A}
+  .gsw-panel a.gsw-active b{color:#C20E1A}
+  @media(max-width:820px){.gsw-tab{padding:14px 7px}.gsw-panel{width:80vw;max-width:300px}#gridSwitcher.gsw-open .gsw-panel{transform:translateY(-50%) translateX(40px)}}
+</style>
+<div id="gridSwitcher">
+  <button class="gsw-tab" id="gswTab" aria-label="Přepínač grafických návrhů" aria-expanded="false">
+    <span class="gsw-tab-i">&#8646;</span><span class="gsw-tab-t">Návrhy</span>
+  </button>
+  <nav class="gsw-panel" aria-label="Grafické návrhy GRID Hotelu">
+    <div class="gsw-h"><span class="gsw-hd">GRID &middot; grafické návrhy</span><button class="gsw-x" id="gswClose" aria-label="Zavřít">&times;</button></div>
+    <a class="gsw-home" href="../index.html"><span>&larr;</span> Zpět na přehled</a>
+    <a data-v="verze-1-trackside-calm" href="../verze-1-trackside-calm/index.html"><b>01</b> Trackside Calm</a>
+    <a data-v="verze-2-pole-position" href="../verze-2-pole-position/index.html"><b>02</b> Pole Position</a>
+    <a data-v="verze-3-paddock-lifestyle" href="../verze-3-paddock-lifestyle/index.html"><b>03</b> Paddock Lifestyle</a>
+    <a data-v="verze-4-circuit-line" href="../verze-4-circuit-line/index.html"><b>04</b> Circuit Line</a>
+    <a data-v="verze-5-grid-showroom" href="../verze-5-grid-showroom/index.html"><b>05</b> GRID Showroom</a>
+    <a data-v="verze-6-grid-residence" href="../verze-6-grid-residence/index.html"><b>06</b> GRID Residence</a>
+    <a data-v="verze-7-grid-journey" href="../verze-7-grid-journey/index.html"><b>07</b> GRID Journey</a>
+    <a data-v="verze-8-grid-signature" href="../verze-8-grid-signature/index.html"><b>08</b> GRID Signature</a>
+  </nav>
+</div>
+<script>
+(function(){
+  var w=document.getElementById('gridSwitcher');if(!w)return;
+  var t=document.getElementById('gswTab'),x=document.getElementById('gswClose'),desk=function(){return window.matchMedia('(min-width:821px)').matches;};
+  function set(o){w.classList.toggle('gsw-open',o);t.setAttribute('aria-expanded',o);}
+  t.addEventListener('click',function(e){e.stopPropagation();set(!w.classList.contains('gsw-open'));});
+  if(x)x.addEventListener('click',function(e){e.stopPropagation();set(false);});
+  document.addEventListener('click',function(e){if(!w.contains(e.target))set(false);});
+  document.addEventListener('keydown',function(e){if(e.key==='Escape')set(false);});
+  var p=location.pathname;w.querySelectorAll('a[data-v]').forEach(function(a){if(p.indexOf(a.getAttribute('data-v'))!==-1)a.classList.add('gsw-active');});
+  w.addEventListener('mouseenter',function(){if(desk())set(true);});
+  w.addEventListener('mouseleave',function(){if(desk())set(false);});
+})();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="cs">
+<!-- GRID HOTEL — rozcestník grafických verzí -->
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GRID HOTEL — návrh nového webu · rozcestník verzí</title>
+<link rel="icon" href="assets/logo/g-mark.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Saira+Condensed:wght@500;600;700&family=Inter:wght@400;500;600&family=Space+Mono&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --grid-red:#C20E1A; --grid-red-700:#9A0B14;
+    --graphite:#16181B; --asphalt:#23262B; --steel:#3A3E45;
+    --offwhite:#F4F2ED; --gray:#B9B7B9; --champagne:#C9B89C; --gold:#caa75f;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{font-family:'Inter',system-ui,sans-serif;background:var(--graphite);color:var(--offwhite);line-height:1.6;-webkit-font-smoothing:antialiased}
+  a{color:inherit;text-decoration:none}
+  .wrap{max-width:1240px;margin:0 auto;padding:0 28px}
+  h1,h2,h3,.disp{font-family:'Saira Condensed',sans-serif;text-transform:uppercase;line-height:.98;letter-spacing:.01em}
+  .mono{font-family:'Space Mono',monospace}
+
+  header{position:sticky;top:0;z-index:50;background:rgba(14,15,17,.82);backdrop-filter:blur(10px);border-bottom:1px solid var(--steel)}
+  header .wrap{display:flex;align-items:center;justify-content:space-between;height:68px}
+  header img{height:30px;width:auto}
+  .badge{font-size:.7rem;letter-spacing:.18em;text-transform:uppercase;color:var(--gray);font-family:'Space Mono',monospace}
+
+  .hero{position:relative;padding:88px 0 64px;overflow:hidden;border-bottom:1px solid var(--steel)}
+  .hero::before{content:"";position:absolute;inset:0;background:
+     radial-gradient(900px 360px at 80% -10%, rgba(194,14,26,.22), transparent 70%),
+     url('assets/foto/okruh-zapad-slunce.jpg') center/cover;opacity:.16;z-index:0}
+  .hero .wrap{position:relative;z-index:1}
+  .kicker{display:inline-flex;align-items:center;gap:10px;font-family:'Space Mono',monospace;font-size:.74rem;letter-spacing:.22em;text-transform:uppercase;color:var(--grid-red);margin-bottom:22px}
+  .kicker .dot{width:8px;height:8px;border-radius:50%;background:var(--grid-red);box-shadow:0 0 0 4px rgba(194,14,26,.2)}
+  .hero h1{font-size:clamp(2.6rem,6vw,5.2rem);font-weight:700;max-width:18ch}
+  .hero h1 em{color:var(--grid-red);font-style:normal}
+  .hero p.lead{margin-top:22px;max-width:64ch;color:#d7d6d2;font-size:1.08rem}
+  .meta-row{display:flex;flex-wrap:wrap;gap:14px;margin-top:30px}
+  .meta-row span{font-family:'Space Mono',monospace;font-size:.74rem;letter-spacing:.08em;color:var(--gray);border:1px solid var(--steel);border-radius:999px;padding:7px 14px}
+
+  section{padding:64px 0}
+  .sec-head{display:flex;align-items:flex-end;justify-content:space-between;gap:20px;margin-bottom:34px;flex-wrap:wrap}
+  .sec-head h2{font-size:clamp(1.8rem,3.4vw,2.7rem);font-weight:700}
+  .sec-head .num{font-family:'Space Mono',monospace;color:var(--grid-red);font-size:.8rem;letter-spacing:.2em}
+  .sec-head .num.gold{color:var(--gold)}
+  .sec-head p{color:var(--gray);max-width:52ch}
+
+  .block-label{display:flex;align-items:center;gap:14px;margin:0 0 6px}
+  .block-label .tagchip{font-family:'Space Mono',monospace;font-size:.7rem;letter-spacing:.14em;text-transform:uppercase;color:var(--graphite);background:var(--offwhite);border-radius:6px;padding:5px 11px;font-weight:700}
+  .block-label .tagchip.gold{background:var(--gold);color:#221c10}
+
+  .grid{display:grid;grid-template-columns:repeat(2,1fr);gap:28px}
+  .card{background:var(--asphalt);border:1px solid var(--steel);border-radius:14px;overflow:hidden;display:flex;flex-direction:column;transition:transform .35s ease,border-color .35s ease,box-shadow .35s ease}
+  .card:hover{transform:translateY(-6px);border-color:var(--grid-red);box-shadow:0 24px 50px -24px rgba(0,0,0,.8)}
+  .card.lux:hover{border-color:var(--gold);box-shadow:0 24px 50px -24px rgba(0,0,0,.85)}
+  .shot{position:relative;height:300px;overflow:hidden;background:#000;border-bottom:1px solid var(--steel);display:block}
+  .shot img{width:100%;height:100%;object-fit:cover;object-position:top center;transition:object-position 3.5s ease}
+  .card:hover .shot img{object-position:bottom center}
+  .shot .vnum{position:absolute;top:14px;left:14px;z-index:2;font-family:'Saira Condensed',sans-serif;font-weight:700;font-size:1.05rem;letter-spacing:.06em;background:var(--grid-red);color:#fff;padding:4px 12px;border-radius:6px}
+  .card.lux .shot .vnum{background:var(--gold);color:#221c10}
+  .shot .tag{position:absolute;top:14px;right:14px;z-index:2;font-family:'Space Mono',monospace;font-size:.66rem;letter-spacing:.16em;text-transform:uppercase;background:rgba(0,0,0,.6);color:var(--offwhite);padding:5px 11px;border-radius:6px;border:1px solid rgba(255,255,255,.18)}
+  .card-body{padding:24px 24px 26px;display:flex;flex-direction:column;flex:1}
+  .card-body h3{font-size:1.55rem;font-weight:700;margin-bottom:6px}
+  .card-body .lbl{font-family:'Space Mono',monospace;font-size:.72rem;letter-spacing:.16em;text-transform:uppercase;color:var(--grid-red);margin-bottom:12px}
+  .card.lux .card-body .lbl{color:var(--gold)}
+  .card-body p{color:#cfcecb;font-size:.96rem;margin-bottom:16px}
+  .feat{list-style:none;margin:0 0 22px;padding:0;display:flex;flex-wrap:wrap;gap:8px}
+  .feat li{font-size:.76rem;color:var(--gray);border:1px solid var(--steel);border-radius:999px;padding:5px 11px}
+  .card-actions{margin-top:auto;display:flex;gap:12px;align-items:center}
+  .btn{display:inline-flex;align-items:center;gap:9px;font-family:'Saira Condensed',sans-serif;text-transform:uppercase;letter-spacing:.06em;font-weight:600;font-size:1rem;padding:13px 22px;border-radius:8px;cursor:pointer;border:1px solid transparent;transition:.25s}
+  .btn-primary{background:var(--grid-red);color:#fff}
+  .btn-primary:hover{background:var(--grid-red-700)}
+  .card.lux .btn-primary{background:var(--gold);color:#221c10}
+  .card.lux .btn-primary:hover{background:#b8954a}
+  .btn .arr{transition:transform .25s}
+  .btn:hover .arr{transform:translateX(4px)}
+
+  .docs{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+  .doc{background:var(--asphalt);border:1px solid var(--steel);border-radius:12px;padding:24px;transition:.3s}
+  .doc:hover{border-color:var(--grid-red);transform:translateY(-4px)}
+  .doc .dnum{font-family:'Space Mono',monospace;color:var(--grid-red);font-size:.72rem;letter-spacing:.18em}
+  .doc h3{font-size:1.2rem;font-weight:600;margin:10px 0 8px;text-transform:none;font-family:'Inter',sans-serif;letter-spacing:0}
+  .doc p{color:var(--gray);font-size:.88rem}
+  .doc .open{display:inline-block;margin-top:14px;color:var(--grid-red);font-family:'Space Mono',monospace;font-size:.78rem;letter-spacing:.1em}
+  .doc-sub{display:flex;gap:14px;flex-wrap:wrap;margin-top:14px}
+  .doc-sub a{font-size:.8rem;color:var(--gray);border-bottom:1px dotted var(--steel);padding-bottom:2px}
+  .doc-sub a:hover{color:var(--offwhite)}
+
+  .band{background:var(--asphalt);border-top:1px solid var(--steel);border-bottom:1px solid var(--steel)}
+  .steps{display:grid;grid-template-columns:repeat(6,1fr);gap:0}
+  .step{padding:26px 18px;border-right:1px solid var(--steel)}
+  .step:last-child{border-right:none}
+  .step .s{font-family:'Space Mono',monospace;color:var(--grid-red);font-size:.72rem;letter-spacing:.12em}
+  .step b{display:block;font-family:'Saira Condensed',sans-serif;text-transform:uppercase;font-size:1.15rem;margin:8px 0 4px;letter-spacing:.02em}
+  .step span{color:var(--gray);font-size:.82rem}
+
+  footer{padding:46px 0;border-top:1px solid var(--steel);color:var(--gray);font-size:.86rem}
+  footer .wrap{display:flex;justify-content:space-between;align-items:center;gap:20px;flex-wrap:wrap}
+  footer img{height:34px;opacity:.9}
+
+  @media(max-width:900px){
+    .grid{grid-template-columns:1fr}
+    .docs{grid-template-columns:1fr}
+    .steps{grid-template-columns:repeat(2,1fr)}
+    .step{border-bottom:1px solid var(--steel)}
+    .shot{height:240px}
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap">
+    <a href="index.html"><img src="assets/logo/grid-hotel-negativ.png" alt="GRID HOTEL"></a>
+    <span class="badge">Návrh webu · rozcestník · 12 verzí</span>
+  </div>
+</header>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="wrap">
+    <span class="kicker"><span class="dot"></span> GRID HOTEL · WordPress + Divi&nbsp;5 · 12 grafických verzí</span>
+    <h1>Nový web hotelu <em>uprostřed</em> Masarykova okruhu.</h1>
+    <p class="lead">Dvanáct grafických verzí nového webu ve třech blocích. Každá se liší nejen barvou a fontem, ale <strong>celou strukturou, navigací a kompozicí</strong>. Všechny stojí na společném zadání, brand manuálu a reálných fotkách — všechny jsou plně responzivní a postavitelné na WordPress&nbsp;+&nbsp;Divi&nbsp;5. Vlajkové verze <strong style="color:var(--gold)">V11 a V12</strong> spojují luxusní hotel se vším, co rešerže žádají.</p>
+    <div class="meta-row">
+      <span>12 grafických verzí</span>
+      <span>3 bloky · 4 + 4 + 4</span>
+      <span>Zlatá ve všech 12</span>
+      <span>V11/V12 — komplet dle rešerší</span>
+      <span>Loga GRID 100&nbsp;%</span>
+    </div>
+  </div>
+</div>
+
+<!-- BLOK 1 — MOTORSPORT -->
+<section>
+  <div class="wrap">
+    <div class="sec-head">
+      <div>
+        <div class="block-label"><span class="tagchip">Blok 1</span></div>
+        <span class="num">// 01 — MOTORSPORT KONCEPTY</span>
+        <h2>Spojení s okruhem</h2>
+      </div>
+      <p>Čtyři původní verze postavené na spojení s Masarykovým okruhem a motorsportem. Liší se celou stavbou stránky.</p>
+    </div>
+
+    <div class="grid">
+      <article class="card">
+        <a class="shot" href="verze-1-trackside-calm/index.html"><span class="vnum">V1</span><span class="tag">Editorial · klid</span><img src="assets/nahledy/verze-1-trackside-calm.png" alt="Náhled verze 1 — Trackside Calm"></a>
+        <div class="card-body"><span class="lbl">Prémiové editorial</span><h3>Trackside Calm</h3>
+          <p>Klid, prostor a kino jako u Amanu či Escapade Silverstone. Fullscreen hero, centrované menu, vertikální storytelling.</p>
+          <ul class="feat"><li>Centrované menu</li><li>Fullscreen hero</li><li>Editorial scroll</li><li>Graphite + off-white</li></ul>
+          <div class="card-actions"><a class="btn btn-primary" href="verze-1-trackside-calm/index.html">Otevřít verzi <span class="arr">→</span></a></div>
+        </div>
+      </article>
+
+      <article class="card">
+        <a class="shot" href="verze-2-pole-position/index.html"><span class="vnum">V2</span><span class="tag">Dashboard · data</span><img src="assets/nahledy/verze-2-pole-position.png" alt="Náhled verze 2 — Pole Position"></a>
+        <div class="card-body"><span class="lbl">Technický dashboard</span><h3>Pole Position / Telemetry</h3>
+          <p>Přístrojová deska motorsportu. Fixní levý sidebar, číslované sekce, monospace data, lap-time pásky a startovní světla.</p>
+          <ul class="feat"><li>Fixní sidebar</li><li>Asymetrická mřížka</li><li>Telemetrie</li><li>Startovní světla</li></ul>
+          <div class="card-actions"><a class="btn btn-primary" href="verze-2-pole-position/index.html">Otevřít verzi <span class="arr">→</span></a></div>
+        </div>
+      </article>
+
+      <article class="card">
+        <a class="shot" href="verze-3-paddock-lifestyle/index.html"><span class="vnum">V3</span><span class="tag">Lifestyle · bento</span><img src="assets/nahledy/verze-3-paddock-lifestyle.png" alt="Náhled verze 3 — Paddock Lifestyle"></a>
+        <div class="card-body"><span class="lbl">Teplý magazín</span><h3>Paddock Lifestyle</h3>
+          <p>Lidé, jídlo, bar, komunita — v duchu The Hoxton a 25hours. Bento mozaika dlaždic, horizontální karty zážitků, teplá paleta.</p>
+          <ul class="feat"><li>Bento mřížka</li><li>Horizontální karty</li><li>Champagne + warm</li><li>Gastro v centru</li></ul>
+          <div class="card-actions"><a class="btn btn-primary" href="verze-3-paddock-lifestyle/index.html">Otevřít verzi <span class="arr">→</span></a></div>
+        </div>
+      </article>
+
+      <article class="card">
+        <a class="shot" href="verze-4-circuit-line/index.html"><span class="vnum">V4</span><span class="tag">Immerzivní · trať</span><img src="assets/nahledy/verze-4-circuit-line.png" alt="Náhled verze 4 — Circuit Line"></a>
+        <div class="card-body"><span class="lbl">Jízda po trati</span><h3>Circuit Line</h3>
+          <p>Scrollováním projedete celý okruh — každá sekce je „zatáčka“. Svislý indikátor postupu po trati, split-screen plochy, dramatický kontrast.</p>
+          <ul class="feat"><li>Track progress</li><li>Split-screen</li><li>Scroll-spy navigace</li><li>Tmavá + červená</li></ul>
+          <div class="card-actions"><a class="btn btn-primary" href="verze-4-circuit-line/index.html">Otevřít verzi <span class="arr">→</span></a></div>
+        </div>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- BLOK 2 — DIVI ŠABLONY + KOMBINACE -->
+<section style="background:var(--asphalt);border-top:1px solid var(--steel);border-bottom:1px solid var(--steel)">
+  <div class="wrap">
+    <div class="sec-head">
+      <div>
+        <div class="block-label"><span class="tagchip">Blok 2</span></div>
+        <span class="num">// 02 — DIVI ŠABLONY + KOMBINACE</span>
+        <h2>Inspirace hotovými Divi šablonami</h2>
+      </div>
+      <p>Tři verze vychází z konkrétních Divi šablon (rozložení a grafika), ale s logem, brandem i obsahem GRID Hotelu. Čtvrtá je jejich kombinace.</p>
+    </div>
+
+    <div class="grid">
+      <article class="card">
+        <a class="shot" href="verze-5-grid-showroom/index.html"><span class="vnum">V5</span><span class="tag">Showroom · bold</span><img src="assets/nahledy/verze-5-grid-showroom.png" alt="Náhled verze 5 — GRID Showroom"></a>
+        <div class="card-body"><span class="lbl">Divi: Car Dealer Landing</span><h3>GRID Showroom</h3>
+          <p>Bold dealership layout. Tmavý fotohero s velkým titulkem, šikmé překryvné panely, „inventář“ pokojů, statement band a kontaktní formulář.</p>
+          <ul class="feat"><li>Šikmé panely</li><li>Inventář pokojů</li><li>Statement band</li><li>Kontakt + formulář</li></ul>
+          <div class="card-actions"><a class="btn btn-primary" href="verze-5-grid-showroom/index.html">Otevřít verzi <span class="arr">→</span></a></div>
+        </div>
+      </article>
+
+      <article class="card">
+        <a class="shot" href="verze-6-grid-residence/index.html"><span class="vnum">V6</span><span class="tag">Boutique · teplý</span><img src="assets/nahledy/verze-6-grid-residence.png" alt="Náhled verze 6 — GRID Residence"></a>
+        <div class="card-body"><span class="lbl">Divi: Bed &amp; Breakfast</span><h3>GRID Residence</h3>
+          <p>Vřelý boutique pocit. Plovoucí rezervační lišta přes hero, serifová elegance, stat counters, amenity v accordionu a hodnocení hostů.</p>
+          <ul class="feat"><li>Booking lišta</li><li>Serif elegance</li><li>Amenities accordion</li><li>Recenze + mapa</li></ul>
+          <div class="card-actions"><a class="btn btn-primary" href="verze-6-grid-residence/index.html">Otevřít verzi <span class="arr">→</span></a></div>
+        </div>
+      </article>
+
+      <article class="card">
+        <a class="shot" href="verze-7-grid-journey/index.html"><span class="vnum">V7</span><span class="tag">Minimal · foto</span><img src="assets/nahledy/verze-7-grid-journey.png" alt="Náhled verze 7 — GRID Journey"></a>
+        <div class="card-body"><span class="lbl">Divi: Travel Agency</span><h3>GRID Journey</h3>
+          <p>Vzdušný, minimalistický, vedený fotografií. Hodně bílého prostoru, tenké outline tlačítka, offset foto kompozice a sloupce odkazů (sitemap).</p>
+          <ul class="feat"><li>Whitespace</li><li>Offset foto</li><li>Foto strip</li><li>Sloupce odkazů</li></ul>
+          <div class="card-actions"><a class="btn btn-primary" href="verze-7-grid-journey/index.html">Otevřít verzi <span class="arr">→</span></a></div>
+        </div>
+      </article>
+
+      <article class="card">
+        <a class="shot" href="verze-8-grid-fusion/index.html"><span class="vnum">V8</span><span class="tag">Kombinace 5+6+7</span><img src="assets/nahledy/verze-8-grid-fusion.png" alt="Náhled verze 8 — GRID Fusion"></a>
+        <div class="card-body"><span class="lbl">Best of three</span><h3>GRID Fusion</h3>
+          <p>Kombinace tří předchozích: bold hero + plovoucí booking, stat counters, offset editorial, inventář pokojů, statement band, accordion a formulář.</p>
+          <ul class="feat"><li>Hero + booking</li><li>Stat counters</li><li>Statement band</li><li>Form + accordion</li></ul>
+          <div class="card-actions"><a class="btn btn-primary" href="verze-8-grid-fusion/index.html">Otevřít verzi <span class="arr">→</span></a></div>
+        </div>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- BLOK 3 — LUXUSNÍ HOTEL -->
+<section>
+  <div class="wrap">
+    <div class="sec-head">
+      <div>
+        <div class="block-label"><span class="tagchip gold">Blok 3</span></div>
+        <span class="num gold">// 03 — LUXUSNÍ HOTEL · ZLATÁ LINIE</span>
+        <h2>TOP hotel v Brně a okolí</h2>
+      </div>
+      <p>Čtyři luxusní návrhy cestou TOP hotelu. Černá–červená–bílá z loga + <strong style="color:var(--gold)">zlaté prvky</strong>. <strong>V9/V10</strong> jsou čistě estetické studie, <strong>V11/V12</strong> jsou vlajkové „komplet" verze: luxus + okruh + vše, co rešerže žádají (video hero, kalendář, segmentace, funkční CZ/EN/DE, měření).</p>
+    </div>
+
+    <div class="grid">
+      <article class="card lux">
+        <a class="shot" href="verze-9-grid-noir/index.html"><span class="vnum">V9</span><span class="tag">Luxus · tmavá</span><img src="assets/nahledy/verze-9-grid-noir.png" alt="Náhled verze 9 — GRID Noir"></a>
+        <div class="card-body"><span class="lbl">Černá + zlatá</span><h3>GRID Noir</h3>
+          <p>Tmavá nadčasová elegance à la Aman / Four Seasons. Serifový display, zlaté linky a rámy, pokoje jako velké editorial řady, concierge servis.</p>
+          <ul class="feat"><li>Zlaté linky &amp; rámy</li><li>Serif display</li><li>Editorial řady</li><li>Concierge</li></ul>
+          <div class="card-actions"><a class="btn btn-primary" href="verze-9-grid-noir/index.html">Otevřít verzi <span class="arr">→</span></a></div>
+        </div>
+      </article>
+
+      <article class="card lux">
+        <a class="shot" href="verze-10-grid-prestige/index.html"><span class="vnum">V10</span><span class="tag">Luxus · světlá</span><img src="assets/nahledy/verze-10-grid-prestige.png" alt="Náhled verze 10 — GRID Prestige"></a>
+        <div class="card-body"><span class="lbl">Krém + zlatá</span><h3>GRID Prestige</h3>
+          <p>Světlá, vzdušná galerijní prestiž. Krémové plochy, zlaté rámy a ornamenty, symetrická kompozice, suite grid se zlatými předěly a tiles.</p>
+          <ul class="feat"><li>Zlaté rámy</li><li>Galerie</li><li>Suite grid</li><li>Symetrická kompozice</li></ul>
+          <div class="card-actions"><a class="btn btn-primary" href="verze-10-grid-prestige/index.html">Otevřít verzi <span class="arr">→</span></a></div>
+        </div>
+      </article>
+
+      <article class="card lux">
+        <a class="shot" href="verze-11-grid-signature/index.html"><span class="vnum">V11 ★</span><span class="tag">Vlajková · tmavá</span><img src="assets/nahledy/verze-11-grid-signature.png" alt="Náhled verze 11 — GRID Signature"></a>
+        <div class="card-body"><span class="lbl">Luxus + okruh · KOMPLET</span><h3>GRID Signature</h3>
+          <p>Tmavá luxusní vlajková verze, která spojuje zlatou eleganci s okruhem a doplňuje vše z rešerší: video-ready hero, sticky booking + B2B, segmentace, produktové karty pokojů, živý kalendář, funkční CZ/EN/DE a měření (GA4).</p>
+          <ul class="feat"><li>Video hero</li><li>Booking + B2B</li><li>Segmentace</li><li>Živý kalendář</li><li>CZ/EN/DE funkční</li><li>GA4 měření</li></ul>
+          <div class="card-actions"><a class="btn btn-primary" href="verze-11-grid-signature/index.html">Otevřít verzi <span class="arr">→</span></a></div>
+        </div>
+      </article>
+
+      <article class="card lux">
+        <a class="shot" href="verze-12-grid-lumiere/index.html"><span class="vnum">V12 ★</span><span class="tag">Vlajková · světlá</span><img src="assets/nahledy/verze-12-grid-lumiere.png" alt="Náhled verze 12 — GRID Lumière"></a>
+        <div class="card-body"><span class="lbl">Luxus + okruh · KOMPLET</span><h3>GRID Lumière</h3>
+          <p>Světlá prestižní vlajková verze se stejnou kompletní výbavou jako V11, v krémovo-zlatém galerijním provedení: video-ready hero, plovoucí booking, suite grid s detailem, živý kalendář eventů, recenze + partneři, funkční jazyky a měření.</p>
+          <ul class="feat"><li>Video hero</li><li>Plovoucí booking</li><li>Suite grid + detail</li><li>Živý kalendář</li><li>CZ/EN/DE funkční</li><li>GA4 měření</li></ul>
+          <div class="card-actions"><a class="btn btn-primary" href="verze-12-grid-lumiere/index.html">Otevřít verzi <span class="arr">→</span></a></div>
+        </div>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- APPROACH -->
+<div class="band">
+  <div class="wrap">
+    <section style="padding:48px 0">
+      <div class="sec-head"><div><span class="num">// 04 — DRAMATURGIE CESTY KLIENTA</span><h2>Společný princip všech verzí</h2></div>
+      <p>Web neprodává pokoj, ale celý zážitek. Tahle cesta je zachovaná v každé verzi — liší se jen forma.</p></div>
+      <div class="steps">
+        <div class="step"><span class="s">01</span><b>Emoce</b><span>Hero — okruh, hotel, claim</span></div>
+        <div class="step"><span class="s">02</span><b>Orientace</b><span>Vstupy podle motivace</span></div>
+        <div class="step"><span class="s">03</span><b>Hodnota</b><span>Track view, foto, příběh</span></div>
+        <div class="step"><span class="s">04</span><b>Důvěra</b><span>Recenze, partneři, kalendář</span></div>
+        <div class="step"><span class="s">05</span><b>Konverze</b><span>Booking / poptávka</span></div>
+        <div class="step"><span class="s">06</span><b>Servis</b><span>Patička jako centrum</span></div>
+      </div>
+    </section>
+  </div>
+</div>
+
+<!-- DOCS -->
+<section>
+  <div class="wrap">
+    <div class="sec-head"><div><span class="num">// 05 — PODKLADY</span><h2>Zadání &amp; rešerše</h2></div>
+    <p>Vše, z čeho návrhy vychází. Rešerže převedené do Markdownu, zadání a design systém (skills).</p></div>
+    <div class="docs">
+      <a class="doc" href="zadani/zadani-web.md"><span class="dnum">ZADÁNÍ</span><h3>Základní zadání webu</h3><p>Pozicování, cílové skupiny a cesta klienta, nová struktura webu, sitemap, hlavní menu vs. patička, funkční backlog.</p><span class="open">otevřít .md →</span></a>
+      <a class="doc" href="zadani/skills.md"><span class="dnum">SKILLS</span><h3>Design systém / skills</h3><p>Barvy z logomanuálu, typografie, motorsport motivy, tone of voice, práce s logem, UI komponenty a definice konceptů.</p><span class="open">otevřít .md →</span></a>
+      <div class="doc"><span class="dnum">REŠERŠE</span><h3>3× rešerše (Markdown)</h3><p>Hloubkové podklady převedené z .docx do .md.</p>
+        <div class="doc-sub"><a href="reserse/01-soucasny-web.md">01 · Současný web</a><a href="reserse/02-konkurence.md">02 · Konkurence</a><a href="reserse/03-inspirace-nejlepsi-weby.md">03 · Nejlepší weby</a></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <img src="assets/logo/grid-hotel-negativ.png" alt="GRID HOTEL">
+    <div>GRID HOTEL · Ostrovačická 65, Brno · ubytování přímo v areálu Masarykova okruhu</div>
+    <div class="mono" style="font-size:.74rem;letter-spacing:.12em;color:var(--steel)">Návrh · 12 verzí · 2026</div>
+  </div>
+</footer>
+
+</body>
+</html>

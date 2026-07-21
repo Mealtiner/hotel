@@ -1,0 +1,5 @@
+# GRID Hotel — chybové stránky (vlož do .htaccess v kořeni webu)
+# 404 řeší WordPress (šablona 404.php), níže serverové chyby:
+ErrorDocument 403 /wp-content/themes/grid-divi5-child/errors/403.html
+ErrorDocument 500 /wp-content/themes/grid-divi5-child/errors/500.html
+ErrorDocument 503 /wp-content/themes/grid-divi5-child/errors/503.html

@@ -1,0 +1,48 @@
+{
+ "key": "group_grid_cpt_event",
+ "title": "GRID Akce sezóny — pole",
+ "fields": [
+  {
+   "key": "field_ev_date",
+   "label": "Termín",
+   "name": "date",
+   "type": "text",
+   "instructions": "Např.: 7.–9. 8. 2026"
+  },
+  {
+   "key": "field_ev_desc",
+   "label": "Podtitulek",
+   "name": "desc",
+   "type": "text"
+  },
+  {
+   "key": "field_ev_status",
+   "label": "Dostupnost",
+   "name": "status",
+   "type": "select",
+   "choices": {
+    "free": "Volné pokoje",
+    "few": "Poslední pokoje",
+    "full": "Čekací list (vyprodáno)"
+   },
+   "default_value": "free"
+  }
+ ],
+ "location": [
+  [
+   {
+    "param": "post_type",
+    "operator": "==",
+    "value": "grid_event"
+   }
+  ]
+ ],
+ "menu_order": 0,
+ "position": "acf_after_title",
+ "style": "default",
+ "label_placement": "top",
+ "instruction_placement": "label",
+ "active": true,
+ "description": "Název = název akce. Pořadí = atribut Pořadí (chronologicky).",
+ "modified": 1783126137
+}

@@ -1,0 +1,230 @@
+{
+ "key": "group_grid_menu",
+ "title": "GRID — Týdenní menu (restaurace)",
+ "fields": [
+  {
+   "key": "field_menu_platnost",
+   "label": "Platnost / označení týdne",
+   "name": "menu_platnost",
+   "type": "text",
+   "instructions": "Např. Týdenní menu 13.–17. 7. 2026"
+  },
+  {
+   "key": "field_menu_pozn",
+   "label": "Poznámka pod menu",
+   "name": "menu_poznamka",
+   "type": "textarea",
+   "rows": 2,
+   "instructions": "Volitelné — např. informace o alergenech, otevírací době poledního menu."
+  },
+  {
+   "key": "field_menu_dny",
+   "label": "Dny v týdnu",
+   "name": "menu_dny",
+   "type": "repeater",
+   "layout": "block",
+   "button_label": "Přidat den",
+   "sub_fields": [
+    {
+     "key": "field_menu_den",
+     "label": "Den",
+     "name": "den",
+     "type": "select",
+     "choices": {
+      "Pondělí": "Pondělí",
+      "Úterý": "Úterý",
+      "Středa": "Středa",
+      "Čtvrtek": "Čtvrtek",
+      "Pátek": "Pátek",
+      "Sobota": "Sobota",
+      "Neděle": "Neděle"
+     },
+     "allow_null": 0,
+     "ui": 1
+    },
+    {
+     "key": "field_menu_polevky",
+     "label": "Polévky",
+     "name": "polevky",
+     "type": "repeater",
+     "layout": "table",
+     "button_label": "Přidat polévku",
+     "sub_fields": [
+      {
+       "key": "field_mp_nazev",
+       "label": "Název",
+       "name": "nazev",
+       "type": "text",
+       "wrapper": {
+        "width": "55"
+       }
+      },
+      {
+       "key": "field_mp_cena",
+       "label": "Cena",
+       "name": "cena",
+       "type": "text",
+       "wrapper": {
+        "width": "20"
+       },
+       "instructions": "např. 45 Kč"
+      },
+      {
+       "key": "field_mp_alerg",
+       "label": "Alergeny",
+       "name": "alergeny",
+       "type": "text",
+       "wrapper": {
+        "width": "25"
+       },
+       "instructions": "např. 1, 3, 7"
+      }
+     ]
+    },
+    {
+     "key": "field_menu_hlavni",
+     "label": "Hlavní chody",
+     "name": "hlavni",
+     "type": "repeater",
+     "layout": "table",
+     "button_label": "Přidat hlavní chod",
+     "sub_fields": [
+      {
+       "key": "field_mh_nazev",
+       "label": "Název",
+       "name": "nazev",
+       "type": "text",
+       "wrapper": {
+        "width": "55"
+       }
+      },
+      {
+       "key": "field_mh_cena",
+       "label": "Cena",
+       "name": "cena",
+       "type": "text",
+       "wrapper": {
+        "width": "20"
+       },
+       "instructions": "např. 45 Kč"
+      },
+      {
+       "key": "field_mh_popis",
+       "label": "Popis",
+       "name": "popis",
+       "type": "text",
+       "wrapper": {
+        "width": "100"
+       }
+      },
+      {
+       "key": "field_mh_alerg",
+       "label": "Alergeny",
+       "name": "alergeny",
+       "type": "text",
+       "wrapper": {
+        "width": "25"
+       },
+       "instructions": "např. 1, 3, 7"
+      }
+     ]
+    },
+    {
+     "key": "field_menu_dezerty",
+     "label": "Dezerty",
+     "name": "dezerty",
+     "type": "repeater",
+     "layout": "table",
+     "button_label": "Přidat dezert",
+     "sub_fields": [
+      {
+       "key": "field_md_nazev",
+       "label": "Název",
+       "name": "nazev",
+       "type": "text",
+       "wrapper": {
+        "width": "55"
+       }
+      },
+      {
+       "key": "field_md_cena",
+       "label": "Cena",
+       "name": "cena",
+       "type": "text",
+       "wrapper": {
+        "width": "20"
+       },
+       "instructions": "např. 45 Kč"
+      },
+      {
+       "key": "field_md_alerg",
+       "label": "Alergeny",
+       "name": "alergeny",
+       "type": "text",
+       "wrapper": {
+        "width": "25"
+       },
+       "instructions": "např. 1, 3, 7"
+      }
+     ]
+    },
+    {
+     "key": "field_menu_napoje",
+     "label": "Nápoje",
+     "name": "napoje",
+     "type": "repeater",
+     "layout": "table",
+     "button_label": "Přidat nápoj",
+     "sub_fields": [
+      {
+       "key": "field_mn_nazev",
+       "label": "Název",
+       "name": "nazev",
+       "type": "text",
+       "wrapper": {
+        "width": "55"
+       }
+      },
+      {
+       "key": "field_mn_cena",
+       "label": "Cena",
+       "name": "cena",
+       "type": "text",
+       "wrapper": {
+        "width": "20"
+       },
+       "instructions": "např. 45 Kč"
+      },
+      {
+       "key": "field_mn_alerg",
+       "label": "Alergeny",
+       "name": "alergeny",
+       "type": "text",
+       "wrapper": {
+        "width": "25"
+       },
+       "instructions": "např. 1, 3, 7"
+      }
+     ]
+    }
+   ]
+  }
+ ],
+ "location": [
+  [
+   {
+    "param": "options_page",
+    "operator": "==",
+    "value": "grid-options"
+   }
+  ]
+ ],
+ "menu_order": 3,
+ "position": "normal",
+ "style": "default",
+ "label_placement": "top",
+ "instruction_placement": "label",
+ "active": true,
+ "description": "Týdenní (polední) menu restaurace: každý den více polévek, hlavních chodů, dezertů a nápojů. Zatím pouze nástroj v administraci — na web se nezobrazuje.",
+ "modified": 1783126137
+}

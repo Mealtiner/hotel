@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GRID HOTEL — grafické návrhy nového webu</title>
+<link rel="icon" href="assets/logo/g-mark.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Saira+Condensed:wght@500;600;700&family=Inter:wght@400;500;600&family=Space+Mono&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --grid-red:#C20E1A; --grid-red-700:#9A0B14;
+    --graphite:#16181B; --asphalt:#23262B; --steel:#3A3E45;
+    --offwhite:#F4F2ED; --gray:#B9B7B9; --gold:#caa75f;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{font-family:'Inter',system-ui,sans-serif;background:var(--graphite);color:var(--offwhite);line-height:1.6;-webkit-font-smoothing:antialiased}
+  a{color:inherit;text-decoration:none}
+  .wrap{max-width:1320px;margin:0 auto;padding:0 30px}
+  h1,h2,h3{font-family:'Saira Condensed',sans-serif;text-transform:uppercase;line-height:.98;letter-spacing:.01em}
+  .mono{font-family:'Space Mono',monospace}
+
+  header{position:sticky;top:0;z-index:50;background:rgba(14,15,17,.85);backdrop-filter:blur(10px);border-bottom:1px solid var(--steel)}
+  header .wrap{display:flex;align-items:center;justify-content:space-between;height:70px}
+  header img{height:32px;width:auto}
+  .badge{font-size:.72rem;letter-spacing:.16em;text-transform:uppercase;color:var(--gray);font-family:'Space Mono',monospace}
+
+  .hero{position:relative;padding:96px 0 72px;overflow:hidden;border-bottom:1px solid var(--steel)}
+  .hero::before{content:"";position:absolute;inset:0;background:
+     radial-gradient(900px 380px at 82% -10%, rgba(194,14,26,.20), transparent 70%),
+     url('assets/foto/okruh-zapad-slunce.jpg') center/cover;opacity:.18;z-index:0}
+  .hero .wrap{position:relative;z-index:1}
+  .kicker{display:inline-flex;align-items:center;gap:10px;font-family:'Space Mono',monospace;font-size:.74rem;letter-spacing:.22em;text-transform:uppercase;color:var(--gold);margin-bottom:22px}
+  .kicker .dot{width:8px;height:8px;border-radius:50%;background:var(--grid-red);box-shadow:0 0 0 4px rgba(194,14,26,.2)}
+  .hero h1{font-size:clamp(2.7rem,6vw,5rem);font-weight:700;max-width:20ch}
+  .hero h1 em{color:var(--grid-red);font-style:normal}
+  .hero p.lead{margin-top:22px;max-width:64ch;color:#d7d6d2;font-size:1.1rem}
+
+  .versions{padding:66px 0 84px}
+  .grid{display:grid;grid-template-columns:repeat(4,1fr);gap:26px}
+  .card{background:var(--asphalt);border:1px solid var(--steel);border-radius:14px;overflow:hidden;display:flex;flex-direction:column;transition:transform .35s ease,border-color .35s ease,box-shadow .35s ease}
+  .card:hover{transform:translateY(-6px);border-color:var(--gold);box-shadow:0 24px 50px -24px rgba(0,0,0,.8)}
+  .shot{position:relative;display:block;height:210px;overflow:hidden;background:#000;border-bottom:1px solid var(--steel)}
+  .shot img{width:100%;height:100%;object-fit:cover;object-position:top center;transition:object-position 3.5s ease}
+  .card:hover .shot img{object-position:bottom center}
+  .shot .vnum{position:absolute;top:12px;left:12px;z-index:2;font-family:'Saira Condensed',sans-serif;font-weight:700;font-size:.95rem;letter-spacing:.06em;background:var(--grid-red);color:#fff;padding:3px 11px;border-radius:6px}
+  .shot .star{position:absolute;top:12px;right:12px;z-index:2;font-family:'Space Mono',monospace;font-size:.62rem;letter-spacing:.12em;text-transform:uppercase;background:var(--gold);color:#231c08;padding:4px 10px;border-radius:6px;font-weight:700}
+  .card-body{padding:22px 22px 24px;display:flex;flex-direction:column;flex:1}
+  .card-body h3{font-size:1.4rem;font-weight:700;margin-bottom:8px}
+  .card-body p{color:#cfcecb;font-size:.92rem;margin-bottom:18px}
+  .open{margin-top:auto;display:inline-flex;align-items:center;gap:9px;font-family:'Saira Condensed',sans-serif;text-transform:uppercase;letter-spacing:.06em;font-weight:600;font-size:.98rem;color:#fff;background:var(--grid-red);padding:11px 18px;border-radius:8px;align-self:flex-start;transition:.25s}
+  .open:hover{background:var(--grid-red-700)}
+  .open .arr{transition:transform .25s}
+  .card:hover .open .arr{transform:translateX(4px)}
+
+  footer{padding:48px 0;border-top:1px solid var(--steel);color:var(--gray);font-size:.88rem}
+  footer .wrap{display:flex;justify-content:space-between;align-items:center;gap:20px;flex-wrap:wrap}
+  footer img{height:34px;opacity:.9}
+
+  @media(max-width:1080px){.grid{grid-template-columns:repeat(2,1fr)}}
+  @media(max-width:560px){.grid{grid-template-columns:1fr}.shot{height:200px}}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap">
+    <a href="index.html"><img src="assets/logo/grid-hotel-negativ.png" alt="GRID HOTEL"></a>
+    <span class="badge">Grafické návrhy webu</span>
+  </div>
+</header>
+
+<div class="hero">
+  <div class="wrap">
+    <span class="kicker"><span class="dot"></span> GRID HOTEL · výběr vizuálního stylu</span>
+    <h1>Nový web hotelu <em>uprostřed</em> Masarykova okruhu.</h1>
+    <p class="lead">Připravili jsme osm různých vizuálních stylů nového webu. Každý vypráví stejný příběh — luxusní ubytování, gastronomii a zážitky přímo na trati — ale jiným způsobem. Otevřete si kterýkoli návrh jako živý web a vyberte směr, který nejlépe vystihuje GRID Hotel.</p>
+  </div>
+</div>
+
+<section class="versions">
+  <div class="wrap">
+    <div class="grid">
+
+      <article class="card">
+        <a class="shot" href="verze-1-trackside-calm/index.html"><span class="vnum">01</span><img src="assets/nahledy/verze-1-trackside-calm.png" alt="Náhled návrhu Trackside Calm"></a>
+        <div class="card-body"><h3>Trackside Calm</h3>
+          <p>Klidná prémiová elegance. Velké fotografie, vzdušný prostor a soustředění na zážitek z pobytu.</p>
+          <a class="open" href="verze-1-trackside-calm/index.html">Otevřít <span class="arr">→</span></a>
+        </div>
+      </article>
+
+      <article class="card">
+        <a class="shot" href="verze-2-pole-position/index.html"><span class="vnum">02</span><img src="assets/nahledy/verze-2-pole-position.png" alt="Náhled návrhu Pole Position"></a>
+        <div class="card-body"><h3>Pole Position</h3>
+          <p>Energie závodního okruhu. Boční menu, výrazná čísla a dynamika paddocku.</p>
+          <a class="open" href="verze-2-pole-position/index.html">Otevřít <span class="arr">→</span></a>
+        </div>
+      </article>
+
+      <article class="card">
+        <a class="shot" href="verze-3-paddock-lifestyle/index.html"><span class="vnum">03</span><img src="assets/nahledy/verze-3-paddock-lifestyle.png" alt="Náhled návrhu Paddock Lifestyle"></a>
+        <div class="card-body"><h3>Paddock Lifestyle</h3>
+          <p>Vřelý, živý styl. Lidé, gastronomie a atmosféra doplněné výraznými zlatými akcenty.</p>
+          <a class="open" href="verze-3-paddock-lifestyle/index.html">Otevřít <span class="arr">→</span></a>
+        </div>
+      </article>
+
+      <article class="card">
+        <a class="shot" href="verze-4-circuit-line/index.html"><span class="vnum">04</span><img src="assets/nahledy/verze-4-circuit-line.png" alt="Náhled návrhu Circuit Line"></a>
+        <div class="card-body"><h3>Circuit Line</h3>
+          <p>Filmová jízda po trati. Návštěvník projíždí webem jako okruhem — sekci po sekci.</p>
+          <a class="open" href="verze-4-circuit-line/index.html">Otevřít <span class="arr">→</span></a>
+        </div>
+      </article>
+
+      <article class="card">
+        <a class="shot" href="verze-5-grid-showroom/index.html"><span class="vnum">05</span><img src="assets/nahledy/verze-5-grid-showroom.png" alt="Náhled návrhu GRID Showroom"></a>
+        <div class="card-body"><h3>GRID Showroom</h3>
+          <p>Sebevědomý a výrazný. Silný úvod, přehledná nabídka pokojů a jasné výzvy k rezervaci.</p>
+          <a class="open" href="verze-5-grid-showroom/index.html">Otevřít <span class="arr">→</span></a>
+        </div>
+      </article>
+
+      <article class="card">
+        <a class="shot" href="verze-6-grid-residence/index.html"><span class="vnum">06</span><img src="assets/nahledy/verze-6-grid-residence.png" alt="Náhled návrhu GRID Residence"></a>
+        <div class="card-body"><h3>GRID Residence</h3>
+          <p>Útulný butikový hotel. Moderní, odlehčená typografie a rezervace hned po ruce.</p>
+          <a class="open" href="verze-6-grid-residence/index.html">Otevřít <span class="arr">→</span></a>
+        </div>
+      </article>
+
+      <article class="card">
+        <a class="shot" href="verze-7-grid-journey/index.html"><span class="vnum">07</span><img src="assets/nahledy/verze-7-grid-journey.png" alt="Náhled návrhu GRID Journey"></a>
+        <div class="card-body"><h3>GRID Journey</h3>
+          <p>Vzdušný a fotografický. Velké snímky, fotogalerie a důraz na atmosféru místa.</p>
+          <a class="open" href="verze-7-grid-journey/index.html">Otevřít <span class="arr">→</span></a>
+        </div>
+      </article>
+
+      <article class="card">
+        <a class="shot" href="verze-8-grid-signature/index.html"><span class="vnum">08</span><span class="star">Doporučujeme</span><img src="assets/nahledy/verze-8-grid-signature.png" alt="Náhled návrhu GRID Signature"></a>
+        <div class="card-body"><h3>GRID Signature</h3>
+          <p>Vlajková luxusní verze. Spojení elegance, zlatých detailů, červené značky a kompletního zážitku z okruhu.</p>
+          <a class="open" href="verze-8-grid-signature/index.html">Otevřít <span class="arr">→</span></a>
+        </div>
+      </article>
+
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <img src="assets/logo/grid-hotel-negativ.png" alt="GRID HOTEL">
+    <div>GRID HOTEL · Ostrovačická 65, Brno · ubytování přímo v areálu Masarykova okruhu</div>
+  </div>
+</footer>
+
+</body>
+</html>

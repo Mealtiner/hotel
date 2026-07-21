@@ -1,0 +1,55 @@
+{
+ "key": "group_grid_cpt_room",
+ "title": "GRID Pokoj — pole",
+ "fields": [
+  {
+   "key": "field_room_kat",
+   "label": "Kategorie pokoje",
+   "name": "kategorie",
+   "type": "taxonomy",
+   "taxonomy": "grid_room_cat",
+   "field_type": "radio",
+   "add_term": 0,
+   "save_terms": 1,
+   "load_terms": 1,
+   "return_format": "id",
+   "allow_null": 0,
+   "multiple": 0,
+   "instructions": "Vyber jednu ze 4 kategorií (spravují se v Nastavení)."
+  },
+  {
+   "key": "field_room_galerie",
+   "label": "Fotogalerie pokoje",
+   "name": "galerie",
+   "type": "gallery",
+   "return_format": "array",
+   "preview_size": "medium",
+   "instructions": "Prázdné = převezme se galerie z kategorie. Vyplněné = vlastní fotky pokoje."
+  },
+  {
+   "key": "field_room_pozn",
+   "label": "Poznámka / krátký popis (volitelné)",
+   "name": "pozn",
+   "type": "textarea",
+   "rows": 2,
+   "instructions": "Prázdné = použije se krátký popis kategorie."
+  }
+ ],
+ "location": [
+  [
+   {
+    "param": "post_type",
+    "operator": "==",
+    "value": "grid_room"
+   }
+  ]
+ ],
+ "menu_order": 0,
+ "position": "acf_after_title",
+ "style": "default",
+ "label_placement": "top",
+ "instruction_placement": "label",
+ "active": true,
+ "description": "Jednotlivý pokoj = instance v kategorii. Fotogalerie s náhledem; když prázdná, dědí z kategorie.",
+ "modified": 1783126137
+}

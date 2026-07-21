@@ -1,0 +1,24 @@
+# macOS
+.DS_Store
+
+# Lokální nastavení Claude
+.claude/
+
+# Citlivé údaje — hesla, přístupy, API klíče (NIKDY necommitovat)
+no-git/
+*.env
+.env*
+wp-config.php
+*heslo*
+*hesla*
+*pristupy*
+*přístupy*
+*credentials*
+*.pem
+*.key
+
+# Data klienta — 1,7 GB, obsahuje soubory přes 100 MB (limit GitHubu)
+data klienta/
+
+# Duplikát složky web-navrh
+web-navrh.zip

@@ -1,0 +1,100 @@
+{
+ "key": "group_grid_cpt_experience",
+ "title": "GRID Zážitek — pole",
+ "fields": [
+  {
+   "key": "field_exp_doporuceno",
+   "label": "Zobrazit na homepage (doporučeno)",
+   "name": "doporuceno",
+   "type": "true_false",
+   "ui": 1,
+   "default_value": 0,
+   "message": "Zobrazí se v mřížce 3×2 na homepage (max 6, řazeno dle Pořadí).",
+   "instructions": "Zapni u 6 zážitků, které chceš na homepage."
+  },
+  {
+   "key": "field_exp_num",
+   "label": "Číslo (např. 4.1)",
+   "name": "num",
+   "type": "text"
+  },
+  {
+   "key": "field_exp_text",
+   "label": "Text",
+   "name": "text",
+   "type": "textarea",
+   "rows": 3
+  },
+  {
+   "key": "field_exp_cta",
+   "label": "CTA text",
+   "name": "cta",
+   "type": "text",
+   "instructions": "Např.: Rezervovat →"
+  },
+  {
+   "key": "field_exp_odkaz",
+   "label": "Odkaz (kam CTA směřuje)",
+   "name": "odkaz",
+   "type": "url",
+   "instructions": "URL nebo kotva (např. #booking, /zazitky/, https://...). Prázdné = karta bez odkazu."
+  },
+  {
+   "key": "field_exp_popis",
+   "label": "Plný popis (detail zážitku)",
+   "name": "popis",
+   "type": "wysiwyg",
+   "tabs": "visual",
+   "media_upload": 0,
+   "instructions": "Delší popis na detailové stránce zážitku. Prázdné = použije se krátký text."
+  },
+  {
+   "key": "field_exp_perex",
+   "label": "Perex / krátký úvod (detail)",
+   "name": "perex",
+   "type": "textarea",
+   "rows": 2
+  },
+  {
+   "key": "field_exp_parametry",
+   "label": "Parametry (Klíč=Hodnota, odděl | )",
+   "name": "parametry",
+   "type": "text",
+   "instructions": "Např.: Délka=15–30 min|Pro koho=od 12 let|Kde=Automotodrom Brno|Cena od=od 490 Kč",
+   "placeholder": "Délka=…|Kde=…"
+  },
+  {
+   "key": "field_exp_odkaz_text",
+   "label": "Text tlačítka externího odkazu",
+   "name": "odkaz_text",
+   "type": "text",
+   "instructions": "Např. „Rezervovat na Polygonu →\". Když prázdné, použije se výchozí.",
+   "placeholder": "Web partnera →"
+  },
+  {
+   "key": "field_exp_galerie",
+   "label": "Fotogalerie zážitku",
+   "name": "galerie",
+   "type": "gallery",
+   "return_format": "array",
+   "preview_size": "medium"
+  }
+ ],
+ "location": [
+  [
+   {
+    "param": "post_type",
+    "operator": "==",
+    "value": "grid_experience"
+   }
+  ]
+ ],
+ "menu_order": 0,
+ "position": "acf_after_title",
+ "style": "default",
+ "label_placement": "top",
+ "instruction_placement": "label",
+ "active": true,
+ "description": "Název = název zážitku (HTML povoleno). Pořadí = atribut Pořadí.",
+ "modified": 1783300000
+}
