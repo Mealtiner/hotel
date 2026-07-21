@@ -13,9 +13,17 @@ $GLOBALS['GRID_SHORTCODES'] = [];
 
 /* Stránky, které na cílovém webu existují (dle DEPLOY-checklist) */
 const GRID_PAGES = [
-    'ubytovani','zazitky-u-okruhu','gastronomie','sezona-2026','firemni-akce-svatby',
-    'kontakt','doprava','dotaznik-spokojenosti','podminky','ochrana-osobnich-udaju',
-    'cookies','o-nas','kariera','video','galerie','rezervace','disclaimer','privacy-statement',
+    'ubytovani','zazitky','gastronomie','sezona-2026','firemni-akce-svatby',
+    'kontakt','jak-se-k-nam-dostanete','dotaznik-spokojenosti','ubytovaci-a-reklamacni-rad',
+    'ochrana-osobnich-udaju-gdpr','cookies','o-nas','kariera','casosber-video-stavby',
+    'galerie','rezervace','disclaimer','privacy-statement','vseobecne-obchodni-podminky',
+];
+/* aliasy návrhu → skutečné slugy na webu */
+const GRID_SLUG_ALIASES = [
+    'doprava'                => 'jak-se-k-nam-dostanete',
+    'podminky'               => 'ubytovaci-a-reklamacni-rad',
+    'ochrana-osobnich-udaju' => 'ochrana-osobnich-udaju-gdpr',
+    'video'                  => 'casosber-video-stavby',
 ];
 
 /* ---------- WP stuby ---------- */
@@ -37,10 +45,15 @@ function wpautop($t) {
     $paras = preg_split('/\n\s*\n/', $t);
     return implode('', array_map(fn($p) => '<p>' . str_replace("\n", '<br>', trim($p)) . '</p>', $paras));
 }
-function home_url($path = '') { return (string)$path; }
+function home_url($path = '') {
+    $path = (string)$path;
+    if (preg_match('~^/([a-z0-9-]+)/$~', $path, $m)) return '/' . grid_real_slug($m[1]) . '/';
+    return $path;
+}
 function get_stylesheet_directory_uri() { return '/wp-content/themes/grid-divi5-child'; }
 function is_front_page() { return $GLOBALS['GRID_FRONT']; }
-function get_page_by_path($slug) { return in_array($slug, GRID_PAGES, true) ? (object)['slug' => $slug] : null; }
+function grid_real_slug($slug) { return GRID_SLUG_ALIASES[$slug] ?? $slug; }
+function get_page_by_path($slug) { $s = grid_real_slug($slug); return in_array($s, GRID_PAGES, true) ? (object)['slug' => $s] : null; }
 function get_permalink($p) { return is_object($p) && isset($p->slug) ? '/' . $p->slug . '/' : '/'; }
 function post_type_exists($pt) { return false; }
 function taxonomy_exists($tx) { return false; }

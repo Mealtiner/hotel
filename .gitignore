@@ -22,3 +22,8 @@ data klienta/
 
 # Duplikát složky web-navrh
 web-navrh.zip
+
+# generované artefakty nástrojů
+web-final/wordpress/tools/out/
+web-final/wordpress/tools/d5-dump/
+web-final/wordpress/tools/d5-new/

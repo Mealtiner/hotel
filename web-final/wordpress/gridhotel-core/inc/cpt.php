@@ -22,6 +22,8 @@ function gridcore_register_cpts() {
 		'grid_experience' => array(
 			'singular' => 'Zážitek', 'plural' => 'Zážitky', 'slug' => 'zazitky',
 			'icon' => 'dashicons-superhero', 'thumb' => false,
+			// BEZ archivu: /zazitky/ patří stránce (Divi layout), archiv CPT by ji přebil.
+			'archive' => false,
 		),
 		'grid_event' => array(
 			'singular' => 'Akce sezóny', 'plural' => 'Sezóna 2026', 'slug' => 'akce',
@@ -56,7 +58,7 @@ function gridcore_register_cpts() {
 			// Fallback na samostatnou top-level položku, když options page není (ACF Free).
 			'show_in_menu'       => gridcore_parent_menu(),
 			'show_in_rest'       => true,
-			'has_archive'        => true,
+			'has_archive'        => array_key_exists( 'archive', $t ) ? $t['archive'] : true,
 			'hierarchical'       => false,
 			'menu_icon'          => $t['icon'],
 			'supports'           => $supports,
