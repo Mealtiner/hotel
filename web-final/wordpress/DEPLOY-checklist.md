@@ -1,6 +1,6 @@
 # GRID Hotel — nasazovací checklist
 
-Aktuální verze: **child theme 1.11.0**, **plugin gridhotel-core 1.1.4**.
+Aktuální verze: **child theme 1.11.2**, **plugin gridhotel-core 1.1.4**.
 Soubory: `web-final/wordpress/` (`grid-divi5-child.zip`, `gridhotel-core.zip`, `divi-json/`, `fluent-forms/`).
 
 > ⚠️ **Od v1.11 mají JSONy obsah přímo v Divi Text modulech** (texty editovatelné ve
@@ -10,7 +10,7 @@ Soubory: `web-final/wordpress/` (`grid-divi5-child.zip`, `gridhotel-core.zip`, `
 
 ## A) Základ (nejdřív)
 - [ ] 1. Plugin **gridhotel-core 1.1.4** → Pluginy → Přidat → Nahrát → **Nahradit**
-- [ ] 2. Motiv **child 1.3.2** → Vzhled → Motivy → Nahrát → **Nahradit**
+- [ ] 2. Motiv **child 1.11.2** → Vzhled → Motivy → Nahrát → **Nahradit**
 - [ ] 3. **Nastavení → Trvalé odkazy → Uložit** (přegeneruje URL typů/taxonomie)
 - [ ] 4. **Nástroje → GRID: Naplnit obsahem** → *Naplnit obsahem* (kategorie, zážitky, akce, gastro, reference)
 - [ ] 5. Ověřit **ACF PRO** aktivní a v menu je **GRID Nastavení** (červené „G")
@@ -64,7 +64,7 @@ Pro každou: Stránky → Přidat → název → Publikovat → Divi Builder →
 
 ## H) Později (samostatné velké kroky)
 - [ ] 34. GARRY mikropluginy (situace na trati + boční posuvník) + GRID Nastavení pod GARRY
-- [ ] 35. Vícejazyčnost Polylang CZ/EN/DE (překlady stránek/CPT + slovník sekcí)
+- [x] 35. Vícejazyčnost Polylang CZ/EN/DE — HOTOVO na gridhotel.local (viz tools/lang/ + DIVI-NATIVNI-OBSAH.md)
 - [ ] 36. Rezervace → napojení na Bookolo (skládání URL z lišty)
 - [ ] 37. Reference → Google recenze + ruční prokládání
 - [ ] 38. SEO (Yoast titulky/sitemap/schema Hotel+Restaurant)

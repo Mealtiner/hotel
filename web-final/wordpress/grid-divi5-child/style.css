@@ -4,7 +4,7 @@ Theme URI: https://www.garry.cz
 Author: GARRY Promotion
 Author URI: https://www.garry.cz
 Description: Prémiová child šablona pro Divi 5 vytvořená na míru pro GRID Hotel — **** hotel a restauraci přímo v areálu Automotodromu Brno u Masarykova okruhu. Designový systém „Circuit Line": vlastní barevná paleta a typografie s plnou českou diakritikou, karbonová textura tmavých sekcí, živý telemetry widget (čas + teplota trati), sekce Sezóna 2026 s čekacím listem a obsah řízený přes ACF. Navrhla a vyvinula fluidní marketingová agentura GARRY Promotion.
-Version: 1.11.0
+Version: 1.11.2
 Requires at least: 6.4
 Tested up to: 6.8
 Requires PHP: 8.0
@@ -225,6 +225,9 @@ Text Domain: grid-divi5-child
   .entry h3{font-size:clamp(1.5rem,2.3vw,2.1rem);margin:14px 0 10px}
   .entry p{font-size:.9rem;color:var(--muted);transition:color .35s}
   .entry:hover p,.entry:hover h3{color:#fff}
+  /* karta je div + overlay odkaz (bloky v <a> rozbíjel wpautop) */
+  .entry{cursor:pointer}
+  .entry .entry-link{position:absolute;inset:0;z-index:2;font-size:0}
   .entry .e-arrow{margin-top:auto;padding-top:18px;font-family:var(--f-mono);font-size:.72rem;letter-spacing:.14em;color:var(--muted);transition:color .35s}
   .entry:hover .e-arrow{color:#fff}
 
@@ -324,6 +327,9 @@ Text Domain: grid-divi5-child
 
   /* ===== SEASON 2026 / WAITLIST ===== */
   .season{display:grid;grid-template-columns:1.35fr 1fr;gap:clamp(24px,4vw,56px);align-items:start}
+  /* grid položky se nesmí roztáhnout na min-content (přetékaly na mobilu) */
+  .season>*{min-width:0}
+  .ev-name{min-width:0}
   .ev-list{display:flex;flex-direction:column}
   .ev-row{display:grid;grid-template-columns:auto 1fr auto;gap:clamp(14px,2vw,28px);align-items:center;padding:20px 14px;border-bottom:1px solid var(--line-c);cursor:pointer;transition:padding-left .3s,background .3s;text-align:left;background:none;border-left:none;border-right:none;border-top:none;color:inherit;width:100%;font:inherit}
   .ev-meta{display:flex;flex-direction:column;align-items:flex-end;gap:7px;text-align:right}
@@ -442,6 +448,8 @@ Text Domain: grid-divi5-child
     .scroll-cue{display:none}
     .booking .wrap{flex-direction:column}
     .bk-field,.bk-note{border-right:none;border-bottom:1px solid var(--line)}
+    /* štítky pobytu se zalamují místo horizontálního scrollu */
+    .pobyt-chips{flex-wrap:wrap;overflow-x:visible}
     .mobile-menu.open{display:flex}
     .mobile-menu{position:fixed;inset:0;z-index:130;background:var(--graphite-deep);flex-direction:column;align-items:center;justify-content:center;gap:24px}
     .mobile-menu a{font-family:var(--f-head);text-transform:uppercase;font-size:1.6rem;color:var(--offwhite)}
@@ -516,6 +524,18 @@ footer :focus-visible, .booking :focus-visible, .telemetry-hud :focus-visible{
 /* Divi obal nesmí přebít pozadí našich sekcí */
 .et_pb_section:has(.grid-shortcode),
 .et_pb_section:has(.grid-html){ padding:0 !important; background:transparent !important; }
+
+/* ============================================================
+   JAZYKOVÉ VARIANTY (Polylang) — hlavička/patička nese CS+EN+DE
+   markup vedle sebe; CSS ukáže variantu dle <html lang>, grid.js
+   pak neaktivní varianty odstraní z DOMu (duplicitní id).
+   ============================================================ */
+.grid-lang{ display:none; }
+html[lang^="cs"] .grid-lang-cs,
+html[lang^="en"] .grid-lang-en,
+html[lang^="de"] .grid-lang-de{ display:block; }
+/* fallback: neznámý jazyk → čeština */
+html:not([lang^="cs"]):not([lang^="en"]):not([lang^="de"]) .grid-lang-cs{ display:block; }
 
 /* ============================================================
    WP ADMIN BAR — fixní hlavička nesmí mizet pod administrační lištu

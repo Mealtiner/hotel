@@ -64,3 +64,32 @@ Zdroj pravdy je HTML výstup shortcodů. Ve složce `tools/` je
 `render.php` (stub WP funkcí → HTML sekcí) + `assemble.py` (HTML → Divi JSON) —
 viz `tools/README.md`. Texty lze ale měnit i přímo ve Visual Builderu / v JSONu;
 generátor slouží jen pro hromadnou regeneraci.
+
+## Pozor: wpautop v Divi 5 Text modulech (v1.11.2)
+
+Divi 5 na obsah Text modulu aplikuje `wpautop`. Bloky (`h3`, `p`, `div`) uvnitř
+inline elementů (`<a>`, `<button>`) proto NESMÍ mít kolem sebe volné inline runy —
+prohlížeč pak rozlomí obal a rozsype layout (stalo se u karet `.entry`).
+Řešení: karta = `<div class="entry">` + prázdný overlay odkaz `<a class="entry-link">`
+(CSS `position:absolute;inset:0`). Stejný vzor použij pro každou novou klikatelnou kartu.
+
+## Jazykové mutace (Polylang, v1.11.2)
+
+Na gridhotel.local nasazeny mutace **CS / EN / DE** (38 přeložených stránek + vícejazyčná
+hlavička a patička):
+
+- Struktura: každá CZ stránka má EN a DE překlad provázaný přes Polylang
+  (`/en/accommodation/`, `/de/unterkunft/`…). Výchozí čeština bez prefixu.
+- Hlavička/patička (Theme Builder) nese **tři jazykové varianty** v jednom Text modulu
+  (`.grid-lang.grid-lang-cs|en|de`): CSS zobrazí variantu dle `<html lang>`, `grid.js`
+  neaktivní varianty odstraní z DOMu (kvůli duplicitním id).
+- Překlady: oficiální texty starého webu 1:1 (právní dokumenty, GDPR), zbytek přeložen
+  konzistentně s nimi. Zdrojové přeložené bloky: `tools/lang/chunks-en|de/`.
+- Nástroje: `tools/lang/` — `langmap.py` (slugy/tituly/URL mapy), `reinventory.py`
+  (chunk inventura + migrace překladů po změně zdroje), `d5-patch.py` (naklonuje
+  funkční Divi 5 strukturu CZ stránky a vymění texty — NIKDY negeneruj D5 bloky
+  od nuly, Divi je tiše zahodí), `wp-lang-deploy.php` (založení stránek + provázání;
+  content ale nahrávej přes `wp post update <id> <file>` — wp_update_post v eval-file
+  obsah ořezává přes kses).
+- Lokalizované widgety: telemetry HUD (labels dle jazyka v PHP), galerie
+  (`[grid_galerie kicker="…" nadpis="…" vse="…"]`).

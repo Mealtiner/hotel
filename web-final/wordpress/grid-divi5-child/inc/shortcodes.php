@@ -375,22 +375,32 @@ add_shortcode( 'grid_tracknav', 'grid_sc_tracknav' );
 /* ============================================================
  * TELEMETRY WIDGET (živý — čas + teplota)
  * ============================================================ */
+function grid_telemetry_l10n() {
+	$lang = function_exists( 'pll_current_language' ) ? pll_current_language() : substr( (string) get_locale(), 0, 2 );
+	$t = array(
+		'en' => array( 'status'=>'STATUS', 'cas'=>'LOCAL TIME', 'teplota'=>'TEMP · BRNO', 'povrch'=>'TRACK SURFACE', 'otevreno'=>'OPEN', 'sucho'=>'DRY', 'skryt'=>'Hide widget', 'zobrazit'=>'Show widget', 'aria'=>'Live hotel telemetry' ),
+		'de' => array( 'status'=>'STATUS', 'cas'=>'ORTSZEIT', 'teplota'=>'TEMP · BRNO', 'povrch'=>'STRECKENBELAG', 'otevreno'=>'GEÖFFNET', 'sucho'=>'TROCKEN', 'skryt'=>'Widget ausblenden', 'zobrazit'=>'Widget anzeigen', 'aria'=>'Live-Telemetrie des Hotels' ),
+	);
+	$cs = array( 'status'=>'STATUS', 'cas'=>'MÍSTNÍ ČAS', 'teplota'=>'TEPLOTA · BRNO', 'povrch'=>'POVRCH TRATI', 'otevreno'=>'OTEVŘENO', 'sucho'=>'SUCHO', 'skryt'=>'Skrýt widget', 'zobrazit'=>'Zobrazit widget', 'aria'=>'Živá telemetrie hotelu' );
+	return isset( $t[ $lang ] ) ? $t[ $lang ] : $cs;
+}
 function grid_sc_telemetry() {
-	$status  = grid_field( 'widget_status', 'OTEVŘENO', 'option' );
-	$surface = grid_field( 'widget_povrch', 'SUCHO', 'option' );
+	$L = grid_telemetry_l10n();
+	$status  = grid_field( 'widget_status', $L['otevreno'], 'option' );
+	$surface = grid_field( 'widget_povrch', $L['sucho'], 'option' );
 	$lat     = grid_field( 'widget_lat', '49.20', 'option' );
 	$lon     = grid_field( 'widget_lon', '16.44', 'option' );
 	ob_start(); ?>
-	<aside class="telemetry-hud" id="hud" aria-label="Živá telemetrie hotelu" data-lat="<?php echo esc_attr( $lat ); ?>" data-lon="<?php echo esc_attr( $lon ); ?>">
-	  <div class="hud-head"><span class="hud-title">GRID · Live</span><button class="hud-x" id="hudX" aria-label="Skrýt widget">&times;</button></div>
+	<aside class="telemetry-hud" id="hud" aria-label="<?php echo esc_attr( $L['aria'] ); ?>" data-lat="<?php echo esc_attr( $lat ); ?>" data-lon="<?php echo esc_attr( $lon ); ?>">
+	  <div class="hud-head"><span class="hud-title">GRID · Live</span><button class="hud-x" id="hudX" aria-label="<?php echo esc_attr( $L['skryt'] ); ?>">&times;</button></div>
 	  <div class="hud-body">
-	    <div class="hud-row"><span class="k"><span class="dot"></span>STATUS</span><span class="v"><?php echo esc_html( $status ); ?></span></div>
-	    <div class="hud-row"><span class="k">MÍSTNÍ ČAS</span><span class="v" id="hudClock">--:--:--</span></div>
-	    <div class="hud-row"><span class="k">TEPLOTA · BRNO</span><span class="v hot" id="hudTemp">24&nbsp;°C</span></div>
-	    <div class="hud-row"><span class="k">POVRCH TRATI</span><span class="v" id="hudSurface"><?php echo esc_html( $surface ); ?></span></div>
+	    <div class="hud-row"><span class="k"><span class="dot"></span><?php echo esc_html( $L['status'] ); ?></span><span class="v"><?php echo esc_html( $status ); ?></span></div>
+	    <div class="hud-row"><span class="k"><?php echo esc_html( $L['cas'] ); ?></span><span class="v" id="hudClock">--:--:--</span></div>
+	    <div class="hud-row"><span class="k"><?php echo esc_html( $L['teplota'] ); ?></span><span class="v hot" id="hudTemp">24&nbsp;°C</span></div>
+	    <div class="hud-row"><span class="k"><?php echo esc_html( $L['povrch'] ); ?></span><span class="v" id="hudSurface"><?php echo esc_html( $surface ); ?></span></div>
 	  </div>
 	</aside>
-	<button class="hud-reopen" id="hudReopen" aria-label="Zobrazit widget">Live</button>
+	<button class="hud-reopen" id="hudReopen" aria-label="<?php echo esc_attr( $L['zobrazit'] ); ?>">Live</button>
 	<?php return ob_get_clean();
 }
 add_shortcode( 'grid_telemetry', 'grid_sc_telemetry' );
@@ -457,12 +467,12 @@ function grid_sc_vstupy() {
 	    <div class="reveal" style="margin-bottom:40px"><span class="kicker">T1 · Vstupy podle motivace</span><h2 style="font-size:clamp(2rem,4vw,3.6rem);margin-top:16px;max-width:18ch">Kudy do zatáčky? Vyber si svou odbočku.</h2></div>
 	    <div class="entries reveal d1">
 	      <?php foreach ( $items as $it ) : ?>
-	      <a href="<?php echo esc_url( grid_row_val($it,'url','#') ); ?>" class="entry">
-	        <span class="e-num"><?php echo wp_kses_post( grid_row_val($it,'num') ); ?></span>
+	      <?php /* div + overlay odkaz: bloky uvnitř <a> rozbíjí wpautop v Divi text modulu */ ?>
+	      <div class="entry"><a class="entry-link" href="<?php echo esc_url( grid_row_val($it,'url','#') ); ?>" aria-label="<?php echo esc_attr( grid_row_val($it,'title') ); ?>"></a><span class="e-num"><?php echo wp_kses_post( grid_row_val($it,'num') ); ?></span>
 	        <h3><?php echo esc_html( grid_row_val($it,'title') ); ?></h3>
 	        <p><?php echo esc_html( grid_row_val($it,'text') ); ?></p>
 	        <span class="e-arrow"><?php echo esc_html( grid_row_val($it,'cta') ); ?></span>
-	      </a>
+	      </div>
 	      <?php endforeach; ?>
 	    </div>
 	  </div>
@@ -504,10 +514,10 @@ add_shortcode( 'grid_pribeh', 'grid_sc_pribeh' );
  * ============================================================ */
 function grid_sc_rooms() {
 	$rooms = grid_room_types_rows( array(
-		array('num'=>'3.1 / STANDARD','title'=>'Standard','img'=>grid_img('hotel-exterier.jpg'),'desc'=>'Komfortní pokoje evropského standardu **** s klidnou orientací do areálu.','feat'=>'1–2 osoby|klimatizace|TV 40" HDMI|trezor · minibar'),
-		array('num'=>'3.2 / SUPERIOR','title'=>'Superior','img'=>grid_img('pokoj-superior.jpg'),'desc'=>'Orientované výhledem na centrum dění brněnského okruhu i okolní lesy. Denně kávový a čajový set, župan, pantofle a minerální voda.','feat'=>'2 osoby|track view|župan · set'),
-		array('num'=>'3.3 / SUPERIOR PLUS','title'=>'Superior Plus','img'=>grid_img('koupelna.jpg'),'desc'=>'Vše ze Superior — navíc terasa s posezením a výhledem na centrum okruhu i okolí.','feat'=>'2–3 osoby|terasa|track view'),
-		array('num'=>'3.4 / APARTMÁ &amp; APARTMÁ PLUS','title'=>'Apartmá','img'=>grid_img('pokoj-apartma.jpg'),'desc'=>'Nadstandardní ubytování s nejlepším výhledem na město, okruh či paddock. Interiér 47–59 m² plus terasy až 47 m², King Size postele a dvě TV 43".','feat'=>'2–4 osoby|47–59 m²|terasa až 47 m²|King Size'),
+		array('num'=>'3.1 / STANDARD','title'=>'Standard','img'=>grid_img('hotel-exterier.jpg'),'desc'=>'Komfortní pokoje evropského standardu **** s klidnou orientací do areálu.','feat'=>'1–2 osoby|klimatizace|TV 40" HDMI|trezor · minibar','pocet'=>'30','kapacita'=>'1–2','velikost'=>'24'),
+		array('num'=>'3.2 / SUPERIOR','title'=>'Superior','img'=>grid_img('pokoj-superior.jpg'),'desc'=>'Orientované výhledem na centrum dění brněnského okruhu i okolní lesy. Denně kávový a čajový set, župan, pantofle a minerální voda.','feat'=>'2 osoby|track view|župan · set','pocet'=>'20','kapacita'=>'2','velikost'=>'24'),
+		array('num'=>'3.3 / SUPERIOR PLUS','title'=>'Superior Plus','img'=>grid_img('koupelna.jpg'),'desc'=>'Vše ze Superior — navíc terasa s posezením a výhledem na centrum okruhu i okolí.','feat'=>'2–3 osoby|terasa|track view','pocet'=>'10','kapacita'=>'2–3','velikost'=>'24'),
+		array('num'=>'3.4 / APARTMÁ &amp; APARTMÁ PLUS','title'=>'Apartmá','img'=>grid_img('pokoj-apartma.jpg'),'desc'=>'Nadstandardní ubytování s nejlepším výhledem na město, okruh či paddock. Interiér 47–59 m² plus terasy až 47 m², King Size postele a dvě TV 43".','feat'=>'2–4 osoby|47–59 m²|terasa až 47 m²|King Size','pocet'=>'4','kapacita'=>'2–4','velikost'=>'47–59'),
 	) );
 	ob_start(); ?>
 	<section id="pokoje" class="sec sec-light sec-pad">
@@ -1658,12 +1668,13 @@ add_shortcode( 'grid_video', 'grid_sc_video' );
 /* ============================================================
  * [grid_galerie] — Fotogalerie s filtrem podle kategorií
  * ============================================================ */
-function grid_sc_galerie() {
+function grid_sc_galerie( $atts = array() ) {
+	$a = shortcode_atts( array( 'kicker' => 'Galerie', 'nadpis' => 'Fotogalerie GRID HOTEL', 'vse' => 'Vše' ), $atts );
 	ob_start(); ?>
 	<section class="sec sec-dark carbon sec-pad" style="padding-top:clamp(120px,16vh,180px)">
 	  <div class="wrap">
-	    <span class="kicker">Galerie</span>
-	    <h1 style="font-size:clamp(2.4rem,6vw,4.4rem);margin:14px 0 20px">Fotogalerie GRID HOTEL</h1>
+	    <span class="kicker"><?php echo esc_html( $a['kicker'] ); ?></span>
+	    <h1 style="font-size:clamp(2.4rem,6vw,4.4rem);margin:14px 0 20px"><?php echo esc_html( $a['nadpis'] ); ?></h1>
 	    <?php if ( function_exists( 'have_rows' ) && have_rows( 'galerie_bloky', 'option' ) ) :
 		$cats = array(); $items = array(); $ci = 0;
 		while ( have_rows( 'galerie_bloky', 'option' ) ) { the_row();
@@ -1679,7 +1690,7 @@ function grid_sc_galerie() {
 		}
 		if ( ! empty( $items ) ) : ?>
 		<div class="galerie-filter">
-		  <button class="gal-fbtn active" data-filter="all">Vše</button>
+		  <button class="gal-fbtn active" data-filter="all"><?php echo esc_html( $a['vse'] ); ?></button>
 		  <?php foreach ( $cats as $slug => $nazev ) : ?><button class="gal-fbtn" data-filter="<?php echo esc_attr( $slug ); ?>"><?php echo esc_html( $nazev ); ?></button><?php endforeach; ?>
 		</div>
 		<div class="galerie-grid">

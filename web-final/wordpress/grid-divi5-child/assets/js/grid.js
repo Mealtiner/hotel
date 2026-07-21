@@ -4,6 +4,21 @@
   "use strict";
   var $ = function(id){ return document.getElementById(id); };
 
+  /* ---- Jazykové varianty hlavičky/patičky (Polylang) ----
+     Šablona nese CS+EN+DE markup vedle sebe (.grid-lang-*). Neaktivní varianty
+     ODSTRANÍME ještě před bindováním (duplicitní id topbar/hamburger/kontakt),
+     CSS je do té doby skrývá. */
+  (function(){
+    var lang = (document.documentElement.lang || 'cs').slice(0,2).toLowerCase();
+    var variants = document.querySelectorAll('.grid-lang');
+    if(!variants.length) return;
+    var hasLang = document.querySelector('.grid-lang-' + lang);
+    if(!hasLang) lang = 'cs';
+    variants.forEach(function(el){
+      if(!el.classList.contains('grid-lang-' + lang)) el.remove();
+    });
+  })();
+
   /* ---- Fixní prvky přesunout přímo do <body> ----
      Divi obaluje obsah prvkem s transform/filter, což mění chování position:fixed
      (prvek se „ukotví" ke kontejneru, ne k oknu). Přesunem to napravíme. */

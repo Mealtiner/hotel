@@ -1,0 +1,77 @@
+{
+ "footer-global": [
+  "grid_footer__cfc617614b"
+ ],
+ "header-global": [
+  "grid_header__eee6c70506"
+ ],
+ "page-cookies": [
+  "grid_legal__83494d2a66"
+ ],
+ "page-disclaimer": [
+  "grid_legal__c2b3f39e29"
+ ],
+ "page-domov": [
+  "grid_hero__a8ce5834b4",
+  "grid_booking__bfaef512fe",
+  "grid_vstupy__dae82b148b",
+  "grid_pribeh__12bfb0319d",
+  "grid_rooms__90f9e6b674",
+  "grid_zazitky__66ffaace06",
+  "grid_gastro__00c4be91b9",
+  "grid_season__5d141cd90a",
+  "grid_firemni__baf9d11b06",
+  "grid_reference__9f74832bf5",
+  "grid_final__8ba87841ba"
+ ],
+ "page-doprava": [
+  "grid_doprava__4ad6634ff4"
+ ],
+ "page-dotaznik": [
+  "grid_form_dotaznik__64cd4150fe"
+ ],
+ "page-firemni-svatby": [
+  "grid_firemni__5de3b7cd0a",
+  "grid_final__308b1a9d41"
+ ],
+ "page-gastronomie": [
+  "grid_gastro__1fd6e08d22",
+  "grid_final__308b1a9d41"
+ ],
+ "page-kariera": [
+  "grid_kariera__663aa5f4cd"
+ ],
+ "page-kontakt": [
+  "grid_kontakt__fba0aaae2d"
+ ],
+ "page-o-nas": [
+  "grid_onas__ccfeb66836"
+ ],
+ "page-ochrana-udaju": [
+  "grid_gdpr__bdcb2f27d7"
+ ],
+ "page-podminky": [
+  "grid_podminky__dbb5c17e5f"
+ ],
+ "page-pokoje": [
+  "grid_rooms__db61e97fe9",
+  "grid_final__308b1a9d41"
+ ],
+ "page-privacy-statement": [
+  "grid_legal__7c950c7338"
+ ],
+ "page-rezervace": [
+  "grid_rezervace__13c0bc0190"
+ ],
+ "page-sezona-2026": [
+  "grid_season__1603887a70",
+  "grid_final__308b1a9d41"
+ ],
+ "page-video": [
+  "grid_video__bfa945c2b2"
+ ],
+ "page-zazitky": [
+  "grid_zazitky__12b0fe4673",
+  "grid_final__308b1a9d41"
+ ]
+}
