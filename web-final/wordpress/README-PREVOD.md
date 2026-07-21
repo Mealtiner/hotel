@@ -14,9 +14,14 @@ wordpress/
 └── README-PREVOD.md           tento soubor
 ```
 
-Filozofie: **vizuál řídí Divi, obsah drží ACF, styl a interaktivní prvky child theme.**
-Každá sekce návrhu = jeden shortcode (`[grid_hero]`, `[grid_rooms]`, `[grid_season]`…), který
-vykreslí přesně původní HTML a texty tahá z ACF. Web funguje i **bez vyplněného ACF** (fallbacky).
+Filozofie (od v1.11): **obsah i vizuál drží Divi, styl a interaktivní prvky child theme.**
+Každá sekce návrhu = jedna Divi sekce s Text modulem, ve kterém je přímo HTML s texty.
+Texty jsou tedy **viditelné a editovatelné ve Visual Builderu** a vidí je i překladové
+pluginy (WPML / Polylang / TranslatePress). Podrobnosti: `DIVI-NATIVNI-OBSAH.md`.
+
+Shortcody `[grid_*]` v `inc/shortcodes.php` zůstávají registrované jen pro zpětnou
+kompatibilitu se staršími importy — nové JSONy je už nepoužívají (výjimka: `[grid_galerie]`,
+který čte fotky z ACF/knihovny médií).
 
 ---
 

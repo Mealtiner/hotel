@@ -1,7 +1,12 @@
 # GRID Hotel — nasazovací checklist
 
-Aktuální verze: **child theme 1.3.2**, **plugin gridhotel-core 1.1.4**.
+Aktuální verze: **child theme 1.11.0**, **plugin gridhotel-core 1.1.4**.
 Soubory: `web-final/wordpress/` (`grid-divi5-child.zip`, `gridhotel-core.zip`, `divi-json/`, `fluent-forms/`).
+
+> ⚠️ **Od v1.11 mají JSONy obsah přímo v Divi Text modulech** (texty editovatelné ve
+> Visual Builderu, připravené pro překladový plugin) — shortcody `[grid_*]` už stránky
+> nepoužívají (výjimka: galerie). Stránky importované ze starších JSONů **přeimportuj**.
+> Detaily: `DIVI-NATIVNI-OBSAH.md`.
 
 ## A) Základ (nejdřív)
 - [ ] 1. Plugin **gridhotel-core 1.1.4** → Pluginy → Přidat → Nahrát → **Nahradit**

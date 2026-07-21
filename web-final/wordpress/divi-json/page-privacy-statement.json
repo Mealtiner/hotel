@@ -1,10 +1,1 @@
-{
- "context": "et_builder",
- "data": {
-  "1": "[et_pb_section fb_built=\"1\" _builder_version=\"4.27.4\" custom_padding=\"0px||0px||true|false\" global_colors_info=\"{}\"][et_pb_row _builder_version=\"4.27.4\" width=\"100%\" max_width=\"100%\" use_custom_gutter=\"on\" gutter_width=\"1\" custom_padding=\"0px||0px||true|false\" module_class=\"grid-fullrow\" global_colors_info=\"{}\"][et_pb_column type=\"4_4\" _builder_version=\"4.27.4\" global_colors_info=\"{}\"][et_pb_text _builder_version=\"4.27.4\" module_class=\"grid-shortcode\" global_colors_info=\"{}\"][grid_legal kicker=\"Ochrana údajů\" nadpis=\"Zásady ochrany osobních údajů\"][cmplz-document type=\"privacy-statement\" region=\"eu\"][/grid_legal][/et_pb_text][/et_pb_column][/et_pb_row][/et_pb_section]"
- },
- "presets": [],
- "global_colors": [],
- "images": {},
- "thumbnails": []
-}
+{"context": "et_builder", "data": {"1": "[et_pb_section fb_built=\"1\" _builder_version=\"4.27.4\" custom_padding=\"0px||0px||true|false\" global_colors_info=\"{}\"][et_pb_row _builder_version=\"4.27.4\" width=\"100%\" max_width=\"100%\" use_custom_gutter=\"on\" gutter_width=\"1\" custom_padding=\"0px||0px||true|false\" module_class=\"grid-fullrow\" global_colors_info=\"{}\"][et_pb_column type=\"4_4\" _builder_version=\"4.27.4\" global_colors_info=\"{}\"][et_pb_text admin_label=\"Zásady ochrany osobních údajů\" _builder_version=\"4.27.4\" module_class=\"grid-html\" global_colors_info=\"{}\"]<section class=\"sec sec-light sec-pad grid-legal\" style=\"padding-top:clamp(120px,16vh,180px)\"> <div class=\"wrap\" style=\"max-width:820px\"> <span class=\"kicker\">Ochrana údajů</span> <h1 style=\"font-size:clamp(2.2rem,5vw,3.6rem);margin:14px 0 20px\">Zásady ochrany osobních údajů</h1>\t    <div class=\"legal-body\"><p>[cmplz-document type=\"privacy-statement\" region=\"eu\"]</p></div> </div> </section>[/et_pb_text][/et_pb_column][/et_pb_row][/et_pb_section]"}, "presets": [], "global_colors": [["gcid-red", {"color": "#C20E1A", "active": "yes"}], ["gcid-gold", {"color": "#CAA75F", "active": "yes"}], ["gcid-graph", {"color": "#0E0F11", "active": "yes"}], ["gcid-card", {"color": "#16181B", "active": "yes"}], ["gcid-paper", {"color": "#F4F2F0", "active": "yes"}], ["gcid-grey", {"color": "#B9B7B9", "active": "yes"}]], "images": {}, "thumbnails": []}

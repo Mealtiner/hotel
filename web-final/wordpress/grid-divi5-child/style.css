@@ -4,7 +4,7 @@ Theme URI: https://www.garry.cz
 Author: GARRY Promotion
 Author URI: https://www.garry.cz
 Description: Prémiová child šablona pro Divi 5 vytvořená na míru pro GRID Hotel — **** hotel a restauraci přímo v areálu Automotodromu Brno u Masarykova okruhu. Designový systém „Circuit Line": vlastní barevná paleta a typografie s plnou českou diakritikou, karbonová textura tmavých sekcí, živý telemetry widget (čas + teplota trati), sekce Sezóna 2026 s čekacím listem a obsah řízený přes ACF. Navrhla a vyvinula fluidní marketingová agentura GARRY Promotion.
-Version: 1.10.1
+Version: 1.11.0
 Requires at least: 6.4
 Tested up to: 6.8
 Requires PHP: 8.0
@@ -506,12 +506,16 @@ footer :focus-visible, .booking :focus-visible, .telemetry-hud :focus-visible{
 .et_pb_row.grid-fullrow{ width:100% !important; max-width:100% !important; padding:0 !important; margin:0 auto !important; }
 .grid-fullrow .et_pb_column{ width:100% !important; margin:0 !important; padding:0 !important; }
 .grid-fullrow .et_pb_text,
-.et_pb_text.grid-shortcode{ margin:0 !important; padding:0 !important; }
-.et_pb_text.grid-shortcode > .et_pb_text_inner{ margin:0 !important; }
+.et_pb_text.grid-shortcode,
+.et_pb_text.grid-html{ margin:0 !important; padding:0 !important; }
+.et_pb_text.grid-shortcode > .et_pb_text_inner,
+.et_pb_text.grid-html > .et_pb_text_inner{ margin:0 !important; }
 /* wpautop nechť neláme naše sekce */
-.et_pb_text.grid-shortcode > .et_pb_text_inner > p:empty{ display:none; }
+.et_pb_text.grid-shortcode > .et_pb_text_inner > p:empty,
+.et_pb_text.grid-html > .et_pb_text_inner > p:empty{ display:none; }
 /* Divi obal nesmí přebít pozadí našich sekcí */
-.et_pb_section:has(.grid-shortcode){ padding:0 !important; background:transparent !important; }
+.et_pb_section:has(.grid-shortcode),
+.et_pb_section:has(.grid-html){ padding:0 !important; background:transparent !important; }
 
 /* ============================================================
    WP ADMIN BAR — fixní hlavička nesmí mizet pod administrační lištu
