@@ -3,7 +3,7 @@
  * Plugin Name:       GARRY – Boční posuvník (trať)
  * Plugin URI:        https://www.garry.cz
  * Description:       Boční „progress" navigace po sekcích stránky (styl trať) pro web GRID Hotel. Per-stránka: zapnutí, načtení sekcí, editace názvů, skrytí sekcí (přečíslování) a živý náhled.
- * Version:           1.1.0
+ * Version:           1.2.0
  * Author:            GARRY Promotion
  * Author URI:        https://www.garry.cz
  * License:           Proprietary — Copyright © GARRY Promotion
@@ -670,8 +670,8 @@ function garry_scr_lang() {
 	return substr( (string) get_locale(), 0, 2 );
 }
 /* mapa shortcode → [anchor, výchozí název (CS/EN/DE), typ] */
-function garry_scr_map() {
-	$lang = garry_scr_lang();
+function garry_scr_map( $lang = null ) {
+	$lang = $lang ?: garry_scr_lang();
 	$names = array(
 		'cs' => array( 'Okruh','Vstupy','Příběh','Pokoje','Zážitky','Gastro','Sezóna','Firmy','Reference','Rezervace' ),
 		'en' => array( 'Circuit','Ways in','Story','Rooms','Experiences','Dining','Season','Business','Reviews','Booking' ),
@@ -692,25 +692,38 @@ function garry_scr_map() {
 	);
 }
 /* Detekce sekcí na stránce podle výskytu shortcodů v obsahu (seřazeno dle pozice) */
-function garry_scr_detect( $content ) {
+function garry_scr_detect( $content, $lang = null ) {
+	$map = garry_scr_map( $lang );
 	$found = array();
-	foreach ( garry_scr_map() as $sc => $def ) {
-		$pos = strpos( $content, '[' . $sc );
-		if ( $pos === false ) $pos = strpos( $content, $sc ); // i kdyby bez závorky
-		if ( $pos !== false ) $found[ $sc ] = $pos;
+	foreach ( $map as $sc => $def ) {
+		$needles = array(
+			'[' . $sc,                            // shortcode v obsahu
+			'id="' . $def[0] . '"',               // kotva v HTML
+			'id=\\"' . $def[0] . '\\"',       // kotva v Divi 5 bloku (escapované uvozovky)
+			'id=\\u0022' . $def[0] . '\\u0022', // kotva v Divi 5 bloku (unicode escapes)
+		);
+		foreach ( $needles as $n ) {
+			$pos = strpos( $content, $n );
+			if ( $pos !== false ) { $found[ $sc ] = min( $pos, $found[ $sc ] ?? PHP_INT_MAX ); }
+		}
 	}
 	asort( $found );
 	$out = array();
-	foreach ( $found as $sc => $pos ) { $d = garry_scr_map()[ $sc ]; $out[] = array( 'sc' => $sc, 'id' => $d[0], 'label' => $d[1], 'type' => $d[2] ); }
+	foreach ( $found as $sc => $pos ) { $d = $map[ $sc ]; $out[] = array( 'sc' => $sc, 'id' => $d[0], 'label' => $d[1], 'type' => $d[2] ); }
 	return $out;
 }
 /* Kompletní kanonická sada sekcí úvodní stránky (shoduje se s funkčním [grid_tracknav]
  * v child theme). Použije se jako předvyplnění na titulní stránce, když se v Divi
  * obsahu nepodaří shortcody detekovat (obsah je uložen v Divi struktuře). */
-function garry_scr_front_sections() {
+function garry_scr_front_sections( $lang = null ) {
 	$out = array();
-	foreach ( garry_scr_map() as $sc => $d ) $out[] = array( 'sc' => $sc, 'id' => $d[0], 'label' => $d[1], 'type' => $d[2] );
+	foreach ( garry_scr_map( $lang ) as $sc => $d ) $out[] = array( 'sc' => $sc, 'id' => $d[0], 'label' => $d[1], 'type' => $d[2] );
 	return $out;
+}
+/* Jazyk konkrétní stránky (Polylang), fallback aktuální jazyk */
+function garry_scr_page_lang( $pid ) {
+	if ( function_exists( 'pll_get_post_language' ) ) { $l = pll_get_post_language( $pid ); if ( $l ) return $l; }
+	return garry_scr_lang();
 }
 /* Je stránka titulní stránkou NEBO jejím jazykovým překladem (Polylang)? */
 function garry_scr_is_front( $pid ) {
@@ -725,9 +738,10 @@ function garry_scr_is_front( $pid ) {
 /* Sekce pro danou stránku: detekce z obsahu; na titulní stránce (vč. mutací) fallback na kanonickou sadu. */
 function garry_scr_sections_for( $pid ) {
 	$page = get_post( $pid );
-	$sections = $page ? garry_scr_detect( $page->post_content ) : array();
+	$lang = garry_scr_page_lang( $pid );
+	$sections = $page ? garry_scr_detect( $page->post_content, $lang ) : array();
 	if ( empty( $sections ) && garry_scr_is_front( $pid ) ) {
-		$sections = garry_scr_front_sections();
+		$sections = garry_scr_front_sections( $lang );
 	}
 	return $sections;
 }
@@ -746,7 +760,7 @@ function garry_scr_points( $pid ) {
 		if ( ! empty( $hidden[ $s['id'] ] ) ) continue;
 		$label = isset( $labels[ $s['id'] ] ) && $labels[ $s['id'] ] !== '' ? $labels[ $s['id'] ] : $s['label'];
 		$cil = array( 'cs' => 'CÍL', 'en' => 'FINISH', 'de' => 'ZIEL' );
-		$lang = garry_scr_lang();
+		$lang = garry_scr_page_lang( $pid );
 		if ( $s['type'] === 'start' ) $num = 'START';
 		elseif ( $s['type'] === 'cil' ) $num = isset( $cil[ $lang ] ) ? $cil[ $lang ] : 'CÍL';
 		else { $t++; $num = 'T' . $t; }
@@ -777,7 +791,13 @@ add_action( 'admin_post_garry_scr_save', function () {
 	$pid = (int) $_POST['pid'];
 	$all = garry_scr_all();
 	$labels = array(); $hidden = array();
-	if ( ! empty( $_POST['label'] ) && is_array( $_POST['label'] ) ) foreach ( $_POST['label'] as $id => $v ) $labels[ sanitize_key( $id ) ] = sanitize_text_field( $v );
+	$defaults = array();
+	foreach ( garry_scr_sections_for( $pid ) as $sec ) $defaults[ $sec['id'] ] = $sec['label'];
+	if ( ! empty( $_POST['label'] ) && is_array( $_POST['label'] ) ) foreach ( $_POST['label'] as $id => $v ) {
+		$id = sanitize_key( $id ); $v = sanitize_text_field( $v );
+		if ( $v === '' || ( isset( $defaults[ $id ] ) && $v === $defaults[ $id ] ) ) continue; // default → neukládat
+		$labels[ $id ] = $v;
+	}
 	if ( ! empty( $_POST['hidden'] ) && is_array( $_POST['hidden'] ) ) foreach ( $_POST['hidden'] as $id => $v ) $hidden[ sanitize_key( $id ) ] = 1;
 	$all[ $pid ] = array( 'enabled' => empty( $_POST['enabled'] ) ? 0 : 1, 'labels' => $labels, 'hidden' => $hidden );
 	update_option( GARRY_SCR_OPT, $all );
