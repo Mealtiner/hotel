@@ -3,7 +3,7 @@
  * Plugin Name:       GARRY – Denní menu
  * Plugin URI:        https://www.garry.cz
  * Description:       Jednoduchá správa týdenního jídelníčku pro personál gastra: dny Po–Ne + celotýdenní nabídka, názvy jídel ve 3 jazycích (CZ/EN/DE), výběr kalendářního týdne. Na webu se vykreslí přes [grid_menu_tydne] jen vyplněné dny.
- * Version:           1.4.0
+ * Version:           1.4.1
  * Author:            GARRY Promotion
  * Author URI:        https://www.garry.cz
  * License:           Proprietary — Copyright © GARRY Promotion
@@ -980,8 +980,8 @@ function garry_menu_admin_page() {
 	  <p><button type="button" class="button" id="gm-stala-add">+ Přidat položku</button></p>
 	</div>
 	<?php submit_button( 'Uložit menu' ); ?>
-	<h2 style="margin-top:8px">Náhled na webu (česky)</h2>
-	<p class="description">Živý náhled matice — zobrazují se jen dny s alespoň jedním vyplněným jídlem.</p>
+	<h2 style="margin-top:8px" id="gm-preview-h">Náhled na webu (česky)</h2>
+	<p class="description" id="gm-preview-sub">Živý náhled matice — zobrazují se jen dny s alespoň jedním vyplněným jídlem.</p>
 	<div id="gm-preview" style="display:grid;grid-template-columns:repeat(4,1fr);gap:14px;max-width:1400px;background:#F4F2F0;border:1px solid #c3c4c7;border-radius:8px;padding:16px"></div>
 	</form></div>
 	<script>
@@ -997,11 +997,22 @@ function garry_menu_admin_page() {
 	    wr.textContent='týden '+f(po)+' – '+f(ne)+' '+ne.getFullYear();
 	  }); }
 	  var tabs=document.querySelectorAll('#gm-tabs .nav-tab');
+	  var gmPreviewH=document.getElementById('gm-preview-h'), gmPreviewSub=document.getElementById('gm-preview-sub');
+	  function renderActivePreview(){
+	    var active=document.querySelector('#gm-tabs .nav-tab-active');
+	    var isStala = active && active.getAttribute('data-day')==='stala';
+	    if(gmPreviewH) gmPreviewH.textContent = isStala ? 'Náhled stálé nabídky na webu (česky)' : 'Náhled na webu (česky)';
+	    if(gmPreviewSub) gmPreviewSub.textContent = isStala
+	      ? 'Živý náhled — vypisuje se pod kartami denního menu, jen vyplněné kategorie.'
+	      : 'Živý náhled matice — zobrazují se jen dny s alespoň jedním vyplněným jídlem.';
+	    if(isStala) previewStala(); else preview();
+	  }
 	  tabs.forEach(function(t){ t.addEventListener('click', function(e){
 	    e.preventDefault();
 	    tabs.forEach(function(x){ x.classList.remove('nav-tab-active'); });
 	    t.classList.add('nav-tab-active');
 	    document.querySelectorAll('.gm-day').forEach(function(d){ d.style.display = d.getAttribute('data-day')===t.getAttribute('data-day') ? '' : 'none'; });
+	    renderActivePreview();
 	  }); });
 	  document.querySelectorAll('.gm-add').forEach(function(btn){ btn.addEventListener('click', function(){
 	    var tbl=document.querySelector('.gm-table[data-day="'+btn.getAttribute('data-day')+'"] tbody');
@@ -1012,24 +1023,25 @@ function garry_menu_admin_page() {
 	  }); });
 	  document.getElementById('gm-typ-add').addEventListener('click', function(){
 	    var tb=document.querySelector('#gm-typy tbody'); var tr=tb.rows[tb.rows.length-1].cloneNode(true);
-	    tr.querySelectorAll('input').forEach(function(i){ i.value=''; }); tb.appendChild(tr);
+	    tr.querySelectorAll('input').forEach(function(i){ i.value=''; }); tb.appendChild(tr); renderActivePreview();
 	  });
 	  document.getElementById('gm-stala-add').addEventListener('click', function(){
 	    var tb=document.querySelector('#gm-stala tbody'); var tr=tb.rows[tb.rows.length-1].cloneNode(true);
-	    tr.querySelectorAll('input').forEach(function(i){ i.value=''; }); tb.appendChild(tr);
+	    tr.querySelectorAll('input').forEach(function(i){ i.value=''; }); tb.appendChild(tr); renderActivePreview();
 	  });
 	  document.addEventListener('click', function(e){
 	    if(e.target.classList.contains('gm-up')||e.target.classList.contains('gm-down')){
 	      var mtr=e.target.closest('tr'), mtb=mtr.parentNode;
 	      if(e.target.classList.contains('gm-up') && mtr.previousElementSibling) mtb.insertBefore(mtr, mtr.previousElementSibling);
 	      if(e.target.classList.contains('gm-down') && mtr.nextElementSibling) mtb.insertBefore(mtr.nextElementSibling, mtr);
-	      if(mtr.closest('.gm-table')) preview();
+	      if(mtr.closest('.gm-table')||mtr.closest('#gm-typy')||mtr.closest('#gm-stala')) renderActivePreview();
 	      return;
 	    }
 	    if(e.target.classList.contains('gm-typ-del')||e.target.classList.contains('gm-stala-del')){
 	      var tb2=e.target.closest('tbody');
 	      if(tb2.rows.length>1) e.target.closest('tr').remove();
 	      else tb2.querySelectorAll('input').forEach(function(i){ i.value=''; });
+	      renderActivePreview();
 	      return;
 	    }
 	    if(!e.target.classList.contains('gm-del')) return;
@@ -1070,9 +1082,45 @@ function garry_menu_admin_page() {
 	    });
 	    box.innerHTML=h||'<em style="color:#8F8E90">Zatím nic vyplněno — karta se na webu skryje.</em>';
 	  }
-	  document.addEventListener('input', function(e){ if(e.target.closest('.gm-day')) preview(); });
-	  document.addEventListener('change', function(e){ if(e.target.closest('.gm-day')) preview(); });
-	  preview();
+	  function previewStala(){
+	    var box=document.getElementById('gm-preview'); if(!box) return;
+	    var typy=[];
+	    document.querySelectorAll('#gm-typy tbody tr').forEach(function(tr){
+	      var key=tr.querySelector('input[name*="[typy][key]"]').value.trim();
+	      var cz=tr.querySelector('input[name*="[typy][cz]"]').value.trim();
+	      if(key||cz) typy.push({key:key, cz:cz||key});
+	    });
+	    var groups={};
+	    document.querySelectorAll('#gm-stala tbody tr').forEach(function(tr){
+	      var sel=tr.querySelector('select');
+	      var typKey=sel?sel.value:'';
+	      var cz=tr.querySelector('input[name*="[stala][cz]"]').value.trim();
+	      var cena=tr.querySelector('input[name*="[stala][cena]"]').value.trim();
+	      if(!cz) return;
+	      (groups[typKey]=groups[typKey]||[]).push({n:cz,c:cena});
+	    });
+	    var h='';
+	    typy.forEach(function(ty){
+	      if(!groups[ty.key] || !groups[ty.key].length) return;
+	      h+='<div style="background:#fff;border:1px solid rgba(20,22,25,.12);border-radius:6px;padding:12px 14px">'+
+	        '<div style="font-weight:700;color:#16181B;border-bottom:2px solid #C20E1A;padding-bottom:6px;margin-bottom:8px">'+ty.cz+'</div>';
+	      groups[ty.key].forEach(function(it){
+	        h+='<div style="display:flex;justify-content:space-between;gap:8px;font-size:12.5px;color:#16181B;padding:2px 0">'+
+	          '<span>'+it.n+'</span>'+(it.c?'<b style="white-space:nowrap">'+it.c+'</b>':'')+'</div>';
+	      });
+	      h+='</div>';
+	    });
+	    box.innerHTML=h||'<em style="color:#8F8E90">Zatím nic vyplněno v žádné kategorii — na webu se stálá nabídka nezobrazí.</em>';
+	  }
+	  document.addEventListener('input', function(e){
+	    if(!e.target.closest('.gm-day')) return;
+	    e.target.closest('.gm-day').getAttribute('data-day')==='stala' ? previewStala() : preview();
+	  });
+	  document.addEventListener('change', function(e){
+	    if(!e.target.closest('.gm-day')) return;
+	    e.target.closest('.gm-day').getAttribute('data-day')==='stala' ? previewStala() : preview();
+	  });
+	  renderActivePreview();
 	})();
 	</script>
 	<?php
