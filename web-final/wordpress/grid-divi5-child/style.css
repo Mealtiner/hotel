@@ -933,6 +933,12 @@ html:not([lang^="cs"]):not([lang^="en"]):not([lang^="de"]) .grid-lang-cs{ displa
 .fluentform .ff-btn-submit{font-family:var(--f-mono);font-size:.74rem;letter-spacing:.14em;text-transform:uppercase;border:1px solid var(--red);cursor:pointer;padding:12px 22px;transition:background .25s,transform .2s}
 .fluentform .ff-btn-submit:hover{transform:translateY(-1px)}
 .fluentform .ff-message-success{font-family:var(--f-mono);font-size:.85rem;border:1px solid #1d7a3c;background:rgba(29,122,60,.08);color:#1d7a3c;padding:12px 16px;margin-top:10px}
+/* FF obaluje pole do <fieldset> — zprůhlednit pro grid/flex layouty */
+.fluentform form>fieldset{display:contents;border:0;padding:0;margin:0;min-width:0}
+.fluentform form>fieldset>legend{position:absolute!important;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+/* nápovědné ikonky (tooltips) v brandových barvách, ne modré */
+.fluentform .ff-el-tooltip{color:var(--muted)}
+.fluentform .ff-el-tooltip svg{fill:currentColor;width:14px;height:14px}
 /* Dvousloupcový layout (kontakt, firemní poptávka) jako původní .form-grid */
 .k-form .fluentform form,#firemni .fluentform form{display:grid;grid-template-columns:1fr 1fr;gap:0 18px;align-items:start}
 .k-form .fluentform .ff-el-group,#firemni .fluentform .ff-el-group{margin-bottom:14px}
@@ -971,11 +977,13 @@ html:not([lang^="cs"]):not([lang^="en"]):not([lang^="de"]) .grid-lang-cs{ displa
 .fluentform input:focus-visible,.fluentform textarea:focus-visible,.fluentform select:focus-visible{outline:1px solid var(--red);outline-offset:0}
 /* Newsletter v patičce — kompaktní řádek bez labelu */
 .foot-col .fluentform .ff-el-input--label{display:none}
-.foot-col .fluentform form{display:flex;gap:8px;align-items:stretch}
+.foot-col .fluentform{width:100%}
+.foot-col .fluentform form{display:flex;align-items:stretch;width:100%;border:1px solid var(--line);margin-top:14px}
 .foot-col .fluentform .ff-el-group{margin:0}
-.foot-col .fluentform .ff-el-group:not(.ff_submit_btn_wrapper){flex:1}
+.foot-col .fluentform .ff-el-group:not(.ff_submit_btn_wrapper){flex:1;min-width:0}
 .foot-col .fluentform .ff_submit_btn_wrapper{flex:0 0 auto}
-.foot-col .fluentform .ff-btn-submit{height:100%;padding:11px 18px}
+.foot-col .fluentform .ff-el-form-control{background:transparent;border:none!important;box-shadow:none!important;padding:11px 14px;color:var(--offwhite);font-size:.85rem}
+.foot-col .fluentform .ff-btn-submit{height:100%;background:var(--red);border:none;color:#fff;padding:0 16px;font-size:.78rem;letter-spacing:.1em}
 .foot-col .fluentform .ff-message-success{border-color:var(--gold);background:rgba(202,167,95,.1);color:var(--gold)}
 /* Stálá nabídka (jídelní lístek) — 4 vyrovnané sloupce dle počtu položek */
 .menu-stala-h{font-family:var(--f-mono);font-size:.8rem;font-weight:600;letter-spacing:.18em;text-transform:uppercase;color:var(--red);margin:48px 0 18px}
