@@ -153,7 +153,7 @@ add_action( 'acf/init', function () {
 				'type' => 'email', 'default_value' => 'info@gridhotel.cz' ),
 		),
 		'location' => array( array( array( 'param' => 'post_type', 'operator' => '==', 'value' => 'grid_job' ) ) ),
-		'position' => 'normal',
+		'position' => 'acf_after_title', // pole pozice hned pod titulkem, NAD rámečkem Yoast SEO
 	) );
 } );
 

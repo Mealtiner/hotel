@@ -170,6 +170,27 @@ add_action( 'wp_head', function () {
 } );
 
 /* ------------------------------------------------------------------
+ * 11b) Hlavní menu jako WP menu — editace ve Vzhled → Menu,
+ *      jazykové mutace přiřazuje Polylang (lokace „grid-hlavni").
+ *      V TB hlavičce je token [grid_menu_hlavni] → plain <a> odkazy.
+ * ------------------------------------------------------------------ */
+add_action( 'after_setup_theme', function () {
+	register_nav_menus( array( 'grid-hlavni' => 'Hlavní menu (horní lišta)' ) );
+} );
+function grid_render_hlavni_menu() {
+	$locations = get_nav_menu_locations(); // Polylang vrací menu pro aktuální jazyk
+	$menu_id   = $locations['grid-hlavni'] ?? 0;
+	$items     = $menu_id ? wp_get_nav_menu_items( $menu_id ) : array();
+	if ( ! $items ) return '';
+	$out = array();
+	foreach ( $items as $it ) {
+		$out[] = '<a href="' . esc_url( $it->url ) . '">' . esc_html( $it->title ) . '</a>';
+	}
+	return implode( ' ', $out );
+}
+add_shortcode( 'grid_menu_hlavni', 'grid_render_hlavni_menu' );
+
+/* ------------------------------------------------------------------
  * 12) Shortcody v Theme Builder layoutech (hlavička/patička) —
  *     Divi 5 je v TB obsahu samo nespouští, na stránkách ano.
  * ------------------------------------------------------------------ */
@@ -198,6 +219,7 @@ add_action( 'template_redirect', function () {
 			'[grid_paticka_kontakt]' => function_exists( 'grid_sc_footer_kontakt' ) ? grid_sc_footer_kontakt() : '',
 			'[grid_socials]'         => function_exists( 'grid_sc_socials' ) ? grid_sc_socials() : '',
 			'[grid_ff_newsletter]'   => $ff_newsletter,
+			'[grid_menu_hlavni]'     => grid_render_hlavni_menu(),
 		);
 		foreach ( $map as $token => $out ) {
 			if ( strpos( $html, $token ) !== false ) $html = str_replace( $token, (string) $out, $html );
