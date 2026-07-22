@@ -338,6 +338,17 @@ Text Domain: grid-divi5-child
   .gcard .g-list li b{color:var(--fg)}
 
   /* ===== SEASON 2026 / WAITLIST ===== */
+  /* Karty akcí sezóny (horní část stránky Sezóna) */
+  .sez-cards{display:grid;grid-template-columns:repeat(3,1fr);gap:clamp(14px,1.8vw,24px);margin-bottom:clamp(40px,6vh,64px)}
+  .sez-card{background:var(--card);border:1px solid var(--card-line);border-radius:2px;padding:clamp(20px,2.2vw,30px);display:flex;flex-direction:column;gap:10px}
+  .sez-card-top{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+  .sez-card h3{font-size:clamp(1.2rem,1.8vw,1.5rem)}
+  .sez-card p{font-size:.9rem;color:var(--muted);flex:1}
+  .sez-card-links{display:flex;gap:18px;flex-wrap:wrap}
+  @media(max-width:1080px){.sez-cards{grid-template-columns:repeat(2,1fr)}}
+  @media(max-width:640px){.sez-cards{grid-template-columns:1fr}}
+  .ev-ext{display:inline-block;margin-left:8px;color:var(--gold);font-weight:700}
+  .ev-ext:hover{color:var(--red-hi,#FF5A50)}
   .season{display:grid;grid-template-columns:1.35fr 1fr;gap:clamp(24px,4vw,56px);align-items:start}
   /* grid položky se nesmí roztáhnout na min-content (přetékaly na mobilu) */
   .season>*{min-width:0}

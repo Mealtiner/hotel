@@ -3,7 +3,7 @@
  * Plugin Name:       GRID Hotel Core
  * Plugin URI:        https://www.garry.cz
  * Description:       Datová vrstva webu GRID Hotel — custom post types (pokoje, zážitky, akce sezóny, gastro, reference) + ACF pole + jednoklikové naplnění obsahem. Součást ekosystému GARRY Promotion (zobrazuje se v přehledu „GARRY nastavení"). Nezávislé na šabloně.
- * Version:           1.3.3
+ * Version:           1.3.4
  * Author:            GARRY Promotion
  * Author URI:        https://www.garry.cz
  * License:           Proprietary — Copyright © GARRY Promotion

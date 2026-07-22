@@ -28,6 +28,8 @@ function gridcore_register_cpts() {
 		'grid_event' => array(
 			'singular' => 'Akce sezóny', 'plural' => 'Sezóna 2026', 'slug' => 'akce',
 			'icon' => 'dashicons-calendar-alt', 'thumb' => false,
+			// SKRYTO z menu: akce spravuje plugin „Sezóna & čekací list", CPT je jen datová legacy
+			'menu' => false,
 		),
 		'grid_gastro' => array(
 			'singular' => 'Gastro provoz', 'plural' => 'Gastronomie', 'slug' => 'gastro',
@@ -56,7 +58,7 @@ function gridcore_register_cpts() {
 			'show_ui'            => true,
 			// Zobrazit jako podpoložky pod „GRID Nastavení" (ACF options page 'grid-options').
 			// Fallback na samostatnou top-level položku, když options page není (ACF Free).
-			'show_in_menu'       => gridcore_parent_menu(),
+			'show_in_menu'       => array_key_exists( 'menu', $t ) ? $t['menu'] : gridcore_parent_menu(),
 			'show_in_rest'       => true,
 			'has_archive'        => array_key_exists( 'archive', $t ) ? $t['archive'] : true,
 			'hierarchical'       => false,

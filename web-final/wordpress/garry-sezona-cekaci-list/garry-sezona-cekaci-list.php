@@ -3,7 +3,7 @@
  * Plugin Name:       GARRY – Sezóna & čekací list
  * Plugin URI:        https://www.garry.cz
  * Description:       Akce sezóny pro sekci T6: karty administrace (Akce s náhledem widgetu, editovatelné štítky obsazenosti s barvami, log poptávek), funkční čekací formulář s odesíláním na e-mail a háčkem pro Google reCAPTCHA. Frontend: [grid_season_events limit="5"].
- * Version:           2.1.0
+ * Version:           2.2.0
  * Author:            GARRY Promotion
  * Author URI:        https://www.garry.cz
  * License:           Proprietary — Copyright © GARRY Promotion
@@ -685,17 +685,26 @@ function garry_sez_default_states() {
 	);
 }
 function garry_sez_default_events() {
+	/* Reálný kalendář závodů — automotodrombrno.cz/kalendar-akci/zavody/ (načteno 2026-07-22) */
 	return array(
-		array( 'od'=>'2026-04-17','do'=>'2026-04-19','cz'=>'Track Day Open','en'=>'Track Day Open','de'=>'Track Day Open',
-			'pcz'=>'Volné jízdy pro veřejnost na okruhu','pen'=>'Open track sessions for the public','pde'=>'Freies Fahren für die Öffentlichkeit','stav'=>'volne' ),
-		array( 'od'=>'2026-05-22','do'=>'2026-05-24','cz'=>'Endurance 8h Brno','en'=>'Endurance 8h Brno','de'=>'Endurance 8h Brno',
-			'pcz'=>'Vytrvalostní závod — den i noc na trati','pen'=>'Endurance race — day and night on track','pde'=>'Langstreckenrennen — Tag und Nacht auf der Strecke','stav'=>'posledni' ),
-		array( 'od'=>'2026-08-07','do'=>'2026-08-09','cz'=>'MotoGP víkend','en'=>'MotoGP weekend','de'=>'MotoGP-Wochenende',
-			'pcz'=>'Hlavní událost sezóny — vrchol roku','pen'=>'The main event of the season','pde'=>'Das Hauptevent der Saison','stav'=>'cekaci' ),
-		array( 'od'=>'2026-09-11','do'=>'2026-09-13','cz'=>'FIA WTCR','en'=>'FIA WTCR','de'=>'FIA WTCR',
-			'pcz'=>'Cestovní vozy na Masarykově okruhu','pen'=>'Touring cars at the Masaryk Circuit','pde'=>'Tourenwagen am Masaryk-Ring','stav'=>'posledni' ),
-		array( 'od'=>'2026-10-02','do'=>'2026-10-04','cz'=>'Classic & Historic','en'=>'Classic & Historic','de'=>'Classic & Historic',
-			'pcz'=>'Přehlídka historických závodních strojů','pen'=>'A showcase of historic racing machines','pde'=>'Schau historischer Rennmaschinen','stav'=>'volne' ),
+		array( 'od'=>'2026-09-11','do'=>'2026-09-13','cz'=>'Masaryk Racing Days 2026','en'=>'Masaryk Racing Days 2026','de'=>'Masaryk Racing Days 2026',
+			'pcz'=>'Mezinárodní závodní víkend okruhových šampionátů','pen'=>'International circuit racing weekend','pde'=>'Internationales Rundstrecken-Rennwochenende',
+			'stav'=>'volne','url'=>'https://www.automotodrombrno.cz/masaryk-racing-days-2026/' ),
+		array( 'od'=>'2026-09-18','do'=>'2026-09-20','cz'=>'Velká cena Bohumila Staši','en'=>'Bohumil Staša Grand Prix','de'=>'Großer Preis von Bohumil Staša',
+			'pcz'=>'Tradiční motocyklové závody na Masarykově okruhu','pen'=>'Traditional motorcycle races at the Masaryk Circuit','pde'=>'Traditionelle Motorradrennen am Masaryk-Ring',
+			'stav'=>'volne','url'=>'https://www.automotodrombrno.cz/velka-cena-bohumila-stasi-2026/' ),
+		array( 'od'=>'2026-09-24','do'=>'2026-09-27','cz'=>'Porsche Sprint Challenge Central Europe','en'=>'Porsche Sprint Challenge Central Europe','de'=>'Porsche Sprint Challenge Central Europe',
+			'pcz'=>'Značkový pohár vozů Porsche','pen'=>'Porsche one-make cup racing','pde'=>'Porsche-Markenpokal',
+			'stav'=>'volne','url'=>'https://www.automotodrombrno.cz/porsche-sprint-challenge-central-europe-2026/' ),
+		array( 'od'=>'2026-10-10','do'=>'2026-10-11','cz'=>'Race Car Show – MM závodů automobilů do vrchu','en'=>'Race Car Show – Hill Climb Championship','de'=>'Race Car Show – Bergrenn-Meisterschaft',
+			'pcz'=>'Mezinárodní mistrovství závodů automobilů do vrchu','pen'=>'International hill climb championship','pde'=>'Internationale Bergrenn-Meisterschaft',
+			'stav'=>'volne','url'=>'https://www.automotodrombrno.cz/mezinarodni-mistrovstvi-zavodu-automobilu-do-vrchu-2026-2/' ),
+		array( 'od'=>'2026-10-17','do'=>'2026-10-17','cz'=>'Tuning Show Brno','en'=>'Tuning Show Brno','de'=>'Tuning Show Brno',
+			'pcz'=>'Přehlídka upravených vozů na okruhu','pen'=>'Tuned car show at the circuit','pde'=>'Tuning-Schau an der Rennstrecke',
+			'stav'=>'volne','url'=>'https://www.automotodrombrno.cz/tuning-show-brno-2026/' ),
+		array( 'od'=>'2026-10-18','do'=>'2026-10-18','cz'=>'8h Le Brno','en'=>'8h Le Brno','de'=>'8h Le Brno',
+			'pcz'=>'Osmihodinový vytrvalostní závod','pen'=>'Eight-hour endurance race','pde'=>'Acht-Stunden-Langstreckenrennen',
+			'stav'=>'volne','url'=>'https://www.automotodrombrno.cz/le-brno-8h-2026/' ),
 	);
 }
 function garry_sez_get() {
@@ -772,6 +781,7 @@ function garry_sez_sanitize( $in ) {
 			'pen'  => sanitize_text_field( $e['pen'][ $i ] ?? '' ),
 			'pde'  => sanitize_text_field( $e['pde'][ $i ] ?? '' ),
 			'stav' => in_array( $e['stav'][ $i ] ?? '', $state_keys, true ) ? $e['stav'][ $i ] : ( $state_keys[0] ?? 'volne' ),
+			'url'  => esc_url_raw( $e['url'][ $i ] ?? '' ),
 		);
 		if ( $row['cz'] === '' && $row['od'] === '' ) continue;
 		$out['events'][] = $row;
@@ -826,6 +836,7 @@ function garry_sez_admin_page() {
 	          <label>Obsazenost <select name="<?php echo $O; ?>[events][stav][]" class="sez-ev-stav">
 	            <?php foreach ( $states as $k => $st ) printf( '<option value="%s" %s>%s</option>', esc_attr( $k ), selected( $ev['stav'], $k, false ), esc_html( $st['cz'] ) ); ?>
 	          </select></label>
+	          <label style="flex:1;min-width:260px">Detail akce (URL na autodrom) <input type="url" style="width:100%" name="<?php echo $O; ?>[events][url][]" value="<?php echo esc_attr( $ev['url'] ?? '' ); ?>" placeholder="https://www.automotodrombrno.cz/…"></label>
 	          <button type="button" class="button-link sez-ev-del" style="color:#b32d2e;margin-left:auto">Smazat akci ×</button>
 	        </div>
 	        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:8px">
@@ -1020,7 +1031,7 @@ function garry_sez_fmt_range( $od, $do ) {
 	return $a->format( 'j. n.' ) . ' – ' . $b->format( 'j. n. Y' );
 }
 function garry_sez_render( $atts = array() ) {
-	$a = shortcode_atts( array( 'limit' => 5 ), $atts );
+	$a = shortcode_atts( array( 'limit' => 5, 'karty' => 0 ), $atts );
 	$s = garry_sez_get(); $STATES = garry_sez_states(); $li = garry_sez_lang_idx();
 	$today = current_time( 'Y-m-d' );
 	$events = array_values( array_filter( $s['events'], function ( $e ) use ( $today ) {
@@ -1058,18 +1069,42 @@ function garry_sez_render( $atts = array() ) {
 	ob_start();
 	echo '<style>' . $css . '</style>';
 	?>
-	<div class="season">
+	<?php if ( ! empty( $a['karty'] ) ) :
+		$tx = array(
+			array( 'Detail akce', 'Rezervace & čekací list' ),
+			array( 'Event details', 'Booking & waiting list' ),
+			array( 'Event-Details', 'Buchung & Warteliste' ),
+		)[ $li ]; ?>
+	<div class="sez-cards">
+	  <?php foreach ( $events as $e ) :
+			$name  = $e[ array( 'cz', 'en', 'de' )[ $li ] ] ?: $e['cz'];
+			$perex = $e[ array( 'pcz', 'pen', 'pde' )[ $li ] ] ?: $e['pcz'];
+			$st = $STATES[ $e['stav'] ] ?? null; if ( ! $st ) continue; ?>
+	  <div class="sez-card">
+	    <div class="sez-card-top"><span class="ev-date"><?php echo esc_html( garry_sez_fmt_range( $e['od'], $e['do'] ) ); ?></span>
+	    <span class="ev-status <?php echo esc_attr( sanitize_html_class( $e['stav'] ) . ' ' . $st['legacy'] ); ?>"><?php echo esc_html( garry_sez_state_label( $st, $li ) ); ?></span></div>
+	    <h3><?php echo esc_html( $name ); ?></h3>
+	    <p><?php echo esc_html( $perex ); ?></p>
+	    <div class="sez-card-links">
+	      <?php if ( ! empty( $e['url'] ) ) : ?><a class="sec-more" href="<?php echo esc_url( $e['url'] ); ?>" target="_blank" rel="noopener"><?php echo esc_html( $tx[0] ); ?> <span aria-hidden="true">↗</span></a><?php endif; ?>
+	      <a class="sec-more" href="#cekaci-list"><?php echo esc_html( $tx[1] ); ?> <span aria-hidden="true">↓</span></a>
+	    </div>
+	  </div>
+	  <?php endforeach; ?>
+	</div>
+	<?php endif; ?>
+	<div class="season" id="cekaci-list">
 	  <div class="ev-list reveal d1 in" id="evList">
 	    <?php foreach ( $events as $e ) :
 			$name  = $e[ array( 'cz', 'en', 'de' )[ $li ] ] ?: $e['cz'];
 			$perex = $e[ array( 'pcz', 'pen', 'pde' )[ $li ] ] ?: $e['pcz'];
 			$st = $STATES[ $e['stav'] ] ?? null; if ( ! $st ) continue; ?>
-	    <button type="button" class="ev-row" data-ev="<?php echo esc_attr( $name ); ?>">
+	    <div class="ev-row" role="button" tabindex="0" data-ev="<?php echo esc_attr( $name ); ?>">
 	      <span class="ev-date"><?php echo esc_html( garry_sez_fmt_range( $e['od'], $e['do'] ) ); ?></span>
-	      <span class="ev-name"><?php echo esc_html( $name ); ?><small><?php echo esc_html( $perex ); ?></small></span>
+	      <span class="ev-name"><?php echo esc_html( $name ); ?><small><?php echo esc_html( $perex ); ?><?php if ( ! empty( $e['url'] ) ) : ?> <a class="ev-ext" href="<?php echo esc_url( $e['url'] ); ?>" target="_blank" rel="noopener" onclick="event.stopPropagation()">↗</a><?php endif; ?></small></span>
 	      <span class="ev-meta"><span class="ev-status <?php echo esc_attr( sanitize_html_class( $e['stav'] ) . ' ' . $st['legacy'] ); ?>"><?php echo esc_html( garry_sez_state_label( $st, $li ) ); ?></span>
 	      <span class="ev-cta"><?php echo esc_html( garry_sez_state_cta( $st, $li ) ); ?></span></span>
-	    </button>
+	    </div>
 	    <?php endforeach; ?>
 	  </div>
 	  <div class="waitbox reveal d2 in">

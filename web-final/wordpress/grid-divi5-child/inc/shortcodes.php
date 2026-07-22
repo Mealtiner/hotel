@@ -788,7 +788,7 @@ function grid_sc_season() {
 	  <span class="sec-tag">T6</span>
 	  <div class="wrap">
 	    <div class="reveal" style="margin-bottom:46px"><span class="kicker">T6 · Sezóna 2026 · Čekací list</span><h2 style="font-size:clamp(2rem,4vw,3.6rem);margin-top:16px">Velké akce se plní rychle. Buďte na roštu první.</h2><p style="max-width:62ch;margin-top:14px;color:var(--muted)">O závodních víkendech je hotel uprostřed okruhu nejžádanějším místem v Brně. Vyberte akci, zkontrolujte dostupnost pokojů a rezervujte — nebo se zapište na čekací list. Jakmile se uvolní místnost pro vámi vybraný termín, ozveme se jako prvním.</p></div>
-	    [grid_season_events limit="5"]
+	    <?php echo is_front_page() ? '[grid_season_events limit="5"]' : '[grid_season_events limit="0" karty="1"]'; ?>
 	    <?php echo grid_section_more( array( 'sezona-2026', 'sezona' ), 'Celý program sezóny 2026' ); ?>
 	  </div>
 	</section>
