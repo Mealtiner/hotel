@@ -3,7 +3,7 @@
  * Plugin Name:       GARRY – Denní menu
  * Plugin URI:        https://www.garry.cz
  * Description:       Jednoduchá správa týdenního jídelníčku pro personál gastra: dny Po–Ne + celotýdenní nabídka, názvy jídel ve 3 jazycích (CZ/EN/DE), výběr kalendářního týdne. Na webu se vykreslí přes [grid_menu_tydne] jen vyplněné dny.
- * Version:           1.0.0
+ * Version:           1.1.0
  * Author:            GARRY Promotion
  * Author URI:        https://www.garry.cz
  * License:           Proprietary — Copyright © GARRY Promotion
@@ -697,11 +697,19 @@ function garry_menu_get() {
 	if ( ! is_array( $o ) ) $o = array();
 	return wp_parse_args( $o, array( 'week' => '', 'days' => array() ) );
 }
-/* ISO týden 2026-W31 → [DateTime po, DateTime ne] */
+/* Týden z hodnoty: datum YYYY-MM-DD (kalendářní výběr — libovolný den v týdnu)
+ * nebo legacy ISO 2026-W31 → [DateTime pondělí, DateTime neděle] */
 function garry_menu_week_range( $week ) {
-	if ( ! preg_match( '/^(\d{4})-W(\d{2})$/', (string) $week, $m ) ) return null;
+	$week = (string) $week;
 	try {
-		$po = new DateTime(); $po->setISODate( (int) $m[1], (int) $m[2] );
+		if ( preg_match( '/^(\d{4})-W(\d{2})$/', $week, $m ) ) {
+			$po = new DateTime(); $po->setISODate( (int) $m[1], (int) $m[2] );
+		} elseif ( preg_match( '/^\d{4}-\d{2}-\d{2}$/', $week ) ) {
+			$po = new DateTime( $week );
+			$po->modify( 'monday this week' );
+		} else {
+			return null;
+		}
 		$ne = clone $po; $ne->modify( '+6 days' );
 		return array( $po, $ne );
 	} catch ( Exception $e ) { return null; }
@@ -714,11 +722,25 @@ Garry_Promotion_Registry::register( array(
 ) );
 
 add_action( 'admin_init', function () { register_setting( 'garry_menu_group', GARRY_MENU_OPT, 'garry_menu_sanitize' ); } );
+
+/* Druhý vstup: „Denní menu" i jako podpoložka menu „GRID Nastavení" (ACF options
+ * page 'grid-options' — tam, kde personál spravuje ostatní obsah hotelu). */
+add_action( 'admin_menu', function () {
+	if ( ! function_exists( 'acf_add_options_page' ) ) return; // GRID Nastavení neexistuje
+	add_submenu_page(
+		'grid-options',
+		'Denní menu',
+		'Denní menu',
+		'manage_options',
+		'garry-denni-menu-grid',
+		'garry_menu_admin_page'
+	);
+}, 100 );
 function garry_menu_sanitize( $in ) {
 	$out = array( 'week' => '', 'days' => array() );
 	if ( ! is_array( $in ) ) return $out;
 	$w = (string) ( $in['week'] ?? '' );
-	$out['week'] = preg_match( '/^\d{4}-W\d{2}$/', $w ) ? $w : '';
+	$out['week'] = preg_match( '/^(\d{4}-\d{2}-\d{2}|\d{4}-W\d{2})$/', $w ) ? $w : '';
 	$types = array_keys( garry_menu_types() );
 	foreach ( array_keys( garry_menu_days() ) as $day ) {
 		$rows = $in['days'][ $day ] ?? null;
@@ -754,12 +776,17 @@ function garry_menu_admin_page() {
 	V základu je 1× polévka, 2× hlavní chod a 1× dezert — další řádky lze přidat tlačítkem.</p>
 	<form method="post" action="options.php" id="garry-menu-form">
 	<?php settings_fields( 'garry_menu_group' ); ?>
+	<?php
+	$week_val = $s['week'];
+	if ( $range && ! preg_match( '/^\d{4}-\d{2}-\d{2}$/', $week_val ) ) $week_val = $range[0]->format( 'Y-m-d' );
+	?>
 	<p style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
 	  <label><strong>Platí pro týden:</strong>
-	    <input type="week" name="<?php echo esc_attr( GARRY_MENU_OPT ); ?>[week]" value="<?php echo esc_attr( $s['week'] ); ?>">
+	    <input type="date" id="gm-week" name="<?php echo esc_attr( GARRY_MENU_OPT ); ?>[week]" value="<?php echo esc_attr( $week_val ); ?>">
 	  </label>
-	  <?php if ( $range ) printf( '<span class="description">(%s – %s)</span>',
-		esc_html( $range[0]->format( 'j. n. Y' ) ), esc_html( $range[1]->format( 'j. n. Y' ) ) ); ?>
+	  <span class="description" id="gm-week-range"><?php if ( $range ) printf( 'týden %s – %s',
+		esc_html( $range[0]->format( 'j. n. Y' ) ), esc_html( $range[1]->format( 'j. n. Y' ) ) );
+		else echo 'vyberte v kalendáři libovolný den — týden Po–Ne se dopočítá sám'; ?></span>
 	</p>
 	<h2 class="nav-tab-wrapper" id="gm-tabs" style="margin-bottom:0">
 	  <?php $first = true; foreach ( $DAYS as $key => $names ) :
@@ -804,6 +831,16 @@ function garry_menu_admin_page() {
 	</form></div>
 	<script>
 	(function(){
+	  var wk=document.getElementById('gm-week'), wr=document.getElementById('gm-week-range');
+	  if(wk&&wr){ wk.addEventListener('change', function(){
+	    if(!wk.value) return;
+	    var d=new Date(wk.value+'T12:00:00');
+	    var day=(d.getDay()+6)%7;
+	    var po=new Date(d); po.setDate(d.getDate()-day);
+	    var ne=new Date(po); ne.setDate(po.getDate()+6);
+	    var f=function(x){ return x.getDate()+'. '+(x.getMonth()+1)+'.'; };
+	    wr.textContent='týden '+f(po)+' – '+f(ne)+' '+ne.getFullYear();
+	  }); }
 	  var tabs=document.querySelectorAll('#gm-tabs .nav-tab');
 	  tabs.forEach(function(t){ t.addEventListener('click', function(e){
 	    e.preventDefault();

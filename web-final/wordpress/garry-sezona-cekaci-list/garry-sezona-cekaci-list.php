@@ -777,7 +777,7 @@ function garry_sez_admin_page() {
 	<p><button type="button" class="button" id="sez-add">+ Přidat akci</button></p>
 	<h2>Barvy stavů obsazenosti</h2>
 	<table class="form-table" style="max-width:560px"><tbody>
-	  <?php foreach ( $STATES as $k => $st ) : $c = $s['colors'][ $k ] ?: $st[6]; ?>
+	  <?php foreach ( $STATES as $k => $st ) : $c = ( $s['colors'][ $k ] ?? '' ) ?: $st[6]; ?>
 	    <tr><th><?php echo esc_html( $st[0] ); ?></th>
 	    <td><input type="color" name="<?php echo $O; ?>[colors][<?php echo $k; ?>]" value="<?php echo esc_attr( $c ); ?>">
 	    <span class="description">výchozí <?php echo esc_html( $st[6] ); ?></span></td></tr>
@@ -846,7 +846,7 @@ function garry_sez_render( $atts = array() ) {
 	/* barvy stavů (výchozí / z nastavení) */
 	$css = '';
 	foreach ( $STATES as $k => $st ) {
-		$c = $s['colors'][ $k ] ?: $st[6];
+		$c = ( $s['colors'][ $k ] ?? '' ) ?: $st[6];
 		$css .= '.ev-status.' . $k . '{color:' . $c . ' !important;border-color:' . $c . '99 !important}';
 	}
 
