@@ -3,7 +3,7 @@
  * Plugin Name:       GARRY – Denní menu
  * Plugin URI:        https://www.garry.cz
  * Description:       Jednoduchá správa týdenního jídelníčku pro personál gastra: dny Po–Ne + celotýdenní nabídka, názvy jídel ve 3 jazycích (CZ/EN/DE), výběr kalendářního týdne. Na webu se vykreslí přes [grid_menu_tydne] jen vyplněné dny.
- * Version:           1.3.0
+ * Version:           1.3.1
  * Author:            GARRY Promotion
  * Author URI:        https://www.garry.cz
  * License:           Proprietary — Copyright © GARRY Promotion
@@ -741,8 +741,8 @@ add_action( 'admin_menu', function () {
 	if ( ! function_exists( 'acf_add_options_page' ) ) return; // GRID Nastavení neexistuje
 	add_submenu_page(
 		'grid-options',
-		'Denní menu',
-		'Denní menu',
+		'Jídelní lístek',
+		'Jídelní lístek',
 		'manage_options',
 		'garry-denni-menu-grid',
 		'garry_menu_admin_page'
@@ -813,7 +813,7 @@ function garry_menu_admin_page() {
 	$s = garry_menu_get(); $DAYS = garry_menu_days(); $TYPES = garry_menu_types();
 	$range = garry_menu_week_range( $s['week'] );
 	?>
-	<div class="wrap"><h1>Denní menu — týdenní jídelníček</h1>
+	<div class="wrap"><h1>Jídelní lístek — denní menu a stálá nabídka</h1>
 	<p>Vyplňte jídla pro jednotlivé dny (CZ/EN/DE). Nevyplněný den se na webu nezobrazí.
 	V základu je 1× polévka, 2× hlavní chod a 1× dezert — další řádky lze přidat tlačítkem.</p>
 	<form method="post" action="options.php" id="garry-menu-form">
@@ -850,7 +850,7 @@ function garry_menu_admin_page() {
 	  <div class="gm-day" data-day="<?php echo esc_attr( $key ); ?>" style="<?php echo $first ? '' : 'display:none'; ?>;background:#fff;border:1px solid #c3c4c7;border-top:none;padding:16px 18px">
 	    <table class="widefat striped gm-table" data-day="<?php echo esc_attr( $key ); ?>">
 	      <thead><tr>
-	        <th style="width:130px">Chod</th><th>Česky</th><th>English</th><th>Deutsch</th><th style="width:90px">Cena</th><th style="width:36px"></th>
+	        <th style="width:130px">Chod</th><th>Česky</th><th>English</th><th>Deutsch</th><th style="width:90px">Cena</th><th style="width:96px"></th>
 	      </tr></thead>
 	      <tbody>
 	      <?php foreach ( $rows as $r ) : ?>
@@ -862,7 +862,7 @@ function garry_menu_admin_page() {
 	          <td><input type="text" style="width:100%" name="<?php echo esc_attr( GARRY_MENU_OPT ); ?>[days][<?php echo esc_attr( $key ); ?>][en][]" value="<?php echo esc_attr( $r['en'] ); ?>" placeholder="English name"></td>
 	          <td><input type="text" style="width:100%" name="<?php echo esc_attr( GARRY_MENU_OPT ); ?>[days][<?php echo esc_attr( $key ); ?>][de][]" value="<?php echo esc_attr( $r['de'] ); ?>" placeholder="Deutscher Name"></td>
 	          <td><input type="text" style="width:100%" name="<?php echo esc_attr( GARRY_MENU_OPT ); ?>[days][<?php echo esc_attr( $key ); ?>][cena][]" value="<?php echo esc_attr( $r['cena'] ); ?>" placeholder="145 Kč"></td>
-	          <td><button type="button" class="button-link gm-del" title="Smazat řádek" style="color:#b32d2e">×</button></td>
+	          <td style="white-space:nowrap"><button type="button" class="button-link gm-up" title="Posunout výš">▲</button> <button type="button" class="button-link gm-down" title="Posunout níž">▼</button> <button type="button" class="button-link gm-del" title="Smazat řádek" style="color:#b32d2e">×</button></td>
 	        </tr>
 	      <?php endforeach; ?>
 	      </tbody>
@@ -875,7 +875,7 @@ function garry_menu_admin_page() {
 	  <h3 style="margin:14px 0 6px">Kategorie</h3>
 	  <p class="description">Pořadí kategorií zde určuje pořadí na webu. Vlastní kategorii přidáte tlačítkem — klíč se doplní sám z českého názvu.</p>
 	  <table class="widefat striped" id="gm-typy" style="max-width:860px">
-	    <thead><tr><th style="width:130px">Klíč</th><th>Česky</th><th>English</th><th>Deutsch</th><th style="width:36px"></th></tr></thead>
+	    <thead><tr><th style="width:130px">Klíč</th><th>Česky</th><th>English</th><th>Deutsch</th><th style="width:96px"></th></tr></thead>
 	    <tbody>
 	    <?php foreach ( $s['typy'] as $ty ) : ?>
 	      <tr>
@@ -883,7 +883,7 @@ function garry_menu_admin_page() {
 	        <?php foreach ( array( 'cz', 'en', 'de' ) as $l ) : ?>
 	          <td><input type="text" style="width:100%" name="<?php echo esc_attr( GARRY_MENU_OPT ); ?>[typy][<?php echo $l; ?>][]" value="<?php echo esc_attr( $ty[ $l ] ); ?>"></td>
 	        <?php endforeach; ?>
-	        <td><button type="button" class="button-link gm-typ-del" title="Smazat kategorii" style="color:#b32d2e">×</button></td>
+	        <td style="white-space:nowrap"><button type="button" class="button-link gm-up" title="Posunout výš">▲</button> <button type="button" class="button-link gm-down" title="Posunout níž">▼</button> <button type="button" class="button-link gm-typ-del" title="Smazat kategorii" style="color:#b32d2e">×</button></td>
 	      </tr>
 	    <?php endforeach; ?>
 	    </tbody>
@@ -891,7 +891,7 @@ function garry_menu_admin_page() {
 	  <p><button type="button" class="button" id="gm-typ-add">+ Přidat kategorii</button></p>
 	  <h3 style="margin:18px 0 6px">Položky</h3>
 	  <table class="widefat striped" id="gm-stala">
-	    <thead><tr><th style="width:160px">Kategorie</th><th>Česky</th><th>English</th><th>Deutsch</th><th style="width:90px">Cena</th><th style="width:36px"></th></tr></thead>
+	    <thead><tr><th style="width:160px">Kategorie</th><th>Česky</th><th>English</th><th>Deutsch</th><th style="width:90px">Cena</th><th style="width:96px"></th></tr></thead>
 	    <tbody>
 	    <?php $stala_rows = $s['stala'] ?: array( array( 'typ' => $s['typy'][0]['key'] ?? 'hlavni', 'cz' => '', 'en' => '', 'de' => '', 'cena' => '' ) );
 	    foreach ( $stala_rows as $r ) : ?>
@@ -903,7 +903,7 @@ function garry_menu_admin_page() {
 	        <td><input type="text" style="width:100%" name="<?php echo esc_attr( GARRY_MENU_OPT ); ?>[stala][en][]" value="<?php echo esc_attr( $r['en'] ); ?>" placeholder="English name"></td>
 	        <td><input type="text" style="width:100%" name="<?php echo esc_attr( GARRY_MENU_OPT ); ?>[stala][de][]" value="<?php echo esc_attr( $r['de'] ); ?>" placeholder="Deutscher Name"></td>
 	        <td><input type="text" style="width:100%" name="<?php echo esc_attr( GARRY_MENU_OPT ); ?>[stala][cena][]" value="<?php echo esc_attr( $r['cena'] ); ?>" placeholder="145 Kč"></td>
-	        <td><button type="button" class="button-link gm-stala-del" title="Smazat položku" style="color:#b32d2e">×</button></td>
+	        <td style="white-space:nowrap"><button type="button" class="button-link gm-up" title="Posunout výš">▲</button> <button type="button" class="button-link gm-down" title="Posunout níž">▼</button> <button type="button" class="button-link gm-stala-del" title="Smazat položku" style="color:#b32d2e">×</button></td>
 	      </tr>
 	    <?php endforeach; ?>
 	    </tbody>
@@ -950,6 +950,13 @@ function garry_menu_admin_page() {
 	    tr.querySelectorAll('input').forEach(function(i){ i.value=''; }); tb.appendChild(tr);
 	  });
 	  document.addEventListener('click', function(e){
+	    if(e.target.classList.contains('gm-up')||e.target.classList.contains('gm-down')){
+	      var mtr=e.target.closest('tr'), mtb=mtr.parentNode;
+	      if(e.target.classList.contains('gm-up') && mtr.previousElementSibling) mtb.insertBefore(mtr, mtr.previousElementSibling);
+	      if(e.target.classList.contains('gm-down') && mtr.nextElementSibling) mtb.insertBefore(mtr.nextElementSibling, mtr);
+	      if(mtr.closest('.gm-table')) preview();
+	      return;
+	    }
 	    if(e.target.classList.contains('gm-typ-del')||e.target.classList.contains('gm-stala-del')){
 	      var tb2=e.target.closest('tbody');
 	      if(tb2.rows.length>1) e.target.closest('tr').remove();
