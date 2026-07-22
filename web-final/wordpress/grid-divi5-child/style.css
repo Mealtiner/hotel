@@ -157,9 +157,9 @@ Text Domain: grid-divi5-child
   .hud-x{background:none;border:none;color:var(--grey-dim);font-size:1rem;line-height:1;cursor:pointer;padding:0 2px}
   .hud-x:hover{color:#fff}
   .hud-body{padding:8px 12px 11px}
-  .hud-row{display:flex;justify-content:space-between;align-items:center;padding:4px 0;font-size:.7rem}
-  .hud-row .k{color:var(--grey-dim);letter-spacing:.08em}
-  .hud-row .v{color:var(--offwhite);font-weight:700;letter-spacing:.04em}
+  .hud-row{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:4px 0;font-size:.7rem}
+  .hud-row .k{color:var(--grey-dim);letter-spacing:.08em;white-space:nowrap;flex:none}
+  .hud-row .v{color:var(--offwhite);font-weight:700;letter-spacing:.04em;white-space:nowrap;text-align:right;margin-left:auto}
   .hud-row .v.hot{color:var(--red)}
   .dot{display:inline-block;width:7px;height:7px;border-radius:50%;background:#2ecc71;margin-right:6px;box-shadow:0 0 7px rgba(46,204,113,.9);animation:blink 1.8s infinite;vertical-align:middle}
   @keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}

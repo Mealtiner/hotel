@@ -146,3 +146,22 @@ add_action( 'admin_menu', function () {
  * 10) Fluent Forms — načíst výchozí styly (jistota viditelnosti)
  * ------------------------------------------------------------------ */
 add_filter( 'fluentform/load_default_public_style', '__return_true' );
+
+/* ------------------------------------------------------------------
+ * 11) Jazykový přepínač (Polylang) — URL překladů AKTUÁLNÍ stránky.
+ *     Hlavička je statická v Divi; grid.js dosadí odkazy z této mapy.
+ * ------------------------------------------------------------------ */
+add_action( 'wp_head', function () {
+	if ( ! function_exists( 'pll_get_post' ) ) return;
+	$urls = array();
+	foreach ( array( 'cs', 'en', 'de' ) as $l ) {
+		$u = '';
+		if ( is_singular() ) {
+			$t = pll_get_post( get_queried_object_id(), $l );
+			if ( $t && get_post_status( $t ) === 'publish' ) $u = get_permalink( $t );
+		}
+		if ( ! $u && function_exists( 'pll_home_url' ) ) $u = pll_home_url( $l );
+		$urls[ $l ] = $u;
+	}
+	echo '<script>window.gridLangUrls=' . wp_json_encode( $urls ) . ";</script>\n";
+} );

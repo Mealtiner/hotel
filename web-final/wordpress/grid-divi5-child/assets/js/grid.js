@@ -19,6 +19,16 @@
     });
   })();
 
+  /* ---- Jazykový přepínač: odkazy na překlad AKTUÁLNÍ stránky (Polylang) ---- */
+  (function(){
+    var map = window.gridLangUrls || null; if(!map) return;
+    var codes = { 'CZ':'cs', 'EN':'en', 'DE':'de' };
+    document.querySelectorAll('.lang a').forEach(function(a){
+      var l = codes[(a.textContent||'').trim().toUpperCase()];
+      if(l && map[l]) a.setAttribute('href', map[l]);
+    });
+  })();
+
   /* ---- Fixní prvky přesunout přímo do <body> ----
      Divi obaluje obsah prvkem s transform/filter, což mění chování position:fixed
      (prvek se „ukotví" ke kontejneru, ne k oknu). Přesunem to napravíme. */

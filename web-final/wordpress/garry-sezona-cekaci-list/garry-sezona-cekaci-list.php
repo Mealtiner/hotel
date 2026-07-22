@@ -2,8 +2,8 @@
 /**
  * Plugin Name:       GARRY – Sezóna & čekací list
  * Plugin URI:        https://www.garry.cz
- * Description:       Správa akcí sezóny pro sekci T6: datum od–do, název a perex ve 3 jazycích (CZ/EN/DE), obsazenost pokojů (4 stavy s barvami). Web zobrazuje 5 nejbližších akcí přes [grid_season_events] včetně bočního formuláře čekacího listu.
- * Version:           1.0.0
+ * Description:       Akce sezóny pro sekci T6: karty administrace (Akce s náhledem widgetu, editovatelné štítky obsazenosti s barvami, log poptávek), funkční čekací formulář s odesíláním na e-mail a háčkem pro Google reCAPTCHA. Frontend: [grid_season_events limit="5"].
+ * Version:           2.0.0
  * Author:            GARRY Promotion
  * Author URI:        https://www.garry.cz
  * License:           Proprietary — Copyright © GARRY Promotion
@@ -658,32 +658,32 @@ Garry_Promotion_Registry::bootstrap();
 
 
 /* ============================================================================
- * GARRY – Sezóna & čekací list
+ * GARRY – Sezóna & čekací list v2 — data
  * ============================================================================ */
 
 define( 'GARRY_SEZ_OPT', 'garry_sezona' );
+define( 'GARRY_SEZ_LOG', 'garry_sezona_log' );
 
-/* Mapa nových stavů na legacy třídy (grid.js waitbox rozlišuje free/few/full) */
-function garry_sez_legacy_class( $stav ) {
-	$m = array( 'volne' => 'free', 'posledni' => 'few', 'cekaci' => 'full', 'plne' => 'full' );
-	return isset( $m[ $stav ] ) ? $m[ $stav ] : 'free';
-}
-/* Stavy obsazenosti: klíč => [CZ label, EN, DE, CZ CTA, EN CTA, DE CTA, výchozí barva] */
-function garry_sez_states() {
-	return array(
-		'volne'    => array( 'Volné pokoje',   'Rooms available', 'Freie Zimmer',  'Rezervovat →', 'Book now →', 'Buchen →',    '#2ecc71' ),
-		'posledni' => array( 'Poslední pokoje','Last rooms',      'Letzte Zimmer', 'Rezervovat →', 'Book now →', 'Buchen →',    '#caa75f' ),
-		'cekaci'   => array( 'Čekací list',    'Waiting list',    'Warteliste',    'Zapsat se →',  'Sign up →',  'Eintragen →', '#FF5A50' ),
-		'plne'     => array( 'Plně obsazeno',  'Fully booked',    'Ausgebucht',    'Zapsat se →',  'Sign up →',  'Eintragen →', '#8F8E90' ),
-	);
-}
 function garry_sez_lang() {
 	if ( function_exists( 'pll_current_language' ) ) { $l = pll_current_language(); if ( $l ) return $l; }
 	return substr( (string) get_locale(), 0, 2 );
 }
 function garry_sez_lang_idx() { $l = garry_sez_lang(); return $l === 'en' ? 1 : ( $l === 'de' ? 2 : 0 ); }
 
-/* Výchozí akce (dokud personál neuloží vlastní) — aktuální program 2026 */
+/* Výchozí štítky obsazenosti (editovatelné na kartě „Štítky obsazenosti").
+ * legacy = chování widgetu: free (rezervace) / few (poslední) / full (čekací list) */
+function garry_sez_default_states() {
+	return array(
+		array( 'key'=>'volne',    'cz'=>'Volné pokoje',    'en'=>'Rooms available', 'de'=>'Freie Zimmer',
+			'cta_cz'=>'Rezervovat →', 'cta_en'=>'Book now →', 'cta_de'=>'Buchen →',    'color'=>'#2ecc71', 'legacy'=>'free' ),
+		array( 'key'=>'posledni', 'cz'=>'Poslední pokoje', 'en'=>'Last rooms',      'de'=>'Letzte Zimmer',
+			'cta_cz'=>'Rezervovat →', 'cta_en'=>'Book now →', 'cta_de'=>'Buchen →',    'color'=>'#caa75f', 'legacy'=>'few' ),
+		array( 'key'=>'cekaci',   'cz'=>'Čekací list',     'en'=>'Waiting list',    'de'=>'Warteliste',
+			'cta_cz'=>'Zapsat se →',  'cta_en'=>'Sign up →',  'cta_de'=>'Eintragen →', 'color'=>'#FF5A50', 'legacy'=>'full' ),
+		array( 'key'=>'plne',     'cz'=>'Plně obsazeno',   'en'=>'Fully booked',    'de'=>'Ausgebucht',
+			'cta_cz'=>'Zapsat se →',  'cta_en'=>'Sign up →',  'cta_de'=>'Eintragen →', 'color'=>'#8F8E90', 'legacy'=>'full' ),
+	);
+}
 function garry_sez_default_events() {
 	return array(
 		array( 'od'=>'2026-04-17','do'=>'2026-04-19','cz'=>'Track Day Open','en'=>'Track Day Open','de'=>'Track Day Open',
@@ -700,22 +700,65 @@ function garry_sez_default_events() {
 }
 function garry_sez_get() {
 	$o = get_option( GARRY_SEZ_OPT, null );
-	if ( ! is_array( $o ) ) $o = array( 'events' => garry_sez_default_events(), 'colors' => array() );
-	$o = wp_parse_args( $o, array( 'events' => array(), 'colors' => array() ) );
+	if ( ! is_array( $o ) ) $o = array( 'events' => garry_sez_default_events() );
+	$o = wp_parse_args( $o, array( 'events' => array(), 'states' => array(), 'email' => '' ) );
+	if ( empty( $o['states'] ) ) $o['states'] = garry_sez_default_states();
 	return $o;
 }
+/* Štítky jako mapa key => data (pořadí zachováno) */
+function garry_sez_states() {
+	$out = array();
+	foreach ( garry_sez_get()['states'] as $st ) {
+		if ( empty( $st['key'] ) ) continue;
+		$out[ $st['key'] ] = $st;
+	}
+	return $out;
+}
+function garry_sez_state_label( $st, $li ) { return $st[ array( 'cz', 'en', 'de' )[ $li ] ] ?: $st['cz']; }
+function garry_sez_state_cta( $st, $li )   { return $st[ array( 'cta_cz', 'cta_en', 'cta_de' )[ $li ] ] ?: $st['cta_cz']; }
 
+/* ---------- registrace do menu (GARRY + GRID Nastavení) ---------- */
 Garry_Promotion_Registry::register( array(
 	'slug' => 'garry-sezona-cekaci-list', 'title' => 'Sezóna & čekací list',
 	'callback' => 'garry_sez_admin_page', 'plugin_file' => __FILE__,
 	'dashicon' => 'dashicons-flag', 'position' => 25,
 ) );
+add_action( 'admin_menu', function () {
+	if ( ! function_exists( 'acf_add_options_page' ) ) return;
+	add_submenu_page( 'grid-options', 'Sezóna & čekací list', 'Sezóna & čekací list',
+		'manage_options', 'garry-sezona-grid', 'garry_sez_admin_page' );
+}, 100 );
 
 add_action( 'admin_init', function () { register_setting( 'garry_sez_group', GARRY_SEZ_OPT, 'garry_sez_sanitize' ); } );
 function garry_sez_sanitize( $in ) {
-	$out = array( 'events' => array(), 'colors' => array() );
+	$out = array( 'events' => array(), 'states' => array(), 'email' => '' );
 	if ( ! is_array( $in ) ) return $out;
-	$states = array_keys( garry_sez_states() );
+	$out['email'] = sanitize_email( $in['email'] ?? '' );
+
+	/* štítky */
+	$st = $in['states'] ?? array();
+	$n = count( $st['key'] ?? array() );
+	for ( $i = 0; $i < $n; $i++ ) {
+		$key = sanitize_key( $st['key'][ $i ] ?? '' );
+		$cz  = sanitize_text_field( $st['cz'][ $i ] ?? '' );
+		if ( $key === '' && $cz !== '' ) $key = sanitize_key( sanitize_title( $cz ) );
+		if ( $key === '' ) continue;
+		$legacy = in_array( $st['legacy'][ $i ] ?? '', array( 'free', 'few', 'full' ), true ) ? $st['legacy'][ $i ] : 'free';
+		$color  = preg_match( '/^#[0-9a-fA-F]{6}$/', $st['color'][ $i ] ?? '' ) ? $st['color'][ $i ] : '#B9B7B9';
+		$out['states'][] = array(
+			'key' => $key, 'cz' => $cz,
+			'en' => sanitize_text_field( $st['en'][ $i ] ?? '' ),
+			'de' => sanitize_text_field( $st['de'][ $i ] ?? '' ),
+			'cta_cz' => sanitize_text_field( $st['cta_cz'][ $i ] ?? '' ),
+			'cta_en' => sanitize_text_field( $st['cta_en'][ $i ] ?? '' ),
+			'cta_de' => sanitize_text_field( $st['cta_de'][ $i ] ?? '' ),
+			'color' => $color, 'legacy' => $legacy,
+		);
+	}
+	if ( ! $out['states'] ) $out['states'] = garry_sez_default_states();
+	$state_keys = wp_list_pluck( $out['states'], 'key' );
+
+	/* akce */
 	$e = $in['events'] ?? array();
 	$n = max( count( $e['cz'] ?? array() ), count( $e['od'] ?? array() ) );
 	for ( $i = 0; $i < $n; $i++ ) {
@@ -728,84 +771,246 @@ function garry_sez_sanitize( $in ) {
 			'pcz'  => sanitize_text_field( $e['pcz'][ $i ] ?? '' ),
 			'pen'  => sanitize_text_field( $e['pen'][ $i ] ?? '' ),
 			'pde'  => sanitize_text_field( $e['pde'][ $i ] ?? '' ),
-			'stav' => in_array( $e['stav'][ $i ] ?? '', $states, true ) ? $e['stav'][ $i ] : 'volne',
+			'stav' => in_array( $e['stav'][ $i ] ?? '', $state_keys, true ) ? $e['stav'][ $i ] : ( $state_keys[0] ?? 'volne' ),
 		);
 		if ( $row['cz'] === '' && $row['od'] === '' ) continue;
 		$out['events'][] = $row;
 	}
 	usort( $out['events'], function ( $a, $b ) { return strcmp( $a['od'], $b['od'] ); } );
-	foreach ( $states as $s ) {
-		$c = $in['colors'][ $s ] ?? '';
-		$out['colors'][ $s ] = preg_match( '/^#[0-9a-fA-F]{6}$/', $c ) ? $c : '';
-	}
 	return $out;
 }
 
+/* smazání logu */
+add_action( 'admin_post_garry_sez_clear_log', function () {
+	if ( ! current_user_can( 'manage_options' ) || ! check_admin_referer( 'garry_sez_clear_log' ) ) wp_die( 'Nedostatečná oprávnění.' );
+	delete_option( GARRY_SEZ_LOG );
+	wp_safe_redirect( add_query_arg( array( 'page' => $_REQUEST['back'] ?? 'garry-sezona-cekaci-list', 'tab' => 'log', 'cleared' => 1 ), admin_url( 'admin.php' ) ) );
+	exit;
+} );
+
+/* ============================================================================
+ * Administrace — karty: Akce | Štítky obsazenosti | Poptávky
+ * ============================================================================ */
 function garry_sez_admin_page() {
 	if ( ! current_user_can( 'manage_options' ) ) return;
-	$s = garry_sez_get(); $STATES = garry_sez_states();
-	$rows = $s['events'];
-	if ( ! $rows ) $rows = array( array( 'od'=>'','do'=>'','cz'=>'','en'=>'','de'=>'','pcz'=>'','pen'=>'','pde'=>'','stav'=>'volne' ) );
+	$s = garry_sez_get();
+	$states = garry_sez_states();
+	$events = $s['events'];
+	if ( ! $events ) $events = array( array( 'od'=>'','do'=>'','cz'=>'','en'=>'','de'=>'','pcz'=>'','pen'=>'','pde'=>'','stav'=>array_key_first( $states ) ) );
+	$log = get_option( GARRY_SEZ_LOG, array() ); if ( ! is_array( $log ) ) $log = array();
 	$O = GARRY_SEZ_OPT;
+	$page_slug = $_GET['page'] ?? 'garry-sezona-cekaci-list';
+	$active = $_GET['tab'] ?? 'akce';
+	if ( ! in_array( $active, array( 'akce', 'stitky', 'log' ), true ) ) $active = 'akce';
 	?>
 	<div class="wrap"><h1>Sezóna & čekací list</h1>
-	<p>Akce sezóny pro sekci „Sezóna 2026" na webu. Zobrazuje se <strong>5 nejbližších</strong> akcí podle data konání
-	(akce po skončení zmizí samy). Průběžně stačí přepínat <strong>obsazenost</strong> — barvy stavů lze upravit níže.</p>
+	<?php if ( isset( $_GET['cleared'] ) ) echo '<div class="notice notice-success is-dismissible"><p>Log poptávek byl smazán.</p></div>'; ?>
+	<h2 class="nav-tab-wrapper" id="sez-tabs">
+	  <a href="#" class="nav-tab" data-tab="akce">Akce sezóny</a>
+	  <a href="#" class="nav-tab" data-tab="stitky">Štítky obsazenosti</a>
+	  <a href="#" class="nav-tab" data-tab="log">Poptávky <?php if ( $log ) printf( '<span class="awaiting-mod count-%1$d"><span>%1$d</span></span>', count( $log ) ); ?></a>
+	</h2>
+
 	<form method="post" action="options.php">
 	<?php settings_fields( 'garry_sez_group' ); ?>
-	<table class="widefat striped" id="sez-table" style="max-width:1400px">
-	  <thead><tr>
-	    <th style="width:110px">Od</th><th style="width:110px">Do</th>
-	    <th>Název CZ</th><th>Název EN</th><th>Název DE</th>
-	    <th>Perex CZ</th><th>Perex EN</th><th>Perex DE</th>
-	    <th style="width:150px">Obsazenost</th><th style="width:36px"></th>
-	  </tr></thead><tbody>
-	  <?php foreach ( $rows as $r ) : ?>
-	    <tr>
-	      <td><input type="date" name="<?php echo $O; ?>[events][od][]" value="<?php echo esc_attr( $r['od'] ); ?>"></td>
-	      <td><input type="date" name="<?php echo $O; ?>[events][do][]" value="<?php echo esc_attr( $r['do'] ); ?>"></td>
-	      <?php foreach ( array( 'cz','en','de','pcz','pen','pde' ) as $f ) : ?>
-	        <td><input type="text" style="width:100%" name="<?php echo $O; ?>[events][<?php echo $f; ?>][]" value="<?php echo esc_attr( $r[ $f ] ); ?>"></td>
+
+	<!-- ================== KARTA: AKCE ================== -->
+	<div class="sez-tab" data-tab="akce">
+	  <div style="display:flex;gap:26px;flex-wrap:wrap;align-items:flex-start;margin-top:16px">
+	    <div style="flex:1 1 620px;min-width:560px" id="sez-events">
+	      <?php foreach ( $events as $ev ) : ?>
+	      <div class="sez-event" style="background:#fff;border:1px solid #c3c4c7;border-radius:8px;padding:14px 16px;margin-bottom:14px">
+	        <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin-bottom:10px">
+	          <label>Od <input type="date" name="<?php echo $O; ?>[events][od][]" value="<?php echo esc_attr( $ev['od'] ); ?>"></label>
+	          <label>Do <input type="date" name="<?php echo $O; ?>[events][do][]" value="<?php echo esc_attr( $ev['do'] ); ?>"></label>
+	          <label>Obsazenost <select name="<?php echo $O; ?>[events][stav][]" class="sez-ev-stav">
+	            <?php foreach ( $states as $k => $st ) printf( '<option value="%s" %s>%s</option>', esc_attr( $k ), selected( $ev['stav'], $k, false ), esc_html( $st['cz'] ) ); ?>
+	          </select></label>
+	          <button type="button" class="button-link sez-ev-del" style="color:#b32d2e;margin-left:auto">Smazat akci ×</button>
+	        </div>
+	        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:8px">
+	          <label>Název CZ<input type="text" style="width:100%" name="<?php echo $O; ?>[events][cz][]" value="<?php echo esc_attr( $ev['cz'] ); ?>"></label>
+	          <label>Název EN<input type="text" style="width:100%" name="<?php echo $O; ?>[events][en][]" value="<?php echo esc_attr( $ev['en'] ); ?>"></label>
+	          <label>Název DE<input type="text" style="width:100%" name="<?php echo $O; ?>[events][de][]" value="<?php echo esc_attr( $ev['de'] ); ?>"></label>
+	        </div>
+	        <div style="display:grid;grid-template-columns:1fr;gap:8px">
+	          <label>Perex CZ<input type="text" style="width:100%" name="<?php echo $O; ?>[events][pcz][]" value="<?php echo esc_attr( $ev['pcz'] ); ?>" placeholder="Celá věta — vejde se sem celá"></label>
+	          <label>Perex EN<input type="text" style="width:100%" name="<?php echo $O; ?>[events][pen][]" value="<?php echo esc_attr( $ev['pen'] ); ?>"></label>
+	          <label>Perex DE<input type="text" style="width:100%" name="<?php echo $O; ?>[events][pde][]" value="<?php echo esc_attr( $ev['pde'] ); ?>"></label>
+	        </div>
+	      </div>
 	      <?php endforeach; ?>
-	      <td><select name="<?php echo $O; ?>[events][stav][]">
-	        <?php foreach ( $STATES as $k => $st ) printf( '<option value="%s" %s>%s</option>', esc_attr( $k ), selected( $r['stav'], $k, false ), esc_html( $st[0] ) ); ?>
-	      </select></td>
-	      <td><button type="button" class="button-link sez-del" style="color:#b32d2e" title="Smazat akci">×</button></td>
-	    </tr>
-	  <?php endforeach; ?>
-	  </tbody></table>
-	<p><button type="button" class="button" id="sez-add">+ Přidat akci</button></p>
-	<h2>Barvy stavů obsazenosti</h2>
-	<table class="form-table" style="max-width:560px"><tbody>
-	  <?php foreach ( $STATES as $k => $st ) : $c = ( $s['colors'][ $k ] ?? '' ) ?: $st[6]; ?>
-	    <tr><th><?php echo esc_html( $st[0] ); ?></th>
-	    <td><input type="color" name="<?php echo $O; ?>[colors][<?php echo $k; ?>]" value="<?php echo esc_attr( $c ); ?>">
-	    <span class="description">výchozí <?php echo esc_html( $st[6] ); ?></span></td></tr>
-	  <?php endforeach; ?>
-	</tbody></table>
-	<?php submit_button( 'Uložit sezónu' ); ?>
+	      <p><button type="button" class="button" id="sez-ev-add">+ Přidat akci</button></p>
+	      <p><label><strong>E-mail pro poptávky z formuláře:</strong>
+	        <input type="email" name="<?php echo $O; ?>[email]" value="<?php echo esc_attr( $s['email'] ); ?>" placeholder="reservations@gridhotel.cz" class="regular-text"></label><br>
+	        <span class="description">Sem chodí žádosti o rezervaci / zápis na čekací list. Prázdné = e-mail správce webu. Odeslání formuláře lze chránit Google reCAPTCHA pluginem (hook <code>garry_sez_verify_request</code>).</span></p>
+	    </div>
+	    <div style="flex:0 0 380px">
+	      <p style="font-weight:600;margin:0 0 8px">Náhled widgetu na stránce</p>
+	      <div id="sez-preview" style="background:#0d0f12;border:1px solid #ccd0d4;border-radius:8px;padding:18px;min-height:280px;color:#e6e4e2;font-family:sans-serif"></div>
+	      <p class="description" style="margin-top:8px">Živý náhled — 5 nejbližších akcí podle data, proběhlé se nezobrazují.</p>
+	    </div>
+	  </div>
+	</div>
+
+	<!-- ================== KARTA: ŠTÍTKY ================== -->
+	<div class="sez-tab" data-tab="stitky" style="display:none">
+	  <p style="margin-top:16px">Vlastní typy obsazenosti. <strong>Chování</strong> určuje, co formulář nabídne
+	  (Rezervace = zelený režim, Poslední pokoje, Čekací list = zápis do čekací listiny).</p>
+	  <table class="widefat striped" id="sez-states" style="max-width:1200px">
+	    <thead><tr>
+	      <th style="width:110px">Klíč</th><th>Štítek CZ</th><th>Štítek EN</th><th>Štítek DE</th>
+	      <th>CTA CZ</th><th>CTA EN</th><th>CTA DE</th>
+	      <th style="width:70px">Barva</th><th style="width:150px">Chování</th><th style="width:32px"></th>
+	    </tr></thead><tbody>
+	    <?php foreach ( $states as $k => $st ) : ?>
+	      <tr>
+	        <td><input type="text" style="width:100%" name="<?php echo $O; ?>[states][key][]" value="<?php echo esc_attr( $k ); ?>"></td>
+	        <?php foreach ( array( 'cz','en','de','cta_cz','cta_en','cta_de' ) as $f ) : ?>
+	          <td><input type="text" style="width:100%" name="<?php echo $O; ?>[states][<?php echo $f; ?>][]" value="<?php echo esc_attr( $st[ $f ] ); ?>"></td>
+	        <?php endforeach; ?>
+	        <td><input type="color" name="<?php echo $O; ?>[states][color][]" value="<?php echo esc_attr( $st['color'] ); ?>"></td>
+	        <td><select name="<?php echo $O; ?>[states][legacy][]">
+	          <option value="free" <?php selected( $st['legacy'], 'free' ); ?>>Rezervace (volno)</option>
+	          <option value="few" <?php selected( $st['legacy'], 'few' ); ?>>Poslední pokoje</option>
+	          <option value="full" <?php selected( $st['legacy'], 'full' ); ?>>Čekací list</option>
+	        </select></td>
+	        <td><button type="button" class="button-link sez-st-del" style="color:#b32d2e">×</button></td>
+	      </tr>
+	    <?php endforeach; ?>
+	    </tbody></table>
+	  <p><button type="button" class="button" id="sez-st-add">+ Přidat štítek</button></p>
+	</div>
+
+	<!-- ================== KARTA: LOG ================== -->
+	<div class="sez-tab" data-tab="log" style="display:none">
+	  <p style="margin-top:16px">Poptávky odeslané z formuláře na webu (nejnovější nahoře). Kopie chodí na nastavený e-mail.</p>
+	  <?php if ( ! $log ) : ?>
+	    <p><em>Zatím žádné poptávky.</em></p>
+	  <?php else : ?>
+	  <table class="widefat striped" style="max-width:1100px">
+	    <thead><tr><th>Datum a čas</th><th>Akce / termín</th><th>Typ pokoje</th><th>Jméno</th><th>E-mail</th><th>Jazyk</th><th>IP</th></tr></thead><tbody>
+	    <?php foreach ( array_reverse( $log ) as $r ) : ?>
+	      <tr>
+	        <td><?php echo esc_html( $r['cas'] ?? '' ); ?></td>
+	        <td><strong><?php echo esc_html( $r['akce'] ?? '' ); ?></strong></td>
+	        <td><?php echo esc_html( $r['pokoj'] ?? '' ); ?></td>
+	        <td><?php echo esc_html( $r['jmeno'] ?? '' ); ?></td>
+	        <td><a href="mailto:<?php echo esc_attr( $r['email'] ?? '' ); ?>"><?php echo esc_html( $r['email'] ?? '' ); ?></a></td>
+	        <td><?php echo esc_html( strtoupper( $r['jazyk'] ?? '' ) ); ?></td>
+	        <td><?php echo esc_html( $r['ip'] ?? '' ); ?></td>
+	      </tr>
+	    <?php endforeach; ?>
+	    </tbody></table>
+	  <p><a class="button" href="<?php echo esc_url( wp_nonce_url( admin_url( 'admin-post.php?action=garry_sez_clear_log&back=' . urlencode( $page_slug ) ), 'garry_sez_clear_log' ) ); ?>"
+	    onclick="return confirm('Opravdu smazat celý log poptávek?');">Smazat log</a></p>
+	  <?php endif; ?>
+	</div>
+
+	<?php submit_button( 'Uložit' ); ?>
 	</form></div>
+
 	<script>
 	(function(){
-	  var tb=document.querySelector('#sez-table tbody');
-	  document.getElementById('sez-add').addEventListener('click', function(){
-	    var tr=tb.rows[tb.rows.length-1].cloneNode(true);
-	    tr.querySelectorAll('input').forEach(function(i){ i.value=''; });
-	    tr.querySelector('select').value='volne';
-	    tb.appendChild(tr);
+	  /* přepínání karet */
+	  var tabs=document.querySelectorAll('#sez-tabs .nav-tab');
+	  function activate(name){
+	    tabs.forEach(function(t){ t.classList.toggle('nav-tab-active', t.getAttribute('data-tab')===name); });
+	    document.querySelectorAll('.sez-tab').forEach(function(d){ d.style.display = d.getAttribute('data-tab')===name ? '' : 'none'; });
+	  }
+	  tabs.forEach(function(t){ t.addEventListener('click', function(e){ e.preventDefault(); activate(t.getAttribute('data-tab')); }); });
+	  activate(<?php echo wp_json_encode( $active ); ?>);
+
+	  /* akce: přidat/smazat kartu */
+	  var evWrap=document.getElementById('sez-events');
+	  document.getElementById('sez-ev-add').addEventListener('click', function(){
+	    var cards=evWrap.querySelectorAll('.sez-event');
+	    var c=cards[cards.length-1].cloneNode(true);
+	    c.querySelectorAll('input').forEach(function(i){ i.value=''; });
+	    c.querySelector('select').selectedIndex=0;
+	    evWrap.insertBefore(c, cards[cards.length-1].nextSibling);
+	    preview();
 	  });
 	  document.addEventListener('click', function(e){
-	    if(!e.target.classList.contains('sez-del')) return;
-	    if(tb.rows.length>1) e.target.closest('tr').remove();
-	    else tb.rows[0].querySelectorAll('input').forEach(function(i){ i.value=''; });
+	    if(e.target.classList.contains('sez-ev-del')){
+	      var cards=evWrap.querySelectorAll('.sez-event');
+	      if(cards.length>1) e.target.closest('.sez-event').remove();
+	      else e.target.closest('.sez-event').querySelectorAll('input').forEach(function(i){ i.value=''; });
+	      preview();
+	    }
+	    if(e.target.classList.contains('sez-st-del')){
+	      var tb=e.target.closest('tbody');
+	      if(tb.rows.length>1) e.target.closest('tr').remove();
+	      preview();
+	    }
 	  });
+	  /* štítky: přidat řádek */
+	  document.getElementById('sez-st-add').addEventListener('click', function(){
+	    var tb=document.querySelector('#sez-states tbody');
+	    var tr=tb.rows[tb.rows.length-1].cloneNode(true);
+	    tr.querySelectorAll('input[type=text]').forEach(function(i){ i.value=''; });
+	    tb.appendChild(tr);
+	  });
+
+	  /* živý náhled widgetu */
+	  function stateData(){
+	    var out={}; var tb=document.querySelector('#sez-states tbody');
+	    [].forEach.call(tb.rows, function(tr){
+	      var i=tr.querySelectorAll('input,select');
+	      var key=i[0].value.trim(); if(!key) return;
+	      out[key]={label:i[1].value||key,color:i[7].value||'#B9B7B9'};
+	    });
+	    return out;
+	  }
+	  function fmtDate(od,dodate){
+	    if(!od) return '';
+	    function cz(d){ return d.getDate()+'. '+(d.getMonth()+1)+'.'; }
+	    var a=new Date(od+'T12:00:00');
+	    if(!dodate||od===dodate) return cz(a)+' '+a.getFullYear();
+	    var b=new Date(dodate+'T12:00:00');
+	    if(a.getMonth()===b.getMonth()&&a.getFullYear()===b.getFullYear()) return a.getDate()+'.–'+cz(b)+' '+b.getFullYear();
+	    return cz(a)+' – '+cz(b)+' '+b.getFullYear();
+	  }
+	  function preview(){
+	    var box=document.getElementById('sez-preview'); if(!box) return;
+	    var st=stateData(); var today=new Date().toISOString().slice(0,10);
+	    var items=[];
+	    evWrap.querySelectorAll('.sez-event').forEach(function(card){
+	      var q=function(sel){ var el=card.querySelector(sel); return el?el.value:''; };
+	      var od=q('input[name$="[events][od][]"]'), dd=q('input[name$="[events][do][]"]');
+	      var name=q('input[name$="[events][cz][]"]'), per=q('input[name$="[events][pcz][]"]');
+	      var stav=card.querySelector('.sez-ev-stav').value;
+	      if(!name&&!od) return;
+	      if((dd||od) && (dd||od)<today) return;   // proběhlé
+	      items.push({od:od,dd:dd,name:name,per:per,stav:stav});
+	    });
+	    items.sort(function(a,b){ return (a.od||'9999').localeCompare(b.od||'9999'); });
+	    items=items.slice(0,5);
+	    var h='<div style="font-family:monospace;font-size:10px;letter-spacing:.16em;color:#caa75f;text-transform:uppercase;margin-bottom:12px">T6 · Sezóna · čekací list</div>';
+	    if(!items.length) h+='<em style="color:#8F8E90">Žádné nadcházející akce — sekce se na webu skryje.</em>';
+	    items.forEach(function(it){
+	      var s=st[it.stav]||{label:it.stav,color:'#B9B7B9'};
+	      h+='<div style="border-bottom:1px solid rgba(255,255,255,.12);padding:10px 0">'+
+	        '<div style="display:flex;justify-content:space-between;gap:10px;align-items:center">'+
+	        '<span style="font-family:monospace;font-size:11px;color:#FF5A50;white-space:nowrap">'+fmtDate(it.od,it.dd)+'</span>'+
+	        '<span style="font-size:10px;font-family:monospace;letter-spacing:.08em;text-transform:uppercase;border:1px solid '+s.color+'99;color:'+s.color+';padding:3px 7px;border-radius:2px;white-space:nowrap">'+s.label+'</span></div>'+
+	        '<div style="font-weight:700;text-transform:uppercase;margin-top:4px">'+(it.name||'—')+'</div>'+
+	        (it.per?'<div style="font-size:11.5px;color:#B9B7B9">'+it.per+'</div>':'')+
+	        '</div>';
+	    });
+	    box.innerHTML=h;
+	  }
+	  document.addEventListener('input', function(e){ if(e.target.closest('.sez-tab')) preview(); });
+	  preview();
 	})();
 	</script>
 	<?php
 }
 
-/* ---------- Frontend: [grid_season_events limit="5"] ---------- */
-function garry_sez_fmt_range( $od, $do, $li ) {
+/* ============================================================================
+ * Frontend — [grid_season_events limit="5"] + funkční formulář
+ * ============================================================================ */
+function garry_sez_fmt_range( $od, $do ) {
 	if ( ! $od ) return '';
 	try { $a = new DateTime( $od ); } catch ( Exception $e ) { return ''; }
 	$b = null;
@@ -826,28 +1031,28 @@ function garry_sez_render( $atts = array() ) {
 	if ( (int) $a['limit'] > 0 ) $events = array_slice( $events, 0, (int) $a['limit'] );
 	if ( ! $events ) return '<style>#sezona{display:none}</style>';
 
-	/* lokalizované texty bočního formuláře */
 	$T = array(
 		array( 'Rezervace &amp; čekací list', 'Vyberte akci sezóny', 'Klikněte na termín vlevo, nebo vyberte akci níže. U vyprodaných termínů vás zapíšeme na čekací list.',
 			'Akce / termín', 'Typ pokoje', 'Jméno a příjmení', 'Jan Novák', 'E-mail', 'vas@email.cz', 'Zapsat na čekací list',
 			'✓ Hotovo! Ozveme se, jakmile se pro vybraný termín uvolní pokoj.', '// Termíny sezóny jsou orientační.',
-			array( 'Standard', 'Superior (track view)', 'Superior Plus (terasa)', 'Apartmá' ) ),
+			array( 'Standard', 'Superior (track view)', 'Superior Plus (terasa)', 'Apartmá' ),
+			'Odesílám…', 'Odeslání se nepovedlo — zkuste to prosím znovu, nebo nám napište na e-mail.' ),
 		array( 'Booking &amp; waiting list', 'Choose your season event', "Click a date on the left or choose an event below. For sold-out dates we'll put you on the waiting list.",
 			'Event / date', 'Room type', 'Full name', 'John Smith', 'E-mail', 'your@email.com', 'Join the waiting list',
 			"✓ Done! We'll be in touch as soon as a room opens up for your chosen dates.", '// Season dates are indicative.',
-			array( 'Standard', 'Superior (track view)', 'Superior Plus (terrace)', 'Apartment' ) ),
+			array( 'Standard', 'Superior (track view)', 'Superior Plus (terrace)', 'Apartment' ),
+			'Sending…', 'Sending failed — please try again or contact us by e-mail.' ),
 		array( 'Buchung &amp; Warteliste', 'Wählen Sie ein Saison-Event', 'Klicken Sie links auf einen Termin oder wählen Sie unten ein Event. Bei ausverkauften Terminen tragen wir Sie in die Warteliste ein.',
 			'Event / Termin', 'Zimmertyp', 'Vor- und Nachname', 'Max Mustermann', 'E-Mail', 'ihre@email.de', 'In die Warteliste eintragen',
 			'✓ Fertig! Wir melden uns, sobald für den gewählten Termin ein Zimmer frei wird.', '// Die Saisontermine sind unverbindlich.',
-			array( 'Standard', 'Superior (track view)', 'Superior Plus (Terrasse)', 'Appartement' ) ),
+			array( 'Standard', 'Superior (track view)', 'Superior Plus (Terrasse)', 'Appartement' ),
+			'Wird gesendet…', 'Senden fehlgeschlagen — bitte erneut versuchen oder per E-Mail kontaktieren.' ),
 	);
 	$t = $T[ $li ];
 
-	/* barvy stavů (výchozí / z nastavení) */
 	$css = '';
 	foreach ( $STATES as $k => $st ) {
-		$c = ( $s['colors'][ $k ] ?? '' ) ?: $st[6];
-		$css .= '.ev-status.' . $k . '{color:' . $c . ' !important;border-color:' . $c . '99 !important}';
+		$css .= '.ev-status.' . sanitize_html_class( $k ) . '{color:' . $st['color'] . ' !important;border-color:' . $st['color'] . '99 !important}';
 	}
 
 	ob_start();
@@ -858,12 +1063,12 @@ function garry_sez_render( $atts = array() ) {
 	    <?php foreach ( $events as $e ) :
 			$name  = $e[ array( 'cz', 'en', 'de' )[ $li ] ] ?: $e['cz'];
 			$perex = $e[ array( 'pcz', 'pen', 'pde' )[ $li ] ] ?: $e['pcz'];
-			$st = $STATES[ $e['stav'] ]; ?>
+			$st = $STATES[ $e['stav'] ] ?? null; if ( ! $st ) continue; ?>
 	    <button type="button" class="ev-row" data-ev="<?php echo esc_attr( $name ); ?>">
-	      <span class="ev-date"><?php echo esc_html( garry_sez_fmt_range( $e['od'], $e['do'], $li ) ); ?></span>
+	      <span class="ev-date"><?php echo esc_html( garry_sez_fmt_range( $e['od'], $e['do'] ) ); ?></span>
 	      <span class="ev-name"><?php echo esc_html( $name ); ?><small><?php echo esc_html( $perex ); ?></small></span>
-	      <span class="ev-meta"><span class="ev-status <?php echo esc_attr( $e['stav'] . ' ' . garry_sez_legacy_class( $e['stav'] ) ); ?>"><?php echo esc_html( $st[ $li ] ); ?></span>
-	      <span class="ev-cta"><?php echo esc_html( $st[ 3 + $li ] ); ?></span></span>
+	      <span class="ev-meta"><span class="ev-status <?php echo esc_attr( sanitize_html_class( $e['stav'] ) . ' ' . $st['legacy'] ); ?>"><?php echo esc_html( garry_sez_state_label( $st, $li ) ); ?></span>
+	      <span class="ev-cta"><?php echo esc_html( garry_sez_state_cta( $st, $li ) ); ?></span></span>
 	    </button>
 	    <?php endforeach; ?>
 	  </div>
@@ -871,25 +1076,102 @@ function garry_sez_render( $atts = array() ) {
 	    <span class="kicker"><?php echo $t[0]; ?></span>
 	    <h3 id="wbTitle"><?php echo esc_html( $t[1] ); ?></h3>
 	    <p class="wb-sub" id="wbSub"><?php echo esc_html( $t[2] ); ?></p>
-	    <form id="wbForm" onsubmit="return false">
-	      <div class="wb-field"><label for="wb-ev"><?php echo esc_html( $t[3] ); ?></label><select id="wb-ev">
+	    <form id="wbForm">
+	      <input type="hidden" name="_wpnonce" value="<?php echo esc_attr( wp_create_nonce( 'garry_sez_request' ) ); ?>">
+	      <input type="text" name="web" value="" style="position:absolute;left:-9999px" tabindex="-1" autocomplete="off" aria-hidden="true">
+	      <div class="wb-field"><label for="wb-ev"><?php echo esc_html( $t[3] ); ?></label><select id="wb-ev" name="akce">
 	        <?php foreach ( $events as $e ) :
 				$name = $e[ array( 'cz', 'en', 'de' )[ $li ] ] ?: $e['cz']; ?>
-	        <option value="<?php echo esc_attr( $name ); ?>"><?php echo esc_html( $name ); ?> · <?php echo esc_html( garry_sez_fmt_range( $e['od'], $e['do'], $li ) ); ?></option>
+	        <option value="<?php echo esc_attr( $name ); ?>"><?php echo esc_html( $name ); ?> · <?php echo esc_html( garry_sez_fmt_range( $e['od'], $e['do'] ) ); ?></option>
 	        <?php endforeach; ?>
 	      </select></div>
-	      <div class="wb-field"><label for="wb-room"><?php echo esc_html( $t[4] ); ?></label><select id="wb-room">
+	      <div class="wb-field"><label for="wb-room"><?php echo esc_html( $t[4] ); ?></label><select id="wb-room" name="pokoj">
 	        <?php foreach ( $t[12] as $i => $room ) printf( '<option %s>%s</option>', $i === 1 ? 'selected' : '', esc_html( $room ) ); ?>
 	      </select></div>
-	      <div class="wb-field"><label for="wb-name"><?php echo esc_html( $t[5] ); ?></label><input type="text" id="wb-name" placeholder="<?php echo esc_attr( $t[6] ); ?>"></div>
-	      <div class="wb-field"><label for="wb-email"><?php echo esc_html( $t[7] ); ?></label><input type="email" id="wb-email" placeholder="<?php echo esc_attr( $t[8] ); ?>"></div>
+	      <div class="wb-field"><label for="wb-name"><?php echo esc_html( $t[5] ); ?></label><input type="text" id="wb-name" name="jmeno" placeholder="<?php echo esc_attr( $t[6] ); ?>" required></div>
+	      <div class="wb-field"><label for="wb-email"><?php echo esc_html( $t[7] ); ?></label><input type="email" id="wb-email" name="email" placeholder="<?php echo esc_attr( $t[8] ); ?>" required></div>
 	      <button type="submit" class="btn" style="width:100%;text-align:center" id="wbBtn"><?php echo esc_html( $t[9] ); ?></button>
 	      <div class="wb-ok" id="wbOk"><?php echo esc_html( $t[10] ); ?></div>
 	    </form>
 	    <p style="font-family:var(--f-mono);font-size:.66rem;color:var(--muted);margin-top:14px"><?php echo esc_html( $t[11] ); ?></p>
 	  </div>
 	</div>
+	<script>
+	(function(){
+	  var f=document.getElementById('wbForm'); if(!f) return;
+	  var ok=document.getElementById('wbOk'), btn=document.getElementById('wbBtn');
+	  var msg={sending:<?php echo wp_json_encode( $t[13] ); ?>, fail:<?php echo wp_json_encode( $t[14] ); ?>, done:<?php echo wp_json_encode( $t[10] ); ?>, btn:btn.textContent, lang:<?php echo wp_json_encode( garry_sez_lang() ); ?>};
+	  f.addEventListener('submit', function(e){
+	    e.preventDefault(); e.stopImmediatePropagation();   /* přebít fallback v grid.js */
+	    if(!f.reportValidity()) return;
+	    btn.disabled=true; btn.textContent=msg.sending;
+	    var data=new FormData(f);
+	    data.append('action','garry_sez_request');
+	    data.append('jazyk', msg.lang);
+	    fetch(<?php echo wp_json_encode( admin_url( 'admin-ajax.php' ) ); ?>, {method:'POST', body:data, credentials:'same-origin'})
+	      .then(function(r){ return r.json(); })
+	      .then(function(j){
+	        btn.disabled=false; btn.textContent=msg.btn;
+	        ok.textContent = j && j.success ? msg.done : (j && j.data && j.data.message ? j.data.message : msg.fail);
+	        ok.classList.add('show');
+	        if(j && j.success) f.reset();
+	      })
+	      .catch(function(){ btn.disabled=false; btn.textContent=msg.btn; ok.textContent=msg.fail; ok.classList.add('show'); });
+	  }, true);
+	})();
+	</script>
 	<?php
 	return ob_get_clean();
 }
 add_action( 'init', function () { add_shortcode( 'grid_season_events', 'garry_sez_render' ); }, 5 );
+
+/* ---------- AJAX příjem poptávky (přihlášení i nepřihlášení) ---------- */
+function garry_sez_handle_request() {
+	if ( ! wp_verify_nonce( $_POST['_wpnonce'] ?? '', 'garry_sez_request' ) ) {
+		wp_send_json_error( array( 'message' => 'Neplatný požadavek — obnovte prosím stránku.' ), 400 );
+	}
+	if ( ! empty( $_POST['web'] ) ) wp_send_json_success(); // honeypot — tiše zahodit
+
+	/* Integrace anti-spamu (Google reCAPTCHA plugin apod.):
+	 * add_filter( 'garry_sez_verify_request', fn( $ok, $post ) => ..., 10, 2 ); */
+	$verified = apply_filters( 'garry_sez_verify_request', true, wp_unslash( $_POST ) );
+	if ( is_wp_error( $verified ) ) wp_send_json_error( array( 'message' => $verified->get_error_message() ), 400 );
+	if ( ! $verified ) wp_send_json_error( array( 'message' => 'Ověření proti spamu se nepovedlo.' ), 400 );
+
+	$zaznam = array(
+		'cas'   => current_time( 'j. n. Y H:i:s' ),
+		'akce'  => sanitize_text_field( wp_unslash( $_POST['akce'] ?? '' ) ),
+		'pokoj' => sanitize_text_field( wp_unslash( $_POST['pokoj'] ?? '' ) ),
+		'jmeno' => sanitize_text_field( wp_unslash( $_POST['jmeno'] ?? '' ) ),
+		'email' => sanitize_email( wp_unslash( $_POST['email'] ?? '' ) ),
+		'jazyk' => sanitize_key( $_POST['jazyk'] ?? '' ),
+		'ip'    => sanitize_text_field( $_SERVER['REMOTE_ADDR'] ?? '' ),
+	);
+	if ( $zaznam['jmeno'] === '' || ! is_email( $zaznam['email'] ) ) {
+		wp_send_json_error( array( 'message' => 'Vyplňte prosím jméno a platný e-mail.' ), 400 );
+	}
+
+	/* log (posledních 300) */
+	$log = get_option( GARRY_SEZ_LOG, array() ); if ( ! is_array( $log ) ) $log = array();
+	$log[] = $zaznam;
+	if ( count( $log ) > 300 ) $log = array_slice( $log, -300 );
+	update_option( GARRY_SEZ_LOG, $log, false );
+
+	/* e-mail */
+	$to = garry_sez_get()['email'];
+	if ( ! is_email( $to ) ) $to = get_option( 'admin_email' );
+	$subject = 'Poptávka z čekacího listu — ' . $zaznam['akce'];
+	$body = "Nová poptávka z webu (sekce Sezóna & čekací list):\n\n"
+		. 'Akce / termín: ' . $zaznam['akce'] . "\n"
+		. 'Typ pokoje:    ' . $zaznam['pokoj'] . "\n"
+		. 'Jméno:         ' . $zaznam['jmeno'] . "\n"
+		. 'E-mail:        ' . $zaznam['email'] . "\n"
+		. 'Jazyk webu:    ' . strtoupper( $zaznam['jazyk'] ) . "\n"
+		. 'Čas:           ' . $zaznam['cas'] . "\n"
+		. 'IP:            ' . $zaznam['ip'] . "\n";
+	wp_mail( $to, $subject, $body, array( 'Reply-To: ' . $zaznam['jmeno'] . ' <' . $zaznam['email'] . '>' ) );
+
+	wp_send_json_success();
+}
+add_action( 'wp_ajax_garry_sez_request', 'garry_sez_handle_request' );
+add_action( 'wp_ajax_nopriv_garry_sez_request', 'garry_sez_handle_request' );

@@ -3,7 +3,7 @@
  * Plugin Name:       GARRY – Situace na trati (widget)
  * Plugin URI:        https://www.garry.cz
  * Description:       Plovoucí widget „živá situace na trati" pro GRID Hotel. Data se tahají automaticky z Open-Meteo podle GPS okruhu (teplota, pocitová, vlhkost, oblačnost, srážky, vítr, slovní popis počasí) a povrch trati se z počasí automaticky odhaduje. V nastavení lze volit zdroj (GPS), obnovovací interval, zobrazené údaje, ruční „Status" a výškovou pozici; živý náhled.
- * Version:           1.2.0
+ * Version:           1.2.1
  * Author:            GARRY Promotion
  * Author URI:        https://www.garry.cz
  * License:           Proprietary — Copyright © GARRY Promotion
@@ -694,16 +694,16 @@ function garry_sit_l10n() {
 			'codes'  => array( 0=>'Jasno',1=>'Skoro jasno',2=>'Polojasno',3=>'Zataženo',45=>'Mlha',48=>'Námraza',51=>'Mrholení',53=>'Mrholení',55=>'Mrholení',56=>'Mrznoucí mrholení',57=>'Mrznoucí mrholení',61=>'Slabý déšť',63=>'Déšť',65=>'Silný déšť',66=>'Mrznoucí déšť',67=>'Mrznoucí déšť',71=>'Slabé sněžení',73=>'Sněžení',75=>'Silné sněžení',77=>'Sněhové krupky',80=>'Přeháňky',81=>'Přeháňky',82=>'Silné přeháňky',85=>'Sněhové přeháňky',86=>'Sněhové přeháňky',95=>'Bouřka',96=>'Bouřka s kroupami',99=>'Bouřka s kroupami' ),
 		),
 		'en' => array(
-			'labels' => array( 'status'=>'STATUS','cas'=>'LOCAL TIME','teplota'=>'TEMP','pocitova'=>'FEELS LIKE','vlhkost'=>'HUMIDITY','oblacnost'=>'CLOUD COVER','srazky'=>'PRECIPITATION','vitr'=>'WIND','popis'=>'WEATHER','povrch'=>'TRACK SURFACE' ),
+			'labels' => array( 'status'=>'STATUS','cas'=>'LOCAL TIME','teplota'=>'TEMP','pocitova'=>'FEELS','vlhkost'=>'HUMIDITY','oblacnost'=>'CLOUDS','srazky'=>'RAIN','vitr'=>'WIND','popis'=>'WEATHER','povrch'=>'SURFACE' ),
 			'status' => array( 'OTEVŘENO'=>'OPEN', 'ZAVŘENO'=>'CLOSED' ), 'aria'=>'Live track conditions', 'skryt'=>'Hide widget', 'zobrazit'=>'Show widget', 'locale'=>'en-GB',
-			'povrch' => array( 'mokra'=>'Wet', 'vlhka'=>'Damp (estimate)', 'sucha'=>'Dry', 'sucha_odhad'=>'Dry (estimate)' ),
-			'codes'  => array( 0=>'Clear',1=>'Mostly clear',2=>'Partly cloudy',3=>'Overcast',45=>'Fog',48=>'Rime fog',51=>'Drizzle',53=>'Drizzle',55=>'Drizzle',56=>'Freezing drizzle',57=>'Freezing drizzle',61=>'Light rain',63=>'Rain',65=>'Heavy rain',66=>'Freezing rain',67=>'Freezing rain',71=>'Light snow',73=>'Snow',75=>'Heavy snow',77=>'Snow grains',80=>'Showers',81=>'Showers',82=>'Heavy showers',85=>'Snow showers',86=>'Snow showers',95=>'Thunderstorm',96=>'Thunderstorm w/ hail',99=>'Thunderstorm w/ hail' ),
+			'povrch' => array( 'mokra'=>'Wet', 'vlhka'=>'Damp (est.)', 'sucha'=>'Dry', 'sucha_odhad'=>'Dry (est.)' ),
+			'codes'  => array( 0=>'Clear',1=>'Mostly clear',2=>'Partly cloudy',3=>'Overcast',45=>'Fog',48=>'Rime fog',51=>'Drizzle',53=>'Drizzle',55=>'Drizzle',56=>'Frz. drizzle',57=>'Frz. drizzle',61=>'Light rain',63=>'Rain',65=>'Heavy rain',66=>'Frz. rain',67=>'Frz. rain',71=>'Light snow',73=>'Snow',75=>'Heavy snow',77=>'Snow grains',80=>'Showers',81=>'Showers',82=>'Heavy showers',85=>'Snow showers',86=>'Snow showers',95=>'Thunderstorm',96=>'T-storm + hail',99=>'T-storm + hail' ),
 		),
 		'de' => array(
-			'labels' => array( 'status'=>'STATUS','cas'=>'ORTSZEIT','teplota'=>'TEMPERATUR','pocitova'=>'GEFÜHLT','vlhkost'=>'LUFTFEUCHTE','oblacnost'=>'BEWÖLKUNG','srazky'=>'NIEDERSCHLAG','vitr'=>'WIND','popis'=>'WETTER','povrch'=>'STRECKENBELAG' ),
+			'labels' => array( 'status'=>'STATUS','cas'=>'ORTSZEIT','teplota'=>'TEMPERATUR','pocitova'=>'GEFÜHLT','vlhkost'=>'FEUCHTE','oblacnost'=>'WOLKEN','srazky'=>'REGEN','vitr'=>'WIND','popis'=>'WETTER','povrch'=>'FAHRBAHN' ),
 			'status' => array( 'OTEVŘENO'=>'GEÖFFNET', 'ZAVŘENO'=>'GESCHLOSSEN' ), 'aria'=>'Live-Streckenzustand', 'skryt'=>'Widget ausblenden', 'zobrazit'=>'Widget anzeigen', 'locale'=>'de-DE',
-			'povrch' => array( 'mokra'=>'Nass', 'vlhka'=>'Feucht (Schätzung)', 'sucha'=>'Trocken', 'sucha_odhad'=>'Trocken (Schätzung)' ),
-			'codes'  => array( 0=>'Klar',1=>'Überwiegend klar',2=>'Teils bewölkt',3=>'Bedeckt',45=>'Nebel',48=>'Raureif',51=>'Niesel',53=>'Niesel',55=>'Niesel',56=>'Gefrierender Niesel',57=>'Gefrierender Niesel',61=>'Leichter Regen',63=>'Regen',65=>'Starker Regen',66=>'Gefrierender Regen',67=>'Gefrierender Regen',71=>'Leichter Schneefall',73=>'Schneefall',75=>'Starker Schneefall',77=>'Schneegriesel',80=>'Schauer',81=>'Schauer',82=>'Starke Schauer',85=>'Schneeschauer',86=>'Schneeschauer',95=>'Gewitter',96=>'Gewitter mit Hagel',99=>'Gewitter mit Hagel' ),
+			'povrch' => array( 'mokra'=>'Nass', 'vlhka'=>'Feucht (ca.)', 'sucha'=>'Trocken', 'sucha_odhad'=>'Trocken (ca.)' ),
+			'codes'  => array( 0=>'Klar',1=>'Meist klar',2=>'Teils bewölkt',3=>'Bedeckt',45=>'Nebel',48=>'Raureif',51=>'Niesel',53=>'Niesel',55=>'Niesel',56=>'Gefr. Niesel',57=>'Gefr. Niesel',61=>'Leichter Regen',63=>'Regen',65=>'Starker Regen',66=>'Gefr. Regen',67=>'Gefr. Regen',71=>'Leichter Schnee',73=>'Schneefall',75=>'Starker Schnee',77=>'Schneegriesel',80=>'Schauer',81=>'Schauer',82=>'Starke Schauer',85=>'Schneeschauer',86=>'Schneeschauer',95=>'Gewitter',96=>'Gewitter+Hagel',99=>'Gewitter+Hagel' ),
 		),
 	);
 	$l = garry_sit_lang();
