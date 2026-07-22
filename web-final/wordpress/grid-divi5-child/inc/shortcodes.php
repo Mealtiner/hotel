@@ -179,23 +179,7 @@ function grid_stay_info( $rooms ) {
 	  <div class="wrap" style="max-width:1000px">
 	    <span class="kicker">Přehled pokojů</span>
 	    <h2 style="font-size:clamp(1.8rem,4vw,3rem);margin:14px 0 20px">64 pokojů a apartmá ve čtyřech kategoriích</h2>
-	    <div style="overflow-x:auto">
-	      <table class="room-table">
-	        <thead><tr><th>Typ pokoje</th><th>Velikost</th><th>Kapacita</th><th>Počet pokojů</th></tr></thead>
-	        <tbody>
-	        <?php foreach ( $rooms as $r ) :
-	          $vel = grid_row_val( $r, 'velikost', '' ); $kap = grid_row_val( $r, 'kapacita', '' ); $poc = grid_row_val( $r, 'pocet', '' ); $u = grid_row_val( $r, 'url', '' ); ?>
-	          <tr>
-	            <td data-l="Typ pokoje"><?php if ( $u ) : ?><a href="<?php echo esc_url( $u ); ?>"><?php echo esc_html( grid_row_val( $r, 'title' ) ); ?></a><?php else : echo esc_html( grid_row_val( $r, 'title' ) ); endif; ?></td>
-	            <td data-l="Velikost"><?php echo $vel !== '' ? esc_html( $vel ) . '&nbsp;m²' : '—'; ?></td>
-	            <td data-l="Kapacita"><?php echo $kap !== '' ? esc_html( $kap ) . '&nbsp;os.' : '—'; ?></td>
-	            <td data-l="Počet pokojů"><?php echo $poc !== '' ? esc_html( $poc ) : '—'; ?></td>
-	          </tr>
-	        <?php endforeach; ?>
-	        </tbody>
-	        <?php if ( $hasPocet ) : ?><tfoot><tr><td>Celkem</td><td></td><td></td><td><strong><?php echo (int) $total; ?></strong></td></tr></tfoot><?php endif; ?>
-	      </table>
-	    </div>
+	    [grid_rooms_table]
 
 	    <span class="kicker" style="margin-top:44px;display:inline-flex">Vybavení &amp; služby</span>
 	    <h2 style="font-size:clamp(1.6rem,3.4vw,2.4rem);margin:12px 0 18px">Co u nás najdete</h2>
@@ -276,6 +260,10 @@ function grid_social_links() {
  * jinak ACF pole rezervace_url, jinak kotva #booking na homepage. */
 function grid_rezervace_url() {
 	$u = grid_detail_url( array( 'rezervace' ) );
+	if ( $u && function_exists( 'pll_current_language' ) && function_exists( 'pll_get_post' ) ) {
+		$p = get_page_by_path( 'rezervace' );
+		if ( $p ) { $t = pll_get_post( $p->ID, pll_current_language() ); if ( $t ) return get_permalink( $t ); }
+	}
 	if ( $u ) return $u;
 	$opt = function_exists( 'grid_field' ) ? trim( (string) grid_field( 'rezervace_url', '', 'option' ) ) : '';
 	if ( $opt ) return $opt;
@@ -524,21 +512,7 @@ function grid_sc_rooms() {
 	  <span class="sec-tag">T3</span>
 	  <div class="wrap">
 	    <div class="reveal" style="margin-bottom:42px"><span class="kicker">T3 · Ubytování · 60 pokojů &amp; 4 apartmá</span><h2 style="font-size:clamp(2rem,4vw,3.6rem);margin-top:16px">Kde po jízdě zastavíš</h2><p style="max-width:60ch;margin-top:14px;color:var(--muted)">Vyberte si z 64 vysoce komfortních pokojů a apartmá splňujících veškeré parametry evropského standardu ****. Všechny pokoje mají klimatizaci, Wi-Fi, TV, trezor, možnost plného zatemnění a jsou vhodné i pro handicapované hosty.</p></div>
-	    <div class="rooms">
-	      <?php $d=1; foreach ( $rooms as $r ) : $img = grid_row_val($r,'img'); if ( is_array($img) ) $img = $img['url']; $feat = grid_row_val($r,'feat'); $chips = is_array($feat) ? $feat : array_filter( array_map('trim', explode('|', (string)$feat) ) ); ?>
-	      <?php /* Klient vybral hover STYL 2 (globální prvek .hover-card2) — jednotně pro všechny pokoje */ ?>
-	      <div class="room room--m2 hover-card2 reveal d<?php echo $d; $d = $d==2?1:2; ?>">
-	        <img src="<?php echo esc_url( $img ); ?>" alt="<?php echo esc_attr( grid_row_val($r,'title') ); ?>">
-	        <div class="r-body">
-	          <span class="r-num"><?php echo wp_kses_post( grid_row_val($r,'num') ); ?></span>
-	          <h3><?php echo esc_html( grid_row_val($r,'title') ); ?></h3>
-	          <p class="r-desc"><?php echo esc_html( grid_row_val($r,'desc') ); ?></p>
-	          <div class="r-feat"><?php foreach ( $chips as $c ) : ?><span><?php echo esc_html( $c ); ?></span><?php endforeach; ?></div>
-	          <div class="r-foot"><span class="r-price">Nejlepší cena <b>přímo u hotelu</b></span><a href="<?php echo esc_url( grid_row_val($r,'url','#booking') ); ?>" class="btn btn-ghost">Detail &amp; vybavení →</a></div>
-	        </div>
-	      </div>
-	      <?php endforeach; ?>
-	    </div>
+	    [grid_rooms_cards]
 	    <div class="pobyt-chips" aria-label="Součástí pobytu">
 	      <span>Snídaňový GRID Buffet</span><span>Wi-Fi zdarma</span><span>Parkoviště zdarma</span><span>Klimatizace</span><span>Recepce 24/7</span><span>Bezbariérový</span>
 	    </div>
@@ -936,6 +910,8 @@ add_shortcode( 'grid_footer', 'grid_sc_footer' );
  * Srovnávací tabulka kategorií pokojů (z popisů typů)
  * ============================================================ */
 function grid_room_compare_table( $current = '' ) {
+	/* Plugin „Kategorie pokojů" má přednost (CZ/EN/DE, editovatelné řádky) */
+	if ( function_exists( 'garry_pokoje_compare_html' ) ) return garry_pokoje_compare_html( $current );
 	$cols = array( 'Standard', 'Superior', 'Superior Plus', 'Apartmá a Apartmá Superior' );
 	$rows = array(
 		array( 'Postele', 'TWIN / DOUBLE', 'TWIN / DOUBLE', 'TWIN / DOUBLE', 'King Size' ),

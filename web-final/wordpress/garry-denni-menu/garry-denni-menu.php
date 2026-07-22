@@ -3,7 +3,7 @@
  * Plugin Name:       GARRY – Denní menu
  * Plugin URI:        https://www.garry.cz
  * Description:       Jednoduchá správa týdenního jídelníčku pro personál gastra: dny Po–Ne + celotýdenní nabídka, názvy jídel ve 3 jazycích (CZ/EN/DE), výběr kalendářního týdne. Na webu se vykreslí přes [grid_menu_tydne] jen vyplněné dny.
- * Version:           1.1.0
+ * Version:           1.2.0
  * Author:            GARRY Promotion
  * Author URI:        https://www.garry.cz
  * License:           Proprietary — Copyright © GARRY Promotion
@@ -828,6 +828,9 @@ function garry_menu_admin_page() {
 	  </div>
 	<?php $first = false; endforeach; ?>
 	<?php submit_button( 'Uložit menu' ); ?>
+	<h2 style="margin-top:8px">Náhled na webu (česky)</h2>
+	<p class="description">Živý náhled matice — zobrazují se jen dny s alespoň jedním vyplněným jídlem.</p>
+	<div id="gm-preview" style="display:grid;grid-template-columns:repeat(4,1fr);gap:14px;max-width:1400px;background:#F4F2F0;border:1px solid #c3c4c7;border-radius:8px;padding:16px"></div>
 	</form></div>
 	<script>
 	(function(){
@@ -860,7 +863,43 @@ function garry_menu_admin_page() {
 	    var tb=e.target.closest('tbody');
 	    if(tb.rows.length>1) e.target.closest('tr').remove();
 	    else tb.querySelectorAll('input').forEach(function(i){ i.value=''; });
+	    preview();
 	  });
+
+	  /* ---- živý náhled matice 4×2 (česky) ---- */
+	  var DAYS=<?php echo wp_json_encode( array_map( function ( $n ) { return $n[0]; }, garry_menu_days() ) ); ?>;
+	  var TYPES=<?php echo wp_json_encode( array_map( function ( $n ) { return $n[0]; }, garry_menu_types() ) ); ?>;
+	  function preview(){
+	    var box=document.getElementById('gm-preview'); if(!box) return;
+	    var h='';
+	    Object.keys(DAYS).forEach(function(day){
+	      var tbl=document.querySelector('.gm-table[data-day="'+day+'"] tbody'); if(!tbl) return;
+	      var groups={};
+	      [].forEach.call(tbl.rows, function(tr){
+	        var typ=tr.querySelector('select').value;
+	        var cz=tr.querySelector('input[name*="[cz]"]').value.trim();
+	        var cena=tr.querySelector('input[name*="[cena]"]').value.trim();
+	        if(!cz) return;
+	        (groups[typ]=groups[typ]||[]).push({n:cz,c:cena});
+	      });
+	      if(!Object.keys(groups).length) return;
+	      var card='<div style="background:#fff;border:1px solid rgba(20,22,25,.12);border-radius:6px;padding:12px 14px">'+
+	        '<div style="font-weight:700;color:#16181B;border-bottom:2px solid #C20E1A;padding-bottom:6px;margin-bottom:8px">'+DAYS[day]+'</div>';
+	      Object.keys(TYPES).forEach(function(tk){
+	        if(!groups[tk]) return;
+	        card+='<div style="font-family:monospace;font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:#8F8E90;margin:8px 0 3px">'+TYPES[tk]+'</div>';
+	        groups[tk].forEach(function(it){
+	          card+='<div style="display:flex;justify-content:space-between;gap:8px;font-size:12.5px;color:#16181B;padding:2px 0">'+
+	            '<span>'+it.n+'</span>'+(it.c?'<b style="white-space:nowrap">'+it.c+'</b>':'')+'</div>';
+	        });
+	      });
+	      h+=card+'</div>';
+	    });
+	    box.innerHTML=h||'<em style="color:#8F8E90">Zatím nic vyplněno — karta se na webu skryje.</em>';
+	  }
+	  document.addEventListener('input', function(e){ if(e.target.closest('.gm-day')) preview(); });
+	  document.addEventListener('change', function(e){ if(e.target.closest('.gm-day')) preview(); });
+	  preview();
 	})();
 	</script>
 	<?php

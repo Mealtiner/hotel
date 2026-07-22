@@ -1,0 +1,276 @@
+{
+  "labels": [
+    {"key": "osoby-1-2", "cz": "1–2 osoby", "en": "1–2 guests", "de": "1–2 Personen"},
+    {"key": "klimatizace", "cz": "klimatizace", "en": "air conditioning", "de": "Klimaanlage"},
+    {"key": "tv-40-hdmi", "cz": "TV 40\" HDMI", "en": "TV 40\" HDMI", "de": "TV 40\" HDMI"},
+    {"key": "trezor-minibar", "cz": "trezor · minibar", "en": "safe · minibar", "de": "Tresor · Minibar"},
+    {"key": "osoby-2", "cz": "2 osoby", "en": "2 guests", "de": "2 Personen"},
+    {"key": "track-view", "cz": "track view", "en": "track view", "de": "track view"},
+    {"key": "zupan-set", "cz": "župan · set", "en": "bathrobe · set", "de": "Bademantel · Set"},
+    {"key": "osoby-2-3", "cz": "2–3 osoby", "en": "2–3 guests", "de": "2–3 Personen"},
+    {"key": "terasa", "cz": "terasa", "en": "terrace", "de": "Terrasse"},
+    {"key": "osoby-2-4", "cz": "2–4 osoby", "en": "2–4 guests", "de": "2–4 Personen"},
+    {"key": "47-59-m2", "cz": "47–59 m²", "en": "47–59 m²", "de": "47–59 m²"},
+    {"key": "terasa-az-47-m2", "cz": "terasa až 47 m²", "en": "terrace up to 47 m²", "de": "Terrasse bis zu 47 m²"},
+    {"key": "king-size", "cz": "King Size", "en": "King Size", "de": "King Size"}
+  ],
+  "rooms": [
+    {
+      "key": "standard",
+      "kod": "3.1 / STANDARD",
+      "kod_en": "3.1 / STANDARD",
+      "kod_de": "3.1 / STANDARD",
+      "nazev_cz": "Standard",
+      "nazev_en": "Standard",
+      "nazev_de": "Standard",
+      "kratky_cz": "Komfortní pokoje evropského standardu **** s klidnou orientací do areálu.",
+      "kratky_en": "Comfortable rooms of the European **** standard, quietly oriented towards the resort grounds.",
+      "kratky_de": "Komfortable Zimmer des europäischen ****-Standards mit ruhiger Ausrichtung zum Areal.",
+      "popis_cz": "<p><strong>Všechny pokoje splňují veškeré parametry evropského standardu ****.</strong></p><p>Vedle komfortního vybavení, postele TWIN nebo DOUBLE, je k dispozici individuálně nastavitelná klimatizace, TV 40\" s HDMI vstupem, Wi-Fi připojení a pracovní stůl.</p><p>Pokoj má bezpečnostní kartový zámkový systém, pokojový trezor, možnost plného zatemnění, telefon s přímou předvolbou, minibar, sprchový kout, kosmetické zrcátko, vysoušeč vlasů. K dispozici je hostům kvalitní hotelová kosmetika, pomůcky na čištění obuvi a šití.</p><p>Na vyžádání zdarma polštář navíc (nebo zdravotní polštář), žehlicí prkno s žehličkou.</p><p>Za poplatek je hostům k dispozici čajový a kávový set, hotelový župan a pantofle, hygienické potřeby.</p>",
+      "popis_en": "<p><strong>All rooms meet every parameter of the European **** standard.</strong></p><p>In addition to comfortable furnishings and a TWIN or DOUBLE bed, each room offers individually adjustable air conditioning, a 40\" TV with HDMI input, Wi-Fi and a desk.</p><p>The room features a key-card security lock system, an in-room safe, full blackout option, a direct-dial telephone, a minibar, a shower, a cosmetic mirror and a hairdryer. Quality hotel cosmetics as well as shoe-shine and sewing kits are available to guests.</p><p>On request, an extra pillow (or an orthopaedic pillow) and an ironing board with an iron are available free of charge.</p><p>For a fee, guests can enjoy a coffee and tea set, a hotel bathrobe and slippers, and toiletries.</p>",
+      "popis_de": "<p><strong>Alle Zimmer erfüllen sämtliche Parameter des europäischen ****-Standards.</strong></p><p>Neben der komfortablen Ausstattung und einem TWIN- oder DOUBLE-Bett stehen eine individuell regulierbare Klimaanlage, ein 40\"-Fernseher mit HDMI-Eingang, Wi-Fi und ein Schreibtisch zur Verfügung.</p><p>Das Zimmer verfügt über ein Kartenschließsystem, einen Zimmertresor, die Möglichkeit der vollständigen Verdunkelung, ein Telefon mit Direktwahl, eine Minibar, eine Duschkabine, einen Kosmetikspiegel und einen Föhn. Den Gästen stehen hochwertige Hotelkosmetik sowie Utensilien zur Schuhpflege und zum Nähen zur Verfügung.</p><p>Auf Anfrage erhalten Sie kostenlos ein zusätzliches Kissen (oder ein orthopädisches Kissen) sowie ein Bügelbrett mit Bügeleisen.</p><p>Gegen Gebühr stehen den Gästen ein Kaffee- und Tee-Set, ein Hotelbademantel mit Pantoffeln sowie Hygieneartikel zur Verfügung.</p>",
+      "postel_cz": "Manželská nebo oddělené postele (TWIN/DOUBLE)",
+      "postel_en": "Double or separate beds (TWIN/DOUBLE)",
+      "postel_de": "Doppelbett oder getrennte Betten (TWIN/DOUBLE)",
+      "koupelna_cz": "Sprcha|Fén|Župan|Pantofle|Ručníky|Toaletní potřeby zdarma|Toaleta|Toaletní papír",
+      "koupelna_en": "Shower|Hairdryer|Bathrobe|Slippers|Towels|Free toiletries|Toilet|Toilet paper",
+      "koupelna_de": "Dusche|Föhn|Bademantel|Pantoffeln|Handtücher|Kostenlose Pflegeprodukte|Toilette|Toilettenpapier",
+      "zarizeni_cz": "Klimatizace|Trezor|Minibar|TV s plochou obrazovkou (satelit)|Telefon|Psací stůl|Posezení|Povlečení|Koberec|Skříň / šatna|Služba buzení|Zásuvka u postele|Věšák na oblečení|Výtah do vyšších pater",
+      "zarizeni_en": "Air conditioning|Safe|Minibar|Flat-screen TV (satellite)|Telephone|Desk|Seating area|Bed linen|Carpet|Wardrobe / closet|Wake-up service|Socket near the bed|Clothes rack|Lift to the upper floors",
+      "zarizeni_de": "Klimaanlage|Tresor|Minibar|Flachbild-TV (Satellit)|Telefon|Schreibtisch|Sitzecke|Bettwäsche|Teppich|Kleiderschrank / Garderobe|Weckservice|Steckdose am Bett|Kleiderständer|Aufzug in die oberen Etagen",
+      "pocet": "30",
+      "kapacita": "1–2",
+      "velikost": "24",
+      "stitky": ["osoby-1-2", "klimatizace", "tv-40-hdmi", "trezor-minibar"],
+      "img": "/wp-content/themes/grid-divi5-child/assets/foto/hotel-exterier.jpg",
+      "home": 1
+    },
+    {
+      "key": "superior",
+      "kod": "3.2 / SUPERIOR",
+      "kod_en": "3.2 / SUPERIOR",
+      "kod_de": "3.2 / SUPERIOR",
+      "nazev_cz": "Superior",
+      "nazev_en": "Superior",
+      "nazev_de": "Superior",
+      "kratky_cz": "Orientované výhledem na centrum dění brněnského okruhu i okolní lesy. Denně kávový a čajový set, župan, pantofle a minerální voda.",
+      "kratky_en": "Facing the centre of action on the Brno Circuit and the surrounding forests. A coffee and tea set, bathrobe, slippers and mineral water replenished daily.",
+      "kratky_de": "Mit Aussicht auf das Zentrum des Geschehens am Brünner Ring und die umliegenden Wälder. Täglich frisches Kaffee- und Tee-Set, Bademantel, Pantoffeln und Mineralwasser.",
+      "popis_cz": "<p>Pokoje Superior jsou orientovány výhledem na centrum dění brněnského okruhu i okolní lesy.</p><p>Hostům je zdarma k dispozici denně doplňovaný kávový a čajový set, hotelový župan, pantofle a minerální voda na pokoji.</p><p>Vedle komfortního vybavení, postele TWIN nebo DOUBLE, je k dispozici individuálně nastavitelná klimatizace, TV 40\" s HDMI vstupem, Wi-Fi připojení a pracovní stůl.</p><p>Pokoj má bezpečnostní kartový zámkový systém, pokojový trezor, možnost plného zatemnění, telefon s přímou předvolbou, minibar, sprchový kout, kosmetické zrcátko, vysoušeč vlasů. K dispozici je hostům kvalitní hotelová kosmetika, pomůcky na čištění obuvi a šití.</p><p>Na vyžádání zdarma polštář navíc (nebo zdravotní polštář), žehlicí prkno s žehličkou.</p>",
+      "popis_en": "<p>The Superior rooms face the centre of action on the Brno Circuit and the surrounding forests.</p><p>A daily replenished coffee and tea set, a hotel bathrobe, slippers and mineral water in the room are provided free of charge.</p><p>In addition to comfortable furnishings and a TWIN or DOUBLE bed, each room offers individually adjustable air conditioning, a 40\" TV with HDMI input, Wi-Fi and a desk.</p><p>The room features a key-card security lock system, an in-room safe, full blackout option, a direct-dial telephone, a minibar, a shower, a cosmetic mirror and a hairdryer. Quality hotel cosmetics as well as shoe-shine and sewing kits are available to guests.</p><p>On request, an extra pillow (or an orthopaedic pillow) and an ironing board with an iron are available free of charge.</p>",
+      "popis_de": "<p>Die Superior-Zimmer sind mit Aussicht auf das Zentrum des Geschehens am Brünner Ring und die umliegenden Wälder ausgerichtet.</p><p>Den Gästen stehen kostenlos ein täglich aufgefülltes Kaffee- und Tee-Set, ein Hotelbademantel, Pantoffeln und Mineralwasser im Zimmer zur Verfügung.</p><p>Neben der komfortablen Ausstattung und einem TWIN- oder DOUBLE-Bett stehen eine individuell regulierbare Klimaanlage, ein 40\"-Fernseher mit HDMI-Eingang, Wi-Fi und ein Schreibtisch zur Verfügung.</p><p>Das Zimmer verfügt über ein Kartenschließsystem, einen Zimmertresor, die Möglichkeit der vollständigen Verdunkelung, ein Telefon mit Direktwahl, eine Minibar, eine Duschkabine, einen Kosmetikspiegel und einen Föhn. Den Gästen stehen hochwertige Hotelkosmetik sowie Utensilien zur Schuhpflege und zum Nähen zur Verfügung.</p><p>Auf Anfrage erhalten Sie kostenlos ein zusätzliches Kissen (oder ein orthopädisches Kissen) sowie ein Bügelbrett mit Bügeleisen.</p>",
+      "postel_cz": "Manželská nebo oddělené postele (TWIN/DOUBLE)",
+      "postel_en": "Double or separate beds (TWIN/DOUBLE)",
+      "postel_de": "Doppelbett oder getrennte Betten (TWIN/DOUBLE)",
+      "koupelna_cz": "Sprcha|Fén|Župan|Pantofle|Ručníky|Toaletní potřeby zdarma|Toaleta|Toaletní papír",
+      "koupelna_en": "Shower|Hairdryer|Bathrobe|Slippers|Towels|Free toiletries|Toilet|Toilet paper",
+      "koupelna_de": "Dusche|Föhn|Bademantel|Pantoffeln|Handtücher|Kostenlose Pflegeprodukte|Toilette|Toilettenpapier",
+      "zarizeni_cz": "Výhled na okruh|Klimatizace|Rychlovarná konvice|Trezor|Minibar|TV s plochou obrazovkou (satelit)|Telefon|Psací stůl|Posezení|Povlečení|Koberec|Skříň / šatna|Služba buzení|Věšák na oblečení",
+      "zarizeni_en": "Circuit view|Air conditioning|Electric kettle|Safe|Minibar|Flat-screen TV (satellite)|Telephone|Desk|Seating area|Bed linen|Carpet|Wardrobe / closet|Wake-up service|Clothes rack",
+      "zarizeni_de": "Blick auf die Rennstrecke|Klimaanlage|Wasserkocher|Tresor|Minibar|Flachbild-TV (Satellit)|Telefon|Schreibtisch|Sitzecke|Bettwäsche|Teppich|Kleiderschrank / Garderobe|Weckservice|Kleiderständer",
+      "pocet": "20",
+      "kapacita": "2",
+      "velikost": "24",
+      "stitky": ["osoby-2", "track-view", "zupan-set"],
+      "img": "/wp-content/themes/grid-divi5-child/assets/foto/pokoj-superior.jpg",
+      "home": 1
+    },
+    {
+      "key": "superior-plus",
+      "kod": "3.3 / SUPERIOR PLUS",
+      "kod_en": "3.3 / SUPERIOR PLUS",
+      "kod_de": "3.3 / SUPERIOR PLUS",
+      "nazev_cz": "Superior Plus",
+      "nazev_en": "Superior Plus",
+      "nazev_de": "Superior Plus",
+      "kratky_cz": "Vše ze Superior — navíc terasa s posezením a výhledem na centrum okruhu i okolí.",
+      "kratky_en": "Everything from Superior — plus a terrace with seating and a view of the centre of the circuit and its surroundings.",
+      "kratky_de": "Alles wie im Superior — zusätzlich eine Terrasse mit Sitzgelegenheit und Aussicht auf das Zentrum der Rennstrecke und die Umgebung.",
+      "popis_cz": "<p>Pokoje disponující i terasou s posezením a výhledem na centrum okruhu i okolí.</p><p>Hostům je zdarma k dispozici denně doplňovaný kávový a čajový set, hotelový župan, pantofle a minerální voda na pokoji.</p><p>Vedle komfortního vybavení, postele TWIN nebo DOUBLE, je k dispozici individuálně nastavitelná klimatizace, TV 40\" s HDMI vstupem, Wi-Fi připojení a pracovní stůl.</p><p>Pokoj má bezpečnostní kartový zámkový systém, pokojový trezor, možnost plného zatemnění, telefon s přímou předvolbou, minibar, sprchový kout, kosmetické zrcátko, vysoušeč vlasů. K dispozici je hostům kvalitní hotelová kosmetika, pomůcky na čištění obuvi a šití.</p><p>Na vyžádání zdarma polštář navíc (nebo zdravotní polštář), žehlicí prkno s žehličkou.</p>",
+      "popis_en": "<p>Rooms that also feature a terrace with seating and a view of the centre of the circuit and its surroundings.</p><p>A daily replenished coffee and tea set, a hotel bathrobe, slippers and mineral water in the room are provided free of charge.</p><p>In addition to comfortable furnishings and a TWIN or DOUBLE bed, each room offers individually adjustable air conditioning, a 40\" TV with HDMI input, Wi-Fi and a desk.</p><p>The room features a key-card security lock system, an in-room safe, full blackout option, a direct-dial telephone, a minibar, a shower, a cosmetic mirror and a hairdryer. Quality hotel cosmetics as well as shoe-shine and sewing kits are available to guests.</p><p>On request, an extra pillow (or an orthopaedic pillow) and an ironing board with an iron are available free of charge.</p>",
+      "popis_de": "<p>Zimmer, die zusätzlich über eine Terrasse mit Sitzgelegenheit und Aussicht auf das Zentrum der Rennstrecke und die Umgebung verfügen.</p><p>Den Gästen stehen kostenlos ein täglich aufgefülltes Kaffee- und Tee-Set, ein Hotelbademantel, Pantoffeln und Mineralwasser im Zimmer zur Verfügung.</p><p>Neben der komfortablen Ausstattung und einem TWIN- oder DOUBLE-Bett stehen eine individuell regulierbare Klimaanlage, ein 40\"-Fernseher mit HDMI-Eingang, Wi-Fi und ein Schreibtisch zur Verfügung.</p><p>Das Zimmer verfügt über ein Kartenschließsystem, einen Zimmertresor, die Möglichkeit der vollständigen Verdunkelung, ein Telefon mit Direktwahl, eine Minibar, eine Duschkabine, einen Kosmetikspiegel und einen Föhn. Den Gästen stehen hochwertige Hotelkosmetik sowie Utensilien zur Schuhpflege und zum Nähen zur Verfügung.</p><p>Auf Anfrage erhalten Sie kostenlos ein zusätzliches Kissen (oder ein orthopädisches Kissen) sowie ein Bügelbrett mit Bügeleisen.</p>",
+      "postel_cz": "Manželská nebo oddělené postele (TWIN/DOUBLE)",
+      "postel_en": "Double or separate beds (TWIN/DOUBLE)",
+      "postel_de": "Doppelbett oder getrennte Betten (TWIN/DOUBLE)",
+      "koupelna_cz": "Sprcha|Fén|Župan|Pantofle|Ručníky|Toaletní potřeby zdarma|Toaleta|Toaletní papír",
+      "koupelna_en": "Shower|Hairdryer|Bathrobe|Slippers|Towels|Free toiletries|Toilet|Toilet paper",
+      "koupelna_de": "Dusche|Föhn|Bademantel|Pantoffeln|Handtücher|Kostenlose Pflegeprodukte|Toilette|Toilettenpapier",
+      "zarizeni_cz": "Terasa|Výhled na okruh|Klimatizace|Rychlovarná konvice|Trezor|Minibar|TV s plochou obrazovkou (satelit)|Telefon|Psací stůl|Posezení|Povlečení|Koberec|Skříň / šatna|Věšák na oblečení",
+      "zarizeni_en": "Terrace|Circuit view|Air conditioning|Electric kettle|Safe|Minibar|Flat-screen TV (satellite)|Telephone|Desk|Seating area|Bed linen|Carpet|Wardrobe / closet|Clothes rack",
+      "zarizeni_de": "Terrasse|Blick auf die Rennstrecke|Klimaanlage|Wasserkocher|Tresor|Minibar|Flachbild-TV (Satellit)|Telefon|Schreibtisch|Sitzecke|Bettwäsche|Teppich|Kleiderschrank / Garderobe|Kleiderständer",
+      "pocet": "10",
+      "kapacita": "2–3",
+      "velikost": "24",
+      "stitky": ["osoby-2-3", "terasa", "track-view"],
+      "img": "/wp-content/themes/grid-divi5-child/assets/foto/koupelna.jpg",
+      "home": 1
+    },
+    {
+      "key": "apartma-a-apartma-plus",
+      "kod": "3.4 / APARTMÁ & APARTMÁ SUPERIOR",
+      "kod_en": "3.4 / APARTMENT & SUPERIOR APARTMENT",
+      "kod_de": "3.4 / APPARTEMENT & SUPERIOR-APPARTEMENT",
+      "nazev_cz": "Apartmá a Apartmá Superior",
+      "nazev_en": "Apartment & Superior Apartment",
+      "nazev_de": "Appartement & Superior-Appartement",
+      "kratky_cz": "Nadstandardní ubytování s nejlepším výhledem na město, okruh či paddock. Interiér 47–59 m² plus terasy až 47 m², King Size postele a dvě TV 43\".",
+      "kratky_en": "Premium accommodation with the best view of the town, the circuit and the paddock. 47–59 m² of interior space plus terraces of up to 47 m², King Size beds and two 43\" TVs.",
+      "kratky_de": "Gehobene Unterkunft mit der besten Aussicht auf die Stadt, die Rennstrecke oder den Paddock. 47–59 m² Wohnfläche plus Terrassen bis zu 47 m², King-Size-Betten und zwei 43\"-Fernseher.",
+      "popis_cz": "<p>Nadstandardní ubytování s nejlepším výhledem na město, okruh či paddock (parkoviště závodních strojů).</p><p>Hotelová apartmá mají ložnici s dvoulůžkem King Size, obývací pokoj a celkovou velikost od 47 do 59 m². Jejich součástí jsou i nadstandardně řešené terasy o velikosti až 47 m².</p><p>Každé je vybaveno dvěma TV 43\" s HDMI vstupem a dvěma telefony s přímou předvolbou.</p><p>Hostům je samozřejmě zdarma k dispozici denně doplňovaný kávový a čajový set, hotelový župan, pantofle a minerální voda na pokoji. Vedle komfortního vybavení je k dispozici individuálně nastavitelná klimatizace, Wi-Fi připojení a pracovní stůl.</p><p>Apartmán má bezpečnostní kartový zámkový systém, pokojový trezor, možnost plného zatemnění, minibar, sprchový kout, kosmetické zrcátko, vysoušeč vlasů. K dispozici je hostům kvalitní hotelová kosmetika, pomůcky na čištění obuvi a šití.</p><p>Na vyžádání zdarma polštář navíc (nebo zdravotní polštář), žehlicí prkno s žehličkou.</p>",
+      "popis_en": "<p>Premium accommodation with the best view of the town, the circuit and the paddock (the parking area for the racing machines).</p><p>The hotel apartments have a bedroom with a King Size double bed, a living room and a total size of 47 to 59 m². They also include generously designed terraces of up to 47 m².</p><p>Each is equipped with two 43\" TVs with HDMI input and two direct-dial telephones.</p><p>Naturally, a daily replenished coffee and tea set, a hotel bathrobe, slippers and mineral water in the room are provided free of charge. In addition to comfortable furnishings, individually adjustable air conditioning, Wi-Fi and a desk are available.</p><p>The apartment features a key-card security lock system, an in-room safe, full blackout option, a minibar, a shower, a cosmetic mirror and a hairdryer. Quality hotel cosmetics as well as shoe-shine and sewing kits are available to guests.</p><p>On request, an extra pillow (or an orthopaedic pillow) and an ironing board with an iron are available free of charge.</p>",
+      "popis_de": "<p>Gehobene Unterkunft mit der besten Aussicht auf die Stadt, die Rennstrecke oder den Paddock (Abstellplatz der Rennmaschinen).</p><p>Die Hotelappartements verfügen über ein Schlafzimmer mit King-Size-Doppelbett, ein Wohnzimmer und eine Gesamtgröße von 47 bis 59 m². Dazu gehören auch großzügig gestaltete Terrassen mit einer Größe von bis zu 47 m².</p><p>Jedes ist mit zwei 43\"-Fernsehern mit HDMI-Eingang und zwei Telefonen mit Direktwahl ausgestattet.</p><p>Selbstverständlich stehen den Gästen kostenlos ein täglich aufgefülltes Kaffee- und Tee-Set, ein Hotelbademantel, Pantoffeln und Mineralwasser im Zimmer zur Verfügung. Neben der komfortablen Ausstattung stehen eine individuell regulierbare Klimaanlage, Wi-Fi und ein Schreibtisch zur Verfügung.</p><p>Das Appartement verfügt über ein Kartenschließsystem, einen Zimmertresor, die Möglichkeit der vollständigen Verdunkelung, eine Minibar, eine Duschkabine, einen Kosmetikspiegel und einen Föhn. Den Gästen stehen hochwertige Hotelkosmetik sowie Utensilien zur Schuhpflege und zum Nähen zur Verfügung.</p><p>Auf Anfrage erhalten Sie kostenlos ein zusätzliches Kissen (oder ein orthopädisches Kissen) sowie ein Bügelbrett mit Bügeleisen.</p>",
+      "postel_cz": "Extra velká manželská postel (King Size)",
+      "postel_en": "Extra-large double bed (King Size)",
+      "postel_de": "Extragroßes Doppelbett (King Size)",
+      "koupelna_cz": "Vana|Sprcha|Fén|Župan|Pantofle|Ručníky|Toaletní potřeby zdarma|Toaleta|Toaletní papír",
+      "koupelna_en": "Bath|Shower|Hairdryer|Bathrobe|Slippers|Towels|Free toiletries|Toilet|Toilet paper",
+      "koupelna_de": "Badewanne|Dusche|Föhn|Bademantel|Pantoffeln|Handtücher|Kostenlose Pflegeprodukte|Toilette|Toilettenpapier",
+      "zarizeni_cz": "Obývací pokoj|Terasa (až 47 m²)|Výhled na okruh / paddock|Klimatizace|Kávovar|Trezor|Minibar|2× TV 43\" s plochou obrazovkou|2× telefon|Psací stůl|Pohovka|Povlečení|Koberec|Skříň / šatna|Služba buzení|Věšák na oblečení",
+      "zarizeni_en": "Living room|Terrace (up to 47 m²)|Circuit / paddock view|Air conditioning|Coffee machine|Safe|Minibar|2× 43\" flat-screen TV|2× telephone|Desk|Sofa|Bed linen|Carpet|Wardrobe / closet|Wake-up service|Clothes rack",
+      "zarizeni_de": "Wohnzimmer|Terrasse (bis zu 47 m²)|Blick auf Rennstrecke / Paddock|Klimaanlage|Kaffeemaschine|Tresor|Minibar|2× 43\"-Flachbild-TV|2× Telefon|Schreibtisch|Sofa|Bettwäsche|Teppich|Kleiderschrank / Garderobe|Weckservice|Kleiderständer",
+      "pocet": "4",
+      "kapacita": "2–4",
+      "velikost": "47–59",
+      "stitky": ["osoby-2-4", "47-59-m2", "terasa-az-47-m2", "king-size"],
+      "img": "/wp-content/themes/grid-divi5-child/assets/foto/pokoj-apartma.jpg",
+      "home": 1
+    }
+  ],
+  "compare": [
+    {
+      "cz": "Postele", "en": "Beds", "de": "Betten",
+      "vals": {
+        "standard": {"cz": "TWIN / DOUBLE", "en": "TWIN / DOUBLE", "de": "TWIN / DOUBLE"},
+        "superior": {"cz": "TWIN / DOUBLE", "en": "TWIN / DOUBLE", "de": "TWIN / DOUBLE"},
+        "superior-plus": {"cz": "TWIN / DOUBLE", "en": "TWIN / DOUBLE", "de": "TWIN / DOUBLE"},
+        "apartma-a-apartma-plus": {"cz": "King Size", "en": "King Size", "de": "King Size"}
+      }
+    },
+    {
+      "cz": "Výhled", "en": "View", "de": "Aussicht",
+      "vals": {
+        "standard": {"cz": "areál / klid", "en": "grounds / quiet", "de": "Areal / Ruhe"},
+        "superior": {"cz": "okruh + lesy", "en": "circuit + forests", "de": "Rennstrecke + Wälder"},
+        "superior-plus": {"cz": "okruh + terasa", "en": "circuit + terrace", "de": "Rennstrecke + Terrasse"},
+        "apartma-a-apartma-plus": {"cz": "město · okruh · paddock", "en": "town · circuit · paddock", "de": "Stadt · Rennstrecke · Paddock"}
+      }
+    },
+    {
+      "cz": "Terasa", "en": "Terrace", "de": "Terrasse",
+      "vals": {
+        "standard": {"cz": "–", "en": "–", "de": "–"},
+        "superior": {"cz": "–", "en": "–", "de": "–"},
+        "superior-plus": {"cz": "✓", "en": "✓", "de": "✓"},
+        "apartma-a-apartma-plus": {"cz": "✓ (až 47 m²)", "en": "✓ (up to 47 m²)", "de": "✓ (bis zu 47 m²)"}
+      }
+    },
+    {
+      "cz": "Velikost", "en": "Size", "de": "Größe",
+      "vals": {
+        "standard": {"cz": "standardní", "en": "standard", "de": "Standard"},
+        "superior": {"cz": "standardní", "en": "standard", "de": "Standard"},
+        "superior-plus": {"cz": "standardní", "en": "standard", "de": "Standard"},
+        "apartma-a-apartma-plus": {"cz": "47–59 m²", "en": "47–59 m²", "de": "47–59 m²"}
+      }
+    },
+    {
+      "cz": "Obývací pokoj", "en": "Living room", "de": "Wohnzimmer",
+      "vals": {
+        "standard": {"cz": "–", "en": "–", "de": "–"},
+        "superior": {"cz": "–", "en": "–", "de": "–"},
+        "superior-plus": {"cz": "–", "en": "–", "de": "–"},
+        "apartma-a-apartma-plus": {"cz": "✓", "en": "✓", "de": "✓"}
+      }
+    },
+    {
+      "cz": "TV", "en": "TV", "de": "TV",
+      "vals": {
+        "standard": {"cz": "40&quot; HDMI", "en": "40&quot; HDMI", "de": "40&quot; HDMI"},
+        "superior": {"cz": "40&quot; HDMI", "en": "40&quot; HDMI", "de": "40&quot; HDMI"},
+        "superior-plus": {"cz": "40&quot; HDMI", "en": "40&quot; HDMI", "de": "40&quot; HDMI"},
+        "apartma-a-apartma-plus": {"cz": "2× 43&quot; HDMI", "en": "2× 43&quot; HDMI", "de": "2× 43&quot; HDMI"}
+      }
+    },
+    {
+      "cz": "Telefon s předvolbou", "en": "Direct-dial telephone", "de": "Telefon mit Direktwahl",
+      "vals": {
+        "standard": {"cz": "✓", "en": "✓", "de": "✓"},
+        "superior": {"cz": "✓", "en": "✓", "de": "✓"},
+        "superior-plus": {"cz": "✓", "en": "✓", "de": "✓"},
+        "apartma-a-apartma-plus": {"cz": "2×", "en": "2×", "de": "2×"}
+      }
+    },
+    {
+      "cz": "Klimatizace", "en": "Air conditioning", "de": "Klimaanlage",
+      "vals": {
+        "standard": {"cz": "✓", "en": "✓", "de": "✓"},
+        "superior": {"cz": "✓", "en": "✓", "de": "✓"},
+        "superior-plus": {"cz": "✓", "en": "✓", "de": "✓"},
+        "apartma-a-apartma-plus": {"cz": "✓", "en": "✓", "de": "✓"}
+      }
+    },
+    {
+      "cz": "Wi-Fi · pracovní stůl", "en": "Wi-Fi · desk", "de": "Wi-Fi · Schreibtisch",
+      "vals": {
+        "standard": {"cz": "✓", "en": "✓", "de": "✓"},
+        "superior": {"cz": "✓", "en": "✓", "de": "✓"},
+        "superior-plus": {"cz": "✓", "en": "✓", "de": "✓"},
+        "apartma-a-apartma-plus": {"cz": "✓", "en": "✓", "de": "✓"}
+      }
+    },
+    {
+      "cz": "Trezor · minibar · zatemnění", "en": "Safe · minibar · blackout", "de": "Tresor · Minibar · Verdunkelung",
+      "vals": {
+        "standard": {"cz": "✓", "en": "✓", "de": "✓"},
+        "superior": {"cz": "✓", "en": "✓", "de": "✓"},
+        "superior-plus": {"cz": "✓", "en": "✓", "de": "✓"},
+        "apartma-a-apartma-plus": {"cz": "✓", "en": "✓", "de": "✓"}
+      }
+    },
+    {
+      "cz": "Sprchový kout", "en": "Shower", "de": "Duschkabine",
+      "vals": {
+        "standard": {"cz": "✓", "en": "✓", "de": "✓"},
+        "superior": {"cz": "✓", "en": "✓", "de": "✓"},
+        "superior-plus": {"cz": "✓", "en": "✓", "de": "✓"},
+        "apartma-a-apartma-plus": {"cz": "✓", "en": "✓", "de": "✓"}
+      }
+    },
+    {
+      "cz": "Vana", "en": "Bath", "de": "Badewanne",
+      "vals": {
+        "standard": {"cz": "–", "en": "–", "de": "–"},
+        "superior": {"cz": "–", "en": "–", "de": "–"},
+        "superior-plus": {"cz": "–", "en": "–", "de": "–"},
+        "apartma-a-apartma-plus": {"cz": "✓", "en": "✓", "de": "✓"}
+      }
+    },
+    {
+      "cz": "Kosmetika · vysoušeč vlasů", "en": "Cosmetics · hairdryer", "de": "Kosmetik · Föhn",
+      "vals": {
+        "standard": {"cz": "✓", "en": "✓", "de": "✓"},
+        "superior": {"cz": "✓", "en": "✓", "de": "✓"},
+        "superior-plus": {"cz": "✓", "en": "✓", "de": "✓"},
+        "apartma-a-apartma-plus": {"cz": "✓", "en": "✓", "de": "✓"}
+      }
+    },
+    {
+      "cz": "Kávový/čajový set · župan · pantofle · minerálka", "en": "Coffee/tea set · bathrobe · slippers · mineral water", "de": "Kaffee-/Tee-Set · Bademantel · Pantoffeln · Mineralwasser",
+      "vals": {
+        "standard": {"cz": "za poplatek", "en": "for a fee", "de": "gegen Gebühr"},
+        "superior": {"cz": "zdarma denně", "en": "free daily", "de": "täglich kostenlos"},
+        "superior-plus": {"cz": "zdarma denně", "en": "free daily", "de": "täglich kostenlos"},
+        "apartma-a-apartma-plus": {"cz": "zdarma denně", "en": "free daily", "de": "täglich kostenlos"}
+      }
+    },
+    {
+      "cz": "Bezbariérový", "en": "Wheelchair accessible", "de": "Barrierefrei",
+      "vals": {
+        "standard": {"cz": "✓ (vybrané)", "en": "✓ (selected rooms)", "de": "✓ (ausgewählte Zimmer)"},
+        "superior": {"cz": "–", "en": "–", "de": "–"},
+        "superior-plus": {"cz": "–", "en": "–", "de": "–"},
+        "apartma-a-apartma-plus": {"cz": "–", "en": "–", "de": "–"}
+      }
+    }
+  ]
+}

@@ -159,6 +159,9 @@ add_action( 'wp_head', function () {
 		if ( is_singular() ) {
 			$t = pll_get_post( get_queried_object_id(), $l );
 			if ( $t && get_post_status( $t ) === 'publish' ) $u = get_permalink( $t );
+		} elseif ( is_tax() && function_exists( 'pll_get_term' ) ) {
+			$t = pll_get_term( get_queried_object_id(), $l );
+			if ( $t ) { $link = get_term_link( (int) $t ); if ( ! is_wp_error( $link ) ) $u = $link; }
 		}
 		if ( ! $u && function_exists( 'pll_home_url' ) ) $u = pll_home_url( $l );
 		$urls[ $l ] = $u;
