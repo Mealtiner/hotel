@@ -168,3 +168,30 @@ add_action( 'wp_head', function () {
 	}
 	echo '<script>window.gridLangUrls=' . wp_json_encode( $urls ) . ";</script>\n";
 } );
+
+/* ------------------------------------------------------------------
+ * 12) Shortcody v Theme Builder layoutech (hlavička/patička) —
+ *     Divi 5 je v TB obsahu samo nespouští, na stránkách ano.
+ * ------------------------------------------------------------------ */
+add_filter( 'et_builder_render_layout', 'do_shortcode', 12 ); // Divi 4 cesta
+add_filter( 'render_block', function ( $content, $block ) {
+	if ( is_admin() ) return $content;
+	if ( strpos( (string) ( $block['blockName'] ?? '' ), 'divi/' ) !== 0 ) return $content;
+	if ( strpos( $content, '[grid_' ) === false ) return $content;
+	return do_shortcode( $content );
+}, 20, 2 ); // Divi 5 bloky (Theme Builder)
+/* Divi 5 TB renderer shortcody nespouští vůbec → tokeny v hlavičce/patičce
+   nahradíme v celém výstupu; náhrady předpočítáme v wp_head (shortcody tam žijí). */
+add_action( 'template_redirect', function () {
+	if ( is_admin() ) return;
+	ob_start( function ( $html ) {
+		$map = array(
+			'[grid_paticka_kontakt]' => function_exists( 'grid_sc_footer_kontakt' ) ? grid_sc_footer_kontakt() : '',
+			'[grid_socials]'         => function_exists( 'grid_sc_socials' ) ? grid_sc_socials() : '',
+		);
+		foreach ( $map as $token => $out ) {
+			if ( strpos( $html, $token ) !== false ) $html = str_replace( $token, (string) $out, $html );
+		}
+		return $html;
+	} );
+}, 1 );

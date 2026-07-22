@@ -101,6 +101,7 @@ foreach ($pages as $file => [$front, $tags]) {
     $GLOBALS['GRID_FRONT'] = $front;
     $html = '';
     foreach ($tags as $t) {
+        if ($t === 'grid_hero') { $html .= "\n<!--GRID-SC:$t-->\n[grid_hero]"; continue; } // hero řídí GRID Nastavení
         if (!isset($sc[$t])) { fwrite(STDERR, "CHYBI shortcode: $t\n"); exit(1); }
         $html .= "\n<!--GRID-SC:$t-->\n" . $call($t);
     }

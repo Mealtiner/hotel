@@ -113,8 +113,8 @@ $hero_img = ! empty( $imgs ) ? $imgs[0] : '';
       </div>
       <aside class="rd-aside">
         <?php if ( $hero_img ) : ?><img class="rd-photo" src="<?php echo esc_url( $hero_img ); ?>" alt="<?php echo esc_attr( $nazev ); ?>" loading="lazy"><?php endif; ?>
-        <?php if ( $zarizeni ) : ?><h3><?php echo esc_html( $t( 'vybaveni' ) ); ?></h3><ul class="check-list"><?php foreach ( $zarizeni as $c ) echo '<li>' . esc_html( $c ) . '</li>'; ?></ul><?php endif; ?>
-        <?php if ( $koupelna ) : ?><h3><?php echo esc_html( $t( 'koupelna' ) ); ?></h3><ul class="check-list"><?php foreach ( $koupelna as $c ) echo '<li>' . esc_html( $c ) . '</li>'; ?></ul><?php endif; ?>
+        <?php if ( $zarizeni ) : ?><div class="rd-col"><h3><?php echo esc_html( $t( 'vybaveni' ) ); ?></h3><ul class="check-list"><?php foreach ( $zarizeni as $c ) echo '<li>' . esc_html( $c ) . '</li>'; ?></ul></div><?php endif; ?>
+        <?php if ( $koupelna ) : ?><div class="rd-col"><h3><?php echo esc_html( $t( 'koupelna' ) ); ?></h3><ul class="check-list"><?php foreach ( $koupelna as $c ) echo '<li>' . esc_html( $c ) . '</li>'; ?></ul></div><?php endif; ?>
       </aside>
     </div>
   </div>

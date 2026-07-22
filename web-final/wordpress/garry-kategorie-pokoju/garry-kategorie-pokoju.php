@@ -3,7 +3,7 @@
  * Plugin Name:       GARRY – Kategorie pokojů
  * Plugin URI:        https://www.garry.cz
  * Description:       Správa kategorií pokojů: karty na titulní stránce, štítky a texty v CZ/EN/DE, srovnávací tabulka pokojů (přesouvání a přidávání řádků). Frontend: [grid_rooms_cards], [grid_rooms_table] a srovnávací tabulka na detailu kategorie se zvýrazněním sloupce.
- * Version:           1.0.0
+ * Version:           1.0.1
  * Author:            GARRY Promotion
  * Author URI:        https://www.garry.cz
  * License:           Proprietary — Copyright © GARRY Promotion
@@ -681,11 +681,21 @@ function garry_pok_defaults() {
 	}
 	return $d;
 }
+function garry_pok_normalize_room( $r ) {
+	if ( isset( $r['kod'] ) && ! isset( $r['kod_cz'] ) ) $r['kod_cz'] = $r['kod'];
+	if ( isset( $r['kratky'] ) && ! isset( $r['kratky_cz'] ) ) $r['kratky_cz'] = $r['kratky'];
+	$keys = array( 'key' => '', 'home' => 1, 'pocet' => '', 'kapacita' => '', 'velikost' => '', 'img' => '', 'stitky' => array() );
+	foreach ( array( 'kod', 'nazev', 'kratky', 'postel', 'koupelna', 'zarizeni', 'popis' ) as $f ) {
+		foreach ( array( 'cz', 'en', 'de' ) as $l ) $keys[ $f . '_' . $l ] = '';
+	}
+	return wp_parse_args( $r, $keys );
+}
 function garry_pok_get() {
 	$o = get_option( GARRY_POK_OPT, null );
-	if ( ! is_array( $o ) ) return garry_pok_defaults();
+	if ( ! is_array( $o ) ) $o = array();
 	$o = wp_parse_args( $o, array( 'labels' => array(), 'rooms' => array(), 'compare' => array() ) );
 	foreach ( array( 'labels', 'rooms', 'compare' ) as $k ) if ( empty( $o[ $k ] ) ) $o[ $k ] = garry_pok_defaults()[ $k ];
+	$o['rooms'] = array_map( 'garry_pok_normalize_room', $o['rooms'] );
 	return $o;
 }
 function garry_pok_labels_map() {
@@ -739,7 +749,7 @@ Garry_Promotion_Registry::register( array(
 ) );
 add_action( 'admin_menu', function () {
 	if ( ! function_exists( 'acf_add_options_page' ) ) return;
-	add_submenu_page( 'grid-options', 'Kategorie pokojů (GARRY)', 'Kategorie pokojů (GARRY)',
+	add_submenu_page( 'grid-options', 'Kategorie pokojů', 'Kategorie pokojů',
 		'manage_options', 'garry-pokoje-grid', 'garry_pok_admin_page' );
 }, 100 );
 
@@ -802,6 +812,9 @@ function garry_pok_sanitize( $in ) {
 /* ============================================================================
  * Administrace — karty: Pokoje | Štítky | Srovnávací tabulka
  * ============================================================================ */
+add_action( 'admin_enqueue_scripts', function ( $hook ) {
+	if ( strpos( $hook, 'garry-kategorie-pokoju' ) !== false || strpos( $hook, 'garry-pokoje-grid' ) !== false ) wp_enqueue_media();
+} );
 function garry_pok_admin_page() {
 	if ( ! current_user_can( 'manage_options' ) ) return;
 	$s = garry_pok_get(); $O = GARRY_POK_OPT;
@@ -849,7 +862,7 @@ function garry_pok_admin_page() {
 	        <label>Počet pokojů <input type="text" name="__pocet" value="<?php echo esc_attr( $r['pocet'] ); ?>" style="width:70px"></label>
 	        <label>Kapacita (os.) <input type="text" name="__kapacita" value="<?php echo esc_attr( $r['kapacita'] ); ?>" style="width:70px"></label>
 	        <label>Velikost (m²) <input type="text" name="__velikost" value="<?php echo esc_attr( $r['velikost'] ); ?>" style="width:80px"></label>
-	        <label style="flex:1;min-width:280px">Obrázek karty (URL) <input type="text" name="__img" value="<?php echo esc_attr( $r['img'] ); ?>" style="width:100%"></label>
+	        <label style="flex:1;min-width:280px">Obrázek karty <span style="display:flex;gap:6px"><input type="text" name="__img" value="<?php echo esc_attr( $r['img'] ); ?>" style="flex:1"><button type="button" class="button pok-media">Vybrat z médií</button></span></label>
 	      </div>
 	      <div class="pok-stitky" style="margin-bottom:8px"><strong style="display:block;margin-bottom:4px">Štítky na kartě</strong>
 	        <?php foreach ( $labels as $l ) : ?>
@@ -857,6 +870,11 @@ function garry_pok_admin_page() {
 	        <?php endforeach; ?>
 	      </div>
 	      <details><summary style="cursor:pointer;font-weight:600">Detailní stránka (postel, koupelna, zařízení, dlouhý popis)</summary>
+	        <p class="description" style="margin:8px 0 4px">Tyto údaje se zobrazují na <strong>detailu kategorie pokoje</strong>
+	        (např. <code>/kategorie-pokoje/superior/</code>): „Postel" je součást řádku faktů pod nadpisem,
+	        seznamy „V soukromé koupelně" a „Vybavení pokoje" se vypisují s odrážkami ✓ v pravém sloupci
+	        a „Dlouhý popis" je hlavní text stránky (HTML odstavce <code>&lt;p&gt;…&lt;/p&gt;</code>).
+	        Prázdný překlad = použije se čeština.</p>
 	        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:10px 0 8px">
 	          <label>Postel CZ<input type="text" style="width:100%" name="__postel_cz" value="<?php echo esc_attr( $r['postel_cz'] ); ?>"></label>
 	          <label>Postel EN<input type="text" style="width:100%" name="__postel_en" value="<?php echo esc_attr( $r['postel_en'] ); ?>"></label>
@@ -953,6 +971,16 @@ function garry_pok_admin_page() {
 	    if(e.target.classList.contains('pok-row-down') && tr && tr.nextElementSibling) tr.parentNode.insertBefore(tr.nextElementSibling, tr);
 	    if(e.target.classList.contains('pok-row-del') && tr && tr.parentNode.rows.length>1) tr.remove();
 	  });
+	  document.addEventListener('click', function(e){
+	    if(!e.target.classList.contains('pok-media')) return;
+	    e.preventDefault();
+	    if(typeof wp==='undefined'||!wp.media) return alert('Knihovna médií není dostupná.');
+	    var input=e.target.closest('span').querySelector('input');
+	    var frame=wp.media({ title:'Vybrat obrázek karty', multiple:false, library:{type:'image'} });
+	    frame.on('select', function(){ var att=frame.state().get('selection').first().toJSON();
+	      input.value=(att.sizes&&att.sizes.large?att.sizes.large.url:att.url); });
+	    frame.open();
+	  });
 	  document.getElementById('pok-room-add').addEventListener('click', function(){
 	    var c=wrap.querySelector('.pok-room').cloneNode(true);
 	    c.querySelectorAll('input[type=text],textarea').forEach(function(i){ i.value=''; });
@@ -1015,11 +1043,11 @@ function garry_pok_admin_page() {
 function garry_pok_strings() {
 	$T = array(
 		array( 'price' => 'Nejlepší cena <b>přímo u hotelu</b>', 'cta' => 'Detail &amp; vybavení →',
-			'th' => array( 'Typ pokoje', 'Velikost', 'Kapacita', 'Počet pokojů' ), 'celkem' => 'Celkem', 'os' => 'os.' ),
+			'th' => array( 'Typ pokoje', 'Velikost', 'Kapacita', 'Počet pokojů' ), 'celkem' => 'Celkem', 'os' => 'os.', 'hint' => 'Zobrazit detail pokoje →' ),
 		array( 'price' => 'Best rate <b>direct from the hotel</b>', 'cta' => 'Details &amp; amenities →',
-			'th' => array( 'Room type', 'Size', 'Capacity', 'Number of rooms' ), 'celkem' => 'Total', 'os' => 'pers.' ),
+			'th' => array( 'Room type', 'Size', 'Capacity', 'Number of rooms' ), 'celkem' => 'Total', 'os' => 'pers.', 'hint' => 'Show room details →' ),
 		array( 'price' => 'Bester Preis <b>direkt beim Hotel</b>', 'cta' => 'Details &amp; Ausstattung →',
-			'th' => array( 'Zimmertyp', 'Größe', 'Kapazität', 'Anzahl der Zimmer' ), 'celkem' => 'Gesamt', 'os' => 'Pers.' ),
+			'th' => array( 'Zimmertyp', 'Größe', 'Kapazität', 'Anzahl der Zimmer' ), 'celkem' => 'Gesamt', 'os' => 'Pers.', 'hint' => 'Zimmerdetails anzeigen →' ),
 	);
 	return $T[ garry_pok_lang_idx() ];
 }
@@ -1070,7 +1098,7 @@ function garry_pok_table() {
 		if ( empty( $r['key'] ) ) continue;
 		$p = (int) $r['pocet']; if ( $p > 0 ) { $total += $p; $has = true; }
 		$url = garry_pok_term_url( $r['key'] );
-		echo '<tr><td data-l="' . esc_attr( $t['th'][0] ) . '"><a href="' . esc_url( $url ) . '">' . esc_html( garry_pok_f( $r, 'nazev' ) ) . '</a></td>';
+		echo '<tr><td data-l="' . esc_attr( $t['th'][0] ) . '"><a href="' . esc_url( $url ) . '" data-hint="' . esc_attr( $t['hint'] ) . '">' . esc_html( garry_pok_f( $r, 'nazev' ) ) . '</a></td>';
 		echo '<td data-l="' . esc_attr( $t['th'][1] ) . '">' . ( $r['velikost'] !== '' ? esc_html( $r['velikost'] ) . '&nbsp;m²' : '—' ) . '</td>';
 		echo '<td data-l="' . esc_attr( $t['th'][2] ) . '">' . ( $r['kapacita'] !== '' ? esc_html( $r['kapacita'] ) . '&nbsp;' . esc_html( $t['os'] ) : '—' ) . '</td>';
 		echo '<td data-l="' . esc_attr( $t['th'][3] ) . '">' . ( $r['pocet'] !== '' ? esc_html( $r['pocet'] ) : '—' ) . '</td></tr>';

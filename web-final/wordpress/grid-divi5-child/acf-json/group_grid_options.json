@@ -1,421 +1,396 @@
 {
- "key": "group_grid_options",
- "title": "GRID — Nastavení webu (globální)",
- "fields": [
-  {
-   "key": "field_grid_sirka",
-   "label": "Šířka webu (px)",
-   "name": "sirka_webu",
-   "type": "number",
-   "instructions": "1200 = doporučeno · 1280 = kompromis · 1320 = 1:1 návrh",
-   "default_value": 1280,
-   "min": 960,
-   "max": 1600,
-   "append": "px"
-  },
-  {
-   "key": "field_grid_tab_kontakt",
-   "label": "Kontakt",
-   "name": "",
-   "type": "tab",
-   "placement": "top"
-  },
-  {
-   "key": "field_grid_adresa1",
-   "label": "Adresa – řádek 1",
-   "name": "adresa_1",
-   "type": "text",
-   "default_value": "Ostrovačická 936/65, Masarykův okruh"
-  },
-  {
-   "key": "field_grid_adresa2",
-   "label": "Adresa – řádek 2",
-   "name": "adresa_2",
-   "type": "text",
-   "default_value": "641 00 Brno – Žebětín, ČR"
-  },
-  {
-   "key": "field_grid_tel_recepce",
-   "label": "Telefon – recepce",
-   "name": "tel_recepce",
-   "type": "text",
-   "default_value": "+420 775 877 721"
-  },
-  {
-   "key": "field_grid_tel_rez",
-   "label": "Telefon – rezervace",
-   "name": "tel_rezervace",
-   "type": "text",
-   "default_value": "+420 775 877 720"
-  },
-  {
-   "key": "field_grid_tel_shuttle",
-   "label": "Telefon – shuttle bus",
-   "name": "tel_shuttle",
-   "type": "text",
-   "default_value": "+420 775 778 718"
-  },
-  {
-   "key": "field_grid_email",
-   "label": "E-mail",
-   "name": "email",
-   "type": "text",
-   "default_value": "info@gridhotel.cz"
-  },
-  {
-   "key": "field_grid_ico",
-   "label": "IČ",
-   "name": "ico",
-   "type": "text",
-   "default_value": "04996364"
-  },
-  {
-   "key": "field_grid_dic",
-   "label": "DIČ",
-   "name": "dic",
-   "type": "text",
-   "default_value": "CZ04996364"
-  },
-  {
-   "key": "field_grid_spis",
-   "label": "Spisová značka",
-   "name": "spis_znacka",
-   "type": "text",
-   "default_value": "Sp. zn. C 92997, KS v Brně"
-  },
-  {
-   "key": "field_grid_rez_url",
-   "label": "Rezervační URL (tlačítko)",
-   "name": "rezervace_url",
-   "type": "text",
-   "default_value": "#booking"
-  },
-  {
-   "key": "field_grid_tab_widget",
-   "label": "Živý widget",
-   "name": "",
-   "type": "tab",
-   "placement": "top"
-  },
-  {
-   "key": "field_grid_w_status",
-   "label": "Status",
-   "name": "widget_status",
-   "type": "text",
-   "default_value": "OTEVŘENO"
-  },
-  {
-   "key": "field_grid_w_povrch",
-   "label": "Povrch trati",
-   "name": "widget_povrch",
-   "type": "text",
-   "default_value": "SUCHO"
-  },
-  {
-   "key": "field_grid_w_lat",
-   "label": "Zeměpisná šířka (teplota)",
-   "name": "widget_lat",
-   "type": "text",
-   "default_value": "49.20"
-  },
-  {
-   "key": "field_grid_w_lon",
-   "label": "Zeměpisná délka (teplota)",
-   "name": "widget_lon",
-   "type": "text",
-   "default_value": "16.44"
-  },
-  {
-   "key": "field_grid_tab_hero",
-   "label": "Hero",
-   "name": "",
-   "type": "tab",
-   "placement": "top"
-  },
-  {
-   "key": "field_grid_hero_img",
-   "label": "Hero obrázek",
-   "name": "hero_obrazek",
-   "type": "image",
-   "return_format": "url",
-   "preview_size": "medium"
-  },
-  {
-   "key": "field_grid_hero_kick",
-   "label": "Hero kicker",
-   "name": "hero_kicker",
-   "type": "text",
-   "default_value": "GRID HOTEL · **** · Masarykův okruh"
-  },
-  {
-   "key": "field_grid_hero_h1",
-   "label": "Hero nadpis (HTML povoleno)",
-   "name": "hero_nadpis",
-   "type": "text",
-   "default_value": "Přespi <em>uprostřed</em><br>Masarykova okruhu."
-  },
-  {
-   "key": "field_grid_hero_sub",
-   "label": "Hero podtitulek",
-   "name": "hero_podtitulek",
-   "type": "textarea",
-   "rows": 3,
-   "default_value": "Jediný hotel a restaurace přímo v areálu Automotodromu Brno. 60 komfortních pokojů a 4 apartmá s výhledem na trať, paddock i okolní lesy — evropský standard ****."
-  },
-  {
-   "key": "field_grid_pribeh_img",
-   "label": "Příběh – obrázek",
-   "name": "pribeh_obrazek",
-   "type": "image",
-   "return_format": "url"
-  },
-  {
-   "key": "field_grid_firemni_img",
-   "label": "Firemní akce – obrázek",
-   "name": "firemni_obrazek",
-   "type": "image",
-   "return_format": "url"
-  },
-  {
-   "key": "field_grid_logo",
-   "label": "Logo (negativ)",
-   "name": "logo_negativ",
-   "type": "image",
-   "return_format": "url"
-  },
-  {
-   "key": "field_grid_tab_nav",
-   "label": "Navigace",
-   "name": "",
-   "type": "tab",
-   "placement": "top"
-  },
-  {
-   "key": "field_grid_nav",
-   "label": "Položky menu",
-   "name": "nav",
-   "type": "repeater",
-   "layout": "table",
-   "button_label": "Přidat položku",
-   "sub_fields": [
-    {
-     "key": "field_grid_nav_label",
-     "label": "Popisek",
-     "name": "label",
-     "type": "text"
-    },
-    {
-     "key": "field_grid_nav_url",
-     "label": "URL / kotva",
-     "name": "url",
-     "type": "text"
-    }
-   ]
-  },
-  {
-   "key": "field_grid_tab_forms",
-   "label": "Formuláře (Fluent Forms)",
-   "name": "",
-   "type": "tab",
-   "placement": "top"
-  },
-  {
-   "key": "field_grid_form_firemni",
-   "label": "Firemní poptávka — ID/shortcode",
-   "name": "form_firemni",
-   "type": "text",
-   "instructions": "Vlož ID formuláře (např. 3) nebo celý shortcode [fluentform id=\"3\"]. Prázdné = zobrazí se výchozí (neaktivní) formulář."
-  },
-  {
-   "key": "field_grid_form_cekaci",
-   "label": "Čekací list (Sezóna) — ID/shortcode",
-   "name": "form_cekaci",
-   "type": "text"
-  },
-  {
-   "key": "field_grid_form_kontakt",
-   "label": "Kontakt / dotaz k pobytu — ID/shortcode",
-   "name": "form_kontakt",
-   "type": "text"
-  },
-  {
-   "key": "field_grid_form_newsletter",
-   "label": "Newsletter — ID/shortcode",
-   "name": "form_newsletter",
-   "type": "text"
-  },
-  {
-   "key": "field_grid_form_dotaznik",
-   "label": "Dotazník spokojenosti — ID/shortcode",
-   "name": "form_dotaznik",
-   "type": "text"
-  },
-  {
-   "key": "field_grid_tab_pravni",
-   "label": "Právní odkazy (patička)",
-   "name": "",
-   "type": "tab",
-   "placement": "top"
-  },
-  {
-   "key": "field_grid_url_podminky",
-   "label": "Obchodní podmínky — URL",
-   "name": "url_podminky",
-   "type": "text"
-  },
-  {
-   "key": "field_grid_url_ochrana",
-   "label": "Ochrana osobních údajů — URL",
-   "name": "url_ochrana",
-   "type": "text"
-  },
-  {
-   "key": "field_grid_url_cookies",
-   "label": "Prohlášení o cookies — URL",
-   "name": "url_cookies",
-   "type": "text"
-  },
-  {
-   "key": "field_grid_url_doprava",
-   "label": "Jak se k nám dostanete — URL",
-   "name": "url_doprava",
-   "type": "text"
-  },
-  {
-   "key": "field_grid_url_dotaznik",
-   "label": "Dotazník spokojenosti — URL",
-   "name": "url_dotaznik",
-   "type": "text"
-  },
-  {
-   "key": "field_grid_tab_galerie",
-   "label": "Galerie",
-   "name": "",
-   "type": "tab",
-   "placement": "top"
-  },
-  {
-   "key": "field_grid_galerie_bloky",
-   "label": "Galerie (bloky podle kategorií)",
-   "name": "galerie_bloky",
-   "type": "repeater",
-   "layout": "row",
-   "button_label": "Přidat kategorii galerie",
-   "instructions": "Např. Hotel, Pokoje a apartmány, Recepce, GRID Buffet, GRID Club, Restaurant, Snídaně a gastronomie, MotoGP.",
-   "sub_fields": [
-    {
-     "key": "field_grid_gal_nazev",
-     "label": "Název kategorie",
-     "name": "nazev",
-     "type": "text"
-    },
-    {
-     "key": "field_grid_gal_fotky",
-     "label": "Fotky",
-     "name": "fotky",
-     "type": "gallery",
-     "return_format": "array",
-     "preview_size": "thumbnail"
-    }
-   ]
-  },
-  {
-   "key": "field_grid_tab_video",
-   "label": "Video (časosběr)",
-   "name": "",
-   "type": "tab",
-   "placement": "top"
-  },
-  {
-   "key": "field_grid_video_url",
-   "label": "Video URL (YouTube/Vimeo embed)",
-   "name": "video_url",
-   "type": "text",
-   "instructions": "Vlož odkaz na video (YouTube/Vimeo). Použije se na stránce Časosběr / Video stavby."
-  },
-  {
-   "key": "field_grid_video_popis",
-   "label": "Popis videa",
-   "name": "video_popis",
-   "type": "textarea",
-   "rows": 2
-  },
-  {
-   "key": "field_grid_url_kariera",
-   "label": "Kariéra — URL (patička)",
-   "name": "url_kariera",
-   "type": "text"
-  },
-  {
-   "key": "field_soc_tab",
-   "label": "Sociální sítě",
-   "name": "",
-   "type": "tab"
-  },
-  {
-   "key": "field_soc_facebook",
-   "label": "Facebook — URL",
-   "name": "soc_facebook",
-   "type": "text",
-   "instructions": "Nech prázdné = ikona se nezobrazí.",
-   "placeholder": "https://…"
-  },
-  {
-   "key": "field_soc_instagram",
-   "label": "Instagram — URL",
-   "name": "soc_instagram",
-   "type": "text",
-   "instructions": "Nech prázdné = ikona se nezobrazí.",
-   "placeholder": "https://…"
-  },
-  {
-   "key": "field_soc_youtube",
-   "label": "YouTube — URL",
-   "name": "soc_youtube",
-   "type": "text",
-   "instructions": "Nech prázdné = ikona se nezobrazí.",
-   "placeholder": "https://…"
-  },
-  {
-   "key": "field_soc_linkedin",
-   "label": "LinkedIn — URL",
-   "name": "soc_linkedin",
-   "type": "text",
-   "instructions": "Nech prázdné = ikona se nezobrazí.",
-   "placeholder": "https://…"
-  },
-  {
-   "key": "field_soc_tiktok",
-   "label": "TikTok — URL",
-   "name": "soc_tiktok",
-   "type": "text",
-   "instructions": "Nech prázdné = ikona se nezobrazí.",
-   "placeholder": "https://…"
-  },
-  {
-   "key": "field_soc_x",
-   "label": "X / Twitter — URL",
-   "name": "soc_x",
-   "type": "text",
-   "instructions": "Nech prázdné = ikona se nezobrazí.",
-   "placeholder": "https://…"
-  }
- ],
- "location": [
-  [
-   {
-    "param": "options_page",
-    "operator": "==",
-    "value": "grid-options"
-   }
-  ]
- ],
- "menu_order": 0,
- "position": "normal",
- "style": "default",
- "label_placement": "top",
- "instruction_placement": "label",
- "active": true,
- "description": "Globální kontakt, živý widget, hero texty, obrázky a menu.",
- "modified": 1783300000
+    "key": "group_grid_options",
+    "title": "GRID — Nastavení webu (globální)",
+    "fields": [
+        {
+            "key": "field_grid_sirka",
+            "label": "Šířka webu (px)",
+            "name": "sirka_webu",
+            "type": "number",
+            "instructions": "1200 = doporučeno · 1280 = kompromis · 1320 = 1:1 návrh",
+            "default_value": 1280,
+            "min": 960,
+            "max": 1600,
+            "append": "px"
+        },
+        {
+            "key": "field_grid_tab_kontakt",
+            "label": "Kontakt",
+            "name": "",
+            "type": "tab",
+            "placement": "top"
+        },
+        {
+            "key": "field_grid_adresa1",
+            "label": "Adresa – řádek 1",
+            "name": "adresa_1",
+            "type": "text",
+            "default_value": "Ostrovačická 936/65, Masarykův okruh"
+        },
+        {
+            "key": "field_grid_adresa2",
+            "label": "Adresa – řádek 2",
+            "name": "adresa_2",
+            "type": "text",
+            "default_value": "641 00 Brno – Žebětín, ČR"
+        },
+        {
+            "key": "field_grid_tel_recepce",
+            "label": "Telefon – recepce",
+            "name": "tel_recepce",
+            "type": "text",
+            "default_value": "+420 775 877 721"
+        },
+        {
+            "key": "field_grid_tel_rez",
+            "label": "Telefon – rezervace",
+            "name": "tel_rezervace",
+            "type": "text",
+            "default_value": "+420 775 877 720"
+        },
+        {
+            "key": "field_grid_tel_shuttle",
+            "label": "Telefon – shuttle bus",
+            "name": "tel_shuttle",
+            "type": "text",
+            "default_value": "+420 775 778 718"
+        },
+        {
+            "key": "field_grid_email",
+            "label": "E-mail",
+            "name": "email",
+            "type": "text",
+            "default_value": "info@gridhotel.cz"
+        },
+        {
+            "key": "field_grid_ico",
+            "label": "IČ",
+            "name": "ico",
+            "type": "text",
+            "default_value": "04996364"
+        },
+        {
+            "key": "field_grid_dic",
+            "label": "DIČ",
+            "name": "dic",
+            "type": "text",
+            "default_value": "CZ04996364"
+        },
+        {
+            "key": "field_grid_spis",
+            "label": "Spisová značka",
+            "name": "spis_znacka",
+            "type": "text",
+            "default_value": "Sp. zn. C 92997, KS v Brně"
+        },
+        {
+            "key": "field_grid_rez_url",
+            "label": "Rezervační URL (tlačítko)",
+            "name": "rezervace_url",
+            "type": "text",
+            "default_value": "#booking"
+        },
+        {
+            "key": "field_grid_tab_hero",
+            "label": "Hero",
+            "name": "",
+            "type": "tab",
+            "placement": "top"
+        },
+        {
+            "key": "field_grid_hero_img",
+            "label": "Hero obrázek",
+            "name": "hero_obrazek",
+            "type": "image",
+            "return_format": "url",
+            "preview_size": "medium"
+        },
+        {
+            "key": "field_grid_hero_kick",
+            "label": "Hero kicker",
+            "name": "hero_kicker",
+            "type": "text",
+            "default_value": "GRID HOTEL · **** · Masarykův okruh",
+            "instructions": " Zobrazuje se v hero sekci titulní stránky. Prázdné EN/DE = použije se čeština."
+        },
+        {
+            "key": "field_grid_hero_kicker_en",
+            "label": "Hero kicker — EN",
+            "name": "hero_kicker_en",
+            "aria-label": "",
+            "type": "text",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "default_value": "GRID HOTEL · **** · Masaryk Circuit",
+            "maxlength": "",
+            "placeholder": "",
+            "prepend": "",
+            "append": ""
+        },
+        {
+            "key": "field_grid_hero_kicker_de",
+            "label": "Hero kicker — DE",
+            "name": "hero_kicker_de",
+            "aria-label": "",
+            "type": "text",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "default_value": "GRID HOTEL · **** · Masaryk-Ring",
+            "maxlength": "",
+            "placeholder": "",
+            "prepend": "",
+            "append": ""
+        },
+        {
+            "key": "field_grid_hero_h1",
+            "label": "Hero nadpis (HTML povoleno)",
+            "name": "hero_nadpis",
+            "type": "text",
+            "default_value": "Přespi <em>uprostřed</em><br>Masarykova okruhu.",
+            "instructions": " Zobrazuje se v hero sekci titulní stránky. Prázdné EN/DE = použije se čeština."
+        },
+        {
+            "key": "field_grid_hero_nadpis_en",
+            "label": "Hero nadpis (HTML povoleno) — EN",
+            "name": "hero_nadpis_en",
+            "aria-label": "",
+            "type": "text",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "default_value": "Sleep <em>in the middle</em><br>of the Masaryk Circuit.",
+            "maxlength": "",
+            "placeholder": "",
+            "prepend": "",
+            "append": ""
+        },
+        {
+            "key": "field_grid_hero_nadpis_de",
+            "label": "Hero nadpis (HTML povoleno) — DE",
+            "name": "hero_nadpis_de",
+            "aria-label": "",
+            "type": "text",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "default_value": "Übernachten Sie <em>mitten</em><br>im Masaryk-Ring.",
+            "maxlength": "",
+            "placeholder": "",
+            "prepend": "",
+            "append": ""
+        },
+        {
+            "key": "field_grid_hero_sub",
+            "label": "Hero podtitulek",
+            "name": "hero_podtitulek",
+            "type": "textarea",
+            "rows": 3,
+            "default_value": "Jediný hotel a restaurace přímo v areálu Autodromu Brno. 60 komfortních pokojů a 4 apartmá s výhledem na trať, paddock i okolní lesy — evropský standard ****.",
+            "instructions": " Zobrazuje se v hero sekci titulní stránky. Prázdné EN/DE = použije se čeština."
+        },
+        {
+            "key": "field_grid_hero_podtitulek_en",
+            "label": "Hero podtitulek — EN",
+            "name": "hero_podtitulek_en",
+            "aria-label": "",
+            "type": "textarea",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "default_value": "The only hotel and restaurant right inside the Autodrom Brno grounds. 60 comfortable rooms and 4 suites overlooking the track, the paddock and the surrounding forests — European **** standard.",
+            "maxlength": "",
+            "placeholder": "",
+            "prepend": "",
+            "append": "",
+            "rows": 3,
+            "new_lines": ""
+        },
+        {
+            "key": "field_grid_hero_podtitulek_de",
+            "label": "Hero podtitulek — DE",
+            "name": "hero_podtitulek_de",
+            "aria-label": "",
+            "type": "textarea",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "default_value": "Das einzige Hotel und Restaurant direkt auf dem Gelände des Autodrom Brno. 60 komfortable Zimmer und 4 Appartements mit Blick auf die Strecke, den Paddock und die umliegenden Wälder — europäischer ****-Standard.",
+            "maxlength": "",
+            "placeholder": "",
+            "prepend": "",
+            "append": "",
+            "rows": 3,
+            "new_lines": ""
+        },
+        {
+            "key": "field_grid_pribeh_img",
+            "label": "Příběh – obrázek",
+            "name": "pribeh_obrazek",
+            "type": "image",
+            "return_format": "url"
+        },
+        {
+            "key": "field_grid_firemni_img",
+            "label": "Firemní akce – obrázek",
+            "name": "firemni_obrazek",
+            "type": "image",
+            "return_format": "url"
+        },
+        {
+            "key": "field_grid_logo",
+            "label": "Logo (negativ)",
+            "name": "logo_negativ",
+            "type": "image",
+            "return_format": "url"
+        },
+        {
+            "key": "field_grid_tab_galerie",
+            "label": "Galerie",
+            "name": "",
+            "type": "tab",
+            "placement": "top"
+        },
+        {
+            "key": "field_grid_galerie_bloky",
+            "label": "Galerie (bloky podle kategorií)",
+            "name": "galerie_bloky",
+            "type": "repeater",
+            "layout": "row",
+            "button_label": "Přidat kategorii galerie",
+            "instructions": "Např. Hotel, Pokoje a apartmány, Recepce, GRID Buffet, GRID Club, Restaurant, Snídaně a gastronomie, MotoGP.",
+            "sub_fields": [
+                {
+                    "key": "field_grid_gal_nazev",
+                    "label": "Název kategorie",
+                    "name": "nazev",
+                    "type": "text"
+                },
+                {
+                    "key": "field_grid_gal_fotky",
+                    "label": "Fotky",
+                    "name": "fotky",
+                    "type": "gallery",
+                    "return_format": "array",
+                    "preview_size": "thumbnail"
+                }
+            ]
+        },
+        {
+            "key": "field_grid_tab_video",
+            "label": "Video (časosběr)",
+            "name": "",
+            "type": "tab",
+            "placement": "top"
+        },
+        {
+            "key": "field_grid_video_url",
+            "label": "Video URL (YouTube/Vimeo embed)",
+            "name": "video_url",
+            "type": "text",
+            "instructions": "Vlož odkaz na video (YouTube/Vimeo). Použije se na stránce Časosběr / Video stavby."
+        },
+        {
+            "key": "field_soc_tab",
+            "label": "Sociální sítě",
+            "name": "",
+            "type": "tab"
+        },
+        {
+            "key": "field_soc_facebook",
+            "label": "Facebook — URL",
+            "name": "soc_facebook",
+            "type": "text",
+            "instructions": "Nech prázdné = ikona se nezobrazí.",
+            "placeholder": "https://…"
+        },
+        {
+            "key": "field_soc_instagram",
+            "label": "Instagram — URL",
+            "name": "soc_instagram",
+            "type": "text",
+            "instructions": "Nech prázdné = ikona se nezobrazí.",
+            "placeholder": "https://…"
+        },
+        {
+            "key": "field_soc_youtube",
+            "label": "YouTube — URL",
+            "name": "soc_youtube",
+            "type": "text",
+            "instructions": "Nech prázdné = ikona se nezobrazí.",
+            "placeholder": "https://…"
+        },
+        {
+            "key": "field_soc_linkedin",
+            "label": "LinkedIn — URL",
+            "name": "soc_linkedin",
+            "type": "text",
+            "instructions": "Nech prázdné = ikona se nezobrazí.",
+            "placeholder": "https://…"
+        },
+        {
+            "key": "field_soc_tiktok",
+            "label": "TikTok — URL",
+            "name": "soc_tiktok",
+            "type": "text",
+            "instructions": "Nech prázdné = ikona se nezobrazí.",
+            "placeholder": "https://…"
+        },
+        {
+            "key": "field_soc_x",
+            "label": "X / Twitter — URL",
+            "name": "soc_x",
+            "type": "text",
+            "instructions": "Nech prázdné = ikona se nezobrazí.",
+            "placeholder": "https://…"
+        }
+    ],
+    "location": [
+        [
+            {
+                "param": "options_page",
+                "operator": "==",
+                "value": "grid-options"
+            }
+        ]
+    ],
+    "menu_order": 0,
+    "position": "normal",
+    "style": "default",
+    "label_placement": "top",
+    "instruction_placement": "label",
+    "active": true,
+    "description": "Globální kontakt, živý widget, hero texty, obrázky a menu.",
+    "modified": 1784722790
 }

@@ -256,6 +256,49 @@ function grid_social_links() {
 	return $out;
 }
 
+/* [grid_socials] — ikony sociálních sítí z GRID Nastavení (jen vyplněné) */
+function grid_sc_socials() {
+	$socials = grid_social_links();
+	if ( ! $socials ) return '';
+	$h = '<div class="socials" aria-label="Social">';
+	foreach ( $socials as $so ) $h .= '<a href="' . esc_url( $so['url'] ) . '" target="_blank" rel="noopener" aria-label="' . esc_attr( $so['label'] ) . '">' . esc_html( $so['short'] ) . '</a>';
+	return $h . '</div>';
+}
+add_shortcode( 'grid_socials', 'grid_sc_socials' );
+
+/* [grid_paticka_kontakt] — adresní blok patičky z GRID Nastavení (lokalizované labely) */
+function grid_sc_footer_kontakt() {
+	$li = array( 'cs' => 0, 'en' => 1, 'de' => 2 )[ grid_lang() ] ?? 0;
+	$L = array(
+		'recepce' => array( 'Recepce', 'Reception', 'Rezeption' ),
+		'rezervace' => array( 'Rezervace', 'Reservations', 'Reservierung' ),
+		'shuttle' => array( 'Shuttle bus', 'Shuttle bus', 'Shuttlebus' ),
+	);
+	$a1 = grid_field( 'adresa_1', 'Ostrovačická 936/65, Masarykův okruh', 'option' );
+	$a2 = grid_field( 'adresa_2', '641 00 Brno – Žebětín, ČR', 'option' );
+	$telr = grid_field( 'tel_recepce', '+420 775 877 721', 'option' );
+	$telrez = grid_field( 'tel_rezervace', '+420 775 877 720', 'option' );
+	$tels = grid_field( 'tel_shuttle', '+420 775 778 718', 'option' );
+	$email = grid_field( 'email', 'info@gridhotel.cz', 'option' );
+	$raw = function ( $t ) { return preg_replace( '/\s+/', '', $t ); };
+	return '<span class="data">' . esc_html( $a1 ) . '<br>' . esc_html( $a2 ) . '<br>'
+		. esc_html( $L['recepce'][ $li ] ) . ': <a href="tel:' . esc_attr( $raw( $telr ) ) . '">' . esc_html( $telr ) . '</a><br>'
+		. esc_html( $L['rezervace'][ $li ] ) . ': <a href="tel:' . esc_attr( $raw( $telrez ) ) . '">' . esc_html( $telrez ) . '</a><br>'
+		. esc_html( $L['shuttle'][ $li ] ) . ': <a href="tel:' . esc_attr( $raw( $tels ) ) . '">' . esc_html( $tels ) . '</a><br>'
+		. '<a href="mailto:' . esc_attr( $email ) . '">' . esc_html( $email ) . '</a></span>';
+}
+add_shortcode( 'grid_paticka_kontakt', 'grid_sc_footer_kontakt' );
+
+/* [grid_video_embed] — YouTube/Vimeo embed z GRID Nastavení → Video (časosběr) */
+function grid_sc_video_embed() {
+	$embed = grid_video_embed( grid_field( 'video_url', '', 'option' ) );
+	if ( $embed ) return '<iframe src="' . esc_url( $embed ) . '" title="GRID Hotel video" loading="lazy" allowfullscreen></iframe>';
+	$li = array( 'cs' => 0, 'en' => 1, 'de' => 2 )[ grid_lang() ] ?? 0;
+	$note = array( '// Vlož odkaz na video v GRID Nastavení → Video (časosběr).', '// Add the video link in GRID Settings → Video.', '// Videolink in GRID-Einstellungen → Video eintragen.' );
+	return '<div style="padding:60px 24px;text-align:center;color:var(--muted);font-family:var(--f-mono);font-size:.8rem">' . esc_html( $note[ $li ] ) . '</div>';
+}
+add_shortcode( 'grid_video_embed', 'grid_sc_video_embed' );
+
 /* Cíl VŠECH rezervačních CTA: stránka /rezervace/ (pokud existuje),
  * jinak ACF pole rezervace_url, jinak kotva #booking na homepage. */
 function grid_rezervace_url() {
@@ -287,6 +330,22 @@ function grid_video_embed( $url ) {
 	if ( preg_match( '~vimeo\.com/(\d+)~', $url, $m ) ) return 'https://player.vimeo.com/video/' . $m[1];
 	if ( strpos( $url, 'embed' ) !== false || strpos( $url, 'player.' ) !== false ) return $url;
 	return '';
+}
+
+/* Aktuální jazyk (Polylang, fallback locale) */
+function grid_lang() {
+	if ( function_exists( 'pll_current_language' ) ) { $l = pll_current_language(); if ( $l ) return $l; }
+	return substr( (string) get_locale(), 0, 2 );
+}
+/* ACF option v aktuálním jazyce: {name}_{en|de}, fallback {name}, fallback $default */
+function grid_field_lang( $name, $default = '' ) {
+	$l = grid_lang();
+	if ( $l !== 'cs' ) {
+		$v = grid_field( $name . '_' . $l, '', 'option' );
+		/* POZOR: nefallbackovat na uložené CZ — vrátit jazykový default */
+		return ( $v !== '' && $v !== null ) ? $v : $default;
+	}
+	return grid_field( $name, $default, 'option' );
 }
 
 /* ============================================================
@@ -397,10 +456,22 @@ add_shortcode( 'grid_telemetry', 'grid_sc_telemetry' );
  * HERO
  * ============================================================ */
 function grid_sc_hero() {
-	$img   = grid_field( 'hero_obrazek', '', 'option' ); $img = $img ? ( is_array($img)?$img['url']:$img ) : grid_img( 'okruh-zapad-slunce.jpg' );
-	$kick  = grid_field( 'hero_kicker', 'GRID HOTEL · **** · Masarykův okruh', 'option' );
-	$h1    = grid_field( 'hero_nadpis', 'Přespi <em>uprostřed</em><br>Masarykova okruhu.', 'option' );
-	$sub   = grid_field( 'hero_podtitulek', 'Jediný hotel a restaurace přímo v areálu Autodromu Brno. 60 komfortních pokojů a 4 apartmá s výhledem na trať, paddock i okolní lesy — evropský standard ****.', 'option' );
+	$li = array( 'cs' => 0, 'en' => 1, 'de' => 2 )[ grid_lang() ] ?? 0;
+	$FB = array( // fallbacky = aktuální texty webu (CZ/EN/DE)
+		'kicker' => array( 'GRID HOTEL · **** · Masarykův okruh', 'GRID HOTEL · **** · Masaryk Circuit', 'GRID HOTEL · **** · Masaryk-Ring' ),
+		'h1' => array( 'Přespi <em>uprostřed</em><br>Masarykova okruhu.', 'Sleep <em>in the middle</em><br>of the Masaryk Circuit.', 'Übernachten Sie <em>mitten</em><br>im Masaryk-Ring.' ),
+		'sub' => array(
+			'Jediný hotel a restaurace přímo v areálu Autodromu Brno. 60 komfortních pokojů a 4 apartmá s výhledem na trať, paddock i okolní lesy — evropský standard ****.',
+			'The only hotel and restaurant right inside the Autodrom Brno grounds. 60 comfortable rooms and 4 suites overlooking the track, the paddock and the surrounding forests — European **** standard.',
+			'Das einzige Hotel und Restaurant direkt auf dem Gelände des Autodrom Brno. 60 komfortable Zimmer und 4 Appartements mit Blick auf die Strecke, den Paddock und die umliegenden Wälder — europäischer ****-Standard.' ),
+		'btn1' => array( 'Rezervovat pobyt', 'Book your stay', 'Aufenthalt buchen' ),
+		'btn2' => array( 'Projet okruh ↓', 'Take a lap ↓', 'Eine Runde drehen ↓' ),
+		'cue' => array( 'Scroll · Projeď trať', 'Scroll · Ride the track', 'Scroll · Die Strecke fahren' ),
+	);
+	$img  = grid_field( 'hero_obrazek', '', 'option' ); $img = $img ? ( is_array($img)?$img['url']:$img ) : grid_img( 'okruh-zapad-slunce.jpg' );
+	$kick = grid_field_lang( 'hero_kicker', $FB['kicker'][ $li ] );
+	$h1   = grid_field_lang( 'hero_nadpis', $FB['h1'][ $li ] );
+	$sub  = grid_field_lang( 'hero_podtitulek', $FB['sub'][ $li ] );
 	ob_start(); ?>
 	<section class="hero sec sec-dark" id="start">
 	  <div class="hero-bg" id="heroBg" style="background-image:url('<?php echo esc_url( $img ); ?>')"></div>
@@ -411,9 +482,9 @@ function grid_sc_hero() {
 	    <span class="kicker"><?php echo wp_kses_post( $kick ); ?></span>
 	    <h1><?php echo wp_kses_post( $h1 ); ?></h1>
 	    <p class="hero-sub"><?php echo wp_kses_post( $sub ); ?></p>
-	    <div class="hero-actions"><a href="<?php echo esc_url( grid_rezervace_url() ); ?>" class="btn">Rezervovat pobyt</a><a href="#pribeh" class="btn btn-ghost">Projet okruh ↓</a></div>
+	    <div class="hero-actions"><a href="<?php echo esc_url( grid_rezervace_url() ); ?>" class="btn"><?php echo esc_html( $FB['btn1'][ $li ] ); ?></a><a href="#pribeh" class="btn btn-ghost"><?php echo esc_html( $FB['btn2'][ $li ] ); ?></a></div>
 	  </div>
-	  <div class="scroll-cue">Scroll · Projeď trať</div>
+	  <div class="scroll-cue"><?php echo esc_html( $FB['cue'][ $li ] ); ?></div>
 	</section>
 	<?php return ob_get_clean();
 }
@@ -885,15 +956,8 @@ function grid_sc_footer() {
 	      <div class="foot-brand">
 	        <img src="<?php echo esc_url($logo); ?>" alt="GRID HOTEL logo">
 	        <p>Hotel a restaurace **** přímo v areálu Autodromu Brno. Přespi uprostřed Masarykova okruhu.</p>
-	        <span class="data">
-	          <?php echo esc_html($a1); ?><br>
-	          <?php echo esc_html($a2); ?><br>
-	          Recepce: <a href="tel:<?php echo esc_attr($telrRaw); ?>"><?php echo esc_html($telr); ?></a><br>
-	          Rezervace: <a href="tel:<?php echo esc_attr($telrezRaw); ?>"><?php echo esc_html($telrez); ?></a><br>
-	          Shuttle bus: <a href="tel:<?php echo esc_attr($telsRaw); ?>"><?php echo esc_html($tels); ?></a><br>
-	          <a href="mailto:<?php echo esc_attr($email); ?>"><?php echo esc_html($email); ?></a>
-	        </span>
-	        <?php $socials = grid_social_links(); if ( $socials ) : ?><div class="socials" aria-label="Sociální sítě"><?php foreach ( $socials as $so ) : ?><a href="<?php echo esc_url( $so['url'] ); ?>" target="_blank" rel="noopener" aria-label="<?php echo esc_attr( $so['label'] ); ?>"><?php echo esc_html( $so['short'] ); ?></a><?php endforeach; ?></div><?php endif; ?>
+	        [grid_paticka_kontakt]
+	        [grid_socials]
 	      </div>
 	      <div class="foot-col"><h4>Hotel</h4><ul><li><a href="<?php echo esc_url( grid_link_pref( array('o-nas'), '#pribeh' ) ); ?>">O hotelu</a></li><li><a href="<?php echo esc_url( grid_link_pref( array('ubytovani','pokoje','pokoje-a-apartmany'), '#pokoje' ) ); ?>">Pokoje &amp; apartmá</a></li><li><a href="<?php echo esc_url( grid_link_pref( array('gastronomie','gastro'), '#restaurace' ) ); ?>">Gastronomie</a></li><li><a href="<?php echo esc_url( grid_link_pref( array('zazitky-u-okruhu','zazitky','aktivity'), '#zazitky' ) ); ?>">Zážitky &amp; dárkové poukazy</a></li><li><a href="<?php echo esc_url( grid_link_pref( array('sezona-2026','sezona'), '#sezona' ) ); ?>">Sezóna 2026</a></li><li><a href="<?php echo esc_url( grid_link_pref( array('firemni-akce-svatby','firemni'), '#firemni' ) ); ?>">Firemní akce &amp; svatby</a></li></ul></div>
 	      <div class="foot-col"><h4>Informace</h4><ul><li><a href="<?php echo esc_url($u_dop); ?>">Jak se k nám dostanete</a></li><li><a href="<?php echo esc_url($u_dop); ?>">Parkování &amp; shuttle bus</a></li><li><a href="<?php echo esc_url($u_kar); ?>">Kariéra</a></li><li><a href="<?php echo esc_url($u_dot); ?>">Dotazník spokojenosti</a></li><li><a href="<?php echo esc_url($u_pod); ?>">Všeobecné obchodní podmínky</a></li><li><a href="<?php echo esc_url($u_och); ?>">Ochrana osobních údajů</a></li></ul></div>
@@ -1548,13 +1612,7 @@ function grid_sc_onas() {
 	    <span class="kicker">Časosběr</span>
 	    <h2 style="font-size:clamp(2rem,5vw,3.6rem);margin:14px 0 12px">Jak hotel vznikal</h2>
 	    <p style="color:var(--muted);max-width:64ch"><?php echo esc_html( $vpop ); ?></p>
-	    <div class="doprava-map" style="margin-top:24px">
-	      <?php if ( $embed ) : ?>
-	        <iframe src="<?php echo esc_url( $embed ); ?>" title="Časosběrné video stavby GRID Hotelu" loading="lazy" allowfullscreen></iframe>
-	      <?php else : ?>
-	        <div style="padding:60px 24px;text-align:center;color:var(--muted);font-family:var(--f-mono);font-size:.8rem">// Vlož odkaz na časosběrné video v GRID Nastavení → Video (časosběr).</div>
-	      <?php endif; ?>
-	    </div>
+	    <div class="doprava-map" style="margin-top:24px">[grid_video_embed]</div>
 	  </div>
 	</section>
 
@@ -1603,13 +1661,7 @@ function grid_sc_video() {
 	    <span class="kicker">Časosběr</span>
 	    <h1 style="font-size:clamp(2.4rem,6vw,4.4rem);margin:14px 0 12px">Video stavby hotelu</h1>
 	    <p style="color:var(--muted);max-width:60ch"><?php echo esc_html( $pop ); ?></p>
-	    <div class="doprava-map" style="margin-top:26px">
-	      <?php if ( $embed ) : ?>
-	        <iframe src="<?php echo esc_url( $embed ); ?>" title="Video stavby GRID Hotelu" loading="lazy" allowfullscreen></iframe>
-	      <?php else : ?>
-	        <div style="padding:60px 24px;text-align:center;color:var(--muted);font-family:var(--f-mono);font-size:.8rem">// Vlož odkaz na video v GRID Nastavení → Video (časosběr).</div>
-	      <?php endif; ?>
-	    </div>
+	    <div class="doprava-map" style="margin-top:26px">[grid_video_embed]</div>
 	  </div>
 	</section>
 	<?php return ob_get_clean();

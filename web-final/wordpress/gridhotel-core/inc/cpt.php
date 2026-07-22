@@ -78,7 +78,7 @@ function gridcore_register_room_tax() {
 		'labels' => array(
 			'name'          => 'Kategorie pokojů',
 			'singular_name' => 'Kategorie pokoje',
-			'menu_name'     => 'Kategorie pokojů',
+			'menu_name'     => 'Pokoje — fotky a galerie',
 			'add_new_item'  => 'Přidat kategorii',
 			'edit_item'     => 'Upravit kategorii',
 			'all_items'     => 'Kategorie pokojů',
@@ -100,8 +100,8 @@ add_action( 'admin_menu', function () {
 	if ( function_exists( 'acf_add_options_page' ) ) {
 		add_submenu_page(
 			'grid-options',
-			'Kategorie pokojů',
-			'— Kategorie pokojů',
+			'Pokoje — fotky a galerie',
+			'— Pokoje: fotky a galerie',
 			'manage_options',
 			'edit-tags.php?taxonomy=grid_room_cat&post_type=grid_room'
 		);

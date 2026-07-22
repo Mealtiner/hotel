@@ -287,9 +287,19 @@ Text Domain: grid-divi5-child
   .room-table thead th{font-family:var(--f-mono);font-size:.7rem;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
   .room-table td a{color:var(--ink,#16181B);border-bottom:1px solid var(--red)}
   .room-table tfoot td{font-weight:700;color:var(--ink,#16181B);border-top:2px solid rgba(20,22,25,.2)}
+  /* hover řádku + zvýraznění názvu s nápovědou (text z data-hint — lokalizovaný) */
+  .room-table tbody tr{transition:background .2s}
+  .room-table tbody tr:hover{background:rgba(194,14,26,.06)}
+  .room-table td a{transition:font-weight .1s}
+  .room-table td a:hover{font-weight:700}
+  .room-table td a::after{content:attr(data-hint);font-family:var(--f-mono);font-size:.64rem;letter-spacing:.08em;text-transform:uppercase;color:var(--red);opacity:0;margin-left:10px;transition:opacity .2s;white-space:nowrap}
+  .room-table td a:hover::after{opacity:1}
   .amenity-grid{list-style:none;display:grid;grid-template-columns:repeat(3,1fr);gap:10px 24px;padding:0;margin:0}
   .amenity-grid li{position:relative;padding-left:26px;color:var(--muted);font-size:.92rem}
   .amenity-grid li::before{content:"✓";position:absolute;left:0;color:var(--red);font-weight:700}
+  /* Divi text modul přidává vlastní odrážky — v našich seznamech jen červená ✓ */
+  .et_pb_text .amenity-grid,.et_pb_text .amenity-grid li{list-style:none !important}
+  .et_pb_text .amenity-grid{padding-left:0 !important}
   .know-list{display:grid;grid-template-columns:1fr 1fr;gap:14px 30px;margin:0}
   .know-list div{display:flex;flex-direction:column;gap:2px;padding-bottom:10px;border-bottom:1px solid rgba(20,22,25,.08)}
   .know-list dt{font-family:var(--f-mono);font-size:.7rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
@@ -587,7 +597,14 @@ html:not([lang^="cs"]):not([lang^="en"]):not([lang^="de"]) .grid-lang-cs{ displa
    ============================================================ */
 .roomdetail .rd-back{display:inline-block;font-family:var(--f-mono);font-size:.72rem;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-bottom:16px;transition:color .2s}
 .roomdetail .rd-back:hover{color:var(--red-hi)}
-.rd-chips{margin:0 0 22px}
+/* štítky na detailu pokoje — plnohodnotné chips (mimo .room kontext) */
+.rd-chips{display:flex;gap:10px;flex-wrap:wrap;font-family:var(--f-mono);font-size:.66rem;letter-spacing:.08em;color:var(--grey);text-transform:uppercase;margin:0 0 22px}
+.rd-chips span{padding:4px 9px;border:1px solid rgba(255,255,255,.18);border-radius:2px}
+/* Vybavení pokoje + V soukromé koupelně — dva sloupce pod náhledovou fotkou */
+.rd-aside{display:grid;grid-template-columns:1fr 1fr;gap:0 26px;align-items:start}
+.rd-aside .rd-photo{grid-column:1/-1}
+.rd-aside .rd-col h3{margin-top:20px}
+@media(max-width:640px){.rd-aside{grid-template-columns:1fr}}
 .rd-facts{display:flex;flex-wrap:wrap;gap:10px 22px;margin:0 0 20px;font-family:var(--f-mono);font-size:.82rem;color:var(--grey)}
 .rd-facts span{display:inline-flex;align-items:center;gap:6px;padding:6px 12px;border:1px solid rgba(255,255,255,.16);border-radius:2px}
 .rd-facts b{color:#fff;font-weight:700}
