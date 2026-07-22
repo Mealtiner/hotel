@@ -783,16 +783,32 @@ function grid_menu_tydne() {
  * T6 SEZÓNA 2026 / ČEKACÍ LIST (dark carbon) — repeater akcí
  * ============================================================ */
 function grid_sc_season() {
-	ob_start(); ?>
+	ob_start();
+	if ( is_front_page() ) : ?>
 	<section id="sezona" class="sec sec-dark carbon sec-pad">
 	  <span class="sec-tag">T6</span>
 	  <div class="wrap">
 	    <div class="reveal" style="margin-bottom:46px"><span class="kicker">T6 · Sezóna 2026 · Čekací list</span><h2 style="font-size:clamp(2rem,4vw,3.6rem);margin-top:16px">Velké akce se plní rychle. Buďte na roštu první.</h2><p style="max-width:62ch;margin-top:14px;color:var(--muted)">O závodních víkendech je hotel uprostřed okruhu nejžádanějším místem v Brně. Vyberte akci, zkontrolujte dostupnost pokojů a rezervujte — nebo se zapište na čekací list. Jakmile se uvolní místnost pro vámi vybraný termín, ozveme se jako prvním.</p></div>
-	    <?php echo is_front_page() ? '[grid_season_events limit="5"]' : '[grid_season_events limit="0" karty="1"]'; ?>
+	    [grid_season_events limit="5"]
 	    <?php echo grid_section_more( array( 'sezona-2026', 'sezona' ), 'Celý program sezóny 2026' ); ?>
 	  </div>
 	</section>
-	<?php return ob_get_clean();
+	<?php else : ?>
+	<section id="sezona" class="sec sec-light sec-pad">
+	  <span class="sec-tag">T6</span>
+	  <div class="wrap">
+	    <div class="reveal" style="margin-bottom:46px"><span class="kicker">T6 · Sezóna 2026 · Čekací list</span><h2 style="font-size:clamp(2rem,4vw,3.6rem);margin-top:16px">Velké akce se plní rychle. Buďte na roštu první.</h2><p style="max-width:62ch;margin-top:14px;color:var(--muted)">O závodních víkendech je hotel uprostřed okruhu nejžádanějším místem v Brně. Vyberte akci a přečtěte si detail — rezervace a čekací list jsou hned pod kartami.</p></div>
+	    [grid_season_events limit="0" rezim="karty"]
+	  </div>
+	</section>
+	<section id="cekaci-list" class="sec sec-dark carbon sec-pad">
+	  <div class="wrap">
+	    <div class="reveal" style="margin-bottom:40px"><span class="kicker">Rezervace &amp; čekací list</span><h2 style="font-size:clamp(2rem,4vw,3.4rem);margin-top:16px">Rezervujte pokoj na vybranou akci</h2></div>
+	    [grid_season_events limit="0" rezim="seznam"]
+	  </div>
+	</section>
+	<?php endif;
+	return ob_get_clean();
 }
 add_shortcode( 'grid_season', 'grid_sc_season' );
 

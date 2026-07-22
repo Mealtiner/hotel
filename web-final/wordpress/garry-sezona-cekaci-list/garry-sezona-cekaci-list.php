@@ -3,7 +3,7 @@
  * Plugin Name:       GARRY – Sezóna & čekací list
  * Plugin URI:        https://www.garry.cz
  * Description:       Akce sezóny pro sekci T6: karty administrace (Akce s náhledem widgetu, editovatelné štítky obsazenosti s barvami, log poptávek), funkční čekací formulář s odesíláním na e-mail a háčkem pro Google reCAPTCHA. Frontend: [grid_season_events limit="5"].
- * Version:           2.2.0
+ * Version:           2.3.0
  * Author:            GARRY Promotion
  * Author URI:        https://www.garry.cz
  * License:           Proprietary — Copyright © GARRY Promotion
@@ -689,21 +689,27 @@ function garry_sez_default_events() {
 	return array(
 		array( 'od'=>'2026-09-11','do'=>'2026-09-13','cz'=>'Masaryk Racing Days 2026','en'=>'Masaryk Racing Days 2026','de'=>'Masaryk Racing Days 2026',
 			'pcz'=>'Mezinárodní závodní víkend okruhových šampionátů','pen'=>'International circuit racing weekend','pde'=>'Internationales Rundstrecken-Rennwochenende',
+			'dcz'=>'Nenechte si ujít vrchol automobilové sezony na Masarykově okruhu. Víkend Masaryk Racing Days nabídne všechno, po čem motoristický fanoušek touží. Rychlé supersporty GT, tvrdé souboje v cestovních vozech, závodnické naděje ve formuli 4 i bohatě obsazené pohárové šampionáty.','den'=>'Don\'t miss the highlight of the car racing season at the Masaryk Circuit. The Masaryk Racing Days weekend offers everything a motorsport fan could wish for: fast GT supercars, hard-fought touring car battles, rising talents in Formula 4 and richly filled cup championships.','dde'=>'Verpassen Sie nicht den Höhepunkt der Automobilsaison am Masaryk-Ring. Das Wochenende der Masaryk Racing Days bietet alles, was sich ein Motorsportfan wünscht: schnelle GT-Supersportwagen, harte Duelle der Tourenwagen, Nachwuchstalente in der Formel 4 und stark besetzte Pokal-Meisterschaften.',
 			'stav'=>'volne','url'=>'https://www.automotodrombrno.cz/masaryk-racing-days-2026/' ),
 		array( 'od'=>'2026-09-18','do'=>'2026-09-20','cz'=>'Velká cena Bohumila Staši','en'=>'Bohumil Staša Grand Prix','de'=>'Großer Preis von Bohumil Staša',
 			'pcz'=>'Tradiční motocyklové závody na Masarykově okruhu','pen'=>'Traditional motorcycle races at the Masaryk Circuit','pde'=>'Traditionelle Motorradrennen am Masaryk-Ring',
+			'dcz'=>'Tuzemská špička motocyklových závodníků se v polovině září představí na Masarykově okruhu. Tradiční podnik nese jméno po legendě československého motocyklového sportu.','den'=>'The best of Czech motorcycle racing takes to the Masaryk Circuit in mid-September. The traditional event bears the name of a legend of Czechoslovak motorcycle sport.','dde'=>'Die tschechische Motorrad-Elite tritt Mitte September am Masaryk-Ring an. Die traditionsreiche Veranstaltung trägt den Namen einer Legende des tschechoslowakischen Motorradsports.',
 			'stav'=>'volne','url'=>'https://www.automotodrombrno.cz/velka-cena-bohumila-stasi-2026/' ),
 		array( 'od'=>'2026-09-24','do'=>'2026-09-27','cz'=>'Porsche Sprint Challenge Central Europe','en'=>'Porsche Sprint Challenge Central Europe','de'=>'Porsche Sprint Challenge Central Europe',
 			'pcz'=>'Značkový pohár vozů Porsche','pen'=>'Porsche one-make cup racing','pde'=>'Porsche-Markenpokal',
+			'dcz'=>'Porsche se vrací na Masarykův okruh. Na vlastní oči uvidíte legendární model 911 v té nejčistší závodní podobě. Porsche Sprint Challenge je šampionát pohárových vozů 911 GT3 Cup, to znamená, že o vítězství a prohře rozhodne jen a pouze umění a dravost závodníka.','den'=>'Porsche returns to the Masaryk Circuit. See the legendary 911 in its purest racing form with your own eyes. The Porsche Sprint Challenge is a one-make championship of 911 GT3 Cup cars — victory and defeat are decided purely by the skill and daring of the driver.','dde'=>'Porsche kehrt an den Masaryk-Ring zurück. Erleben Sie den legendären 911 in seiner reinsten Rennform. Die Porsche Sprint Challenge ist ein Markenpokal der 911 GT3 Cup — über Sieg und Niederlage entscheiden allein Können und Mut der Fahrer.',
 			'stav'=>'volne','url'=>'https://www.automotodrombrno.cz/porsche-sprint-challenge-central-europe-2026/' ),
 		array( 'od'=>'2026-10-10','do'=>'2026-10-11','cz'=>'Race Car Show – MM závodů automobilů do vrchu','en'=>'Race Car Show – Hill Climb Championship','de'=>'Race Car Show – Bergrenn-Meisterschaft',
 			'pcz'=>'Mezinárodní mistrovství závodů automobilů do vrchu','pen'=>'International hill climb championship','pde'=>'Internationale Bergrenn-Meisterschaft',
+			'dcz'=>'Přijďte si vychutnat další závod do vrchu na Masarykově okruhu. V tradičním podzimním termínu se můžete těšit na pestrou přehlídku rychlosti a preciznosti. Akci organizuje Maverick Rescue z.s.','den'=>'Enjoy another hill climb race at the Masaryk Circuit. In the traditional autumn date you can look forward to a varied showcase of speed and precision. The event is organised by Maverick Rescue.','dde'=>'Genießen Sie ein weiteres Bergrennen am Masaryk-Ring. Zum traditionellen Herbsttermin erwartet Sie eine abwechslungsreiche Schau von Geschwindigkeit und Präzision. Veranstalter ist Maverick Rescue.',
 			'stav'=>'volne','url'=>'https://www.automotodrombrno.cz/mezinarodni-mistrovstvi-zavodu-automobilu-do-vrchu-2026-2/' ),
 		array( 'od'=>'2026-10-17','do'=>'2026-10-17','cz'=>'Tuning Show Brno','en'=>'Tuning Show Brno','de'=>'Tuning Show Brno',
 			'pcz'=>'Přehlídka upravených vozů na okruhu','pen'=>'Tuned car show at the circuit','pde'=>'Tuning-Schau an der Rennstrecke',
+			'dcz'=>'Milovníci tuningu se mohou těšit na závěrečnou show roku, která nabídne vše, co k pořádné akci patří: od tuningového srazu, výstavy supersportů a volných jízd po dráze až po závod do vrchu.','den'=>'Tuning fans can look forward to the closing show of the year, offering everything a proper event needs: a tuning meet, a supercar exhibition, free track sessions and a hill climb race.','dde'=>'Tuning-Fans können sich auf die Abschluss-Show des Jahres freuen, die alles bietet, was zu einem richtigen Event gehört: Tuning-Treffen, Supersportwagen-Ausstellung, freie Fahrten auf der Strecke und ein Bergrennen.',
 			'stav'=>'volne','url'=>'https://www.automotodrombrno.cz/tuning-show-brno-2026/' ),
 		array( 'od'=>'2026-10-18','do'=>'2026-10-18','cz'=>'8h Le Brno','en'=>'8h Le Brno','de'=>'8h Le Brno',
 			'pcz'=>'Osmihodinový vytrvalostní závod','pen'=>'Eight-hour endurance race','pde'=>'Acht-Stunden-Langstreckenrennen',
+			'dcz'=>'Závod amatérské vytrvalostní série ARC Endurance pořádané společností Auto Rallye Cross, která funguje jako promotér již od roku 2001.','den'=>'A race of the amateur endurance series ARC Endurance, organised by Auto Rallye Cross, a promoter active since 2001.','dde'=>'Ein Rennen der Amateur-Langstreckenserie ARC Endurance, veranstaltet von Auto Rallye Cross, das seit 2001 als Promoter aktiv ist.',
 			'stav'=>'volne','url'=>'https://www.automotodrombrno.cz/le-brno-8h-2026/' ),
 	);
 }
@@ -782,6 +788,9 @@ function garry_sez_sanitize( $in ) {
 			'pde'  => sanitize_text_field( $e['pde'][ $i ] ?? '' ),
 			'stav' => in_array( $e['stav'][ $i ] ?? '', $state_keys, true ) ? $e['stav'][ $i ] : ( $state_keys[0] ?? 'volne' ),
 			'url'  => esc_url_raw( $e['url'][ $i ] ?? '' ),
+			'dcz'  => sanitize_textarea_field( $e['dcz'][ $i ] ?? '' ),
+			'den'  => sanitize_textarea_field( $e['den'][ $i ] ?? '' ),
+			'dde'  => sanitize_textarea_field( $e['dde'][ $i ] ?? '' ),
 		);
 		if ( $row['cz'] === '' && $row['od'] === '' ) continue;
 		$out['events'][] = $row;
@@ -845,9 +854,15 @@ function garry_sez_admin_page() {
 	          <label>Název DE<input type="text" style="width:100%" name="<?php echo $O; ?>[events][de][]" value="<?php echo esc_attr( $ev['de'] ); ?>"></label>
 	        </div>
 	        <div style="display:grid;grid-template-columns:1fr;gap:8px">
-	          <label>Perex CZ<input type="text" style="width:100%" name="<?php echo $O; ?>[events][pcz][]" value="<?php echo esc_attr( $ev['pcz'] ); ?>" placeholder="Celá věta — vejde se sem celá"></label>
+	          <label>Perex CZ<input type="text" style="width:100%" name="<?php echo $O; ?>[events][pcz][]" value="<?php echo esc_attr( $ev['pcz'] ); ?>" placeholder="Krátká věta do seznamu akcí"></label>
 	          <label>Perex EN<input type="text" style="width:100%" name="<?php echo $O; ?>[events][pen][]" value="<?php echo esc_attr( $ev['pen'] ); ?>"></label>
 	          <label>Perex DE<input type="text" style="width:100%" name="<?php echo $O; ?>[events][pde][]" value="<?php echo esc_attr( $ev['pde'] ); ?>"></label>
+	        </div>
+	        <p class="description" style="margin:8px 0 4px">Detailní popis („O akci") — zobrazuje se v kartách akcí na stránce Sezóna:</p>
+	        <div style="display:grid;grid-template-columns:1fr;gap:6px">
+	          <label>O akci CZ<textarea style="width:100%" rows="2" name="<?php echo $O; ?>[events][dcz][]"><?php echo esc_textarea( $ev['dcz'] ?? '' ); ?></textarea></label>
+	          <label>O akci EN<textarea style="width:100%" rows="2" name="<?php echo $O; ?>[events][den][]"><?php echo esc_textarea( $ev['den'] ?? '' ); ?></textarea></label>
+	          <label>O akci DE<textarea style="width:100%" rows="2" name="<?php echo $O; ?>[events][dde][]"><?php echo esc_textarea( $ev['dde'] ?? '' ); ?></textarea></label>
 	        </div>
 	      </div>
 	      <?php endforeach; ?>
@@ -1031,7 +1046,10 @@ function garry_sez_fmt_range( $od, $do ) {
 	return $a->format( 'j. n.' ) . ' – ' . $b->format( 'j. n. Y' );
 }
 function garry_sez_render( $atts = array() ) {
-	$a = shortcode_atts( array( 'limit' => 5, 'karty' => 0 ), $atts );
+	$a = shortcode_atts( array( 'limit' => 5, 'karty' => 0, 'rezim' => '' ), $atts );
+	$rezim = $a['rezim'] ?: 'vse';
+	$show_cards = ( $rezim === 'karty' ) || ( $rezim === 'vse' && ! empty( $a['karty'] ) );
+	$show_list  = ( $rezim === 'seznam' || $rezim === 'vse' );
 	$s = garry_sez_get(); $STATES = garry_sez_states(); $li = garry_sez_lang_idx();
 	$today = current_time( 'Y-m-d' );
 	$events = array_values( array_filter( $s['events'], function ( $e ) use ( $today ) {
@@ -1069,7 +1087,7 @@ function garry_sez_render( $atts = array() ) {
 	ob_start();
 	echo '<style>' . $css . '</style>';
 	?>
-	<?php if ( ! empty( $a['karty'] ) ) :
+	<?php if ( $show_cards ) :
 		$tx = array(
 			array( 'Detail akce', 'Rezervace & čekací list' ),
 			array( 'Event details', 'Booking & waiting list' ),
@@ -1084,7 +1102,8 @@ function garry_sez_render( $atts = array() ) {
 	    <div class="sez-card-top"><span class="ev-date"><?php echo esc_html( garry_sez_fmt_range( $e['od'], $e['do'] ) ); ?></span>
 	    <span class="ev-status <?php echo esc_attr( sanitize_html_class( $e['stav'] ) . ' ' . $st['legacy'] ); ?>"><?php echo esc_html( garry_sez_state_label( $st, $li ) ); ?></span></div>
 	    <h3><?php echo esc_html( $name ); ?></h3>
-	    <p><?php echo esc_html( $perex ); ?></p>
+	    <?php $detail = $e[ array( 'dcz', 'den', 'dde' )[ $li ] ] ?? ''; if ( $detail === '' ) $detail = ( $e['dcz'] ?? '' ) ?: $perex; ?>
+	    <p><?php echo esc_html( $detail ); ?></p>
 	    <div class="sez-card-links">
 	      <?php if ( ! empty( $e['url'] ) ) : ?><a class="sec-more" href="<?php echo esc_url( $e['url'] ); ?>" target="_blank" rel="noopener"><?php echo esc_html( $tx[0] ); ?> <span aria-hidden="true">↗</span></a><?php endif; ?>
 	      <a class="sec-more" href="#cekaci-list"><?php echo esc_html( $tx[1] ); ?> <span aria-hidden="true">↓</span></a>
@@ -1093,7 +1112,8 @@ function garry_sez_render( $atts = array() ) {
 	  <?php endforeach; ?>
 	</div>
 	<?php endif; ?>
-	<div class="season" id="cekaci-list">
+	<?php if ( $show_list ) : ?>
+	<div class="season"<?php echo $rezim === 'vse' ? ' id="cekaci-list"' : ''; ?>>
 	  <div class="ev-list reveal d1 in" id="evList">
 	    <?php foreach ( $events as $e ) :
 			$name  = $e[ array( 'cz', 'en', 'de' )[ $li ] ] ?: $e['cz'];
@@ -1131,6 +1151,7 @@ function garry_sez_render( $atts = array() ) {
 	    <p style="font-family:var(--f-mono);font-size:.66rem;color:var(--muted);margin-top:14px"><?php echo esc_html( $t[11] ); ?></p>
 	  </div>
 	</div>
+	<?php endif; ?>
 	<script>
 	(function(){
 	  var f=document.getElementById('wbForm'); if(!f) return;
