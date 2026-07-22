@@ -3,7 +3,7 @@
  * Plugin Name:       GARRY – Sezóna & čekací list
  * Plugin URI:        https://www.garry.cz
  * Description:       Akce sezóny pro sekci T6: karty administrace (Akce s náhledem widgetu, editovatelné štítky obsazenosti s barvami, log poptávek), funkční čekací formulář s odesíláním na e-mail a háčkem pro Google reCAPTCHA. Frontend: [grid_season_events limit="5"].
- * Version:           2.0.0
+ * Version:           2.1.0
  * Author:            GARRY Promotion
  * Author URI:        https://www.garry.cz
  * License:           Proprietary — Copyright © GARRY Promotion
@@ -1124,6 +1124,105 @@ function garry_sez_render( $atts = array() ) {
 	return ob_get_clean();
 }
 add_action( 'init', function () { add_shortcode( 'grid_season_events', 'garry_sez_render' ); }, 5 );
+
+/* ---------- Objednávka dárkového poukazu — [grid_voucher_form] ---------- */
+function garry_voucher_kinds( $li ) {
+	$T = array(
+		array( 'Pokoj Superior — 1 osoba (3 750 Kč)', 'Pokoj Superior Plus — 1 osoba (4 250 Kč)', 'Apartmán — 1 osoba (6 625 Kč)',
+			'Pokoj Superior — 2 osoby (4 500 Kč)', 'Pokoj Superior Plus — 2 osoby (5 000 Kč)', 'Apartmán — 2 osoby (6 875 Kč)' ),
+		array( 'Superior room — 1 person (CZK 3,750)', 'Superior Plus room — 1 person (CZK 4,250)', 'Apartment — 1 person (CZK 6,625)',
+			'Superior room — 2 persons (CZK 4,500)', 'Superior Plus room — 2 persons (CZK 5,000)', 'Apartment — 2 persons (CZK 6,875)' ),
+		array( 'Zimmer Superior — 1 Person (3 750 CZK)', 'Zimmer Superior Plus — 1 Person (4 250 CZK)', 'Appartement — 1 Person (6 625 CZK)',
+			'Zimmer Superior — 2 Personen (4 500 CZK)', 'Zimmer Superior Plus — 2 Personen (5 000 CZK)', 'Appartement — 2 Personen (6 875 CZK)' ),
+	);
+	return $T[ $li ];
+}
+function garry_voucher_form() {
+	$li = garry_sez_lang_idx();
+	$T = array(
+		array( 'Objednat dárkový poukaz', 'Jméno', 'Příjmení', 'Druh poukazu', 'E-mail', 'Odeslat objednávku',
+			'✓ Děkujeme! Objednávku poukazu jsme přijali — ozveme se se zálohovou fakturou.', 'Odesílám…', 'Odeslání se nepovedlo — zkuste to prosím znovu.' ),
+		array( 'Order a gift voucher', 'First name', 'Last name', 'Voucher type', 'E-mail', 'Send order',
+			"✓ Thank you! We've received your voucher order — we'll follow up with a proforma invoice.", 'Sending…', 'Sending failed — please try again.' ),
+		array( 'Gutschein bestellen', 'Vorname', 'Nachname', 'Gutschein-Art', 'E-Mail', 'Bestellung senden',
+			'✓ Vielen Dank! Wir haben Ihre Gutschein-Bestellung erhalten und melden uns mit der Vorausrechnung.', 'Wird gesendet…', 'Senden fehlgeschlagen — bitte erneut versuchen.' ),
+	);
+	$t = $T[ $li ];
+	ob_start(); ?>
+	<div class="vou-form">
+	  <h3 style="margin:30px 0 12px;color:var(--gold)"><?php echo esc_html( $t[0] ); ?></h3>
+	  <form id="vouForm" class="form-grid">
+	    <input type="hidden" name="_wpnonce" value="<?php echo esc_attr( wp_create_nonce( 'garry_sez_request' ) ); ?>">
+	    <input type="text" name="web" value="" style="position:absolute;left:-9999px" tabindex="-1" autocomplete="off" aria-hidden="true">
+	    <div><label for="vou-jmeno"><?php echo esc_html( $t[1] ); ?></label><input id="vou-jmeno" type="text" name="jmeno" required></div>
+	    <div><label for="vou-prijmeni"><?php echo esc_html( $t[2] ); ?></label><input id="vou-prijmeni" type="text" name="prijmeni" required></div>
+	    <div class="full"><label for="vou-druh"><?php echo esc_html( $t[3] ); ?></label><select id="vou-druh" name="druh">
+	      <?php foreach ( garry_voucher_kinds( $li ) as $k ) printf( '<option>%s</option>', esc_html( $k ) ); ?>
+	    </select></div>
+	    <div class="full"><label for="vou-email"><?php echo esc_html( $t[4] ); ?></label><input id="vou-email" type="email" name="email" required></div>
+	    <div class="full"><button type="submit" class="btn" id="vouBtn"><?php echo esc_html( $t[5] ); ?></button></div>
+	    <div class="full"><div class="wb-ok" id="vouOk"><?php echo esc_html( $t[6] ); ?></div></div>
+	  </form>
+	</div>
+	<script>
+	(function(){
+	  var f=document.getElementById('vouForm'); if(!f) return;
+	  var ok=document.getElementById('vouOk'), btn=document.getElementById('vouBtn');
+	  var msg={sending:<?php echo wp_json_encode( $t[7] ); ?>, fail:<?php echo wp_json_encode( $t[8] ); ?>, done:<?php echo wp_json_encode( $t[6] ); ?>, btn:btn.textContent, lang:<?php echo wp_json_encode( garry_sez_lang() ); ?>};
+	  f.addEventListener('submit', function(e){
+	    e.preventDefault(); e.stopImmediatePropagation();
+	    if(!f.reportValidity()) return;
+	    btn.disabled=true; btn.textContent=msg.sending;
+	    var data=new FormData(f);
+	    data.append('action','garry_voucher_request');
+	    data.append('jazyk', msg.lang);
+	    fetch(<?php echo wp_json_encode( admin_url( 'admin-ajax.php' ) ); ?>, {method:'POST', body:data, credentials:'same-origin'})
+	      .then(function(r){ return r.json(); })
+	      .then(function(j){ btn.disabled=false; btn.textContent=msg.btn;
+	        ok.textContent = j && j.success ? msg.done : (j && j.data && j.data.message ? j.data.message : msg.fail);
+	        ok.classList.add('show'); if(j && j.success) f.reset(); })
+	      .catch(function(){ btn.disabled=false; btn.textContent=msg.btn; ok.textContent=msg.fail; ok.classList.add('show'); });
+	  }, true);
+	})();
+	</script>
+	<?php return ob_get_clean();
+}
+add_action( 'init', function () { add_shortcode( 'grid_voucher_form', 'garry_voucher_form' ); }, 5 );
+
+function garry_voucher_handle() {
+	if ( ! wp_verify_nonce( $_POST['_wpnonce'] ?? '', 'garry_sez_request' ) ) {
+		wp_send_json_error( array( 'message' => 'Neplatný požadavek — obnovte prosím stránku.' ), 400 );
+	}
+	if ( ! empty( $_POST['web'] ) ) wp_send_json_success();
+	$verified = apply_filters( 'garry_sez_verify_request', true, wp_unslash( $_POST ) );
+	if ( is_wp_error( $verified ) ) wp_send_json_error( array( 'message' => $verified->get_error_message() ), 400 );
+	if ( ! $verified ) wp_send_json_error( array( 'message' => 'Ověření proti spamu se nepovedlo.' ), 400 );
+
+	$z = array(
+		'cas'   => current_time( 'j. n. Y H:i:s' ),
+		'akce'  => 'Dárkový poukaz',
+		'pokoj' => sanitize_text_field( wp_unslash( $_POST['druh'] ?? '' ) ),
+		'jmeno' => trim( sanitize_text_field( wp_unslash( $_POST['jmeno'] ?? '' ) ) . ' ' . sanitize_text_field( wp_unslash( $_POST['prijmeni'] ?? '' ) ) ),
+		'email' => sanitize_email( wp_unslash( $_POST['email'] ?? '' ) ),
+		'jazyk' => sanitize_key( $_POST['jazyk'] ?? '' ),
+		'ip'    => sanitize_text_field( $_SERVER['REMOTE_ADDR'] ?? '' ),
+	);
+	if ( trim( $z['jmeno'] ) === '' || ! is_email( $z['email'] ) ) {
+		wp_send_json_error( array( 'message' => 'Vyplňte prosím jméno a platný e-mail.' ), 400 );
+	}
+	$log = get_option( GARRY_SEZ_LOG, array() ); if ( ! is_array( $log ) ) $log = array();
+	$log[] = $z; if ( count( $log ) > 300 ) $log = array_slice( $log, -300 );
+	update_option( GARRY_SEZ_LOG, $log, false );
+	$to = garry_sez_get()['email']; if ( ! is_email( $to ) ) $to = get_option( 'admin_email' );
+	$body = "Nová objednávka dárkového poukazu z webu:\n\n"
+		. 'Druh poukazu: ' . $z['pokoj'] . "\n" . 'Jméno: ' . $z['jmeno'] . "\n"
+		. 'E-mail: ' . $z['email'] . "\n" . 'Jazyk webu: ' . strtoupper( $z['jazyk'] ) . "\n"
+		. 'Čas: ' . $z['cas'] . "\n" . 'IP: ' . $z['ip'] . "\n";
+	wp_mail( $to, 'Objednávka dárkového poukazu — ' . $z['pokoj'], $body, array( 'Reply-To: ' . $z['jmeno'] . ' <' . $z['email'] . '>' ) );
+	wp_send_json_success();
+}
+add_action( 'wp_ajax_garry_voucher_request', 'garry_voucher_handle' );
+add_action( 'wp_ajax_nopriv_garry_voucher_request', 'garry_voucher_handle' );
 
 /* ---------- AJAX příjem poptávky (přihlášení i nepřihlášení) ---------- */
 function garry_sez_handle_request() {

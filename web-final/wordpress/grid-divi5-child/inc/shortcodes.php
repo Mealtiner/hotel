@@ -673,7 +673,10 @@ function grid_sc_gastro() {
 	      </div>
 	      <?php endforeach; ?>
 	    </div>
-	    <?php echo grid_section_more( array( 'gastronomie', 'gastro' ), 'Celá nabídka gastronomie' ); ?>
+	    <?php echo grid_section_more( array( 'gastronomie', 'gastro' ), 'Celá nabídka gastronomie' );
+	    if ( is_front_page() && grid_detail_url( array( 'gastronomie', 'gastro' ) ) ) : ?>
+	      <a class="sec-more" href="<?php echo esc_url( grid_detail_url( array( 'gastronomie', 'gastro' ) ) ); ?>#jidelnicek" style="margin-left:26px">Aktuální týdenní menu <span aria-hidden="true">→</span></a>
+	    <?php endif; ?>
 	  </div>
 	</section>
 	<?php
@@ -1102,9 +1105,9 @@ function grid_sc_poukazy() {
 	  <div class="wrap" style="max-width:1000px">
 	    <span class="kicker">Dárkové poukazy · Sezóna 2026</span>
 	    <h2 style="font-size:clamp(2rem,5vw,3.6rem);margin:14px 0 16px">Darujte pobyt u Masarykova okruhu</h2>
-	    <p style="max-width:70ch;color:var(--muted)">Vážení fanoušci motorsportu, máme pro vás možnost zakoupení dárkového poukazu na sezónu 2026. Obdarujte své blízké na Vánoce, narozeniny, výročí, promoce, jako svatební dar nebo jen tak.</p>
-	    <p style="max-width:70ch;color:var(--muted)">Vyberte si jeden ze dvou vzorů poukazu, do e-mailu uveďte, který vzor jste zvolili a jaký si přejete „Váš text" (např. „Tatínkovi"). Obratem pošleme zálohovou fakturu k platbě bankovním převodem; po přijetí platby vám elektronicky zašleme dárkový poukaz.</p>
-	    <p style="max-width:70ch;color:var(--muted);font-family:var(--f-mono);font-size:.8rem">// Poukazy jsou standardně na 1 noc — dle přání upravíme na požadovaný počet nocí.</p>
+	    <p style="color:var(--muted)">Vážení fanoušci motorsportu, máme pro vás možnost zakoupení dárkového poukazu na sezónu 2026. Obdarujte své blízké na Vánoce, narozeniny, výročí, promoce, jako svatební dar nebo jen tak.</p>
+	    <p style="color:var(--muted)">Vyberte si jeden ze dvou vzorů poukazu, do e-mailu uveďte, který vzor jste zvolili a jaký si přejete „Váš text" (např. „Tatínkovi"). Obratem pošleme zálohovou fakturu k platbě bankovním převodem; po přijetí platby vám elektronicky zašleme dárkový poukaz.</p>
+	    <p style="color:var(--muted);font-family:var(--f-mono);font-size:.8rem">// Poukazy jsou standardně na 1 noc — dle přání upravíme na požadovaný počet nocí.</p>
 
 	    <h3 style="margin:30px 0 12px;color:var(--gold)">Pro jednu osobu</h3>
 	    <?php echo $cards( $one ); ?>
@@ -1112,7 +1115,7 @@ function grid_sc_poukazy() {
 	    <?php echo $cards( $two ); ?>
 
 	    <div class="vou-order">
-	      <p>Objednávky pište na <a href="mailto:<?php echo esc_attr( $email ); ?>"><?php echo esc_html( $email ); ?></a>.</p>
+	      [grid_voucher_form]
 	      <p class="vou-note"><strong>Pozor:</strong> dárkový poukaz nelze kombinovat s jinými slevami a není platný v termínu konání vybraných akcí (např. HISTOCUP či Podzimní cena).</p>
 	    </div>
 	  </div>
