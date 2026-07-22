@@ -3,7 +3,7 @@
  * Plugin Name:       GARRY – Kategorie pokojů
  * Plugin URI:        https://www.garry.cz
  * Description:       Správa kategorií pokojů: karty na titulní stránce, štítky a texty v CZ/EN/DE, srovnávací tabulka pokojů (přesouvání a přidávání řádků). Frontend: [grid_rooms_cards], [grid_rooms_table] a srovnávací tabulka na detailu kategorie se zvýrazněním sloupce.
- * Version:           1.1.0
+ * Version:           1.2.0
  * Author:            GARRY Promotion
  * Author URI:        https://www.garry.cz
  * License:           Proprietary — Copyright © GARRY Promotion
@@ -877,7 +877,7 @@ function garry_pok_admin_page() {
 	        <p class="description" style="margin:8px 0 4px">Tyto údaje se zobrazují na <strong>detailu kategorie pokoje</strong>
 	        (např. <code>/kategorie-pokoje/superior/</code>): „Postel" je součást řádku faktů pod nadpisem,
 	        seznamy „V soukromé koupelně" a „Vybavení pokoje" se vypisují s odrážkami ✓ v pravém sloupci
-	        a „Dlouhý popis" je hlavní text stránky (HTML odstavce <code>&lt;p&gt;…&lt;/p&gt;</code>).
+	        a „Dlouhý popis" je hlavní text stránky (jednoduchý editor — tučně, kurzíva, podtržení, odstavce).
 	        Prázdný překlad = použije se čeština.</p>
 	        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:10px 0 8px">
 	          <label>Postel CZ<input type="text" style="width:100%" name="__postel_cz" value="<?php echo esc_attr( $r['postel_cz'] ); ?>"></label>
@@ -885,16 +885,16 @@ function garry_pok_admin_page() {
 	          <label>Postel DE<input type="text" style="width:100%" name="__postel_de" value="<?php echo esc_attr( $r['postel_de'] ); ?>"></label>
 	        </div>
 	        <?php foreach ( array( 'koupelna' => 'V soukromé koupelně', 'zarizeni' => 'Vybavení pokoje' ) as $f => $lbl ) : ?>
-	        <p style="margin:6px 0 2px"><strong><?php echo esc_html( $lbl ); ?></strong> — položky oddělené <code>|</code></p>
+	        <p style="margin:6px 0 2px"><strong><?php echo esc_html( $lbl ); ?></strong> — pište položku a stiskněte <strong>čárku</strong> nebo <strong>Enter</strong>, vytvoří se štítek (× jej smaže)</p>
 	        <div style="display:grid;grid-template-columns:1fr;gap:4px;margin-bottom:6px">
 	          <?php foreach ( array( 'cz' => 'CZ', 'en' => 'EN', 'de' => 'DE' ) as $l => $L ) : ?>
-	          <label><?php echo $L; ?><textarea style="width:100%" rows="2" name="__<?php echo $f; ?>_<?php echo $l; ?>"><?php echo esc_textarea( $r[ $f . '_' . $l ] ); ?></textarea></label>
+	          <label><?php echo $L; ?><textarea class="pok-tags" style="width:100%" rows="2" name="__<?php echo $f; ?>_<?php echo $l; ?>"><?php echo esc_textarea( $r[ $f . '_' . $l ] ); ?></textarea></label>
 	          <?php endforeach; ?>
 	        </div>
 	        <?php endforeach; ?>
-	        <p style="margin:6px 0 2px"><strong>Dlouhý popis (HTML odstavce)</strong></p>
+	        <p style="margin:6px 0 2px"><strong>Dlouhý popis</strong></p>
 	        <?php foreach ( array( 'cz' => 'CZ', 'en' => 'EN', 'de' => 'DE' ) as $l => $L ) : ?>
-	        <label style="display:block;margin-bottom:4px"><?php echo $L; ?><textarea style="width:100%" rows="4" name="__popis_<?php echo $l; ?>"><?php echo esc_textarea( $r[ 'popis_' . $l ] ); ?></textarea></label>
+	        <label style="display:block;margin-bottom:4px"><?php echo $L; ?><textarea class="pok-rte-src" style="width:100%" rows="4" name="__popis_<?php echo $l; ?>"><?php echo esc_textarea( $r[ 'popis_' . $l ] ); ?></textarea></label>
 	        <?php endforeach; ?>
 	      </details>
 	      </div>
@@ -956,9 +956,84 @@ function garry_pok_admin_page() {
 
 	<?php submit_button( 'Uložit' ); ?>
 	</form></div>
+	<style>
+	.pok-chipbox{display:flex;flex-wrap:wrap;align-items:center;gap:6px;border:1px solid #8c8f94;border-radius:4px;background:#fff;padding:5px 6px;min-height:34px;cursor:text}
+	.pok-chip{display:inline-flex;align-items:center;gap:5px;background:#eef3fa;border:1px solid #b5c7e0;border-radius:14px;padding:2px 9px;font-size:12.5px;line-height:1.7;white-space:nowrap}
+	.pok-chip-x{border:0;background:none;color:#b32d2e;cursor:pointer;font-size:15px;line-height:1;padding:0}
+	.pok-chip-in{border:0!important;box-shadow:none!important;outline:none!important;flex:1;min-width:180px;margin:0!important;padding:2px!important}
+	.pok-rte-bar{display:flex;gap:4px;margin:3px 0}
+	.pok-rte-bar button{border:1px solid #8c8f94;background:#f6f7f7;border-radius:3px;min-width:30px;height:27px;cursor:pointer;font-weight:700}
+	.pok-rte-bar button:hover{background:#eee}
+	.pok-rte{border:1px solid #8c8f94;border-radius:4px;background:#fff;padding:8px 12px;min-height:100px;max-height:320px;overflow:auto}
+	.pok-rte:focus{outline:2px solid #2271b1;outline-offset:-1px}
+	.pok-rte p{margin:0 0 8px}
+	</style>
 	<script>
 	(function(){
 	  var O = <?php echo wp_json_encode( GARRY_POK_OPT ); ?>;
+	  try{ document.execCommand('defaultParagraphSeparator', false, 'p'); }catch(e){}
+	  /* ---- štítkový (chip) vstup: čárka/Enter vytvoří štítek, data v textarei jako a | b | c ---- */
+	  function initChips(scope){
+	    (scope||document).querySelectorAll('textarea.pok-tags').forEach(function(ta){
+	      if(ta.dataset.chipsInit) return; ta.dataset.chipsInit='1';
+	      ta.style.display='none';
+	      var box=document.createElement('div'); box.className='pok-chipbox';
+	      var inp=document.createElement('input'); inp.type='text'; inp.className='pok-chip-in';
+	      inp.placeholder='napište položku a stiskněte čárku nebo Enter…';
+	      box.appendChild(inp);
+	      ta.parentNode.insertBefore(box, ta.nextSibling);
+	      function sync(){
+	        ta.value=[].map.call(box.querySelectorAll('.pok-chip'),function(c){return c.firstChild.textContent;}).join(' | ');
+	      }
+	      function addChip(txt){ txt=(txt||'').trim(); if(!txt) return;
+	        var c=document.createElement('span'); c.className='pok-chip'; c.appendChild(document.createTextNode(txt));
+	        var x=document.createElement('button'); x.type='button'; x.className='pok-chip-x'; x.title='Smazat štítek'; x.textContent='×';
+	        c.appendChild(x); box.insertBefore(c, inp); sync();
+	      }
+	      (ta.value||'').split('|').forEach(addChip);
+	      inp.addEventListener('keydown', function(e){
+	        if(e.key===','||e.key==='Enter'){ e.preventDefault(); addChip(inp.value); inp.value=''; }
+	        else if(e.key==='Backspace'&&!inp.value){ var last=inp.previousElementSibling; if(last){ last.remove(); sync(); } }
+	      });
+	      inp.addEventListener('input', function(){
+	        if(inp.value.indexOf(',')>-1){ var parts=inp.value.split(','); parts.slice(0,-1).forEach(addChip); inp.value=parts[parts.length-1]; }
+	      });
+	      inp.addEventListener('blur', function(){ if(inp.value.trim()){ addChip(inp.value); inp.value=''; } });
+	      box.addEventListener('click', function(e){
+	        if(e.target.classList.contains('pok-chip-x')){ e.target.parentNode.remove(); sync(); }
+	        else if(e.target===box) inp.focus();
+	      });
+	    });
+	  }
+	  /* ---- mini WYSIWYG pro dlouhý popis (B/I/U/odstavec), data v textarei jako HTML ---- */
+	  function initRte(scope){
+	    (scope||document).querySelectorAll('textarea.pok-rte-src').forEach(function(ta){
+	      if(ta.dataset.rteInit) return; ta.dataset.rteInit='1';
+	      ta.style.display='none';
+	      var bar=document.createElement('div'); bar.className='pok-rte-bar';
+	      [['B','bold','Tučně'],['I','italic','Kurzíva'],['U','underline','Podtržení'],['¶','p','Odstavec']].forEach(function(b){
+	        var btn=document.createElement('button'); btn.type='button'; btn.textContent=b[0]; btn.title=b[2]; btn.setAttribute('data-cmd',b[1]);
+	        if(b[1]==='italic'){ btn.style.fontStyle='italic'; btn.style.fontWeight='400'; }
+	        if(b[1]==='underline'){ btn.style.textDecoration='underline'; }
+	        bar.appendChild(btn);
+	      });
+	      var ed=document.createElement('div'); ed.className='pok-rte'; ed.contentEditable='true';
+	      ed.innerHTML=ta.value||'<p></p>';
+	      ta.parentNode.insertBefore(bar, ta.nextSibling);
+	      ta.parentNode.insertBefore(ed, bar.nextSibling);
+	      function sync(){ ta.value=ed.innerHTML; }
+	      ed.addEventListener('input', sync);
+	      ed.addEventListener('blur', sync);
+	      bar.addEventListener('click', function(e){
+	        var cmd=e.target.getAttribute&&e.target.getAttribute('data-cmd'); if(!cmd) return;
+	        e.preventDefault(); ed.focus();
+	        if(cmd==='p') document.execCommand('formatBlock', false, 'p');
+	        else document.execCommand(cmd, false, null);
+	        sync();
+	      });
+	    });
+	  }
+	  initChips(); initRte();
 	  /* karty */
 	  var tabs=document.querySelectorAll('#pok-tabs .nav-tab');
 	  tabs.forEach(function(t){ t.addEventListener('click', function(e){ e.preventDefault();
@@ -990,11 +1065,14 @@ function garry_pok_admin_page() {
 	  });
 	  document.getElementById('pok-room-add').addEventListener('click', function(){
 	    var c=wrap.querySelector('.pok-room').cloneNode(true);
+	    c.querySelectorAll('.pok-chipbox,.pok-rte-bar,.pok-rte').forEach(function(el){ el.remove(); });
+	    c.querySelectorAll('textarea').forEach(function(t){ delete t.dataset.chipsInit; delete t.dataset.rteInit; });
 	    c.querySelectorAll('input[type=text],input[type=url],textarea').forEach(function(i){ i.value=''; });
 	    c.querySelectorAll('input[type=checkbox]').forEach(function(i){ i.checked=false; });
 	    c.querySelector('.pok-room-title').textContent='Nová kategorie';
 	    c.setAttribute('open','');
 	    wrap.appendChild(c);
+	    initChips(c); initRte(c);
 	  });
 	  document.getElementById('pok-expand').addEventListener('click', function(){ wrap.querySelectorAll('.pok-room').forEach(function(d){ d.setAttribute('open',''); }); });
 	  document.getElementById('pok-collapse').addEventListener('click', function(){ wrap.querySelectorAll('.pok-room').forEach(function(d){ d.removeAttribute('open'); }); });
