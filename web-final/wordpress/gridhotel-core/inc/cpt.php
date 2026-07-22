@@ -28,12 +28,15 @@ function gridcore_register_cpts() {
 		'grid_event' => array(
 			'singular' => 'Akce sezóny', 'plural' => 'Sezóna 2026', 'slug' => 'akce',
 			'icon' => 'dashicons-calendar-alt', 'thumb' => false,
-			// SKRYTO z menu: akce spravuje plugin „Sezóna & čekací list", CPT je jen datová legacy
-			'menu' => false,
+			// SKRYTO z menu: akce spravuje plugin „Sezóna & čekací list", CPT je jen datová legacy.
+			// BEZ archivu: /akce/ nikde v navigaci nevede, reálný obsah je na /sezona-2026/ (SEO: prázdný duplicitní archiv pryč).
+			'menu' => false, 'archive' => false,
 		),
 		'grid_gastro' => array(
 			'singular' => 'Gastro provoz', 'plural' => 'Gastronomie', 'slug' => 'gastro',
 			'icon' => 'dashicons-food', 'thumb' => true,
+			// BEZ archivu: /gastro/ nikde v navigaci nevede, reálný obsah je na /gastronomie/ (SEO: prázdný duplicitní archiv pryč).
+			'archive' => false,
 		),
 		'grid_job' => array(
 			'singular' => 'Pracovní pozice', 'plural' => 'Kariéra', 'slug' => 'kariera-pozice',
@@ -44,6 +47,8 @@ function gridcore_register_cpts() {
 		'grid_testimonial' => array(
 			'singular' => 'Reference', 'plural' => 'Reference', 'slug' => 'reference',
 			'icon' => 'dashicons-format-quote', 'thumb' => false,
+			// BEZ archivu: /reference/ nikde v navigaci nevede (reference odloženy, viz backlog) — SEO: prázdný archiv pryč.
+			'archive' => false,
 		),
 	);
 
