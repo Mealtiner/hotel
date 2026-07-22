@@ -1214,7 +1214,10 @@ function garry_pokoje_compare_html( $current = '' ) {
 	ob_start();
 	echo '<div class="rd-tablewrap"><table class="rd-table"><thead><tr><th>' . esc_html( array( 'Vlastnost', 'Feature', 'Merkmal' )[ $li ] ) . '</th>';
 	foreach ( $rooms as $r ) {
-		echo '<th class="' . ( $r['key'] === $cur_key ? 'is-current' : '' ) . '">' . esc_html( garry_pok_f( $r, 'nazev' ) ) . '</th>';
+		$name = esc_html( garry_pok_f( $r, 'nazev' ) );
+		$url  = garry_pok_term_url( $r['key'] );
+		if ( $url ) $name = '<a href="' . esc_url( $url ) . '">' . $name . '</a>';
+		echo '<th class="' . ( $r['key'] === $cur_key ? 'is-current' : '' ) . '">' . $name . '</th>';
 	}
 	echo '</tr></thead><tbody>';
 	foreach ( $s['compare'] as $row ) {

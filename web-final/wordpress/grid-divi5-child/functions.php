@@ -184,10 +184,20 @@ add_filter( 'render_block', function ( $content, $block ) {
    nahradíme v celém výstupu; náhrady předpočítáme v wp_head (shortcody tam žijí). */
 add_action( 'template_redirect', function () {
 	if ( is_admin() ) return;
-	ob_start( function ( $html ) {
+	/* FF newsletter v patičce: shortcode spustíme TEĎ (assety se stihnou zařadit),
+	   hotové HTML se do TB výstupu vloží tokenem [grid_ff_newsletter] */
+	$ff_newsletter = '';
+	if ( shortcode_exists( 'fluentform' ) ) {
+		$ffmap = (array) get_option( 'grid_ff_forms', array() );
+		$lang  = function_exists( 'pll_current_language' ) ? ( pll_current_language() ?: 'cs' ) : 'cs';
+		$fid   = $ffmap['newsletter'][ $lang ] ?? ( $ffmap['newsletter']['cs'] ?? 0 );
+		if ( $fid ) $ff_newsletter = do_shortcode( '[fluentform id=' . (int) $fid . ']' );
+	}
+	ob_start( function ( $html ) use ( $ff_newsletter ) {
 		$map = array(
 			'[grid_paticka_kontakt]' => function_exists( 'grid_sc_footer_kontakt' ) ? grid_sc_footer_kontakt() : '',
 			'[grid_socials]'         => function_exists( 'grid_sc_socials' ) ? grid_sc_socials() : '',
+			'[grid_ff_newsletter]'   => $ff_newsletter,
 		);
 		foreach ( $map as $token => $out ) {
 			if ( strpos( $html, $token ) !== false ) $html = str_replace( $token, (string) $out, $html );

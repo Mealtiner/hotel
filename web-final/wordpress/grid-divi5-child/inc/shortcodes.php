@@ -1668,6 +1668,63 @@ function grid_sc_kariera() {
 add_shortcode( 'grid_kariera', 'grid_sc_kariera' );
 
 /* ============================================================
+ * [grid_kariera_pozice] — dynamický výpis pracovních pozic
+ * (CPT grid_job, spravuje se v GRID Nastavení → Kariéra)
+ * ============================================================ */
+function grid_sc_kariera_pozice() {
+	$lang = function_exists( 'grid_lang' ) ? grid_lang() : 'cs';
+	$li   = array( 'cs' => 0, 'en' => 1, 'de' => 2 )[ $lang ] ?? 0;
+	$T = array(
+		'empty_h' => array( 'V tuto chvíli nikoho nehledáme 🙁', 'We are not hiring at the moment 🙁', 'Derzeit suchen wir niemanden 🙁' ),
+		'empty_p' => array(
+			'Zkuste to prosím později — nebo nám rovnou napište, rádi si vás zařadíme do evidence.',
+			'Please check back later — or drop us a line and we will gladly keep your CV on file.',
+			'Schauen Sie später wieder vorbei — oder schreiben Sie uns direkt, wir nehmen Sie gern in unsere Kartei auf.',
+		),
+		'uvazek' => array( 'Úvazek', 'Contract', 'Arbeitsverhältnis' ),
+		'misto'  => array( 'Místo', 'Location', 'Ort' ),
+		'mzda'   => array( 'Mzda', 'Salary', 'Gehalt' ),
+		'apply'  => array( 'Chci se přihlásit →', 'Apply now →', 'Jetzt bewerben →' ),
+	);
+	$jobs = get_posts( array(
+		'post_type'   => 'grid_job',
+		'numberposts' => -1,
+		'orderby'     => 'menu_order title',
+		'order'       => 'ASC',
+	) );
+	ob_start();
+	if ( ! $jobs ) : ?>
+	<div class="job-empty" style="margin:26px 0;padding:26px;border:1px solid var(--line-c);border-radius:2px;background:var(--card)">
+	  <p style="font-family:var(--f-head);text-transform:uppercase;font-size:1.4rem;color:var(--ink);margin-bottom:6px"><?php echo esc_html( $T['empty_h'][ $li ] ); ?></p>
+	  <p style="color:var(--muted)"><?php echo esc_html( $T['empty_p'][ $li ] ); ?></p>
+	</div>
+	<?php else : ?>
+	<div class="job-list">
+	<?php foreach ( $jobs as $j ) :
+		$uvazek = (string) get_field( 'uvazek', $j->ID );
+		$misto  = (string) get_field( 'misto', $j->ID );
+		$mzda   = (string) get_field( 'mzda', $j->ID );
+		$popis  = (string) get_field( 'popis', $j->ID );
+		$email  = (string) get_field( 'email', $j->ID ) ?: 'info@gridhotel.cz';
+		$meta   = array();
+		if ( $uvazek !== '' ) $meta[] = '<span><b>' . esc_html( $T['uvazek'][ $li ] ) . ':</b> ' . esc_html( $uvazek ) . '</span>';
+		if ( $misto !== '' )  $meta[] = '<span><b>' . esc_html( $T['misto'][ $li ] ) . ':</b> ' . esc_html( $misto ) . '</span>';
+		if ( $mzda !== '' )   $meta[] = '<span><b>' . esc_html( $T['mzda'][ $li ] ) . ':</b> ' . esc_html( $mzda ) . '</span>';
+	?>
+	  <div class="job-card">
+	    <h3><?php echo esc_html( get_the_title( $j ) ); ?></h3>
+	    <?php if ( $meta ) : ?><p class="job-meta"><?php echo implode( ' · ', $meta ); ?></p><?php endif; ?>
+	    <?php if ( $popis !== '' ) : ?><div class="job-popis"><?php echo wp_kses_post( wpautop( $popis ) ); ?></div><?php endif; ?>
+	    <a class="btn btn-ghost" href="mailto:<?php echo esc_attr( $email ); ?>?subject=<?php echo rawurlencode( 'Kariéra GRID HOTEL — ' . get_the_title( $j ) ); ?>"><?php echo esc_html( $T['apply'][ $li ] ); ?></a>
+	  </div>
+	<?php endforeach; ?>
+	</div>
+	<?php endif;
+	return ob_get_clean();
+}
+add_shortcode( 'grid_kariera_pozice', 'grid_sc_kariera_pozice' );
+
+/* ============================================================
  * [grid_video] — Časosběr / video stavby hotelu
  * ============================================================ */
 function grid_sc_video() {
