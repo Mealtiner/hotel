@@ -1334,7 +1334,7 @@ function garry_sez_ff_id( $typ ) {
 	return (int) ( $m[ $typ ][ garry_sez_lang() ] ?? ( $m[ $typ ]['cs'] ?? 0 ) );
 }
 /* dynamické možnosti selectu „akce" (jen budoucí akce, jazyk dle formuláře) */
-add_filter( 'fluentform/rendering_field_data', function ( $data, $form ) {
+add_filter( 'fluentform/rendering_field_data_select', function ( $data, $form ) {
 	$hit = garry_sez_ff_lang_of( $form->id ?? 0 );
 	if ( ! $hit || $hit[0] !== 'cekaci' ) return $data;
 	if ( ( $data['attributes']['name'] ?? '' ) !== 'akce' ) return $data;
