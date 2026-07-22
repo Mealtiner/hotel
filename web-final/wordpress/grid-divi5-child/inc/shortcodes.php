@@ -621,7 +621,7 @@ function grid_sc_zazitky() {
 		array('num'=>'4.6','title'=>'Dárkové poukazy','text'=>'Zážitek u okruhu jako dárek — pobyt, simulátor, motokáry nebo kurz Polygonu v libovolné hodnotě. Pošleme i elektronicky.','cta'=>'Koupit poukaz →'),
 	) );
 	ob_start(); ?>
-	<section id="zazitky" class="sec sec-dark carbon sec-pad">
+	<section id="zazitky" class="sec <?php echo is_front_page() ? 'sec-dark carbon' : 'sec-light'; ?> sec-pad">
 	  <span class="sec-tag">T4</span>
 	  <div class="wrap"><div class="reveal" style="margin-bottom:42px"><span class="kicker">T4 · Zážitky u okruhu</span><h2 style="font-size:clamp(2rem,4vw,3.6rem);margin-top:16px;max-width:18ch">Užijte si závodní atmosféru Autodromu Brno</h2><p style="max-width:60ch;margin-top:14px;color:var(--muted)">Při pobytu máte jedinečnou možnost usednout do silné motokáry nebo na obratnou pitbike a zajezdit si pár metrů od velkého okruhu na speciální dráze. Adrenalin začíná hned za dveřmi pokoje.</p></div></div>
 	  <div class="exp reveal d1">

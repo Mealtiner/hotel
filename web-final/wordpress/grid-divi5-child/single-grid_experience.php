@@ -7,6 +7,31 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 get_header();
 $rez = function_exists( 'grid_rezervace_url' ) ? grid_rezervace_url() : home_url( '/#booking' );
 
+/* jazyk + lokalizované texty šablony */
+$lang = function_exists( 'pll_current_language' ) ? ( pll_current_language() ?: 'cs' ) : 'cs';
+$li   = $lang === 'en' ? 1 : ( $lang === 'de' ? 2 : 0 );
+$T = array(
+	'back'    => array( '← Zpět na zážitky', '← Back to experiences', '← Zurück zu den Erlebnissen' ),
+	'rezervovat' => array( 'Rezervovat pobyt', 'Book your stay', 'Aufenthalt buchen' ),
+	'kontakt' => array( 'Kontakt', 'Contact', 'Kontakt' ),
+	'galerie' => array( 'Fotogalerie', 'Photo gallery', 'Fotogalerie' ),
+	'dalsi_k' => array( 'Další zážitky u okruhu', 'More trackside experiences', 'Weitere Erlebnisse am Ring' ),
+	'dalsi_h' => array( 'Co dál vyzkoušet', 'What to try next', 'Was Sie noch ausprobieren können' ),
+	'vice'    => array( 'Zjistit více →', 'Find out more →', 'Mehr erfahren →' ),
+	'rez_k'   => array( 'Rezervace', 'Booking', 'Buchung' ),
+	'spojte'  => array( 'Spojte pobyt se zážitkem u okruhu', 'Combine your stay with a trackside experience', 'Verbinden Sie Ihren Aufenthalt mit einem Erlebnis am Ring' ),
+	'recepce' => array( 'Kontaktovat recepci', 'Contact reception', 'Rezeption kontaktieren' ),
+);
+$t = function ( $k ) use ( $T, $li ) { return $T[ $k ][ $li ]; };
+/* zpět na stránku Zážitky v aktuálním jazyce (archiv CPT je vypnutý) */
+$back = home_url( '/zazitky/' );
+$zaz_page = get_page_by_path( 'zazitky' );
+if ( $zaz_page ) {
+	$pid = $zaz_page->ID;
+	if ( function_exists( 'pll_get_post' ) ) { $tr = pll_get_post( $pid, $lang ); if ( $tr ) $pid = $tr; }
+	$back = get_permalink( $pid );
+}
+
 while ( have_posts() ) : the_post();
 	$id    = get_the_ID();
 	$num   = grid_pf( $id, 'num', 'Zážitek' );
@@ -33,7 +58,7 @@ while ( have_posts() ) : the_post();
 	?>
 	<section class="sec sec-dark carbon sec-pad roomdetail" style="padding-top:clamp(120px,16vh,180px)">
 	  <div class="wrap">
-	    <a class="rd-back" href="<?php echo esc_url( get_post_type_archive_link( 'grid_experience' ) ); ?>">← Zpět na zážitky</a>
+	    <a class="rd-back" href="<?php echo esc_url( $back ); ?>"><?php echo esc_html( $t( 'back' ) ); ?></a>
 	    <span class="kicker"><?php echo esc_html( $num ); ?></span>
 	    <h1 style="font-size:clamp(2.4rem,6vw,4.4rem);margin:14px 0 18px"><?php the_title(); ?></h1>
 	    <div class="rd-grid<?php echo $hero_img ? '' : ' rd-grid--single'; ?>">
@@ -46,9 +71,9 @@ while ( have_posts() ) : the_post();
 	        <?php endif; ?>
 	        <div class="rd-popis"><?php echo $popis ? wp_kses_post( $popis ) : '<p>' . esc_html( $txt ) . '</p>'; ?></div>
 	        <div class="rd-actions">
-	          <a class="btn" href="<?php echo esc_url( $rez ); ?>">Rezervovat pobyt</a>
+	          <a class="btn" href="<?php echo esc_url( $rez ); ?>"><?php echo esc_html( $t( 'rezervovat' ) ); ?></a>
 	          <?php if ( $odkaz ) : ?><a class="btn btn-ghost" href="<?php echo esc_url( $odkaz ); ?>" target="_blank" rel="noopener"><?php echo esc_html( $odkaz_text ); ?></a><?php endif; ?>
-	          <a class="btn btn-ghost" href="<?php echo esc_url( grid_nav_url( '#kontakt' ) ); ?>">Kontakt</a>
+	          <a class="btn btn-ghost" href="<?php echo esc_url( grid_nav_url( '#kontakt' ) ); ?>"><?php echo esc_html( $t( 'kontakt' ) ); ?></a>
 	        </div>
 	      </div>
 	      <?php if ( $hero_img ) : ?>
@@ -63,7 +88,7 @@ while ( have_posts() ) : the_post();
 	<?php if ( count( $imgs ) > 1 ) : ?>
 	<section class="sec sec-light sec-pad">
 	  <div class="wrap">
-	    <span class="kicker">Fotogalerie</span>
+	    <span class="kicker"><?php echo esc_html( $t( 'galerie' ) ); ?></span>
 	    <h2 style="font-size:clamp(1.8rem,4vw,3rem);margin:14px 0 22px"><?php the_title(); ?></h2>
 	    <div class="roomgallery">
 	      <?php foreach ( $imgs as $u ) : ?><a href="<?php echo esc_url( $u ); ?>" class="rg-item" data-lightbox="exp"><img src="<?php echo esc_url( $u ); ?>" alt="<?php the_title_attribute(); ?>" loading="lazy"></a><?php endforeach; ?>
@@ -77,15 +102,15 @@ while ( have_posts() ) : the_post();
 	if ( $others->have_posts() ) : ?>
 	<section class="sec sec-dark carbon sec-pad">
 	  <div class="wrap">
-	    <span class="kicker">Další zážitky u okruhu</span>
-	    <h2 style="font-size:clamp(1.8rem,4vw,3rem);margin:14px 0 22px">Co dál vyzkoušet</h2>
+	    <span class="kicker"><?php echo esc_html( $t( 'dalsi_k' ) ); ?></span>
+	    <h2 style="font-size:clamp(1.8rem,4vw,3rem);margin:14px 0 22px"><?php echo esc_html( $t( 'dalsi_h' ) ); ?></h2>
 	    <div class="exp reveal in" style="grid-template-columns:repeat(3,1fr)">
 	      <?php while ( $others->have_posts() ) : $others->the_post(); $oid = get_the_ID(); ?>
 	        <a class="exp-item" href="<?php echo esc_url( get_permalink( $oid ) ); ?>">
 	          <span class="x-num"><?php echo esc_html( grid_pf( $oid, 'num' ) ); ?></span>
 	          <h3><?php echo wp_kses_post( get_the_title() ); ?></h3>
 	          <p><?php echo esc_html( grid_pf( $oid, 'text' ) ); ?></p>
-	          <span class="x-link">Zjistit více →</span>
+	          <span class="x-link"><?php echo esc_html( $t( 'vice' ) ); ?></span>
 	        </a>
 	      <?php endwhile; wp_reset_postdata(); ?>
 	    </div>
@@ -95,9 +120,9 @@ while ( have_posts() ) : the_post();
 
 	<section class="sec sec-light final" style="background:var(--paper)">
 	  <div class="wrap" style="text-align:center">
-	    <span class="kicker" style="justify-content:center;display:inline-flex">Rezervace</span>
-	    <h2 style="font-size:clamp(2rem,5vw,3.6rem);margin:14px 0 18px;color:var(--ink)">Spojte pobyt se zážitkem u okruhu</h2>
-	    <div class="fc-actions" style="justify-content:center"><a class="btn" href="<?php echo esc_url( $rez ); ?>">Rezervovat pobyt</a><a class="btn btn-ghost" href="<?php echo esc_url( grid_nav_url( '#kontakt' ) ); ?>">Kontaktovat recepci</a></div>
+	    <span class="kicker" style="justify-content:center;display:inline-flex"><?php echo esc_html( $t( 'rez_k' ) ); ?></span>
+	    <h2 style="font-size:clamp(2rem,5vw,3.6rem);margin:14px 0 18px;color:var(--ink)"><?php echo esc_html( $t( 'spojte' ) ); ?></h2>
+	    <div class="fc-actions" style="justify-content:center"><a class="btn" href="<?php echo esc_url( $rez ); ?>">Rezervovat pobyt</a><a class="btn btn-ghost" href="<?php echo esc_url( grid_nav_url( '#kontakt' ) ); ?>"><?php echo esc_html( $t( 'recepce' ) ); ?></a></div>
 	  </div>
 	</section>
 	<?php

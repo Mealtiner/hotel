@@ -71,6 +71,12 @@ function gridcore_register_cpts() {
 }
 add_action( 'init', 'gridcore_register_cpts' );
 
+/* Zážitky jsou překládané Polylangem (detailové stránky CZ/EN/DE) */
+add_filter( 'pll_get_post_types', function ( $types, $is_settings ) {
+	$types['grid_experience'] = 'grid_experience';
+	return $types;
+}, 10, 2 );
+
 /* ------------------------------------------------------------------
  * Taxonomie: Kategorie pokojů (4 typy) — spravováno v „GRID Nastavení"
  * Jednotlivý pokoj = příspěvek grid_room zařazený do jedné kategorie.
