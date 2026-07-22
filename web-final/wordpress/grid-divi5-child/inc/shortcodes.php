@@ -292,7 +292,7 @@ add_shortcode( 'grid_paticka_kontakt', 'grid_sc_footer_kontakt' );
 /* [grid_video_embed] — YouTube/Vimeo embed z GRID Nastavení → Video (časosběr) */
 function grid_sc_video_embed() {
 	$embed = grid_video_embed( grid_field( 'video_url', '', 'option' ) );
-	if ( $embed ) return '<iframe src="' . esc_url( $embed ) . '" title="GRID Hotel video" loading="lazy" allowfullscreen></iframe>';
+	if ( $embed ) return '<iframe src="' . esc_url( $embed ) . '" title="GRID Hotel video" loading="lazy" referrerpolicy="no-referrer-when-downgrade" allowfullscreen></iframe>';
 	$li = array( 'cs' => 0, 'en' => 1, 'de' => 2 )[ grid_lang() ] ?? 0;
 	$note = array( '// Vlož odkaz na video v GRID Nastavení → Video (časosběr).', '// Add the video link in GRID Settings → Video.', '// Videolink in GRID-Einstellungen → Video eintragen.' );
 	return '<div style="padding:60px 24px;text-align:center;color:var(--muted);font-family:var(--f-mono);font-size:.8rem">' . esc_html( $note[ $li ] ) . '</div>';
@@ -322,13 +322,16 @@ function grid_section_more( $slugs, $label = 'Zobrazit více' ) {
 	return '<a class="sec-more" href="' . esc_url( $url ) . '">' . esc_html( $label ) . ' <span aria-hidden="true">→</span></a>';
 }
 
-/* YouTube/Vimeo/přímý odkaz → embed URL (prázdné, pokud nejde rozpoznat). */
+/* YouTube/Vimeo → embed URL (prázdné, pokud nejde rozpoznat).
+ * Bezpečnostní allowlist: jen tyto dvě domény — ACF pole video_url je editovatelné
+ * jen administrátorem, ale i tak nechceme umožnit vložení libovolného cizího iframe/trackeru. */
 function grid_video_embed( $url ) {
 	$url = trim( (string) $url );
 	if ( ! $url ) return '';
-	if ( preg_match( '~youtu\.be/([\w-]+)~', $url, $m ) || preg_match( '~youtube\.com/watch\?v=([\w-]+)~', $url, $m ) ) return 'https://www.youtube.com/embed/' . $m[1];
-	if ( preg_match( '~vimeo\.com/(\d+)~', $url, $m ) ) return 'https://player.vimeo.com/video/' . $m[1];
-	if ( strpos( $url, 'embed' ) !== false || strpos( $url, 'player.' ) !== false ) return $url;
+	if ( preg_match( '~youtu\.be/([\w-]+)~', $url, $m )
+		|| preg_match( '~youtube\.com/watch\?v=([\w-]+)~', $url, $m )
+		|| preg_match( '~youtube\.com/embed/([\w-]+)~', $url, $m ) ) return 'https://www.youtube.com/embed/' . $m[1];
+	if ( preg_match( '~(?:vimeo\.com|player\.vimeo\.com/video)/(\d+)~', $url, $m ) ) return 'https://player.vimeo.com/video/' . $m[1];
 	return '';
 }
 

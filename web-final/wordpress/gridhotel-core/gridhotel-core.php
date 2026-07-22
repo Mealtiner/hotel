@@ -14,7 +14,7 @@
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
-define( 'GRIDCORE_VER', '1.3.1' );
+define( 'GRIDCORE_VER', '1.5.0' );
 define( 'GRIDCORE_DIR', plugin_dir_path( __FILE__ ) );
 define( 'GRIDCORE_URL', plugin_dir_url( __FILE__ ) );
 
@@ -26,6 +26,9 @@ require_once GRIDCORE_DIR . 'inc/garry.php';
 /* Aktivace: zaregistrovat CPT a přegenerovat pravidla přepisu URL */
 register_activation_hook( __FILE__, function () {
 	gridcore_register_cpts();
+	gridcore_register_room_tax(); // taxonomie grid_room_cat — bez tohoto by flush níže proběhl
+	                               // ještě před zaregistrováním jejích rewrite pravidel (chyběla
+	                               // by URL /kategorie-pokoje/... do dalšího ručního flushe)
 	flush_rewrite_rules();
 } );
 register_deactivation_hook( __FILE__, function () {

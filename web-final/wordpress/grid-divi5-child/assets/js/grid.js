@@ -29,13 +29,23 @@
     });
   })();
 
+  /* ---- Detekce Divi Visual/Backend Builderu (musí být PŘED přesunem prvků níže —
+     v editoru nechceme sahat do DOM, jinak builder ztrácí přehled o pozici modulů) ---- */
+  var isBuilder = /[?&]et_fb=1/.test(location.search)
+    || document.body.classList.contains('et-fb')
+    || document.body.classList.contains('et-bfb')
+    || document.documentElement.classList.contains('et-fb-preview');
+
   /* ---- Fixní prvky přesunout přímo do <body> ----
      Divi obaluje obsah prvkem s transform/filter, což mění chování position:fixed
-     (prvek se „ukotví" ke kontejneru, ne k oknu). Přesunem to napravíme. */
+     (prvek se „ukotví" ke kontejneru, ne k oknu). Přesunem to napravíme — ale JEN na
+     skutečném frontendu, v builderu by to rozbilo výběr/editaci modulů. */
   function toBody(el){ if(el && el.parentNode !== document.body){ document.body.appendChild(el); } }
-  toBody($('hud'));
-  toBody($('hudReopen'));
-  toBody(document.querySelector('.track-progress'));
+  if(!isBuilder){
+    toBody($('hud'));
+    toBody($('hudReopen'));
+    toBody(document.querySelector('.track-progress'));
+  }
 
   /* ---- Sticky header ---- */
   var header = $('topbar');
@@ -78,10 +88,6 @@
   /* ---- Scroll reveal ---- */
   /* V Divi Visual Builderu (nebo bez IntersectionObserveru) nic neskrýváme —
      obsah se zobrazí rovnou, jinak by sekce v editoru vypadaly prázdné. */
-  var isBuilder = /[?&]et_fb=1/.test(location.search)
-    || document.body.classList.contains('et-fb')
-    || document.body.classList.contains('et-bfb')
-    || document.documentElement.classList.contains('et-fb-preview');
   var revealAll = function(){ document.querySelectorAll('.reveal').forEach(function(el){ el.classList.add('in'); }); };
   if(isBuilder || !('IntersectionObserver' in window)){
     revealAll();

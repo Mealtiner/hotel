@@ -10,6 +10,11 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 /** Texty chyb v CZ/EN/DE. */
 function grid_error_content( $code ) {
 	$m = array(
+		400 => array(
+			'cs' => array( 'k' => 'Chyba 400', 'h' => 'Nesprávný start.', 's' => 'Požadavek nešel zpracovat — zkontrolujte prosím adresu a zkuste to znovu.' ),
+			'en' => array( 'k' => 'Error 400', 'h' => 'False start.',     's' => 'The request could not be processed — please check the address and try again.' ),
+			'de' => array( 'k' => 'Fehler 400','h' => 'Fehlstart.',       's' => 'Die Anfrage konnte nicht verarbeitet werden — bitte prüfen Sie die Adresse und versuchen Sie es erneut.' ),
+		),
 		403 => array(
 			'cs' => array( 'k' => 'Chyba 403', 'h' => 'Uzavřený box.',      's' => 'Na tuto stránku nemáte přístup. Vraťte se prosím do veřejné části areálu.' ),
 			'en' => array( 'k' => 'Error 403', 'h' => 'Restricted paddock.', 's' => 'You don’t have access to this page. Please head back to the public area.' ),
@@ -72,6 +77,7 @@ function grid_render_error( $code ) {
 	<meta name="robots" content="noindex,follow">
 	<?php wp_head(); echo grid_error_css(); ?>
 	</head><body <?php body_class( 'grid-error-body' ); ?>>
+	<?php wp_body_open(); ?>
 	<div class="grid-error carbon">
 	  <a class="ge-logo" href="<?php echo esc_url( home_url( '/' ) ); ?>"><img src="<?php echo esc_url( $logo ); ?>" alt="GRID HOTEL"></a>
 	  <div class="ge-inner">
