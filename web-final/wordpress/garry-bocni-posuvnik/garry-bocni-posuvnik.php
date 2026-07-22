@@ -3,7 +3,7 @@
  * Plugin Name:       GARRY – Boční posuvník (trať)
  * Plugin URI:        https://www.garry.cz
  * Description:       Boční „progress" navigace po sekcích stránky (styl trať) pro web GRID Hotel. Per-stránka: zapnutí, načtení sekcí, editace názvů, skrytí sekcí (přečíslování) a živý náhled.
- * Version:           1.2.0
+ * Version:           1.3.0
  * Author:            GARRY Promotion
  * Author URI:        https://www.garry.cz
  * License:           Proprietary — Copyright © GARRY Promotion
@@ -40,10 +40,12 @@ if (!class_exists('Garry_Promotion_Registry')) {
 
     class Garry_Promotion_Registry {
 
-        const FRAMEWORK_VERSION = '2.0.0';
+        const FRAMEWORK_VERSION = '2.1.0';
         const MENU_SLUG         = 'garry-nastaveni';
         const INFO_SLUG         = 'garry-info';
         const CAPABILITY        = 'manage_options';
+        const STAFF_CAPABILITY  = 'edit_others_posts'; // personál hotelu (role Editor a výš)
+        const VISIBILITY_OPTION = 'garry_grid_visibility';
         const MENU_POSITION     = 81;
 
         /**
@@ -66,6 +68,8 @@ if (!class_exists('Garry_Promotion_Registry')) {
                 'plugin_file' => '',
                 'dashicon'    => 'dashicons-admin-generic',
                 'position'    => 50,
+                'doc'         => '',  // HTML dokumentace implementace (shortcody, widgety)
+                'grid_slug'   => '',  // slug editační podstránky v „GRID Nastavení" (pokud existuje)
             );
 
             $args = array_merge($defaults, $args);
@@ -101,6 +105,18 @@ if (!class_exists('Garry_Promotion_Registry')) {
             });
 
             return $plugins;
+        }
+
+        /**
+         * Má se editační stránka pluginu zobrazovat personálu v „GRID Nastavení"?
+         * Řídí se checkboxy na přehledové stránce GARRY nastavení. Výchozí: ano.
+         */
+        public static function grid_visible($slug) {
+            $v = get_option(self::VISIBILITY_OPTION, array());
+            if (!is_array($v) || !array_key_exists($slug, $v)) {
+                return true;
+            }
+            return !empty($v[$slug]);
         }
 
         /**
@@ -231,6 +247,19 @@ if (!class_exists('Garry_Promotion_Registry')) {
             }
 
             $plugins = self::get_plugins();
+
+            // Uložení viditelnosti v GRID Nastavení (pouze administrátor).
+            if (isset($_POST['garry_grid_visibility_nonce'])
+                && wp_verify_nonce($_POST['garry_grid_visibility_nonce'], 'garry_grid_visibility')
+                && current_user_can('manage_options')) {
+                $vis = array();
+                foreach ($plugins as $slug => $p) {
+                    if (empty($p['grid_slug'])) continue;
+                    $vis[$slug] = empty($_POST['garry_vis'][$slug]) ? 0 : 1;
+                }
+                update_option(self::VISIBILITY_OPTION, $vis, false);
+                echo '<div class="notice notice-success is-dismissible"><p>Viditelnost v GRID Nastavení uložena. Změna se projeví po novém načtení stránky.</p></div>';
+            }
             ?>
             <div class="wrap garry-admin-wrap">
                 <h1>GARRY nastavení</h1>
@@ -256,6 +285,41 @@ if (!class_exists('Garry_Promotion_Registry')) {
                         <p>Aktuálně není zaregistrován žádný GARRY mikroplugin. Aktivujte některý z pluginů,
                         nebo se podívejte do nabídky agentury.</p>
                     </div>
+                <?php endif; ?>
+
+                <?php $grid_plugins = array_filter($plugins, function ($p) { return !empty($p['grid_slug']); }); ?>
+                <?php if (!empty($grid_plugins)) : ?>
+                    <h2 class="title">Viditelnost v „GRID Nastavení" (co vidí personál)</h2>
+                    <p class="garry-admin-lead">Zaškrtnuté pluginy mají svou editační stránku v menu
+                    <strong>GRID Nastavení</strong>, kde obsah spravuje personál hotelu (role Editor a výš).
+                    Odškrtnutím položku personálu skryjete — data zůstávají, zmizí jen položka menu.</p>
+                    <form method="post">
+                        <?php wp_nonce_field('garry_grid_visibility', 'garry_grid_visibility_nonce'); ?>
+                        <table class="widefat striped" style="max-width:620px">
+                            <tbody>
+                            <?php foreach ($grid_plugins as $slug => $p) : ?>
+                                <tr><td style="padding:10px 14px">
+                                    <label><input type="checkbox" name="garry_vis[<?php echo esc_attr($slug); ?>]" value="1" <?php checked(self::grid_visible($slug)); ?>>
+                                    <strong><?php echo esc_html($p['title']); ?></strong></label>
+                                </td></tr>
+                            <?php endforeach; ?>
+                            </tbody>
+                        </table>
+                        <?php submit_button('Uložit viditelnost'); ?>
+                    </form>
+                <?php endif; ?>
+
+                <?php $doc_plugins = array_filter($plugins, function ($p) { return !empty($p['doc']); }); ?>
+                <?php if (!empty($doc_plugins)) : ?>
+                    <h2 class="title">Implementační dokumentace (shortcody a widgety)</h2>
+                    <p class="garry-admin-lead">Technické informace pro správce webu — kde se jednotlivé
+                    prvky vykreslují a jakými shortcody je lze vložit do obsahu.</p>
+                    <?php foreach ($doc_plugins as $p) : ?>
+                        <details style="background:#fff;border:1px solid #c3c4c7;border-radius:4px;padding:10px 14px;margin-bottom:8px;max-width:860px">
+                            <summary style="cursor:pointer;font-weight:600"><?php echo esc_html($p['title']); ?></summary>
+                            <div style="padding-top:8px"><?php echo wp_kses_post($p['doc']); ?></div>
+                        </details>
+                    <?php endforeach; ?>
                 <?php endif; ?>
 
                 <p class="garry-admin-foot">
@@ -781,6 +845,7 @@ Garry_Promotion_Registry::register( array(
 	'title'       => 'Boční posuvník',
 	'callback'    => 'garry_scr_admin_page',
 	'plugin_file' => __FILE__,
+	'doc' => '<p>Boční posuvník (pravá svislá navigace sekcí) se vykresluje na frontendu automaticky — bez shortcodu. Nastavení je pouze zde v GARRY nastavení (administrátor).</p>',
 	'dashicon'    => 'dashicons-editor-ol',
 	'position'    => 20,
 ) );

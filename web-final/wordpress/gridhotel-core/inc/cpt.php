@@ -117,14 +117,14 @@ add_action( 'admin_menu', function () {
 			'grid-options',
 			'Pokoje — fotky a galerie',
 			'— Pokoje: fotky a galerie',
-			'manage_options',
+			'edit_others_posts',
 			'edit-tags.php?taxonomy=grid_room_cat&post_type=grid_room'
 		);
 		add_submenu_page(
 			'grid-options',
 			'Kariéra — pracovní pozice',
 			'Kariéra',
-			'manage_options',
+			'edit_others_posts',
 			'edit.php?post_type=grid_job'
 		);
 	}
