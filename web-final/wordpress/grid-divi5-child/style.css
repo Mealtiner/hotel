@@ -855,6 +855,10 @@ html:not([lang^="cs"]):not([lang^="en"]):not([lang^="de"]) .grid-lang-cs{ displa
 
 /* ===== TÝDENNÍ JÍDELNÍČEK ===== */
 .menu-week{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:20px}
+/* 8 karet (Po–Ne + celotýdenní) v matici 4×2 */
+.menu-week--8{grid-template-columns:repeat(4,1fr)}
+@media(max-width:1080px){.menu-week--8{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:640px){.menu-week--8{grid-template-columns:1fr}}
 .menu-day{border:1px solid rgba(20,22,25,.1);border-radius:6px;padding:18px 18px 10px;background:#fff}
 .menu-day h3{font-size:1.1rem;color:var(--ink,#16181B);margin:0 0 12px;padding-bottom:8px;border-bottom:2px solid var(--red)}
 .menu-grp{margin-bottom:12px}

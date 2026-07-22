@@ -3,7 +3,7 @@
  * Plugin Name:       GARRY – Situace na trati (widget)
  * Plugin URI:        https://www.garry.cz
  * Description:       Plovoucí widget „živá situace na trati" pro GRID Hotel. Data se tahají automaticky z Open-Meteo podle GPS okruhu (teplota, pocitová, vlhkost, oblačnost, srážky, vítr, slovní popis počasí) a povrch trati se z počasí automaticky odhaduje. V nastavení lze volit zdroj (GPS), obnovovací interval, zobrazené údaje, ruční „Status" a výškovou pozici; živý náhled.
- * Version:           1.1.1
+ * Version:           1.2.0
  * Author:            GARRY Promotion
  * Author URI:        https://www.garry.cz
  * License:           Proprietary — Copyright © GARRY Promotion
@@ -680,6 +680,35 @@ function garry_sit_fields() {
 		'povrch'    => array( 'Povrch trati (automatický odhad)', 'POVRCH TRATI', 1 ),
 	);
 }
+/* Aktuální jazyk (Polylang, fallback locale) + slovníky frontendu */
+function garry_sit_lang() {
+	if ( function_exists( 'pll_current_language' ) ) { $l = pll_current_language(); if ( $l ) return $l; }
+	return substr( (string) get_locale(), 0, 2 );
+}
+function garry_sit_l10n() {
+	$t = array(
+		'cs' => array(
+			'labels' => array( 'status'=>'STATUS','cas'=>'MÍSTNÍ ČAS','teplota'=>'TEPLOTA','pocitova'=>'POCITOVÁ','vlhkost'=>'VLHKOST','oblacnost'=>'OBLAČNOST','srazky'=>'SRÁŽKY','vitr'=>'VÍTR','popis'=>'POČASÍ','povrch'=>'POVRCH TRATI' ),
+			'status' => array(), 'aria'=>'Živá situace na trati', 'skryt'=>'Skrýt widget', 'zobrazit'=>'Zobrazit widget', 'locale'=>'cs-CZ',
+			'povrch' => array( 'mokra'=>'Mokrá', 'vlhka'=>'Vlhká (odhad)', 'sucha'=>'Suchá', 'sucha_odhad'=>'Suchá (odhad)' ),
+			'codes'  => array( 0=>'Jasno',1=>'Skoro jasno',2=>'Polojasno',3=>'Zataženo',45=>'Mlha',48=>'Námraza',51=>'Mrholení',53=>'Mrholení',55=>'Mrholení',56=>'Mrznoucí mrholení',57=>'Mrznoucí mrholení',61=>'Slabý déšť',63=>'Déšť',65=>'Silný déšť',66=>'Mrznoucí déšť',67=>'Mrznoucí déšť',71=>'Slabé sněžení',73=>'Sněžení',75=>'Silné sněžení',77=>'Sněhové krupky',80=>'Přeháňky',81=>'Přeháňky',82=>'Silné přeháňky',85=>'Sněhové přeháňky',86=>'Sněhové přeháňky',95=>'Bouřka',96=>'Bouřka s kroupami',99=>'Bouřka s kroupami' ),
+		),
+		'en' => array(
+			'labels' => array( 'status'=>'STATUS','cas'=>'LOCAL TIME','teplota'=>'TEMP','pocitova'=>'FEELS LIKE','vlhkost'=>'HUMIDITY','oblacnost'=>'CLOUD COVER','srazky'=>'PRECIPITATION','vitr'=>'WIND','popis'=>'WEATHER','povrch'=>'TRACK SURFACE' ),
+			'status' => array( 'OTEVŘENO'=>'OPEN', 'ZAVŘENO'=>'CLOSED' ), 'aria'=>'Live track conditions', 'skryt'=>'Hide widget', 'zobrazit'=>'Show widget', 'locale'=>'en-GB',
+			'povrch' => array( 'mokra'=>'Wet', 'vlhka'=>'Damp (estimate)', 'sucha'=>'Dry', 'sucha_odhad'=>'Dry (estimate)' ),
+			'codes'  => array( 0=>'Clear',1=>'Mostly clear',2=>'Partly cloudy',3=>'Overcast',45=>'Fog',48=>'Rime fog',51=>'Drizzle',53=>'Drizzle',55=>'Drizzle',56=>'Freezing drizzle',57=>'Freezing drizzle',61=>'Light rain',63=>'Rain',65=>'Heavy rain',66=>'Freezing rain',67=>'Freezing rain',71=>'Light snow',73=>'Snow',75=>'Heavy snow',77=>'Snow grains',80=>'Showers',81=>'Showers',82=>'Heavy showers',85=>'Snow showers',86=>'Snow showers',95=>'Thunderstorm',96=>'Thunderstorm w/ hail',99=>'Thunderstorm w/ hail' ),
+		),
+		'de' => array(
+			'labels' => array( 'status'=>'STATUS','cas'=>'ORTSZEIT','teplota'=>'TEMPERATUR','pocitova'=>'GEFÜHLT','vlhkost'=>'LUFTFEUCHTE','oblacnost'=>'BEWÖLKUNG','srazky'=>'NIEDERSCHLAG','vitr'=>'WIND','popis'=>'WETTER','povrch'=>'STRECKENBELAG' ),
+			'status' => array( 'OTEVŘENO'=>'GEÖFFNET', 'ZAVŘENO'=>'GESCHLOSSEN' ), 'aria'=>'Live-Streckenzustand', 'skryt'=>'Widget ausblenden', 'zobrazit'=>'Widget anzeigen', 'locale'=>'de-DE',
+			'povrch' => array( 'mokra'=>'Nass', 'vlhka'=>'Feucht (Schätzung)', 'sucha'=>'Trocken', 'sucha_odhad'=>'Trocken (Schätzung)' ),
+			'codes'  => array( 0=>'Klar',1=>'Überwiegend klar',2=>'Teils bewölkt',3=>'Bedeckt',45=>'Nebel',48=>'Raureif',51=>'Niesel',53=>'Niesel',55=>'Niesel',56=>'Gefrierender Niesel',57=>'Gefrierender Niesel',61=>'Leichter Regen',63=>'Regen',65=>'Starker Regen',66=>'Gefrierender Regen',67=>'Gefrierender Regen',71=>'Leichter Schneefall',73=>'Schneefall',75=>'Starker Schneefall',77=>'Schneegriesel',80=>'Schauer',81=>'Schauer',82=>'Starke Schauer',85=>'Schneeschauer',86=>'Schneeschauer',95=>'Gewitter',96=>'Gewitter mit Hagel',99=>'Gewitter mit Hagel' ),
+		),
+	);
+	$l = garry_sit_lang();
+	return isset( $t[ $l ] ) ? $t[ $l ] : $t['cs'];
+}
 function garry_sit_defaults() {
 	$d = array( 'enabled' => 1, 'pos' => 85, 'lat' => '49.2043', 'lon' => '16.4471', 'refresh' => 10, 'status_text' => 'OTEVŘENO' );
 	foreach ( garry_sit_fields() as $k => $f ) $d[ 'f_' . $k ] = $f[2];
@@ -781,26 +810,29 @@ add_action( 'wp_footer', function () {
 	if ( is_admin() ) return;
 	$s = garry_sit_get(); if ( empty( $s['enabled'] ) ) return;
 	$F = garry_sit_fields(); $pos = (int) $s['pos'];
+	$L = garry_sit_l10n();
 	ob_start();
 	foreach ( $F as $k => $f ) {
 		if ( empty( $s[ 'f_' . $k ] ) ) continue;
-		if ( $k === 'status' )      $val = esc_html( $s['status_text'] );
+		if ( $k === 'status' ) { $st = $s['status_text']; $val = esc_html( isset( $L['status'][ $st ] ) ? $L['status'][ $st ] : $st ); }
 		elseif ( $k === 'cas' )     $val = '--:--:--';
 		elseif ( $k === 'teplota' ) $val = '–&nbsp;°C';
 		else                        $val = '…';
 		$cls = ( $k === 'teplota' ) ? 'v hot' : 'v';
 		$dot = ( $k === 'status' ) ? '<span class="dot"></span>' : '';
-		echo '<div class="hud-row"><span class="k">' . $dot . esc_html( $f[1] ) . '</span><span class="' . $cls . '" data-field="' . esc_attr( $k ) . '">' . $val . '</span></div>';
+		$lbl = isset( $L['labels'][ $k ] ) ? $L['labels'][ $k ] : $f[1];
+		echo '<div class="hud-row"><span class="k">' . $dot . esc_html( $lbl ) . '</span><span class="' . $cls . '" data-field="' . esc_attr( $k ) . '">' . $val . '</span></div>';
 	}
 	$rows = ob_get_clean();
 	?>
-	<aside class="telemetry-hud" id="hud" aria-label="Živá situace na trati" data-lat="<?php echo esc_attr($s['lat']); ?>" data-lon="<?php echo esc_attr($s['lon']); ?>" data-refresh="<?php echo (int)$s['refresh']; ?>" style="top:<?php echo $pos; ?>%;bottom:auto;transform:translateY(-50%)">
-	  <div class="hud-head"><span class="hud-title">GRID · Live</span><button class="hud-x" id="hudX" aria-label="Skrýt widget">&times;</button></div>
+	<aside class="telemetry-hud" id="hud" aria-label="<?php echo esc_attr( $L['aria'] ); ?>" data-lat="<?php echo esc_attr($s['lat']); ?>" data-lon="<?php echo esc_attr($s['lon']); ?>" data-refresh="<?php echo (int)$s['refresh']; ?>" style="top:<?php echo $pos; ?>%;bottom:auto;transform:translateY(-50%)">
+	  <div class="hud-head"><span class="hud-title">GRID · Live</span><button class="hud-x" id="hudX" aria-label="<?php echo esc_attr( $L['skryt'] ); ?>">&times;</button></div>
 	  <div class="hud-body"><?php echo $rows; ?></div>
 	</aside>
-	<button class="hud-reopen" id="hudReopen" aria-label="Zobrazit widget">Live</button>
+	<button class="hud-reopen" id="hudReopen" aria-label="<?php echo esc_attr( $L['zobrazit'] ); ?>">Live</button>
 	<script>
 	(function(){
+	  var GSIT=<?php echo wp_json_encode( array( 'locale' => $L['locale'], 'codes' => $L['codes'], 'povrch' => $L['povrch'] ) ); ?>;
 	  var el=document.getElementById('hud'); if(!el)return;
 	  var reopen=document.getElementById('hudReopen');
 	  /* Přesun mimo Divi kontejnery (transform ruší position:fixed) — řídí plugin sám,
@@ -813,8 +845,8 @@ add_action( 'wp_footer', function () {
 	  if(reopen) reopen.addEventListener('click', function(){ el.classList.remove('hidden'); reopen.classList.remove('show'); });
 	  var lat=el.getAttribute('data-lat')||'49.2043', lon=el.getAttribute('data-lon')||'16.4471', refresh=parseInt(el.getAttribute('data-refresh')||'10',10);
 	  function setF(f,v){ var s=el.querySelector('[data-field="'+f+'"]'); if(s)s.innerHTML=v; }
-	  if(el.querySelector('[data-field="cas"]')){ var tick=function(){ setF('cas', new Date().toLocaleTimeString('cs-CZ',{hour:'2-digit',minute:'2-digit',second:'2-digit'})); }; tick(); setInterval(tick,1000); }
-	  var codes={0:'Jasno',1:'Skoro jasno',2:'Polojasno',3:'Zataženo',45:'Mlha',48:'Námraza',51:'Mrholení',53:'Mrholení',55:'Mrholení',56:'Mrznoucí mrholení',57:'Mrznoucí mrholení',61:'Slabý déšť',63:'Déšť',65:'Silný déšť',66:'Mrznoucí déšť',67:'Mrznoucí déšť',71:'Slabé sněžení',73:'Sněžení',75:'Silné sněžení',77:'Sněhové krupky',80:'Přeháňky',81:'Přeháňky',82:'Silné přeháňky',85:'Sněhové přeháňky',86:'Sněhové přeháňky',95:'Bouřka',96:'Bouřka s kroupami',99:'Bouřka s kroupami'};
+	  if(el.querySelector('[data-field="cas"]')){ var tick=function(){ setF('cas', new Date().toLocaleTimeString(GSIT.locale,{hour:'2-digit',minute:'2-digit',second:'2-digit'})); }; tick(); setInterval(tick,1000); }
+	  var codes=GSIT.codes;
 	  function loadW(){
 	    var u='https://api.open-meteo.com/v1/forecast?latitude='+encodeURIComponent(lat)+'&longitude='+encodeURIComponent(lon)+'&current=temperature_2m,apparent_temperature,relative_humidity_2m,precipitation,rain,showers,weather_code,cloud_cover,wind_speed_10m&hourly=precipitation&past_hours=3&forecast_hours=1&timezone=Europe%2FPrague';
 	    fetch(u).then(function(r){return r.json();}).then(function(j){
@@ -828,10 +860,10 @@ add_action( 'wp_footer', function () {
 	      if(typeof c.weather_code!=='undefined') setF('popis', codes[c.weather_code]||'—');
 	      var recent=0; if(j.hourly&&j.hourly.precipitation){ recent=j.hourly.precipitation.reduce(function(a,b){return a+(b||0);},0); }
 	      var now=(c.precipitation||0)+(c.rain||0)+(c.showers||0), povrch;
-	      if(now>0) povrch='Mokrá';
-	      else if(recent>0.1) povrch='Vlhká (odhad)';
-	      else if((c.temperature_2m||0)>=15 && (c.cloud_cover||100)<60) povrch='Suchá';
-	      else povrch='Suchá (odhad)';
+	      if(now>0) povrch=GSIT.povrch.mokra;
+	      else if(recent>0.1) povrch=GSIT.povrch.vlhka;
+	      else if((c.temperature_2m||0)>=15 && (c.cloud_cover||100)<60) povrch=GSIT.povrch.sucha;
+	      else povrch=GSIT.povrch.sucha_odhad;
 	      setF('povrch', povrch);
 	    }).catch(function(){});
 	  }

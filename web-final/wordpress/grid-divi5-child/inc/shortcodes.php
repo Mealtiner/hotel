@@ -661,7 +661,13 @@ function grid_gastro_extra() {
 	    </div>
 	  </div>
 	</section>
-	<?php echo grid_menu_tydne(); ?>
+	<section class="sec sec-light sec-pad" id="jidelnicek">
+	  <div class="wrap">
+	    <span class="kicker">Restaurace · Týdenní menu</span>
+	    <h2 style="font-size:clamp(2rem,4vw,3.4rem);margin:14px 0 24px">Jídelníček tohoto týdne</h2>
+	    [grid_menu_tydne]
+	  </div>
+	</section>
 	<?php return ob_get_clean();
 }
 
@@ -729,45 +735,12 @@ function grid_menu_tydne() {
  * T6 SEZÓNA 2026 / ČEKACÍ LIST (dark carbon) — repeater akcí
  * ============================================================ */
 function grid_sc_season() {
-	$events = grid_section_rows( 'grid_event', 'grid_map_event', array(
-		array('date'=>'17.–19. 4. 2026','name'=>'Track Day Open','desc'=>'Volné jízdy pro veřejnost na okruhu','status'=>'free'),
-		array('date'=>'22.–24. 5. 2026','name'=>'Endurance 8h Brno','desc'=>'Vytrvalostní závod — den i noc na trati','status'=>'few'),
-		array('date'=>'7.–9. 8. 2026','name'=>'MotoGP víkend','desc'=>'Hlavní událost sezóny — vrchol roku','status'=>'full'),
-		array('date'=>'11.–13. 9. 2026','name'=>'FIA WTCR','desc'=>'Cestovní vozy na Masarykově okruhu','status'=>'few'),
-		array('date'=>'2.–4. 10. 2026','name'=>'Classic &amp; Historic','desc'=>'Přehlídka historických závodních strojů','status'=>'free'),
-	) );
-	$labels = array( 'free'=>array('Volné pokoje','Rezervovat →'), 'few'=>array('Poslední pokoje','Rezervovat →'), 'full'=>array('Čekací list','Zapsat se →') );
 	ob_start(); ?>
 	<section id="sezona" class="sec sec-dark carbon sec-pad">
 	  <span class="sec-tag">T6</span>
 	  <div class="wrap">
 	    <div class="reveal" style="margin-bottom:46px"><span class="kicker">T6 · Sezóna 2026 · Čekací list</span><h2 style="font-size:clamp(2rem,4vw,3.6rem);margin-top:16px">Velké akce se plní rychle. Buďte na roštu první.</h2><p style="max-width:62ch;margin-top:14px;color:var(--muted)">O závodních víkendech je hotel uprostřed okruhu nejžádanějším místem v Brně. Vyberte akci, zkontrolujte dostupnost pokojů a rezervujte — nebo se zapište na čekací list. Jakmile se uvolní místnost pro vámi vybraný termín, ozveme se jako prvním.</p></div>
-	    <div class="season">
-	      <div class="ev-list reveal d1" id="evList">
-	        <?php foreach ( $events as $e ) : $st=grid_row_val($e,'status','free'); $lb=isset($labels[$st])?$labels[$st]:$labels['free']; ?>
-	        <button type="button" class="ev-row" data-ev="<?php echo esc_attr( grid_row_val($e,'name') ); ?>">
-	          <span class="ev-date"><?php echo esc_html( grid_row_val($e,'date') ); ?></span>
-	          <span class="ev-name"><?php echo wp_kses_post( grid_row_val($e,'name') ); ?><small><?php echo esc_html( grid_row_val($e,'desc') ); ?></small></span>
-	          <span class="ev-meta"><span class="ev-status <?php echo esc_attr($st); ?>"><?php echo esc_html( $lb[0] ); ?></span>
-	          <span class="ev-cta"><?php echo esc_html( $lb[1] ); ?></span></span>
-	        </button>
-	        <?php endforeach; ?>
-	      </div>
-	      <div class="waitbox reveal d2">
-	        <span class="kicker">Rezervace &amp; čekací list</span>
-	        <h3 id="wbTitle">Vyberte akci sezóny</h3>
-	        <p class="wb-sub" id="wbSub">Klikněte na termín vlevo, nebo vyberte akci níže. U vyprodaných termínů vás zapíšeme na čekací list.</p>
-	        <form id="wbForm" onsubmit="return false">
-	          <div class="wb-field"><label for="wb-ev">Akce / termín</label><select id="wb-ev"><?php foreach ( $events as $e ) : ?><option value="<?php echo esc_attr( grid_row_val($e,'name') ); ?>"><?php echo wp_kses_post( grid_row_val($e,'name') ); ?> · <?php echo esc_html( grid_row_val($e,'date') ); ?></option><?php endforeach; ?></select></div>
-	          <div class="wb-field"><label for="wb-room">Typ pokoje</label><select id="wb-room"><option>Standard</option><option selected>Superior (track view)</option><option>Superior Plus (terasa)</option><option>Apartmá</option></select></div>
-	          <div class="wb-field"><label for="wb-name">Jméno a příjmení</label><input type="text" id="wb-name" placeholder="Jan Novák"></div>
-	          <div class="wb-field"><label for="wb-email">E-mail</label><input type="email" id="wb-email" placeholder="vas@email.cz"></div>
-	          <button type="submit" class="btn" style="width:100%;text-align:center" id="wbBtn">Zapsat na čekací list</button>
-	          <div class="wb-ok" id="wbOk">✓ Hotovo! Ozveme se, jakmile se pro vybraný termín uvolní pokoj.</div>
-	        </form>
-	        <p style="font-family:var(--f-mono);font-size:.66rem;color:var(--muted);margin-top:14px">// Termíny sezóny 2026 jsou orientační.</p>
-	      </div>
-	    </div>
+	    [grid_season_events limit="5"]
 	    <?php echo grid_section_more( array( 'sezona-2026', 'sezona' ), 'Celý program sezóny 2026' ); ?>
 	  </div>
 	</section>

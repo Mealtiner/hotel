@@ -93,3 +93,15 @@ hlavička a patička):
   obsah ořezává přes kses).
 - Lokalizované widgety: telemetry HUD (labels dle jazyka v PHP), galerie
   (`[grid_galerie kicker="…" nadpis="…" vse="…"]`).
+
+## Dynamické sekce (GARRY pluginy, 2026-07-22)
+
+Dvě sekce se plní z administrace (personál je edituje průběžně), zbytek webu zůstává statický v Divi:
+
+| Sekce | Plugin | Admin | Frontend |
+|---|---|---|---|
+| T6 Sezóna & čekací list | `garry-sezona-cekaci-list` | GARRY nastavení → Sezóna & čekací list: tabulka akcí (datum od–do, název+perex CZ/EN/DE, obsazenost 4 stavů, barvy stavů) | `[grid_season_events limit="5"]` — 5 nejbližších akcí dle data, proběhlé mizí; boční formulář čekacího listu je propojený (data-ev), texty lokalizované |
+| Týdenní jídelníček | `garry-denni-menu` | GARRY nastavení → Denní menu: záložky Po–Ne + Celotýdenní nabídka, sloupce CZ/EN/DE, výchozí polévka+2× hlavní+dezert, + řádky, výběr kalendářního týdne | `[grid_menu_tydne]` — karty 4×2 jen pro vyplněné dny; nic vyplněno → sekce `#jidelnicek` se skryje |
+
+Obsazenost: nové stavy volne/posledni/cekaci/plne (barvy v adminu) + legacy třídy free/few/full
+kvůli logice waitboxu v grid.js. CPT `grid_event` se už pro sekci nepoužívá (zůstává jen data-legacy).
