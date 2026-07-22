@@ -3,7 +3,7 @@
  * Plugin Name:       GARRY – Sezóna & čekací list
  * Plugin URI:        https://www.garry.cz
  * Description:       Akce sezóny pro sekci T6: karty administrace (Akce s náhledem widgetu, editovatelné štítky obsazenosti s barvami, log poptávek), funkční čekací formulář s odesíláním na e-mail a háčkem pro Google reCAPTCHA. Frontend: [grid_season_events limit="5"].
- * Version:           2.3.0
+ * Version:           2.3.1
  * Author:            GARRY Promotion
  * Author URI:        https://www.garry.cz
  * License:           Proprietary — Copyright © GARRY Promotion
@@ -838,7 +838,12 @@ function garry_sez_admin_page() {
 	  <div style="display:flex;gap:26px;flex-wrap:wrap;align-items:flex-start;margin-top:16px">
 	    <div style="flex:1 1 620px;min-width:560px" id="sez-events">
 	      <?php foreach ( $events as $ev ) : ?>
-	      <div class="sez-event" style="background:#fff;border:1px solid #c3c4c7;border-radius:8px;padding:14px 16px;margin-bottom:14px">
+	      <details class="sez-event" style="background:#fff;border:1px solid #c3c4c7;border-radius:8px;padding:10px 16px;margin-bottom:14px">
+	        <summary style="cursor:pointer;display:flex;gap:14px;align-items:center;flex-wrap:wrap;padding:4px 0;list-style-position:outside">
+	          <strong class="sez-sum-name"><?php echo esc_html( $ev['cz'] ?: 'Nová akce' ); ?></strong>
+	          <span class="sez-sum-meta description"><?php echo esc_html( trim( ( $ev['od'] ?: '' ) . ( $ev['do'] && $ev['do'] !== $ev['od'] ? ' – ' . $ev['do'] : '' ) ) ); ?></span>
+	        </summary>
+	        <div class="sez-event-body" style="padding-top:10px;border-top:1px solid #eee;margin-top:8px">
 	        <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin-bottom:10px">
 	          <label>Od <input type="date" name="<?php echo $O; ?>[events][od][]" value="<?php echo esc_attr( $ev['od'] ); ?>"></label>
 	          <label>Do <input type="date" name="<?php echo $O; ?>[events][do][]" value="<?php echo esc_attr( $ev['do'] ); ?>"></label>
@@ -864,9 +869,12 @@ function garry_sez_admin_page() {
 	          <label>O akci EN<textarea style="width:100%" rows="2" name="<?php echo $O; ?>[events][den][]"><?php echo esc_textarea( $ev['den'] ?? '' ); ?></textarea></label>
 	          <label>O akci DE<textarea style="width:100%" rows="2" name="<?php echo $O; ?>[events][dde][]"><?php echo esc_textarea( $ev['dde'] ?? '' ); ?></textarea></label>
 	        </div>
-	      </div>
+	        </div>
+	      </details>
 	      <?php endforeach; ?>
-	      <p><button type="button" class="button" id="sez-ev-add">+ Přidat akci</button></p>
+	      <p style="display:flex;gap:8px;flex-wrap:wrap"><button type="button" class="button" id="sez-ev-add">+ Přidat akci</button>
+	      <button type="button" class="button" id="sez-expand">Rozbalit vše</button>
+	      <button type="button" class="button" id="sez-collapse">Sbalit vše</button></p>
 	      <p><label><strong>E-mail pro poptávky z formuláře:</strong>
 	        <input type="email" name="<?php echo $O; ?>[email]" value="<?php echo esc_attr( $s['email'] ); ?>" placeholder="reservations@gridhotel.cz" class="regular-text"></label><br>
 	        <span class="description">Sem chodí žádosti o rezervaci / zápis na čekací list. Prázdné = e-mail správce webu. Odeslání formuláře lze chránit Google reCAPTCHA pluginem (hook <code>garry_sez_verify_request</code>).</span></p>
@@ -952,10 +960,23 @@ function garry_sez_admin_page() {
 	  document.getElementById('sez-ev-add').addEventListener('click', function(){
 	    var cards=evWrap.querySelectorAll('.sez-event');
 	    var c=cards[cards.length-1].cloneNode(true);
-	    c.querySelectorAll('input').forEach(function(i){ i.value=''; });
+	    c.querySelectorAll('input,textarea').forEach(function(i){ i.value=''; });
 	    c.querySelector('select').selectedIndex=0;
+	    c.setAttribute('open','');
+	    var sn=c.querySelector('.sez-sum-name'); if(sn) sn.textContent='Nová akce';
+	    var sm=c.querySelector('.sez-sum-meta'); if(sm) sm.textContent='';
 	    evWrap.insertBefore(c, cards[cards.length-1].nextSibling);
 	    preview();
+	  });
+	  document.getElementById('sez-expand').addEventListener('click', function(){ evWrap.querySelectorAll('.sez-event').forEach(function(d){ d.setAttribute('open',''); }); });
+	  document.getElementById('sez-collapse').addEventListener('click', function(){ evWrap.querySelectorAll('.sez-event').forEach(function(d){ d.removeAttribute('open'); }); });
+	  /* souhrn karty se aktualizuje při psaní */
+	  evWrap.addEventListener('input', function(e){
+	    var card=e.target.closest('.sez-event'); if(!card) return;
+	    var q=function(sel){ var el=card.querySelector(sel); return el?el.value:''; };
+	    var sn=card.querySelector('.sez-sum-name'); if(sn) sn.textContent=q('input[name$="[events][cz][]"]')||'Nová akce';
+	    var od=q('input[name$="[events][od][]"]'), dd=q('input[name$="[events][do][]"]');
+	    var sm=card.querySelector('.sez-sum-meta'); if(sm) sm.textContent=od+(dd&&dd!==od?' – '+dd:'');
 	  });
 	  document.addEventListener('click', function(e){
 	    if(e.target.classList.contains('sez-ev-del')){

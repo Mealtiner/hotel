@@ -3,7 +3,7 @@
  * Plugin Name:       GARRY – Kategorie pokojů
  * Plugin URI:        https://www.garry.cz
  * Description:       Správa kategorií pokojů: karty na titulní stránce, štítky a texty v CZ/EN/DE, srovnávací tabulka pokojů (přesouvání a přidávání řádků). Frontend: [grid_rooms_cards], [grid_rooms_table] a srovnávací tabulka na detailu kategorie se zvýrazněním sloupce.
- * Version:           1.0.1
+ * Version:           1.1.0
  * Author:            GARRY Promotion
  * Author URI:        https://www.garry.cz
  * License:           Proprietary — Copyright © GARRY Promotion
@@ -836,9 +836,13 @@ function garry_pok_admin_page() {
 	<div class="pok-tab" data-tab="pokoje">
 	  <div id="pok-rooms" style="margin-top:14px;max-width:1200px">
 	  <?php foreach ( $rooms as $r ) : ?>
-	    <div class="pok-room" style="background:#fff;border:1px solid #c3c4c7;border-radius:8px;padding:14px 16px;margin-bottom:14px">
+	    <details class="pok-room" style="background:#fff;border:1px solid #c3c4c7;border-radius:8px;padding:10px 16px;margin-bottom:14px">
+	      <summary style="cursor:pointer;display:flex;gap:14px;align-items:center;flex-wrap:wrap;padding:4px 0">
+	        <strong class="pok-room-title"><?php echo esc_html( $r['nazev_cz'] ?: 'Nová kategorie' ); ?></strong>
+	        <span class="description"><?php echo esc_html( $r['key'] ); ?><?php if ( ! empty( $r['home'] ) ) echo ' · na titulní stránce'; ?></span>
+	      </summary>
+	      <div class="pok-room-body" style="padding-top:10px;border-top:1px solid #eee;margin-top:8px">
 	      <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:10px">
-	        <strong class="pok-room-title" style="min-width:120px"><?php echo esc_html( $r['nazev_cz'] ); ?></strong>
 	        <label>Klíč (slug) <input type="text" class="pok-key" name="__key" value="<?php echo esc_attr( $r['key'] ); ?>" style="width:170px"></label>
 	        <label>Kód <input type="text" name="__kod_cz" value="<?php echo esc_attr( $r['kod_cz'] ); ?>" style="width:210px"></label>
 	        <label><input type="checkbox" name="__home" value="1" <?php checked( ! empty( $r['home'] ) ); ?>> na titulní stránce</label>
@@ -893,10 +897,13 @@ function garry_pok_admin_page() {
 	        <label style="display:block;margin-bottom:4px"><?php echo $L; ?><textarea style="width:100%" rows="4" name="__popis_<?php echo $l; ?>"><?php echo esc_textarea( $r[ 'popis_' . $l ] ); ?></textarea></label>
 	        <?php endforeach; ?>
 	      </details>
-	    </div>
+	      </div>
+	    </details>
 	  <?php endforeach; ?>
 	  </div>
-	  <p><button type="button" class="button" id="pok-room-add">+ Přidat kategorii</button></p>
+	  <p style="display:flex;gap:8px;flex-wrap:wrap"><button type="button" class="button" id="pok-room-add">+ Přidat kategorii</button>
+	  <button type="button" class="button" id="pok-expand">Rozbalit vše</button>
+	  <button type="button" class="button" id="pok-collapse">Sbalit vše</button></p>
 	</div>
 
 	<!-- ============ ŠTÍTKY ============ -->
@@ -983,10 +990,18 @@ function garry_pok_admin_page() {
 	  });
 	  document.getElementById('pok-room-add').addEventListener('click', function(){
 	    var c=wrap.querySelector('.pok-room').cloneNode(true);
-	    c.querySelectorAll('input[type=text],textarea').forEach(function(i){ i.value=''; });
+	    c.querySelectorAll('input[type=text],input[type=url],textarea').forEach(function(i){ i.value=''; });
 	    c.querySelectorAll('input[type=checkbox]').forEach(function(i){ i.checked=false; });
 	    c.querySelector('.pok-room-title').textContent='Nová kategorie';
+	    c.setAttribute('open','');
 	    wrap.appendChild(c);
+	  });
+	  document.getElementById('pok-expand').addEventListener('click', function(){ wrap.querySelectorAll('.pok-room').forEach(function(d){ d.setAttribute('open',''); }); });
+	  document.getElementById('pok-collapse').addEventListener('click', function(){ wrap.querySelectorAll('.pok-room').forEach(function(d){ d.removeAttribute('open'); }); });
+	  wrap.addEventListener('input', function(e){
+	    var card=e.target.closest('.pok-room'); if(!card) return;
+	    var n=card.querySelector('input[name="__nazev_cz"]');
+	    var t=card.querySelector('.pok-room-title'); if(t&&n) t.textContent=n.value||'Nová kategorie';
 	  });
 	  document.getElementById('pok-lbl-add').addEventListener('click', function(){
 	    var tb=document.querySelector('#pok-labels tbody'); var tr=tb.rows[0].cloneNode(true);
