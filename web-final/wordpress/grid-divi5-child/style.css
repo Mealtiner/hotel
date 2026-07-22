@@ -4,7 +4,7 @@ Theme URI: https://www.garry.cz
 Author: GARRY Promotion
 Author URI: https://www.garry.cz
 Description: Prémiová child šablona pro Divi 5 vytvořená na míru pro GRID Hotel — **** hotel a restauraci přímo v areálu Autodromu Brno u Masarykova okruhu. Designový systém „Circuit Line": vlastní barevná paleta a typografie s plnou českou diakritikou, karbonová textura tmavých sekcí, živý telemetry widget (čas + teplota trati), sekce Sezóna 2026 s čekacím listem a obsah řízený přes ACF. Navrhla a vyvinula fluidní marketingová agentura GARRY Promotion.
-Version: 2.15.0
+Version: 2.16.0
 Requires at least: 6.4
 Tested up to: 6.8
 Requires PHP: 8.0
@@ -919,6 +919,13 @@ html:not([lang^="cs"]):not([lang^="en"]):not([lang^="de"]) .grid-lang-cs{ displa
 .menu-week--8{grid-template-columns:repeat(4,1fr)}
 @media(max-width:1080px){.menu-week--8{grid-template-columns:repeat(2,1fr)}}
 @media(max-width:640px){.menu-week--8{grid-template-columns:1fr}}
+/* Stálá nabídka (jídelní lístek) — 4 vyrovnané sloupce dle počtu položek */
+.menu-stala-h{font-family:var(--f-mono);font-size:.8rem;font-weight:600;letter-spacing:.18em;text-transform:uppercase;color:var(--red);margin:48px 0 18px}
+.menu-stala{columns:4;column-gap:22px}
+.menu-stala .menu-grp{display:block;break-inside:avoid;-webkit-column-break-inside:avoid;background:#fff;border:1px solid rgba(20,22,25,.12);border-radius:6px;padding:16px 18px;margin:0 0 22px}
+.menu-stala .menu-grp-l{display:block;font-family:var(--f-head);font-weight:700;font-size:1.02rem;letter-spacing:.02em;text-transform:uppercase;color:var(--ink,#16181B);border-bottom:2px solid var(--red);padding-bottom:7px;margin-bottom:9px}
+@media(max-width:1080px){.menu-stala{columns:2}}
+@media(max-width:640px){.menu-stala{columns:1}}
 .menu-day{border:1px solid rgba(20,22,25,.1);border-radius:6px;padding:18px 18px 10px;background:#fff}
 .menu-day h3{font-size:1.1rem;color:var(--ink,#16181B);margin:0 0 12px;padding-bottom:8px;border-bottom:2px solid var(--red)}
 .menu-grp{margin-bottom:12px}

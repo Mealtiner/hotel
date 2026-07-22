@@ -3,7 +3,7 @@
  * Plugin Name:       GARRY – Denní menu
  * Plugin URI:        https://www.garry.cz
  * Description:       Jednoduchá správa týdenního jídelníčku pro personál gastra: dny Po–Ne + celotýdenní nabídka, názvy jídel ve 3 jazycích (CZ/EN/DE), výběr kalendářního týdne. Na webu se vykreslí přes [grid_menu_tydne] jen vyplněné dny.
- * Version:           1.2.0
+ * Version:           1.3.0
  * Author:            GARRY Promotion
  * Author URI:        https://www.garry.cz
  * License:           Proprietary — Copyright © GARRY Promotion
@@ -684,6 +684,16 @@ function garry_menu_types() {
 		'dezert'  => array( 'Dezert',      'Dessert',     'Dessert' ),
 	);
 }
+/* Kategorie stálé nabídky: klíč => [CZ, EN, DE] (výchozí; vlastní lze přidat v adminu) */
+function garry_menu_stala_default_typy() {
+	return array(
+		array( 'key' => 'predkrm', 'cz' => 'Předkrmy',    'en' => 'Starters',     'de' => 'Vorspeisen' ),
+		array( 'key' => 'polevka', 'cz' => 'Polévky',     'en' => 'Soups',        'de' => 'Suppen' ),
+		array( 'key' => 'hlavni',  'cz' => 'Hlavní chody','en' => 'Main courses', 'de' => 'Hauptgerichte' ),
+		array( 'key' => 'priloha', 'cz' => 'Přílohy',     'en' => 'Side dishes',  'de' => 'Beilagen' ),
+		array( 'key' => 'dezert',  'cz' => 'Dezerty',     'en' => 'Desserts',     'de' => 'Desserts' ),
+	);
+}
 function garry_menu_lang() {
 	if ( function_exists( 'pll_current_language' ) ) { $l = pll_current_language(); if ( $l ) return $l; }
 	return substr( (string) get_locale(), 0, 2 );
@@ -695,7 +705,9 @@ function garry_menu_lang_idx() {
 function garry_menu_get() {
 	$o = get_option( GARRY_MENU_OPT, array() );
 	if ( ! is_array( $o ) ) $o = array();
-	return wp_parse_args( $o, array( 'week' => '', 'days' => array() ) );
+	$o = wp_parse_args( $o, array( 'week' => '', 'days' => array(), 'stala' => array(), 'typy' => array() ) );
+	if ( empty( $o['typy'] ) ) $o['typy'] = garry_menu_stala_default_typy();
+	return $o;
 }
 /* Týden z hodnoty: datum YYYY-MM-DD (kalendářní výběr — libovolný den v týdnu)
  * nebo legacy ISO 2026-W31 → [DateTime pondělí, DateTime neděle] */
@@ -737,7 +749,7 @@ add_action( 'admin_menu', function () {
 	);
 }, 100 );
 function garry_menu_sanitize( $in ) {
-	$out = array( 'week' => '', 'days' => array() );
+	$out = array( 'week' => '', 'days' => array(), 'stala' => array(), 'typy' => array() );
 	if ( ! is_array( $in ) ) return $out;
 	$w = (string) ( $in['week'] ?? '' );
 	$out['week'] = preg_match( '/^(\d{4}-\d{2}-\d{2}|\d{4}-W\d{2})$/', $w ) ? $w : '';
@@ -762,6 +774,36 @@ function garry_menu_sanitize( $in ) {
 			$clean[] = $row;
 		}
 		if ( $clean ) $out['days'][ $day ] = $clean;
+	}
+	/* kategorie stálé nabídky (editovatelné, možno přidat vlastní) */
+	$ty = $in['typy'] ?? array();
+	$n = count( $ty['key'] ?? array() );
+	for ( $i = 0; $i < $n; $i++ ) {
+		$key = sanitize_key( $ty['key'][ $i ] ?? '' );
+		$cz  = sanitize_text_field( $ty['cz'][ $i ] ?? '' );
+		if ( $key === '' && $cz !== '' ) $key = sanitize_key( sanitize_title( $cz ) );
+		if ( $key === '' ) continue;
+		$out['typy'][] = array(
+			'key' => $key, 'cz' => $cz,
+			'en'  => sanitize_text_field( $ty['en'][ $i ] ?? '' ),
+			'de'  => sanitize_text_field( $ty['de'][ $i ] ?? '' ),
+		);
+	}
+	if ( ! $out['typy'] ) $out['typy'] = garry_menu_stala_default_typy();
+	$typ_keys = wp_list_pluck( $out['typy'], 'key' );
+	/* položky stálé nabídky */
+	$st = $in['stala'] ?? array();
+	$n = count( $st['cz'] ?? array() );
+	for ( $i = 0; $i < $n; $i++ ) {
+		$row = array(
+			'typ'  => in_array( $st['typ'][ $i ] ?? '', $typ_keys, true ) ? $st['typ'][ $i ] : ( $typ_keys[0] ?? 'hlavni' ),
+			'cz'   => sanitize_text_field( $st['cz'][ $i ] ?? '' ),
+			'en'   => sanitize_text_field( $st['en'][ $i ] ?? '' ),
+			'de'   => sanitize_text_field( $st['de'][ $i ] ?? '' ),
+			'cena' => sanitize_text_field( $st['cena'][ $i ] ?? '' ),
+		);
+		if ( $row['cz'] === '' && $row['en'] === '' && $row['de'] === '' ) continue;
+		$out['stala'][] = $row;
 	}
 	return $out;
 }
@@ -795,6 +837,7 @@ function garry_menu_admin_page() {
 	      <?php echo esc_html( $names[0] ); ?><?php if ( $filled ) echo ' <span style="color:#2ecc71">●</span>'; ?>
 	    </a>
 	  <?php $first = false; endforeach; ?>
+	  <a href="#" class="nav-tab" data-day="stala">Stálá nabídka<?php if ( ! empty( $s['stala'] ) ) echo ' <span style="color:#2ecc71">●</span>'; ?></a>
 	</h2>
 	<?php $first = true; foreach ( $DAYS as $key => $names ) :
 		$rows = $s['days'][ $key ] ?? array();
@@ -827,6 +870,46 @@ function garry_menu_admin_page() {
 	    <p><button type="button" class="button gm-add" data-day="<?php echo esc_attr( $key ); ?>">+ Přidat řádek</button></p>
 	  </div>
 	<?php $first = false; endforeach; ?>
+	<div class="gm-day" data-day="stala" style="display:none;background:#fff;border:1px solid #c3c4c7;border-top:none;padding:16px 18px">
+	  <p class="description">Stálá nabídka (jídelní lístek) — na webu se vypisuje <strong>pod kartami denního menu</strong> ve 4 sloupcích, položky seskupené podle kategorií. Nevyplněný jazyk = použije se čeština, prázdná cena se nezobrazí.</p>
+	  <h3 style="margin:14px 0 6px">Kategorie</h3>
+	  <p class="description">Pořadí kategorií zde určuje pořadí na webu. Vlastní kategorii přidáte tlačítkem — klíč se doplní sám z českého názvu.</p>
+	  <table class="widefat striped" id="gm-typy" style="max-width:860px">
+	    <thead><tr><th style="width:130px">Klíč</th><th>Česky</th><th>English</th><th>Deutsch</th><th style="width:36px"></th></tr></thead>
+	    <tbody>
+	    <?php foreach ( $s['typy'] as $ty ) : ?>
+	      <tr>
+	        <td><input type="text" style="width:100%" name="<?php echo esc_attr( GARRY_MENU_OPT ); ?>[typy][key][]" value="<?php echo esc_attr( $ty['key'] ); ?>"></td>
+	        <?php foreach ( array( 'cz', 'en', 'de' ) as $l ) : ?>
+	          <td><input type="text" style="width:100%" name="<?php echo esc_attr( GARRY_MENU_OPT ); ?>[typy][<?php echo $l; ?>][]" value="<?php echo esc_attr( $ty[ $l ] ); ?>"></td>
+	        <?php endforeach; ?>
+	        <td><button type="button" class="button-link gm-typ-del" title="Smazat kategorii" style="color:#b32d2e">×</button></td>
+	      </tr>
+	    <?php endforeach; ?>
+	    </tbody>
+	  </table>
+	  <p><button type="button" class="button" id="gm-typ-add">+ Přidat kategorii</button></p>
+	  <h3 style="margin:18px 0 6px">Položky</h3>
+	  <table class="widefat striped" id="gm-stala">
+	    <thead><tr><th style="width:160px">Kategorie</th><th>Česky</th><th>English</th><th>Deutsch</th><th style="width:90px">Cena</th><th style="width:36px"></th></tr></thead>
+	    <tbody>
+	    <?php $stala_rows = $s['stala'] ?: array( array( 'typ' => $s['typy'][0]['key'] ?? 'hlavni', 'cz' => '', 'en' => '', 'de' => '', 'cena' => '' ) );
+	    foreach ( $stala_rows as $r ) : ?>
+	      <tr>
+	        <td><select style="width:100%" name="<?php echo esc_attr( GARRY_MENU_OPT ); ?>[stala][typ][]">
+	          <?php foreach ( $s['typy'] as $ty ) printf( '<option value="%s" %s>%s</option>', esc_attr( $ty['key'] ), selected( $r['typ'], $ty['key'], false ), esc_html( $ty['cz'] ) ); ?>
+	        </select></td>
+	        <td><input type="text" style="width:100%" name="<?php echo esc_attr( GARRY_MENU_OPT ); ?>[stala][cz][]" value="<?php echo esc_attr( $r['cz'] ); ?>" placeholder="Název česky"></td>
+	        <td><input type="text" style="width:100%" name="<?php echo esc_attr( GARRY_MENU_OPT ); ?>[stala][en][]" value="<?php echo esc_attr( $r['en'] ); ?>" placeholder="English name"></td>
+	        <td><input type="text" style="width:100%" name="<?php echo esc_attr( GARRY_MENU_OPT ); ?>[stala][de][]" value="<?php echo esc_attr( $r['de'] ); ?>" placeholder="Deutscher Name"></td>
+	        <td><input type="text" style="width:100%" name="<?php echo esc_attr( GARRY_MENU_OPT ); ?>[stala][cena][]" value="<?php echo esc_attr( $r['cena'] ); ?>" placeholder="145 Kč"></td>
+	        <td><button type="button" class="button-link gm-stala-del" title="Smazat položku" style="color:#b32d2e">×</button></td>
+	      </tr>
+	    <?php endforeach; ?>
+	    </tbody>
+	  </table>
+	  <p><button type="button" class="button" id="gm-stala-add">+ Přidat položku</button></p>
+	</div>
 	<?php submit_button( 'Uložit menu' ); ?>
 	<h2 style="margin-top:8px">Náhled na webu (česky)</h2>
 	<p class="description">Živý náhled matice — zobrazují se jen dny s alespoň jedním vyplněným jídlem.</p>
@@ -858,7 +941,21 @@ function garry_menu_admin_page() {
 	    tr.querySelector('select').value='hlavni';
 	    tbl.appendChild(tr);
 	  }); });
+	  document.getElementById('gm-typ-add').addEventListener('click', function(){
+	    var tb=document.querySelector('#gm-typy tbody'); var tr=tb.rows[tb.rows.length-1].cloneNode(true);
+	    tr.querySelectorAll('input').forEach(function(i){ i.value=''; }); tb.appendChild(tr);
+	  });
+	  document.getElementById('gm-stala-add').addEventListener('click', function(){
+	    var tb=document.querySelector('#gm-stala tbody'); var tr=tb.rows[tb.rows.length-1].cloneNode(true);
+	    tr.querySelectorAll('input').forEach(function(i){ i.value=''; }); tb.appendChild(tr);
+	  });
 	  document.addEventListener('click', function(e){
+	    if(e.target.classList.contains('gm-typ-del')||e.target.classList.contains('gm-stala-del')){
+	      var tb2=e.target.closest('tbody');
+	      if(tb2.rows.length>1) e.target.closest('tr').remove();
+	      else tb2.querySelectorAll('input').forEach(function(i){ i.value=''; });
+	      return;
+	    }
 	    if(!e.target.classList.contains('gm-del')) return;
 	    var tb=e.target.closest('tbody');
 	    if(tb.rows.length>1) e.target.closest('tr').remove();
@@ -913,7 +1010,7 @@ function garry_menu_render() {
 	foreach ( $DAYS as $key => $names ) {
 		if ( ! empty( $s['days'][ $key ] ) ) $filled[ $key ] = $s['days'][ $key ];
 	}
-	if ( ! $filled ) {
+	if ( ! $filled && empty( $s['stala'] ) ) {
 		// nic vyplněno → skrýt celou sekci jídelníčku
 		return '<style>#jidelnicek{display:none}</style>';
 	}
@@ -924,6 +1021,7 @@ function garry_menu_render() {
 		$weekline = sprintf( $fmt[ $li ], $range[0]->format( 'j. n.' ), $range[1]->format( 'j. n. Y' ) );
 	}
 	ob_start();
+	if ( $filled ) {
 	if ( $weekline ) echo '<p style="color:var(--muted);font-family:var(--f-mono);font-size:.82rem;margin-bottom:24px">' . esc_html( $weekline ) . '</p>';
 	echo '<div class="menu-week menu-week--8">';
 	foreach ( $filled as $key => $rows ) {
@@ -944,6 +1042,34 @@ function garry_menu_render() {
 		echo '</div>';
 	}
 	echo '</div>';
+	}
+
+	/* Stálá nabídka — jídelní lístek pod kartami, 4 vyrovnané sloupce */
+	if ( ! empty( $s['stala'] ) ) {
+		$groups = array();
+		foreach ( $s['stala'] as $r ) {
+			$name = $r[ array( 'cz', 'en', 'de' )[ $li ] ] ?: $r['cz'];
+			if ( $name === '' ) continue;
+			$groups[ $r['typ'] ][] = array( $name, (string) ( $r['cena'] ?? '' ) );
+		}
+		if ( $groups ) {
+			$KICK = array( 'Stálá nabídka', 'À la carte menu', 'Ständiges Angebot' );
+			echo '<h3 class="menu-stala-h">' . esc_html( $KICK[ $li ] ) . '</h3>';
+			echo '<div class="menu-stala">';
+			foreach ( $s['typy'] as $ty ) {
+				if ( empty( $groups[ $ty['key'] ] ) ) continue;
+				$lbl = $ty[ array( 'cz', 'en', 'de' )[ $li ] ] ?: $ty['cz'];
+				echo '<div class="menu-grp"><span class="menu-grp-l">' . esc_html( $lbl ) . '</span>';
+				foreach ( $groups[ $ty['key'] ] as $it ) {
+					echo '<div class="menu-item"><span class="menu-n">' . esc_html( $it[0] ) . '</span>';
+					if ( $it[1] !== '' ) echo '<span class="menu-c">' . esc_html( $it[1] ) . '</span>';
+					echo '</div>';
+				}
+				echo '</div>';
+			}
+			echo '</div>';
+		}
+	}
 	return ob_get_clean();
 }
 add_action( 'init', function () { add_shortcode( 'grid_menu_tydne', 'garry_menu_render' ); }, 5 );
