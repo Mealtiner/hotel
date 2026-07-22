@@ -900,10 +900,18 @@ add_action( 'wp_footer', function () {
 	  var GSIT=<?php echo wp_json_encode( array( 'locale' => $L['locale'], 'codes' => $L['codes'], 'povrch' => $L['povrch'] ) ); ?>;
 	  var el=document.getElementById('hud'); if(!el)return;
 	  var reopen=document.getElementById('hudReopen');
+	  /* V Divi Visual/Backend Builderu se do DOM nezasahuje — reparenting mimo modul
+	     by mátl React strom builderu. Fixed positioning tam navíc neřeší, canvas je jen náhled. */
+	  var isBuilder = /[?&]et_fb=1/.test(location.search)
+	    || document.body.classList.contains('et-fb')
+	    || document.body.classList.contains('et-bfb')
+	    || document.documentElement.classList.contains('et-fb-preview');
 	  /* Přesun mimo Divi kontejnery (transform ruší position:fixed) — řídí plugin sám,
 	     nezávisle na pořadí načtení skriptů šablony. */
-	  if(el.parentNode!==document.body) document.body.appendChild(el);
-	  if(reopen && reopen.parentNode!==document.body) document.body.appendChild(reopen);
+	  if(!isBuilder){
+	    if(el.parentNode!==document.body) document.body.appendChild(el);
+	    if(reopen && reopen.parentNode!==document.body) document.body.appendChild(reopen);
+	  }
 	  /* Zavření křížkem + znovuotevření boční kartou „Live" */
 	  var xbtn=document.getElementById('hudX');
 	  if(xbtn) xbtn.addEventListener('click', function(){ el.classList.add('hidden'); if(reopen) reopen.classList.add('show'); });

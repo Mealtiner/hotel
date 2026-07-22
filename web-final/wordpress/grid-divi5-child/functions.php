@@ -191,54 +191,46 @@ function grid_render_hlavni_menu() {
 add_shortcode( 'grid_menu_hlavni', 'grid_render_hlavni_menu' );
 
 /* ------------------------------------------------------------------
- * 12) Shortcody v Theme Builder layoutech (hlavička/patička) —
- *     Divi 5 je v TB obsahu samo nespouští, na stránkách ano.
- * ------------------------------------------------------------------ */
+ * 12) Shortcody v Theme Builder layoutech (hlavička/patička)
+ * ------------------------------------------------------------------
+ * KRITICKÁ OPRAVA (2026-07-23): dřív se tu dělalo ob_start()+str_replace()
+ * nad CELOU HTTP odpovědí na template_redirect. V Divi 5 Visual/Theme
+ * Builderu (?et_fb=1) je celá odpověď zároveň JS bootstrap (<script
+ * id="divi-settings-js-extra">…serializovaný JSON…</script>) — vložení raw
+ * HTML (uvozovky, <script> tagy z Fluent Forms) do něj řetězec syntakticky
+ * rozbilo a React skončil v ErrorBoundary ("Oops! An Error Has Occurred").
+ * Builder tím padal na VŠECH stránkách, protože header/footer TB layout je
+ * součástí bootstrapu úplně každé stránky bez ohledu na její vlastní obsah.
+ *
+ * Řešení: render_block filtr níže spouští do_shortcode() na úrovni JEDNOHO
+ * Divi bloku přes WordPress block-rendering API — to funguje stejně dobře
+ * pro běžné stránky i pro Theme Builder hlavičku/patičku (ověřeno: tokeny
+ * [grid_paticka_kontakt], [grid_socials] i [grid_menu_hlavni] se touto
+ * cestou vykreslují správně, žádný output buffer nad celou stránkou nebyl
+ * potřeba). [grid_ff_newsletter] proto níže registrujeme jako plnohodnotný
+ * shortcode se stejnou cestou vykreslení.
+ */
 add_filter( 'et_builder_render_layout', 'do_shortcode', 12 ); // Divi 4 cesta
 add_filter( 'render_block', function ( $content, $block ) {
 	if ( is_admin() ) return $content;
 	if ( strpos( (string) ( $block['blockName'] ?? '' ), 'divi/' ) !== 0 ) return $content;
 	if ( strpos( $content, '[grid_' ) === false ) return $content;
 	return do_shortcode( $content );
-}, 20, 2 ); // Divi 5 bloky (Theme Builder)
-/* Divi 5 TB renderer shortcody nespouští vůbec → tokeny v hlavičce/patičce
-   nahradíme v celém výstupu; náhrady předpočítáme v wp_head (shortcody tam žijí). */
-add_action( 'template_redirect', function () {
-	if ( is_admin() ) return;
-	/* FF newsletter v patičce: spustíme shortcode TEĎ (assety se stihnou zařadit) — ZVLÁŠŤ pro
-	   každý jazyk. Token [grid_ff_newsletter] se v šabloně vyskytuje 3× (jednou v každém
-	   .grid-lang-cs/en/de bloku patičky, v tomto pořadí) — každý výskyt musí dostat SVOU
-	   jazykovou mutaci formuláře, jinak by 3 kopie stejného formuláře měly identické HTML id
-	   (neplatné duplicitní ID), než je grid.js později odstraní podle aktivního jazyka. */
-	$ff_newsletter_by_lang = array();
-	if ( shortcode_exists( 'fluentform' ) ) {
-		$ffmap = (array) get_option( 'grid_ff_forms', array() );
-		foreach ( array( 'cs', 'en', 'de' ) as $l ) {
-			$fid = (int) ( $ffmap['newsletter'][ $l ] ?? 0 );
-			if ( $fid ) $ff_newsletter_by_lang[ $l ] = do_shortcode( '[fluentform id=' . $fid . ']' );
-		}
-	}
-	$ff_newsletter_order = array_values( $ff_newsletter_by_lang );
-	ob_start( function ( $html ) use ( $ff_newsletter_order ) {
-		$map = array(
-			'[grid_paticka_kontakt]' => function_exists( 'grid_sc_footer_kontakt' ) ? grid_sc_footer_kontakt() : '',
-			'[grid_socials]'         => function_exists( 'grid_sc_socials' ) ? grid_sc_socials() : '',
-			'[grid_menu_hlavni]'     => grid_render_hlavni_menu(),
-		);
-		foreach ( $map as $token => $out ) {
-			if ( strpos( $html, $token ) !== false ) $html = str_replace( $token, (string) $out, $html );
-		}
-		if ( $ff_newsletter_order && strpos( $html, '[grid_ff_newsletter]' ) !== false ) {
-			$i = 0;
-			$html = preg_replace_callback( '~\[grid_ff_newsletter\]~', function () use ( $ff_newsletter_order, &$i ) {
-				$out = $ff_newsletter_order[ $i ] ?? ( $ff_newsletter_order[0] ?? '' );
-				$i++;
-				return $out;
-			}, $html );
-		}
-		return $html;
-	} );
-}, 1 );
+}, 20, 2 ); // Divi 5 bloky (běžné stránky i Theme Builder header/footer)
+
+/* [grid_ff_newsletter lang="cs|en|de"] — newsletter formulář Fluent Forms.
+ * Atribut lang je NUTNÝ: v šabloně patičky je token 3× (jednou v každém
+ * .grid-lang-cs/en/de bloku) a každý výskyt potřebuje SVOU jazykovou mutaci
+ * formuláře — jinak by měly 3 kopie stejného formuláře identické HTML id. */
+add_shortcode( 'grid_ff_newsletter', function ( $atts ) {
+	if ( ! shortcode_exists( 'fluentform' ) ) return '';
+	$atts = shortcode_atts( array( 'lang' => '' ), $atts );
+	$lang = in_array( $atts['lang'], array( 'cs', 'en', 'de' ), true ) ? $atts['lang'] : grid_lang();
+	$ffmap = (array) get_option( 'grid_ff_forms', array() );
+	$fid = (int) ( $ffmap['newsletter'][ $lang ] ?? ( $ffmap['newsletter']['cs'] ?? 0 ) );
+	if ( ! $fid ) return '';
+	return do_shortcode( '[fluentform id=' . $fid . ']' );
+} );
 
 /* ------------------------------------------------------------------
  * 13) Bezpečnostní hardening (audit 2026-07-22)

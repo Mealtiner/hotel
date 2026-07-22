@@ -4,20 +4,31 @@
   "use strict";
   var $ = function(id){ return document.getElementById(id); };
 
+  /* ---- Detekce Divi Visual/Backend Builderu (musí být PŘED jakýmkoli zásahem do
+     DOM níže — v editoru nechceme mazat/přesouvat uzly, jinak builder ztrácí
+     přehled o pozici modulů a React je může nekonzistentně re-renderovat). */
+  var isBuilder = /[?&]et_fb=1/.test(location.search)
+    || document.body.classList.contains('et-fb')
+    || document.body.classList.contains('et-bfb')
+    || document.documentElement.classList.contains('et-fb-preview');
+
   /* ---- Jazykové varianty hlavičky/patičky (Polylang) ----
      Šablona nese CS+EN+DE markup vedle sebe (.grid-lang-*). Neaktivní varianty
      ODSTRANÍME ještě před bindováním (duplicitní id topbar/hamburger/kontakt),
-     CSS je do té doby skrývá. */
-  (function(){
-    var lang = (document.documentElement.lang || 'cs').slice(0,2).toLowerCase();
-    var variants = document.querySelectorAll('.grid-lang');
-    if(!variants.length) return;
-    var hasLang = document.querySelector('.grid-lang-' + lang);
-    if(!hasLang) lang = 'cs';
-    variants.forEach(function(el){
-      if(!el.classList.contains('grid-lang-' + lang)) el.remove();
-    });
-  })();
+     CSS je do té doby skrývá. V builderu se nemaže nic — modul zůstává tak, jak
+     ho Divi vykreslil, jen se CSS postará o skrytí neaktivních variant. */
+  if(!isBuilder){
+    (function(){
+      var lang = (document.documentElement.lang || 'cs').slice(0,2).toLowerCase();
+      var variants = document.querySelectorAll('.grid-lang');
+      if(!variants.length) return;
+      var hasLang = document.querySelector('.grid-lang-' + lang);
+      if(!hasLang) lang = 'cs';
+      variants.forEach(function(el){
+        if(!el.classList.contains('grid-lang-' + lang)) el.remove();
+      });
+    })();
+  }
 
   /* ---- Jazykový přepínač: odkazy na překlad AKTUÁLNÍ stránky (Polylang) ---- */
   (function(){
@@ -28,13 +39,6 @@
       if(l && map[l]) a.setAttribute('href', map[l]);
     });
   })();
-
-  /* ---- Detekce Divi Visual/Backend Builderu (musí být PŘED přesunem prvků níže —
-     v editoru nechceme sahat do DOM, jinak builder ztrácí přehled o pozici modulů) ---- */
-  var isBuilder = /[?&]et_fb=1/.test(location.search)
-    || document.body.classList.contains('et-fb')
-    || document.body.classList.contains('et-bfb')
-    || document.documentElement.classList.contains('et-fb-preview');
 
   /* ---- Fixní prvky přesunout přímo do <body> ----
      Divi obaluje obsah prvkem s transform/filter, což mění chování position:fixed
