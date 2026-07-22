@@ -3,7 +3,7 @@
  * Plugin Name:       GARRY – Boční posuvník (trať)
  * Plugin URI:        https://www.garry.cz
  * Description:       Boční „progress" navigace po sekcích stránky (styl trať) pro web GRID Hotel. Per-stránka: zapnutí, načtení sekcí, editace názvů, skrytí sekcí (přečíslování) a živý náhled.
- * Version:           1.0.0
+ * Version:           1.1.0
  * Author:            GARRY Promotion
  * Author URI:        https://www.garry.cz
  * License:           Proprietary — Copyright © GARRY Promotion
@@ -664,19 +664,31 @@ Garry_Promotion_Registry::bootstrap();
 
 define( 'GARRY_SCR_OPT', 'garry_scroller' );
 
-/* mapa shortcode → [anchor, výchozí název, typ] */
+/* Aktuální jazyk (Polylang, fallback locale) */
+function garry_scr_lang() {
+	if ( function_exists( 'pll_current_language' ) ) { $l = pll_current_language(); if ( $l ) return $l; }
+	return substr( (string) get_locale(), 0, 2 );
+}
+/* mapa shortcode → [anchor, výchozí název (CS/EN/DE), typ] */
 function garry_scr_map() {
+	$lang = garry_scr_lang();
+	$names = array(
+		'cs' => array( 'Okruh','Vstupy','Příběh','Pokoje','Zážitky','Gastro','Sezóna','Firmy','Reference','Rezervace' ),
+		'en' => array( 'Circuit','Ways in','Story','Rooms','Experiences','Dining','Season','Business','Reviews','Booking' ),
+		'de' => array( 'Ring','Einstiege','Story','Zimmer','Erlebnisse','Gastro','Saison','Firmen','Referenzen','Buchung' ),
+	);
+	$n = isset( $names[ $lang ] ) ? $names[ $lang ] : $names['cs'];
 	return array(
-		'grid_hero'      => array( 'start',     'Okruh',     'start' ),
-		'grid_vstupy'    => array( 'vstupy',    'Vstupy',    'mid' ),
-		'grid_pribeh'    => array( 'pribeh',    'Příběh',    'mid' ),
-		'grid_rooms'     => array( 'pokoje',    'Pokoje',    'mid' ),
-		'grid_zazitky'   => array( 'zazitky',   'Zážitky',   'mid' ),
-		'grid_gastro'    => array( 'restaurace','Gastro',    'mid' ),
-		'grid_season'    => array( 'sezona',    'Sezóna',    'mid' ),
-		'grid_firemni'   => array( 'firemni',   'Firmy',     'mid' ),
-		'grid_reference' => array( 'duvera',    'Reference', 'mid' ),
-		'grid_final'     => array( 'cil',       'Rezervace', 'cil' ),
+		'grid_hero'      => array( 'start',     $n[0], 'start' ),
+		'grid_vstupy'    => array( 'vstupy',    $n[1], 'mid' ),
+		'grid_pribeh'    => array( 'pribeh',    $n[2], 'mid' ),
+		'grid_rooms'     => array( 'pokoje',    $n[3], 'mid' ),
+		'grid_zazitky'   => array( 'zazitky',   $n[4], 'mid' ),
+		'grid_gastro'    => array( 'restaurace',$n[5], 'mid' ),
+		'grid_season'    => array( 'sezona',    $n[6], 'mid' ),
+		'grid_firemni'   => array( 'firemni',   $n[7], 'mid' ),
+		'grid_reference' => array( 'duvera',    $n[8], 'mid' ),
+		'grid_final'     => array( 'cil',       $n[9], 'cil' ),
 	);
 }
 /* Detekce sekcí na stránce podle výskytu shortcodů v obsahu (seřazeno dle pozice) */
@@ -700,11 +712,21 @@ function garry_scr_front_sections() {
 	foreach ( garry_scr_map() as $sc => $d ) $out[] = array( 'sc' => $sc, 'id' => $d[0], 'label' => $d[1], 'type' => $d[2] );
 	return $out;
 }
-/* Sekce pro danou stránku: detekce z obsahu; na titulní stránce fallback na kanonickou sadu. */
+/* Je stránka titulní stránkou NEBO jejím jazykovým překladem (Polylang)? */
+function garry_scr_is_front( $pid ) {
+	$front = (int) get_option( 'page_on_front' );
+	if ( $front === (int) $pid ) return true;
+	if ( $front && function_exists( 'pll_get_post_translations' ) ) {
+		$tr = pll_get_post_translations( $front );
+		if ( in_array( (int) $pid, array_map( 'intval', (array) $tr ), true ) ) return true;
+	}
+	return false;
+}
+/* Sekce pro danou stránku: detekce z obsahu; na titulní stránce (vč. mutací) fallback na kanonickou sadu. */
 function garry_scr_sections_for( $pid ) {
 	$page = get_post( $pid );
 	$sections = $page ? garry_scr_detect( $page->post_content ) : array();
-	if ( empty( $sections ) && (int) get_option( 'page_on_front' ) === (int) $pid ) {
+	if ( empty( $sections ) && garry_scr_is_front( $pid ) ) {
 		$sections = garry_scr_front_sections();
 	}
 	return $sections;
@@ -723,18 +745,20 @@ function garry_scr_points( $pid ) {
 	foreach ( $sections as $s ) {
 		if ( ! empty( $hidden[ $s['id'] ] ) ) continue;
 		$label = isset( $labels[ $s['id'] ] ) && $labels[ $s['id'] ] !== '' ? $labels[ $s['id'] ] : $s['label'];
+		$cil = array( 'cs' => 'CÍL', 'en' => 'FINISH', 'de' => 'ZIEL' );
+		$lang = garry_scr_lang();
 		if ( $s['type'] === 'start' ) $num = 'START';
-		elseif ( $s['type'] === 'cil' ) $num = 'CÍL';
+		elseif ( $s['type'] === 'cil' ) $num = isset( $cil[ $lang ] ) ? $cil[ $lang ] : 'CÍL';
 		else { $t++; $num = 'T' . $t; }
 		$points[] = array( 'target' => $s['id'], 'num' => $num, 'name' => $label );
 	}
 	return $points;
 }
-/* Má se na této stránce posuvník zobrazit? (výchozí: titulní stránka ano) */
+/* Má se na této stránce posuvník zobrazit? (výchozí: titulní stránka vč. jazykových mutací) */
 function garry_scr_enabled_for( $pid ) {
 	$cfg = garry_scr_cfg( $pid );
 	if ( isset( $cfg['enabled'] ) ) return ! empty( $cfg['enabled'] );
-	return ( (int) get_option( 'page_on_front' ) === (int) $pid ); // default jen homepage
+	return garry_scr_is_front( $pid ); // default jen homepage (CS/EN/DE)
 }
 
 /* Registrace do GARRY menu */
@@ -853,7 +877,8 @@ add_action( 'wp_footer', function () {
 	$points = garry_scr_points( $pid );
 	if ( empty( $points ) ) return;
 	?>
-	<aside class="track-progress" aria-label="Postup po stránce">
+	<?php $aria = array( 'cs' => 'Postup po stránce', 'en' => 'Page progress', 'de' => 'Seitenfortschritt' ); $al = garry_scr_lang(); ?>
+	<aside class="track-progress" aria-label="<?php echo esc_attr( isset( $aria[ $al ] ) ? $aria[ $al ] : $aria['cs'] ); ?>">
 	  <div class="tp-inner">
 	    <span class="tp-label">Masaryk Circuit</span>
 	    <div class="tp-rail"></div><div class="tp-fill" id="tpFill"></div>

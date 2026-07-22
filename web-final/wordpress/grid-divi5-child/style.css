@@ -3,7 +3,7 @@ Theme Name: GRID Hotel — Divi 5 Child
 Theme URI: https://www.garry.cz
 Author: GARRY Promotion
 Author URI: https://www.garry.cz
-Description: Prémiová child šablona pro Divi 5 vytvořená na míru pro GRID Hotel — **** hotel a restauraci přímo v areálu Automotodromu Brno u Masarykova okruhu. Designový systém „Circuit Line": vlastní barevná paleta a typografie s plnou českou diakritikou, karbonová textura tmavých sekcí, živý telemetry widget (čas + teplota trati), sekce Sezóna 2026 s čekacím listem a obsah řízený přes ACF. Navrhla a vyvinula fluidní marketingová agentura GARRY Promotion.
+Description: Prémiová child šablona pro Divi 5 vytvořená na míru pro GRID Hotel — **** hotel a restauraci přímo v areálu Autodromu Brno u Masarykova okruhu. Designový systém „Circuit Line": vlastní barevná paleta a typografie s plnou českou diakritikou, karbonová textura tmavých sekcí, živý telemetry widget (čas + teplota trati), sekce Sezóna 2026 s čekacím listem a obsah řízený přes ACF. Navrhla a vyvinula fluidní marketingová agentura GARRY Promotion.
 Version: 1.11.2
 Requires at least: 6.4
 Tested up to: 6.8
@@ -177,20 +177,22 @@ Text Domain: grid-divi5-child
   .reveal.d1{transition-delay:.08s}.reveal.d2{transition-delay:.16s}.reveal.d3{transition-delay:.24s}.reveal.d4{transition-delay:.32s}
 
   /* ===== HERO ===== */
-  .hero{height:100vh;min-height:640px;position:relative;overflow:hidden;display:flex;align-items:flex-end}
+  /* height:auto + min-height — delší překlady (EN/DE) nesmí přetéct přes menu */
+  .hero{height:auto;min-height:max(100vh,640px);position:relative;overflow:hidden;display:flex;align-items:flex-end}
   .hero-bg{position:absolute;inset:-8% 0;background:url('assets/foto/okruh-zapad-slunce.jpg') center/cover no-repeat;will-change:transform;z-index:0}
   .hero-overlay{position:absolute;inset:0;z-index:1;background:linear-gradient(180deg,rgba(14,15,17,.55) 0%,rgba(14,15,17,.2) 35%,rgba(14,15,17,.55) 70%,rgba(14,15,17,.96) 100%)}
   .hero-track{position:absolute;inset:0;z-index:2;pointer-events:none}
   .hero-track svg{width:100%;height:100%}
-  .hero-content{position:relative;z-index:3;width:100%;max-width:var(--maxw);margin:0 auto;padding:0 clamp(20px,4vw,52px) clamp(150px,20vh,200px)}
+  .hero-content{position:relative;z-index:3;width:100%;max-width:var(--maxw);margin:0 auto;padding:clamp(180px,24vh,260px) clamp(20px,4vw,52px) clamp(150px,20vh,200px)}
   .hero-content .kicker{margin-bottom:22px}
   .hero h1{font-size:clamp(3rem,9vw,8.5rem);font-weight:800;max-width:15ch;letter-spacing:0;color:#fff}
   .hero h1 em{font-style:normal;color:var(--red)}
   .hero-sub{margin-top:22px;max-width:52ch;color:var(--grey);font-size:clamp(1rem,1.5vw,1.18rem)}
   .hero-actions{margin-top:34px;display:flex;gap:14px;flex-wrap:wrap}
-  .hero-meta{position:absolute;top:clamp(90px,14vh,130px);left:0;right:0;z-index:3;width:100%;max-width:var(--maxw);margin:0 auto;padding:0 clamp(20px,4vw,52px);font-family:var(--f-mono);font-size:.76rem;letter-spacing:.2em;color:#fff;text-transform:uppercase;text-shadow:0 1px 10px rgba(0,0,0,.6)}
+  /* meta řádek je součást obsahu těsně nad kickerem (drží spolu), odstup od H1 řeší margin kickeru */
+  .hero-meta{margin-bottom:10px;font-family:var(--f-mono);font-size:clamp(.88rem,1.05vw,1.02rem);font-weight:600;letter-spacing:.22em;color:#fff;text-transform:uppercase;text-shadow:0 2px 14px rgba(0,0,0,.75)}
   /* Hero — kicker (GRID HOTEL · **** · Masarykův okruh) výrazně bílý přes fotku */
-  .hero-content .kicker{color:#fff;font-size:.82rem;text-shadow:0 1px 10px rgba(0,0,0,.55)}
+  .hero-content .kicker{color:#fff;font-size:clamp(1rem,1.3vw,1.25rem);font-weight:600;text-shadow:0 2px 14px rgba(0,0,0,.7)}
   .hero-content .kicker::before{background:rgba(255,255,255,.95)}
   /* Menu na homepage před scrollem (přes fotku) — čitelně bílé */
   body.home #topbar:not(.scrolled) .topnav nav a,
@@ -477,6 +479,8 @@ Text Domain: grid-divi5-child
 .review .stars,
 .ev-status.full{ color:var(--red-hi); }
 .ev-status.full{ border-color:rgba(255,90,80,.6); }
+/* Hero kicker zůstává BÍLÝ a výrazný (přes fotku) — má přednost před a11y červenou */
+.hero .hero-content .kicker{ color:#fff; }
 .socials a:hover{ border-color:var(--red-hi); color:var(--red-hi); }
 
 /* 1.4.11 Kontrast netextových prvků: hranice formulářových polí na tmavém ≥3:1 */
@@ -631,7 +635,7 @@ html:not([lang^="cs"]):not([lang^="en"]):not([lang^="de"]) .grid-lang-cs{ displa
    Po výběru klienta se ponechá jen jedna metoda + smaže .room-style-tag.
    ============================================================ */
 .room{min-height:480px}
-.room-style-tag{position:absolute;top:10px;right:10px;z-index:4;font-family:var(--f-mono);font-size:.56rem;letter-spacing:.14em;text-transform:uppercase;color:#fff;background:rgba(194,14,26,.9);padding:5px 9px;border-radius:2px;pointer-events:none}
+/* .room-style-tag odstraněn — klient vybral styl 2, štítky stylů už se nezobrazují */
 .room .r-desc{max-height:0;opacity:0;overflow:hidden;margin:0;transition:max-height .45s cubic-bezier(.16,1,.3,1),opacity .35s,margin .35s}
 .room:hover .r-desc{max-height:220px;opacity:1;margin-bottom:14px}
 .room .r-body{transition:transform .45s cubic-bezier(.16,1,.3,1),background .45s}
@@ -640,11 +644,15 @@ html:not([lang^="cs"]):not([lang^="en"]):not([lang^="de"]) .grid-lang-cs{ displa
 /* STYL 1 — spodní pruh: název + štítky vidět, hover vysune + ukáže popis */
 .room--m1::after{background:linear-gradient(180deg,rgba(14,15,17,0) 30%,rgba(14,15,17,.6) 60%,rgba(14,15,17,.96) 100%)}
 
-/* STYL 2 — hover: fotka se přebarví (prosvítá pod barvou) + popis */
-.room--m2::before{content:"";position:absolute;inset:0;z-index:1;background:linear-gradient(155deg,rgba(194,14,26,.85),rgba(14,15,17,.93));opacity:0;transition:opacity .45s}
-.room--m2:hover::before{opacity:1}
-.room--m2:hover img{transform:scale(1.05);filter:saturate(.5)}
-.room--m2::after{background:linear-gradient(180deg,rgba(14,15,17,0) 45%,rgba(14,15,17,.9) 100%)}
+/* STYL 2 — hover: fotka se přebarví (prosvítá pod barvou) + popis.
+   GLOBÁLNÍ PRVEK `.hover-card2` — vybraný klientem, použitelný i mimo pokoje:
+   stačí kartě s fotkou dát třídy `hover-card2` (+ position:relative a <img>). */
+.room--m2::before,.hover-card2::before{content:"";position:absolute;inset:0;z-index:1;background:linear-gradient(155deg,rgba(194,14,26,.85),rgba(14,15,17,.93));opacity:0;transition:opacity .45s}
+.room--m2:hover::before,.hover-card2:hover::before{opacity:1}
+.room--m2:hover img,.hover-card2:hover img{transform:scale(1.05);filter:saturate(.5)}
+.room--m2::after,.hover-card2::after{background:linear-gradient(180deg,rgba(14,15,17,0) 45%,rgba(14,15,17,.9) 100%)}
+.hover-card2{position:relative;overflow:hidden}
+.hover-card2 img{transition:transform .45s cubic-bezier(.16,1,.3,1),filter .45s}
 
 /* STYL 3 — editorial: fotka nahoře, plný panel dole (text vždy na plné ploše) */
 .room--m3{display:flex;flex-direction:column;align-items:stretch;min-height:0;background:var(--card)}

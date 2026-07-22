@@ -10,7 +10,7 @@ $rez = function_exists( 'grid_rezervace_url' ) ? grid_rezervace_url() : home_url
   <div class="wrap">
     <span class="kicker">Zážitky u okruhu</span>
     <h1 style="font-size:clamp(2.4rem,6vw,4.4rem);margin:14px 0 12px">Motorsport zážitky pár metrů od hotelu</h1>
-    <p style="max-width:64ch;color:var(--muted)">Užijte si závodní atmosféru Automotodromu Brno. Při pobytu můžete usednout do silné motokáry nebo na obratnou pitbike, projet si simulátor Masarykova okruhu nebo absolvovat kurzy bezpečné jízdy v Polygonu Brno.</p>
+    <p style="max-width:64ch;color:var(--muted)">Užijte si závodní atmosféru Autodromu Brno. Při pobytu můžete usednout do silné motokáry nebo na obratnou pitbike, projet si simulátor Masarykova okruhu nebo absolvovat kurzy bezpečné jízdy v Polygonu Brno.</p>
   </div>
   <div class="exp reveal in" style="margin-top:34px">
     <?php

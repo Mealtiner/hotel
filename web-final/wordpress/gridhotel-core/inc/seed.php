@@ -55,7 +55,7 @@ function gridcore_seed_terms() {
 				'<p>Na vyžádání zdarma polštář navíc (nebo zdravotní polštář), žehlicí prkno s žehličkou.</p>',
 		),
 		array(
-			'name' => 'Apartmá a Apartmá Plus', 'kod' => '3.4 / APARTMÁ', 'poradi' => 40, 'pocet' => 4, 'kapacita' => '2–4',
+			'name' => 'Apartmá a Apartmá Superior', 'kod' => '3.4 / APARTMÁ', 'poradi' => 40, 'pocet' => 4, 'kapacita' => '2–4',
 			'kratky_popis' => 'Nadstandardní apartmá 47–59 m² s King Size ložnicí, obývacím pokojem a terasou až 47 m². Nejlepší výhled na okruh a paddock.',
 			'velikost' => '47–59', 'postel' => 'Extra velká manželská postel (King Size)',
 			'koupelna' => 'Vana|Sprcha|Fén|Župan|Pantofle|Ručníky|Toaletní potřeby zdarma|Toaleta|Toaletní papír',

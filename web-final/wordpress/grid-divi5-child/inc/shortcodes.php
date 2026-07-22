@@ -47,18 +47,18 @@ function grid_pf( $id, $name, $fb = '' ) {
 	$m = get_post_meta( $id, $name, true );
 	return ( $m !== '' && $m !== null ) ? $m : $fb;
 }
-/* Výchozí obohacená data zážitků (dle původní stránky + Automotodrom Brno / Polygon Brno).
+/* Výchozí obohacená data zážitků (dle původní stránky + Autodrom Brno / Polygon Brno).
  * Použije se na detailu zážitku, když nejsou vyplněná ACF pole. Klíč = číslo zážitku. */
 function grid_exp_defaults( $num ) {
 	$d = array(
 		'4.1' => array(
 			'perex' => 'Usedněte do profesionálního dynamického simulátoru s reálnou geometrií Masarykova okruhu — ideální rozjížďka před ostrým výjezdem na trať i zábava pro celou partu.',
-			'parametry' => 'Délka=15–30 min|Pro koho=od 12 let|Kde=Automotodrom Brno|Obtížnost=pro začátečníky i závodníky',
-			'odkaz' => 'https://www.automotodrombrno.cz/', 'odkaz_text' => 'Web Automotodromu Brno →' ),
+			'parametry' => 'Délka=15–30 min|Pro koho=od 12 let|Kde=Autodrom Brno|Obtížnost=pro začátečníky i závodníky',
+			'odkaz' => 'https://www.automotodrombrno.cz/', 'odkaz_text' => 'Web Autodromu Brno →' ),
 		'4.2' => array(
 			'perex' => 'Silné motokáry i obratná pitbike motorka pár metrů od velkého závodního okruhu na speciální dráze. Měření časů a souboj o nejrychlejší kolo.',
 			'parametry' => 'Kde=speciální dráha u okruhu|Pro koho=děti i dospělí|Měření časů=ano|Skupiny=ideální pro firmy a oslavy',
-			'odkaz' => 'https://www.automotodrombrno.cz/', 'odkaz_text' => 'Web Automotodromu Brno →' ),
+			'odkaz' => 'https://www.automotodrombrno.cz/', 'odkaz_text' => 'Web Autodromu Brno →' ),
 		'4.3' => array(
 			'perex' => 'Škola bezpečné jízdy v moderním tréninkovém centru Polygon Brno — čtyři úrovně školy smyku od základů po pokročilou techniku ovládání vozu.',
 			'parametry' => 'Úrovně=Compact · Intensiv · Intensiv+ · Advanced|Kde=Polygon Brno|Vozidlo=vlastní i zapůjčené|Délka=půldenní / denní',
@@ -412,14 +412,14 @@ function grid_sc_hero() {
 	$img   = grid_field( 'hero_obrazek', '', 'option' ); $img = $img ? ( is_array($img)?$img['url']:$img ) : grid_img( 'okruh-zapad-slunce.jpg' );
 	$kick  = grid_field( 'hero_kicker', 'GRID HOTEL · **** · Masarykův okruh', 'option' );
 	$h1    = grid_field( 'hero_nadpis', 'Přespi <em>uprostřed</em><br>Masarykova okruhu.', 'option' );
-	$sub   = grid_field( 'hero_podtitulek', 'Jediný hotel a restaurace přímo v areálu Automotodromu Brno. 60 komfortních pokojů a 4 apartmá s výhledem na trať, paddock i okolní lesy — evropský standard ****.', 'option' );
+	$sub   = grid_field( 'hero_podtitulek', 'Jediný hotel a restaurace přímo v areálu Autodromu Brno. 60 komfortních pokojů a 4 apartmá s výhledem na trať, paddock i okolní lesy — evropský standard ****.', 'option' );
 	ob_start(); ?>
 	<section class="hero sec sec-dark" id="start">
 	  <div class="hero-bg" id="heroBg" style="background-image:url('<?php echo esc_url( $img ); ?>')"></div>
 	  <div class="hero-overlay"></div>
 	  <div class="hero-track"><svg viewBox="0 0 1000 1000" preserveAspectRatio="none" aria-hidden="true"><path id="trackLine" d="M-20 720 C 200 660, 240 470, 430 470 S 720 600, 820 460 S 900 220, 1040 280" fill="none" stroke="#C20E1A" stroke-width="3" stroke-linecap="round" opacity="0.85"/></svg></div>
-	  <div class="hero-meta">49.0227° N · 16.4419° E · Automotodrom Brno</div>
 	  <div class="hero-content">
+	    <div class="hero-meta">49.0227° N · 16.4419° E · Autodrom Brno</div>
 	    <span class="kicker"><?php echo wp_kses_post( $kick ); ?></span>
 	    <h1><?php echo wp_kses_post( $h1 ); ?></h1>
 	    <p class="hero-sub"><?php echo wp_kses_post( $sub ); ?></p>
@@ -494,7 +494,7 @@ function grid_sc_pribeh() {
 	    <div class="sp-content reveal">
 	      <span class="kicker">T2 · Příběh místa</span>
 	      <h2>Jediný hotel<br>uvnitř trati.</h2>
-	      <p class="lead">GRID HOTEL nestojí u trati. Stojí přímo <strong>v areálu Automotodromu Brno</strong> na adrese Ostrovačická 65 — pár metrů od slavného Masarykova okruhu.</p>
+	      <p class="lead">GRID HOTEL nestojí u trati. Stojí přímo <strong>v areálu Autodromu Brno</strong> na adrese Ostrovačická 65 — pár metrů od slavného Masarykova okruhu.</p>
 	      <p>Z oken pokojů a z terasy vidíte na centrum dění okruhu i okolní lesy. Probudíte se do zvuku motorů, na snídani vyrazíte s výhledem na trať a večer si dáte v restauraci nebo v GRID Clubu. Je to jediné místo v Česku, kde spíte uprostřed závodní legendy.</p>
 	      <div class="stat-row">
 	        <div class="stat"><span class="data">64</span><span>pokojů &amp; apartmá</span></div>
@@ -514,10 +514,10 @@ add_shortcode( 'grid_pribeh', 'grid_sc_pribeh' );
  * ============================================================ */
 function grid_sc_rooms() {
 	$rooms = grid_room_types_rows( array(
-		array('num'=>'3.1 / STANDARD','title'=>'Standard','img'=>grid_img('hotel-exterier.jpg'),'desc'=>'Komfortní pokoje evropského standardu **** s klidnou orientací do areálu.','feat'=>'1–2 osoby|klimatizace|TV 40" HDMI|trezor · minibar','pocet'=>'30','kapacita'=>'1–2','velikost'=>'24'),
-		array('num'=>'3.2 / SUPERIOR','title'=>'Superior','img'=>grid_img('pokoj-superior.jpg'),'desc'=>'Orientované výhledem na centrum dění brněnského okruhu i okolní lesy. Denně kávový a čajový set, župan, pantofle a minerální voda.','feat'=>'2 osoby|track view|župan · set','pocet'=>'20','kapacita'=>'2','velikost'=>'24'),
-		array('num'=>'3.3 / SUPERIOR PLUS','title'=>'Superior Plus','img'=>grid_img('koupelna.jpg'),'desc'=>'Vše ze Superior — navíc terasa s posezením a výhledem na centrum okruhu i okolí.','feat'=>'2–3 osoby|terasa|track view','pocet'=>'10','kapacita'=>'2–3','velikost'=>'24'),
-		array('num'=>'3.4 / APARTMÁ &amp; APARTMÁ PLUS','title'=>'Apartmá','img'=>grid_img('pokoj-apartma.jpg'),'desc'=>'Nadstandardní ubytování s nejlepším výhledem na město, okruh či paddock. Interiér 47–59 m² plus terasy až 47 m², King Size postele a dvě TV 43".','feat'=>'2–4 osoby|47–59 m²|terasa až 47 m²|King Size','pocet'=>'4','kapacita'=>'2–4','velikost'=>'47–59'),
+		array('num'=>'3.1 / STANDARD','title'=>'Standard','img'=>grid_img('hotel-exterier.jpg'),'desc'=>'Komfortní pokoje evropského standardu **** s klidnou orientací do areálu.','feat'=>'1–2 osoby|klimatizace|TV 40" HDMI|trezor · minibar','pocet'=>'30','kapacita'=>'1–2','velikost'=>'24','url'=>home_url('/kategorie-pokoje/standard/')),
+		array('num'=>'3.2 / SUPERIOR','title'=>'Superior','img'=>grid_img('pokoj-superior.jpg'),'desc'=>'Orientované výhledem na centrum dění brněnského okruhu i okolní lesy. Denně kávový a čajový set, župan, pantofle a minerální voda.','feat'=>'2 osoby|track view|župan · set','pocet'=>'20','kapacita'=>'2','velikost'=>'24','url'=>home_url('/kategorie-pokoje/superior/')),
+		array('num'=>'3.3 / SUPERIOR PLUS','title'=>'Superior Plus','img'=>grid_img('koupelna.jpg'),'desc'=>'Vše ze Superior — navíc terasa s posezením a výhledem na centrum okruhu i okolí.','feat'=>'2–3 osoby|terasa|track view','pocet'=>'10','kapacita'=>'2–3','velikost'=>'24','url'=>home_url('/kategorie-pokoje/superior-plus/')),
+		array('num'=>'3.4 / APARTMÁ &amp; APARTMÁ SUPERIOR','title'=>'Apartmá','img'=>grid_img('pokoj-apartma.jpg'),'desc'=>'Nadstandardní ubytování s nejlepším výhledem na město, okruh či paddock. Interiér 47–59 m² plus terasy až 47 m², King Size postele a dvě TV 43".','feat'=>'2–4 osoby|47–59 m²|terasa až 47 m²|King Size','pocet'=>'4','kapacita'=>'2–4','velikost'=>'47–59','url'=>home_url('/kategorie-pokoje/apartma-a-apartma-plus/')),
 	) );
 	ob_start(); ?>
 	<section id="pokoje" class="sec sec-light sec-pad">
@@ -525,8 +525,9 @@ function grid_sc_rooms() {
 	  <div class="wrap">
 	    <div class="reveal" style="margin-bottom:42px"><span class="kicker">T3 · Ubytování · 60 pokojů &amp; 4 apartmá</span><h2 style="font-size:clamp(2rem,4vw,3.6rem);margin-top:16px">Kde po jízdě zastavíš</h2><p style="max-width:60ch;margin-top:14px;color:var(--muted)">Vyberte si z 64 vysoce komfortních pokojů a apartmá splňujících veškeré parametry evropského standardu ****. Všechny pokoje mají klimatizaci, Wi-Fi, TV, trezor, možnost plného zatemnění a jsou vhodné i pro handicapované hosty.</p></div>
 	    <div class="rooms">
-	      <?php $d=1; $mi=0; foreach ( $rooms as $r ) : $mi++; $mstyle = ( ( $mi - 1 ) % 4 ) + 1; $img = grid_row_val($r,'img'); if ( is_array($img) ) $img = $img['url']; $feat = grid_row_val($r,'feat'); $chips = is_array($feat) ? $feat : array_filter( array_map('trim', explode('|', (string)$feat) ) ); ?>
-	      <div class="room room--m<?php echo $mstyle; ?> reveal d<?php echo $d; $d = $d==2?1:2; ?>"><span class="room-style-tag">Styl <?php echo $mstyle; ?></span>
+	      <?php $d=1; foreach ( $rooms as $r ) : $img = grid_row_val($r,'img'); if ( is_array($img) ) $img = $img['url']; $feat = grid_row_val($r,'feat'); $chips = is_array($feat) ? $feat : array_filter( array_map('trim', explode('|', (string)$feat) ) ); ?>
+	      <?php /* Klient vybral hover STYL 2 (globální prvek .hover-card2) — jednotně pro všechny pokoje */ ?>
+	      <div class="room room--m2 hover-card2 reveal d<?php echo $d; $d = $d==2?1:2; ?>">
 	        <img src="<?php echo esc_url( $img ); ?>" alt="<?php echo esc_attr( grid_row_val($r,'title') ); ?>">
 	        <div class="r-body">
 	          <span class="r-num"><?php echo wp_kses_post( grid_row_val($r,'num') ); ?></span>
@@ -577,7 +578,7 @@ function grid_sc_zazitky() {
 	ob_start(); ?>
 	<section id="zazitky" class="sec sec-dark carbon sec-pad">
 	  <span class="sec-tag">T4</span>
-	  <div class="wrap"><div class="reveal" style="margin-bottom:42px"><span class="kicker">T4 · Zážitky u okruhu</span><h2 style="font-size:clamp(2rem,4vw,3.6rem);margin-top:16px;max-width:18ch">Užijte si závodní atmosféru Automotodromu Brno</h2><p style="max-width:60ch;margin-top:14px;color:var(--muted)">Při pobytu máte jedinečnou možnost usednout do silné motokáry nebo na obratnou pitbike a zajezdit si pár metrů od velkého okruhu na speciální dráze. Adrenalin začíná hned za dveřmi pokoje.</p></div></div>
+	  <div class="wrap"><div class="reveal" style="margin-bottom:42px"><span class="kicker">T4 · Zážitky u okruhu</span><h2 style="font-size:clamp(2rem,4vw,3.6rem);margin-top:16px;max-width:18ch">Užijte si závodní atmosféru Autodromu Brno</h2><p style="max-width:60ch;margin-top:14px;color:var(--muted)">Při pobytu máte jedinečnou možnost usednout do silné motokáry nebo na obratnou pitbike a zajezdit si pár metrů od velkého okruhu na speciální dráze. Adrenalin začíná hned za dveřmi pokoje.</p></div></div>
 	  <div class="exp reveal d1">
 	    <?php foreach ( $items as $it ) : ?>
 	    <?php $u=grid_row_val($it,'url'); $tag=$u?'a':'div'; ?><<?php echo $tag; ?> class="exp-item"<?php if($u) echo ' href="'.esc_url($u).'"'; ?>><span class="x-num"><?php echo esc_html( grid_row_val($it,'num') ); ?></span><h3><?php echo wp_kses_post( grid_row_val($it,'title') ); ?></h3><p><?php echo esc_html( grid_row_val($it,'text') ); ?></p><span class="x-link"><?php echo esc_html( grid_row_val($it,'cta') ); ?></span></<?php echo $tag; ?>>
@@ -885,7 +886,7 @@ function grid_sc_reference() {
 	      <div class="review reveal d<?php echo $d++; ?>"><span class="stars">★★★★★</span><p>„<?php echo esc_html( grid_row_val($it,'text') ); ?>“</p><span class="r-who"><?php echo wp_kses_post( grid_row_val($it,'who') ); ?></span></div>
 	      <?php endforeach; ?>
 	    </div>
-	    <div class="partners reveal"><span class="p-label">Partner</span><span class="p-name">Automotodrom Brno</span><span class="p-name">Masarykův okruh</span><span class="p-name">Polygon Brno</span></div>
+	    <div class="partners reveal"><span class="p-label">Partner</span><span class="p-name">Autodrom Brno</span><span class="p-name">Masarykův okruh</span><span class="p-name">Polygon Brno</span></div>
 	  </div>
 	</section>
 	<?php return ob_get_clean();
@@ -936,7 +937,7 @@ function grid_sc_footer() {
 	    <div class="foot-top">
 	      <div class="foot-brand">
 	        <img src="<?php echo esc_url($logo); ?>" alt="GRID HOTEL logo">
-	        <p>Hotel a restaurace **** přímo v areálu Automotodromu Brno. Přespi uprostřed Masarykova okruhu.</p>
+	        <p>Hotel a restaurace **** přímo v areálu Autodromu Brno. Přespi uprostřed Masarykova okruhu.</p>
 	        <span class="data">
 	          <?php echo esc_html($a1); ?><br>
 	          <?php echo esc_html($a2); ?><br>
@@ -962,7 +963,7 @@ add_shortcode( 'grid_footer', 'grid_sc_footer' );
  * Srovnávací tabulka kategorií pokojů (z popisů typů)
  * ============================================================ */
 function grid_room_compare_table( $current = '' ) {
-	$cols = array( 'Standard', 'Superior', 'Superior Plus', 'Apartmá a Apartmá Plus' );
+	$cols = array( 'Standard', 'Superior', 'Superior Plus', 'Apartmá a Apartmá Superior' );
 	$rows = array(
 		array( 'Postele', 'TWIN / DOUBLE', 'TWIN / DOUBLE', 'TWIN / DOUBLE', 'King Size' ),
 		array( 'Výhled', 'areál / klid', 'okruh + lesy', 'okruh + terasa', 'město · okruh · paddock' ),
@@ -975,6 +976,7 @@ function grid_room_compare_table( $current = '' ) {
 		array( 'Wi-Fi · pracovní stůl', '✓', '✓', '✓', '✓' ),
 		array( 'Trezor · minibar · zatemnění', '✓', '✓', '✓', '✓' ),
 		array( 'Sprchový kout', '✓', '✓', '✓', '✓' ),
+		array( 'Vana', '–', '–', '–', '✓' ),
 		array( 'Kosmetika · vysoušeč vlasů', '✓', '✓', '✓', '✓' ),
 		array( 'Kávový/čajový set · župan · pantofle · minerálka', 'za poplatek', 'zdarma denně', 'zdarma denně', 'zdarma denně' ),
 		array( 'Bezbariérový', '✓ (vybrané)', '–', '–', '–' ),
@@ -1119,7 +1121,7 @@ function grid_sc_doprava() {
 	  <div class="wrap">
 	    <span class="kicker">Kontakt · Příjezd</span>
 	    <h1 style="font-size:clamp(2.4rem,6vw,4.4rem);margin:14px 0 10px">Jak se k nám dostanete?</h1>
-	    <p style="max-width:64ch;color:var(--muted)">GRID HOTEL najdete přímo v areálu Automotodromu Brno na adrese <strong style="color:var(--fg)"><?php echo esc_html( $adresa ); ?></strong>. Při příjezdu se řiďte dopravním značením <strong style="color:var(--fg)">„Grand Prix"</strong> a <strong style="color:var(--fg)">„Paddock"</strong>.</p>
+	    <p style="max-width:64ch;color:var(--muted)">GRID HOTEL najdete přímo v areálu Autodromu Brno na adrese <strong style="color:var(--fg)"><?php echo esc_html( $adresa ); ?></strong>. Při příjezdu se řiďte dopravním značením <strong style="color:var(--fg)">„Grand Prix"</strong> a <strong style="color:var(--fg)">„Paddock"</strong>.</p>
 	    <div class="doprava-map"><iframe src="<?php echo esc_url( $mapsrc ); ?>" title="Mapa — GRID HOTEL" loading="lazy" referrerpolicy="no-referrer-when-downgrade" allowfullscreen></iframe></div>
 	    <div class="doprava-actions"><a class="btn" href="<?php echo esc_url( $navig ); ?>" target="_blank" rel="noopener">Navigovat →</a><a class="btn btn-ghost" href="tel:+420775778718">Shuttle bus: +420 775 778 718</a></div>
 	  </div>
@@ -1455,7 +1457,7 @@ function grid_sc_kontakt() {
 	<section class="sec sec-light sec-pad" style="padding-top:clamp(120px,16vh,180px)">
 	  <div class="wrap">
 	    <span class="kicker">Kontakt</span>
-	    <h1 style="font-size:clamp(2.4rem,6vw,4.4rem);margin:14px 0 12px">Jsme přímo v areálu Automotodromu Brno</h1>
+	    <h1 style="font-size:clamp(2.4rem,6vw,4.4rem);margin:14px 0 12px">Jsme přímo v areálu Autodromu Brno</h1>
 	    <p style="max-width:60ch;color:var(--muted)">Napište nám kvůli rezervaci, firemní akci, svatbě, cateringu, dárkovému poukazu nebo dopravě.</p>
 	    <div class="kontakt-grid">
 	      <div class="k-info">
@@ -1541,7 +1543,7 @@ add_shortcode( 'grid_gdpr', 'grid_sc_gdpr' );
 function grid_sc_onas() {
 	$img = grid_field( 'pribeh_obrazek', '', 'option' ); $img = $img ? ( is_array($img)?$img['url']:$img ) : grid_img( 'hotel-okruh-leto.jpg' );
 	$vurl  = grid_field( 'video_url', '', 'option' );
-	$vpop  = grid_field( 'video_popis', 'Sledujte, jak GRID Hotel rostl přímo v srdci Automotodromu Brno — od základů až po dnešní ****hotel u Masarykova okruhu.', 'option' );
+	$vpop  = grid_field( 'video_popis', 'Sledujte, jak GRID Hotel rostl přímo v srdci Autodromu Brno — od základů až po dnešní ****hotel u Masarykova okruhu.', 'option' );
 	$embed = grid_video_embed( $vurl );
 	$highlights = array(
 		array( 'Ubytování ****',        'Vyberte si z 64 komfortních pokojů a apartmá s klimatizací, výhledem na trať i terasou.', array( 'ubytovani','pokoje' ), 'Pokoje &amp; apartmá' ),
@@ -1558,9 +1560,9 @@ function grid_sc_onas() {
 	    <div class="sp-content">
 	      <span class="kicker">O hotelu</span>
 	      <h1 style="font-size:clamp(2.4rem,5vw,4.2rem);margin:16px 0">Hotel přímo<br>v areálu okruhu</h1>
-	      <p class="lead">GRID HOTEL nabízí ubytování přímo v areálu Masarykova okruhu v Brně — jako jediný hotel uvnitř Automotodromu Brno.</p>
+	      <p class="lead">GRID HOTEL nabízí ubytování přímo v areálu Masarykova okruhu v Brně — jako jediný hotel uvnitř Autodromu Brno.</p>
 	      <p>GRID Hotel je certifikovaným **** hotelem. Start do nového dne Vám zpříjemní svojí nabídkou hotelové restaurace. GRID Club, hotelové lobby či nedaleká PADDOCK Restaurace s letní terasou Vám naopak v sezoně budou k dispozici po celý zbytek dne.</p>
-	      <p>Samozřejmostí jsou Wi-Fi, parkoviště pro osobní auta i autobusy, individuálně nastavitelná klimatizace, hotelové služby, vyžití v rámci Automotodromu, catering a organizační podpora při realizaci firemních a velkých akcí.</p>
+	      <p>Samozřejmostí jsou Wi-Fi, parkoviště pro osobní auta i autobusy, individuálně nastavitelná klimatizace, hotelové služby, vyžití v rámci Autodromu, catering a organizační podpora při realizaci firemních a velkých akcí.</p>
 	      <div class="stat-row">
 	        <div class="stat"><span class="data">64</span><span>pokojů &amp; apartmá</span></div>
 	        <div class="stat"><span class="data">****</span><span>evropský standard</span></div>
@@ -1627,7 +1629,7 @@ function grid_sc_kariera() {
 	  <div class="wrap" style="max-width:760px">
 	    <span class="kicker">Kariéra</span>
 	    <h1 style="font-size:clamp(2.4rem,6vw,4.4rem);margin:14px 0 12px">Restaurace a hotel GRID</h1>
-	    <p style="color:var(--muted);font-size:1.1rem">Na Masarykově okruhu v Brně (areál Automotodromu) hledáme nové kolegy do týmu.</p>
+	    <p style="color:var(--muted);font-size:1.1rem">Na Masarykově okruhu v Brně (areál Autodromu) hledáme nové kolegy do týmu.</p>
 	    <div style="margin:26px 0;padding:26px;border:1px solid var(--line-c);border-radius:2px;background:var(--card)">
 	      <p style="font-family:var(--f-head);text-transform:uppercase;font-size:1.4rem;color:var(--ink);margin-bottom:6px">V tuto chvíli nikoho nehledáme 🙁</p>
 	      <p style="color:var(--muted)">Zkuste to prosím později — nebo nám rovnou napište, rádi si vás zařadíme do evidence.</p>

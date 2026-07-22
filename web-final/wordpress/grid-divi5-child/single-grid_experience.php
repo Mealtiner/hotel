@@ -1,7 +1,7 @@
 <?php
 /**
  * Detail zážitku (single grid_experience) — perex, parametry, plný popis,
- * náhledová foto, externí CTA (Automotodrom / Polygon), galerie a další zážitky.
+ * náhledová foto, externí CTA (Autodrom / Polygon), galerie a další zážitky.
  */
 if ( ! defined( 'ABSPATH' ) ) exit;
 get_header();
