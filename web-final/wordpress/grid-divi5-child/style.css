@@ -945,6 +945,15 @@ html:not([lang^="cs"]):not([lang^="en"]):not([lang^="de"]) .grid-lang-cs{ displa
 .fluentform .ff-el-form-check-label:hover{border-color:var(--red)}
 .fluentform .ff-el-form-check-label:has(input:checked){background:var(--red);border-color:var(--red);color:#fff}
 .fluentform .ff-el-form-check-input{accent-color:var(--red)}
+/* FF v tmavých sekcích (čekací list, poukazy) */
+.waitbox .fluentform .ff-el-form-control,.vou-form .fluentform .ff-el-form-control{background:rgba(255,255,255,.04);border:1px solid var(--line);color:var(--offwhite)}
+.waitbox .fluentform .ff-el-input--label label,.vou-form .fluentform .ff-el-input--label label{color:var(--grey)}
+.waitbox .fluentform .ff-btn-submit{width:100%;text-align:center}
+.waitbox .fluentform .ff-el-group{margin-bottom:13px}
+.vou-form .fluentform form{display:grid;grid-template-columns:1fr 1fr;gap:0 18px}
+.vou-form .fluentform .ff-el-group{margin-bottom:14px}
+.vou-form .fluentform .ff-el-group:has(select),.vou-form .fluentform .ff-el-group:has(input[type=email]),.vou-form .fluentform .ff_submit_btn_wrapper{grid-column:1/-1}
+@media(max-width:640px){.vou-form .fluentform form{grid-template-columns:1fr}}
 /* Kariéra — karty pracovních pozic */
 .job-list{display:grid;gap:18px;margin:26px 0}
 .job-card{padding:26px;border:1px solid var(--line-c);border-radius:2px;background:var(--card);transition:border-color .25s}

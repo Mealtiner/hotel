@@ -164,7 +164,9 @@
 
   /* ---- Season 2026: event select -> waitlist form ---- */
   var evRows = document.querySelectorAll('.ev-row');
-  var wbEv = $('wb-ev'), wbTitle = $('wbTitle'), wbSub = $('wbSub'), wbBtn = $('wbBtn'), wbForm = $('wbForm');
+  var wbEv = $('wb-ev') || document.querySelector('.waitbox select[data-name="akce"], .waitbox select[name="akce"]');
+  var wbTitle = $('wbTitle'), wbSub = $('wbSub'), wbForm = $('wbForm');
+  var wbBtn = $('wbBtn') || document.querySelector('.waitbox .ff-btn-submit');
   if(evRows.length && wbEv && wbTitle){
     var syncWaitbox = function(name, status){
       wbTitle.innerHTML = name;

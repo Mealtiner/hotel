@@ -3,7 +3,7 @@
  * Plugin Name:       GARRY – Sezóna & čekací list
  * Plugin URI:        https://www.garry.cz
  * Description:       Akce sezóny pro sekci T6: karty administrace (Akce s náhledem widgetu, editovatelné štítky obsazenosti s barvami, log poptávek), funkční čekací formulář s odesíláním na e-mail a háčkem pro Google reCAPTCHA. Frontend: [grid_season_events limit="5"].
- * Version:           2.3.1
+ * Version:           2.4.0
  * Author:            GARRY Promotion
  * Author URI:        https://www.garry.cz
  * License:           Proprietary — Copyright © GARRY Promotion
@@ -1152,6 +1152,9 @@ function garry_sez_render( $atts = array() ) {
 	    <span class="kicker"><?php echo $t[0]; ?></span>
 	    <h3 id="wbTitle"><?php echo esc_html( $t[1] ); ?></h3>
 	    <p class="wb-sub" id="wbSub"><?php echo esc_html( $t[2] ); ?></p>
+	    <?php $wb_ff = garry_sez_ff_id( 'cekaci' ); if ( $wb_ff ) : ?>
+	    <div class="wb-ff"><?php echo do_shortcode( '[fluentform id=' . $wb_ff . ']' ); ?></div>
+	    <?php else : ?>
 	    <form id="wbForm">
 	      <input type="hidden" name="_wpnonce" value="<?php echo esc_attr( wp_create_nonce( 'garry_sez_request' ) ); ?>">
 	      <input type="text" name="web" value="" style="position:absolute;left:-9999px" tabindex="-1" autocomplete="off" aria-hidden="true">
@@ -1169,6 +1172,7 @@ function garry_sez_render( $atts = array() ) {
 	      <button type="submit" class="btn" style="width:100%;text-align:center" id="wbBtn"><?php echo esc_html( $t[9] ); ?></button>
 	      <div class="wb-ok" id="wbOk"><?php echo esc_html( $t[10] ); ?></div>
 	    </form>
+	    <?php endif; ?>
 	    <p style="font-family:var(--f-mono);font-size:.66rem;color:var(--muted);margin-top:14px"><?php echo esc_html( $t[11] ); ?></p>
 	  </div>
 	</div>
@@ -1228,6 +1232,9 @@ function garry_voucher_form() {
 	ob_start(); ?>
 	<div class="vou-form">
 	  <h3 style="margin:30px 0 12px;color:var(--gold)"><?php echo esc_html( $t[0] ); ?></h3>
+	  <?php $vou_ff = garry_sez_ff_id( 'voucher' ); if ( $vou_ff ) : ?>
+	  <div class="vou-ff"><?php echo do_shortcode( '[fluentform id=' . $vou_ff . ']' ); ?></div>
+	  <?php else : ?>
 	  <form id="vouForm" class="form-grid">
 	    <input type="hidden" name="_wpnonce" value="<?php echo esc_attr( wp_create_nonce( 'garry_sez_request' ) ); ?>">
 	    <input type="text" name="web" value="" style="position:absolute;left:-9999px" tabindex="-1" autocomplete="off" aria-hidden="true">
@@ -1240,6 +1247,7 @@ function garry_voucher_form() {
 	    <div class="full"><button type="submit" class="btn" id="vouBtn"><?php echo esc_html( $t[5] ); ?></button></div>
 	    <div class="full"><div class="wb-ok" id="vouOk"><?php echo esc_html( $t[6] ); ?></div></div>
 	  </form>
+	  <?php endif; ?>
 	</div>
 	<script>
 	(function(){
@@ -1300,6 +1308,87 @@ function garry_voucher_handle() {
 }
 add_action( 'wp_ajax_garry_voucher_request', 'garry_voucher_handle' );
 add_action( 'wp_ajax_nopriv_garry_voucher_request', 'garry_voucher_handle' );
+
+/* ------------------------------------------------------------------
+ * Fluent Forms integrace — čekací list + dárkový poukaz
+ * Mapa formulářů je v option grid_ff_forms (typ => jazyk => form_id).
+ * - select „akce" se plní dynamicky z akcí pluginu (jen budoucí)
+ * - odeslání se zapisuje do logu pluginu a posílá na e-mail z nastavení
+ * ------------------------------------------------------------------ */
+function garry_sez_ff_map() {
+	return (array) get_option( 'grid_ff_forms', array() );
+}
+/* form_id => array( typ, jazyk ) | null */
+function garry_sez_ff_lang_of( $form_id ) {
+	foreach ( array( 'cekaci', 'voucher' ) as $typ ) {
+		foreach ( (array) ( garry_sez_ff_map()[ $typ ] ?? array() ) as $lang => $id ) {
+			if ( (int) $id === (int) $form_id ) return array( $typ, $lang );
+		}
+	}
+	return null;
+}
+/* FF formulář pro aktuální jazyk (0 = FF není / není namapováno) */
+function garry_sez_ff_id( $typ ) {
+	if ( ! shortcode_exists( 'fluentform' ) ) return 0;
+	$m = garry_sez_ff_map();
+	return (int) ( $m[ $typ ][ garry_sez_lang() ] ?? ( $m[ $typ ]['cs'] ?? 0 ) );
+}
+/* dynamické možnosti selectu „akce" (jen budoucí akce, jazyk dle formuláře) */
+add_filter( 'fluentform/rendering_field_data', function ( $data, $form ) {
+	$hit = garry_sez_ff_lang_of( $form->id ?? 0 );
+	if ( ! $hit || $hit[0] !== 'cekaci' ) return $data;
+	if ( ( $data['attributes']['name'] ?? '' ) !== 'akce' ) return $data;
+	$li = array( 'cs' => 0, 'en' => 1, 'de' => 2 )[ $hit[1] ] ?? 0;
+	$today = current_time( 'Y-m-d' );
+	$opts = array();
+	foreach ( garry_sez_get()['events'] as $e ) {
+		if ( ( ( $e['do'] ?: $e['od'] ) ) < $today ) continue;
+		$name = $e[ array( 'cz', 'en', 'de' )[ $li ] ] ?: $e['cz'];
+		if ( $name === '' ) continue;
+		$opts[] = array(
+			'label'      => $name . ' · ' . garry_sez_fmt_range( $e['od'], $e['do'] ),
+			'value'      => $name,
+			'calc_value' => '',
+		);
+	}
+	if ( $opts ) $data['settings']['advanced_options'] = $opts;
+	return $data;
+}, 10, 2 );
+/* odeslání FF → log pluginu + e-mail z nastavení */
+add_action( 'fluentform/submission_inserted', function ( $entry_id, $form_data, $form ) {
+	$hit = garry_sez_ff_lang_of( $form->id ?? 0 );
+	if ( ! $hit ) return;
+	list( $typ, $lang ) = $hit;
+	$z = array(
+		'cas'   => current_time( 'j. n. Y H:i:s' ),
+		'akce'  => $typ === 'voucher' ? 'Dárkový poukaz' : sanitize_text_field( $form_data['akce'] ?? '' ),
+		'pokoj' => sanitize_text_field( $typ === 'voucher' ? ( $form_data['druh'] ?? '' ) : ( $form_data['pokoj'] ?? '' ) ),
+		'jmeno' => trim( sanitize_text_field( $form_data['jmeno'] ?? '' ) . ' ' . sanitize_text_field( $form_data['prijmeni'] ?? '' ) ),
+		'email' => sanitize_email( $form_data['email'] ?? '' ),
+		'jazyk' => sanitize_key( $lang ),
+		'ip'    => sanitize_text_field( $_SERVER['REMOTE_ADDR'] ?? '' ),
+	);
+	if ( $z['jmeno'] === '' || ! is_email( $z['email'] ) ) return;
+	$log = get_option( GARRY_SEZ_LOG, array() ); if ( ! is_array( $log ) ) $log = array();
+	$log[] = $z; if ( count( $log ) > 300 ) $log = array_slice( $log, -300 );
+	update_option( GARRY_SEZ_LOG, $log, false );
+	$to = garry_sez_get()['email']; if ( ! is_email( $to ) ) $to = get_option( 'admin_email' );
+	if ( $typ === 'voucher' ) {
+		$subject = 'Objednávka dárkového poukazu — ' . $z['pokoj'];
+		$body = "Nová objednávka dárkového poukazu z webu (Fluent Forms):\n\n"
+			. 'Druh poukazu: ' . $z['pokoj'] . "\n" . 'Jméno: ' . $z['jmeno'] . "\n"
+			. 'E-mail: ' . $z['email'] . "\n" . 'Jazyk webu: ' . strtoupper( $z['jazyk'] ) . "\n"
+			. 'Čas: ' . $z['cas'] . "\n" . 'IP: ' . $z['ip'] . "\n";
+	} else {
+		$subject = 'Poptávka z čekacího listu — ' . $z['akce'];
+		$body = "Nová poptávka z webu (sekce Sezóna & čekací list, Fluent Forms):\n\n"
+			. 'Akce / termín: ' . $z['akce'] . "\n" . 'Typ pokoje:    ' . $z['pokoj'] . "\n"
+			. 'Jméno:         ' . $z['jmeno'] . "\n" . 'E-mail:        ' . $z['email'] . "\n"
+			. 'Jazyk webu:    ' . strtoupper( $z['jazyk'] ) . "\n" . 'Čas:           ' . $z['cas'] . "\n"
+			. 'IP:            ' . $z['ip'] . "\n";
+	}
+	wp_mail( $to, $subject, $body, array( 'Reply-To: ' . $z['jmeno'] . ' <' . $z['email'] . '>' ) );
+}, 10, 3 );
 
 /* ---------- AJAX příjem poptávky (přihlášení i nepřihlášení) ---------- */
 function garry_sez_handle_request() {
