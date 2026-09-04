@@ -13,7 +13,7 @@
  */
 import fs from 'fs';
 import path from 'path';
-import { EXPECTED_COLS, SAFE, RAIL_VISIBLE_FROM, VIEWPORTS } from './qa-config.mjs';
+import { EXPECTED_COLS, SAFE, RAIL_VISIBLE_FROM, VIEWPORTS, CORRIDOR_ANCHORED } from './qa-config.mjs';
 
 const argv = Object.fromEntries(process.argv.slice(2).map(a => { const [k, v] = a.replace(/^--/, '').split('='); return [k, v ?? true]; }));
 const dir = path.join(path.dirname(new URL(import.meta.url).pathname), 'out');
@@ -45,8 +45,8 @@ for (const rec of data) {
     for (const [sel, list] of Object.entries(rec.corridor)) {
       if (!list) continue;
       for (const b of list) {
-        if (b.W >= rec.vw - 2) continue;              // full-bleed prvek, koridor se ho netyka
-        edges.push({ sel, ...b });
+        if ((b.boxR - b.boxL) >= rec.vw - 2 && b.W >= rec.vw - 2) continue;  // full-bleed prvek, koridor se ho netyka
+        if (CORRIDOR_ANCHORED.includes(sel)) edges.push({ sel, ...b });
         if (b.L < safe.left - 2)  add('KORIDOR', rec, `${sel} zacina na ${b.L}, bezpecna hranice je ${safe.left}`);
         if (b.R > safe.right + 2) add('KORIDOR', rec, `${sel} konci na ${b.R}, bezpecna hranice je ${safe.right}`);
       }
@@ -54,9 +54,10 @@ for (const rec of data) {
     for (const side of ['L', 'R']) {
       const vals = [...new Set(edges.map(e => e[side]))];
       if (vals.length > 1 && Math.max(...vals) - Math.min(...vals) > 2) {
-        const worst = edges.filter(e => e[side] === Math.min(...vals) || e[side] === Math.max(...vals)).slice(0, 4);
-        add('ROZJEZD', rec, `${side === 'L' ? 'leve' : 'prave'} okraje se lisi o ${Math.max(...vals) - Math.min(...vals)} px`,
-            worst.map(e => `${e.sel}=${e[side]}`).join(' '));
+        const lo = Math.min(...vals), hi = Math.max(...vals);
+        const names = s => [...new Set(edges.filter(e => e[side] === s).map(e => e.sel))].join('/');
+        add('ROZJEZD', rec, `${side === 'L' ? 'leve' : 'prave'} okraje se lisi o ${hi - lo} px`,
+            `${names(lo)}=${lo} vs ${names(hi)}=${hi}`);
       }
     }
   }

@@ -35,6 +35,12 @@ export const VIEWPORTS = [
    Když se jejich levé/pravé okraje rozejdou, je to chyba koridoru. */
 export const CORRIDOR = ['.wrap', '.entries', '.reviews', '.exp', '.gastro', '.rooms', '.sp-content', '.k-grid', '.form-grid'];
 
+/* Podmnožina, která musí mít SHODNOU levou i pravou hranu — to jsou hlavní
+   obsahové kontejnery sekcí. `.sp-content` (textová půlka dělené sekce),
+   `.k-grid` a `.form-grid` jsou vnořené nebo záměrně odsazené, ty se
+   porovnávat nemají. */
+export const CORRIDOR_ANCHORED = ['.wrap', '.entries', '.reviews', '.exp', '.gastro', '.rooms'];
+
 /* Mřížky, u kterých se hlídá počet sloupců podle matice GRID-RESPONSIVE-02 §6. */
 export const GRIDS = ['.entries', '.rooms', '.exp', '.gastro', '.split', '.reviews', '.season', '.b2b-grid', '.foot-top', '.gal-grid', '.sez-cards'];
 

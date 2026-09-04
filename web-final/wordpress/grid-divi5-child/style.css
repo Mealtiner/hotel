@@ -130,7 +130,7 @@ Text Domain: grid-divi5-child
   /* Úvodní stránka: po načtení logo přeteče z menu (~3×), scrollem se plynule vrátí do menu */
   body.home #topbar .brand img{transform-origin:left top;transition:transform .55s cubic-bezier(.22,.61,.36,1);will-change:transform}
   body.home #topbar:not(.scrolled) .brand img{transform:scale(3);filter:drop-shadow(0 6px 24px rgba(0,0,0,.35))}
-  @media(max-width:980px){ body.home #topbar:not(.scrolled) .brand img{transform:scale(2)} }
+  @media(max-width:1279px){ body.home #topbar:not(.scrolled) .brand img{transform:scale(2)} }
   @media(max-width:640px){ body.home #topbar:not(.scrolled) .brand img{transform:scale(1.6)} }
   /* Diviho Text modul pouští syrové HTML hlavičky přes wpautop, které kolem
      "osamocených" prvků (odkaz .brand, náš [grid_lang_switch] shortcode než
@@ -280,6 +280,39 @@ Text Domain: grid-divi5-child
     --entries-right-match-wrap: calc(var(--wrap-inset) + max(0px, var(--rail-pad)) - 9px);
   }
   .wrap{padding-left:max(clamp(20px,4vw,52px), var(--hud-pad))}
+
+  /* ============================================================================
+     MOBIL A TABLET NA VÝŠKU — reset rezervace za HUD widgetem.
+
+     HUD "situace na trati" je plovoucí panel 224×223 px ukotvený k LEVÉMU
+     DOLNÍMU rohu viewportu, ne postranní sloupec přes celou výšku stránky.
+     Rezervovat mu 264 px vlevo po celé výšce je na velkých obrazovkách
+     přijatelná daň; na úzkých je to fatální — na 390px displeji vycházel
+     --hud-pad na 278 px, takže obsahu zbývalo 92 px a každá stránka
+     přetékala o 70–300 px.
+
+     Na tabletu na výšku je HUD 190 px, na mobilu žádnou šířku rezervovat
+     nesmí. Reset patří sem, do globálního koridoru — kompenzace v
+     jednotlivých sekcích jsou zakázané (GRID-RESPONSIVE-10 §Implementační
+     zásahy bod 1).
+     ============================================================================ */
+  @media(max-width:959px){
+    :root{
+      --gh-hud-w: 190px;
+      --hud-right-edge: calc(clamp(14px,2vw,26px) + 190px);
+      --entries-left: calc(var(--hud-right-edge) + 40px);
+    }
+  }
+  @media(max-width:640px){
+    :root{
+      --hud-pad: 0px;                    /* HUD na mobilu nerezervuje šířku */
+      --rail-pad: 0px;                   /* lišta je na mobilu skrytá */
+      --entries-left: 20px;              /* obsah 20..(šířka−20) dle matice */
+      --entries-right-base: 20px;
+      --entries-right-match-wrap: 20px;
+    }
+    .wrap{padding-left:20px;padding-right:20px}
+  }
   /* Sekce CÍL zůstává vycentrovaná na celou šířku (i pod HUD) – vlastní
      kompenzační pravidlo pro pravou lištu (--rail) níže na ni platí dál. */
   .final .wrap{padding-left:clamp(20px,4vw,52px)}
@@ -475,8 +508,11 @@ Text Domain: grid-divi5-child
   .room .r-price b{color:var(--gold)}
   .room.feat{grid-column:span 2;min-height:380px}
   .rooms-note{margin-top:22px;font-family:var(--f-mono);font-size:.72rem;letter-spacing:.06em;color:var(--muted)}
-  .pobyt-chips{display:flex;flex-wrap:nowrap;gap:8px;margin:24px 0 0;padding:0 0 4px;overflow-x:auto;-webkit-overflow-scrolling:touch}
-  .pobyt-chips span{flex:none;list-style:none;font-family:var(--f-mono);font-size:.68rem;letter-spacing:.04em;color:var(--muted);border:1px solid var(--line-c);border-radius:2px;padding:5px 10px;white-space:nowrap}
+  /* Štítky se zalamují do dalšího řádku místo vodorovného posuvu. Posuv
+     schovával štítky mimo obrazovku bez viditelného vodítka a v němčině
+     navíc přetékal ven z vlastního rámu (délka slov > šířka kontejneru). */
+  .pobyt-chips{display:flex;flex-wrap:wrap;gap:8px;margin:24px 0 0;padding:0 0 4px}
+  .pobyt-chips span{flex:0 1 auto;min-width:0;list-style:none;font-family:var(--f-mono);font-size:.68rem;letter-spacing:.04em;color:var(--muted);border:1px solid var(--line-c);border-radius:2px;padding:5px 10px;white-space:nowrap}
   .sec-dark .pobyt-chips span{border-color:rgba(255,255,255,.14)}
   /* Jemný CTA odkaz na detailní podstránku z landing sekce */
   .sec-more{display:inline-flex;align-items:center;gap:8px;margin-top:26px;font-family:var(--f-mono);font-size:.74rem;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);border-bottom:1px solid transparent;padding-bottom:3px;transition:color .25s,border-color .25s}
@@ -489,8 +525,8 @@ Text Domain: grid-divi5-child
   .onas-card h3{font-size:1.15rem;color:var(--ink,#16181B);margin:0 0 8px}
   .onas-card p{color:var(--muted);font-size:.92rem;line-height:1.55;margin:0 0 12px}
   .onas-card .sec-more{margin-top:0}
-  @media(max-width:860px){.onas-grid{grid-template-columns:1fr 1fr}}
-  @media(max-width:560px){.onas-grid{grid-template-columns:1fr}}
+  @media(max-width:959px){.onas-grid{grid-template-columns:1fr 1fr}}
+  @media(max-width:640px){.onas-grid{grid-template-columns:1fr}}
   /* Ubytování — přehled pokojů, vybavení, dobré vědět */
   .room-table{width:100%;border-collapse:collapse;font-size:.95rem}
   .room-table th,.room-table td{text-align:left;padding:12px 14px;border-bottom:1px solid rgba(20,22,25,.1)}
@@ -504,7 +540,11 @@ Text Domain: grid-divi5-child
   .room-table td a:hover{font-weight:700}
   .room-table td a::after{content:attr(data-hint);font-family:var(--f-mono);font-size:.64rem;letter-spacing:.08em;text-transform:uppercase;color:var(--red);opacity:0;margin-left:10px;transition:opacity .2s;white-space:nowrap}
   .room-table td a:hover::after{opacity:1}
-  .amenity-grid{list-style:none;display:grid;grid-template-columns:repeat(3,1fr);gap:10px 24px;padding:0;margin:0}
+  /* minmax(0,1fr) místo 1fr: holé 1fr nikdy neklesne pod min-content buňky,
+     takže dlouhá německá slova roztáhla mřížku přes rodiče. Matice parametrů
+     je 3 / 2 / 2 / 1. */
+  .amenity-grid{list-style:none;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px 24px;padding:0;margin:0}
+  .amenity-grid li{min-width:0;overflow-wrap:anywhere}
   .amenity-grid li{position:relative;padding-left:26px;color:var(--muted);font-size:.92rem}
   .amenity-grid li::before{content:"✓";position:absolute;left:0;color:var(--red);font-weight:700}
   /* Divi text modul přidává vlastní odrážky — v našich seznamech jen červená ✓ */
@@ -516,8 +556,9 @@ Text Domain: grid-divi5-child
   .know-list div{display:flex;flex-direction:column;gap:2px;padding-bottom:10px;border-bottom:1px solid rgba(20,22,25,.08)}
   .know-list dt{font-family:var(--f-mono);font-size:.7rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
   .know-list dd{margin:0;color:var(--ink,#16181B);font-size:.92rem}
-  @media(max-width:720px){
-    .amenity-grid{grid-template-columns:1fr 1fr}.know-list{grid-template-columns:1fr}
+  @media(max-width:959px){
+    /* Široká srovnávací tabulka se skládá do řádkových karet už na tabletu
+       na výšku — na 768 px se šest sloupců nevejde ani se zalomením. */
     .room-table thead{display:none}
     .room-table tr{display:block;padding:10px 0;border-bottom:1px solid rgba(20,22,25,.12)}
     .room-table td{display:flex;justify-content:space-between;gap:16px;border:none;padding:5px 0}
@@ -597,7 +638,7 @@ Text Domain: grid-divi5-child
   .sec-light .sez-card:hover .ev-status{color:#fff !important;border-color:rgba(255,255,255,.75) !important}
   .sec-light .sez-card:hover .sec-more{color:#fff;border-bottom-color:rgba(255,255,255,.6)}
   .sec-light .sez-card:hover .sec-more span{color:#fff}
-  @media(max-width:1080px){.sez-cards{grid-template-columns:repeat(2,1fr)}}
+  @media(max-width:1279px){.sez-cards{grid-template-columns:repeat(2,1fr)}}
   @media(max-width:640px){.sez-cards{grid-template-columns:1fr}}
   .ev-ext{display:inline-block;margin-left:8px;color:var(--gold);font-weight:700}
   .ev-ext:hover{color:var(--red-hi,#FF5A50)}
@@ -716,49 +757,107 @@ Text Domain: grid-divi5-child
   .foot-bottom .legal a:hover{color:var(--offwhite)}
   .build-tag{font-family:var(--f-mono);font-size:.68rem;letter-spacing:.12em;color:var(--grey-dim);border:1px solid var(--line);padding:6px 12px;border-radius:2px}
 
-  /* ===== RESPONSIVE ===== */
-  @media(max-width:1080px){
-    .track-progress{display:none}
+  /* ============================================================
+     RESPONSIVE — ČTYŘI REŽIMY (GRID-RESPONSIVE-02 §1)
+     Desktop           ≥ 1280 px   lišta viditelná, HUD 224 px
+     Tablet na šířku   960–1279    lišta viditelná, HUD 224 px
+     Tablet na výšku   641–959     lišta skrytá,   HUD 190 px
+     Mobil             ≤ 640 px    lišta skrytá,   HUD bez rezervace šířky
+     Hranice 1280, 960 a 641 jsou atomické. Nové mezihodnoty se nezavádějí —
+     dvanáct ad-hoc breakpointů byl důvod, proč nešlo nic opravit globálně.
+     ============================================================ */
+
+  /* --- TABLET NA ŠÍŘKU a níž (≤ 1279 px) --- */
+  @media(max-width:1279px){
+    .amenity-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
     .entries,.et_pb_row.entries{grid-template-columns:repeat(2,1fr) !important}
     .entry:nth-child(2){border-right:none}
     .exp,.et_pb_row.exp{grid-template-columns:repeat(2,1fr) !important}
     .exp-item:nth-child(2n){border-right:none}
-    .gastro{grid-template-columns:1fr !important}
+    /* T5 gastronomie: na obou tabletech tři vodorovné řádky.
+       Přepis MUSÍ nést i tvar .et_pb_row.gastro — základ (.et_pb_row.gastro)
+       má vyšší specificitu i !important, holé .gastro neprojde a karty
+       zůstávaly třísloupcové až do 20 px šířky na mobilu. */
+    .gastro,.et_pb_row.gastro{grid-template-columns:1fr !important}
     .b2b-grid{grid-template-columns:repeat(2,1fr) !important}
     .reviews,.et_pb_row.reviews{grid-template-columns:1fr !important}
-    .season{grid-template-columns:1fr}
+    .season,.et_pb_row.season{grid-template-columns:1fr !important}
     .foot-top{grid-template-columns:1fr 1fr}
   }
-  @media(max-width:780px){
+  /* --- TABLET NA VÝŠKU a níž (≤ 959 px) --- */
+  @media(max-width:959px){
+    .track-progress{display:none}
+    .telemetry-hud{width:190px}
+    /* Hlavní navigace se sbaluje do hamburgeru už na tabletu na výšku —
+       na 768 px se plná nabídka i s CTA a jazyky nevejde. Dřív byla hranice
+       780 px, což bylo mezi režimy; posunuto na hranici režimu. */
     .topnav nav{display:none !important}
     .topnav .btn{display:none}
     .hamburger{display:flex}
     .lang{display:none}
-    .telemetry-hud{width:190px}
-    .split{grid-template-columns:1fr !important}
+    .mobile-menu.open{display:flex}
+    .mobile-menu{position:fixed;inset:0;z-index:130;background:var(--graphite-deep);flex-direction:column;align-items:center;justify-content:center;gap:24px}
+    .mobile-menu a{font-family:var(--f-head);text-transform:uppercase;font-size:1.6rem;color:var(--offwhite)}
+    .mobile-menu .mm-close{position:absolute;top:24px;right:28px;font-size:2rem;background:none;border:none;color:var(--offwhite);cursor:pointer}
+    .mobile-menu .lang{display:flex;margin-top:10px}
+    /* T2/T7 dělená sekce se od tabletu na výšku skládá pod sebe.
+       Přepis MUSÍ nést i tvar .et_pb_row.split — základ (.et_pb_row.split)
+       má vyšší specificitu i !important, holé .split by neprošlo. */
+    .split,.et_pb_row.split{grid-template-columns:1fr !important}
     .split.reverse .sp-media{order:0}
     .sp-media{min-height:54vh}
-    .rooms{grid-template-columns:1fr}
+    .scroll-cue{display:none}
+  }
+
+  /* --- MOBIL (≤ 640 px) --- */
+  @media(max-width:640px){
+    /* Mřížky se skládají na jeden sloupec až tady. Do 640 px platí tabletová
+       matice (T1 a T3 dva sloupce, patička dva sloupce) — dřív se skládaly
+       už na 780 px, takže tablet na výšku dostával mobilní rozvržení. */
+    .amenity-grid{grid-template-columns:minmax(0,1fr)}
+    .know-list{grid-template-columns:minmax(0,1fr)}
+    .rooms,.et_pb_row.rooms{grid-template-columns:1fr !important}
     .room.feat{grid-column:span 1}
     .entries,.et_pb_row.entries{grid-template-columns:1fr !important}
     .entry{border-right:none;min-height:auto}
     .exp,.et_pb_row.exp{grid-template-columns:1fr !important}
     .exp-item{border-right:none;min-height:auto}
     .b2b-grid{grid-template-columns:1fr !important}
-    .form-grid{grid-template-columns:1fr}
+    .form-grid,.et_pb_row.form-grid{grid-template-columns:1fr !important}
     .ev-row{grid-template-columns:auto 1fr auto;gap:10px}
     .foot-top{grid-template-columns:1fr}
-    .scroll-cue{display:none}
     .booking .wrap{flex-direction:column}
     .bk-field,.bk-note{border-right:none;border-bottom:1px solid var(--line)}
-    /* štítky pobytu se zalamují místo horizontálního scrollu */
-    .pobyt-chips{flex-wrap:wrap;overflow-x:visible}
-    .mobile-menu.open{display:flex}
-    .mobile-menu{position:fixed;inset:0;z-index:130;background:var(--graphite-deep);flex-direction:column;align-items:center;justify-content:center;gap:24px}
-    .mobile-menu a{font-family:var(--f-head);text-transform:uppercase;font-size:1.6rem;color:var(--offwhite)}
-    .mobile-menu .mm-close{position:absolute;top:24px;right:28px;font-size:2rem;background:none;border:none;color:var(--offwhite);cursor:pointer}
-    .mobile-menu .lang{display:flex;margin-top:10px}
   }
+
+/* ============================================================
+   TEXTOVÝ TOK — dlouhá slova nesmí rozšířit kontejner
+   ============================================================
+   Německé složeniny („Beherbergungs- und Reklamationsordnung",
+   „Unterkunftsvereinbarung") jsou v nadpisu na mobilu širší než celý
+   obsahový sloupec. Divi dává nadpisovým modulům vlastní pravidla, kde je
+   overflow-wrap: normal, takže se slovo nezalomí a roztáhne řádek —
+   výsledkem bylo přetečení celé stránky o desítky pixelů jen v němčině.
+
+   Řeší se jednou, globálně, ne per stránku: stránky mají lang atribut
+   (de-DE), takže hyphens:auto umí slovo rozdělit na slabiky se spojovníkem;
+   break-word je pojistka, když se slabikování nepovede.
+   ============================================================ */
+.et_pb_module_header,
+.et_pb_heading .et_pb_heading_container > :where(h1,h2,h3,h4,h5,h6),
+.sec :where(h1,h2,h3,h4,h5,h6),
+.legal-body :where(h1,h2,h3,h4,h5,h6){
+  overflow-wrap:break-word;
+  hyphens:auto;
+}
+/* Odkazy, e-maily a URL nemají kde zalomit — smí se lámat kdekoli. */
+.sec a[href^="mailto:"],.sec a[href^="tel:"],.sec a[href^="http"],
+.legal-body a,.foot-col a,.k-block a{overflow-wrap:anywhere}
+
+/* Sloupce a moduly Divi jsou flex položky. Bez min-width:0 nikdy neklesnou
+   pod min-content svého obsahu, takže jediné dlouhé slovo nebo široká
+   tabulka roztáhne celou sekci. (GRID-RESPONSIVE-01 §7) */
+.sec .et_pb_column,.sec .et_pb_module,.sec .et_pb_text_inner{min-width:0}
 
 /* ============================================================
    WCAG 2.2 AA — přístupnost (kontrast, focus, cílová velikost)
@@ -856,7 +955,10 @@ html:not([lang^="cs"]):not([lang^="en"]):not([lang^="de"]) .grid-lang-cs{ displa
    Posuvník je fixní vpravo (~200px). Na velkých obrazovkách posuneme
    obsah sekcí doleva, aby nešel pod něj. Pozadí sekcí zůstává přes celou šířku.
    ============================================================ */
-@media (min-width:1081px){
+/* Lišta je viditelná od 960 px (GRID-RESPONSIVE-02: tablet na šířku ji má
+   mít taky). Dřív se rezervace zapínala až od 1081 px, takže na 1024 px
+   lišta zmizela úplně místo toho, aby jí obsah ustoupil. */
+@media (min-width:960px){
   :root{ --rail:190px; }
   /* .wrap/.exp/.entries nahlášené jako moc konzervativní (velká prázdná
      mezera k liště) – přepnuté na dynamický --rail-pad (viz definice výše u
@@ -864,13 +966,20 @@ html:not([lang^="cs"]):not([lang^="en"]):not([lang^="de"]) .grid-lang-cs{ displa
      od okraje z vycentrování (max-width:1280px;margin:auto). .hero-content/
      .sp-content/.final .wrap NEHLÁŠENÉ jako špatné, zůstávají na původním
      pevném --rail, aby se náhodou nezměnilo něco, co už bylo v pořádku. */
-  body.home .wrap, body.page-id-261 .wrap, body.page-id-400 .wrap, body.page-id-401 .wrap, body.page-id-220 .wrap, body.page-id-380 .wrap, body.page-id-381 .wrap, body.page-id-337 .wrap, body.page-id-382 .wrap, body.page-id-383 .wrap, body.page-id-226 .wrap, body.page-id-384 .wrap, body.page-id-385 .wrap, body.page-id-229 .wrap, body.page-id-386 .wrap, body.page-id-387 .wrap, body.page-id-232 .wrap, body.page-id-388 .wrap, body.page-id-389 .wrap, body.page-id-235 .wrap, body.page-id-238 .wrap, body.page-id-241 .wrap, body.page-id-244 .wrap, body.page-id-258 .wrap, body.page-id-264 .wrap, body.page-id-270 .wrap, body.page-id-293 .wrap, body.page-id-390 .wrap, body.page-id-391 .wrap, body.page-id-392 .wrap, body.page-id-393 .wrap, body.page-id-394 .wrap, body.page-id-395 .wrap, body.page-id-396 .wrap, body.page-id-397 .wrap, body.page-id-398 .wrap, body.page-id-399 .wrap, body.page-id-402 .wrap, body.page-id-403 .wrap, body.page-id-404 .wrap, body.page-id-405 .wrap, body.page-id-408 .wrap, body.page-id-409 .wrap, body.tax-grid_room_cat .wrap, body.single-grid_experience .wrap{ padding-right: max(0px, var(--rail-pad)); }
+  /* Rezervace pravého prostoru platí jen tam, kde se boční navigace
+     SKUTEČNĚ vykreslí. Třídu .has-section-nav dává plugin GARRY Boční
+     posuvník (1.5.0) podle stejné podmínky jako vykreslení. Nahradilo to
+     ruční výčet 45 page-id selektorů, který se musel doplňovat u každé
+     nové stránky a hlavně ubíral až 245 px obsahu i na stránkách, kde
+     žádná lišta není (dnes běží jen na úvodní stránce). */
+body.has-section-nav .wrap{ padding-right: max(0px, var(--rail-pad)); }
   /* CÍL má být striktně na střed, ne kompenzovaně vyvážená kvůli boční
      liště jako ostatní sekce – proto žádná zvláštní pravá/levá úprava,
      jen symetrický základní padding z .final .wrap výše na obou stranách. */
-  body.home .final .wrap, body.page-id-261 .final .wrap, body.page-id-400 .final .wrap, body.page-id-401 .final .wrap, body.page-id-220 .final .wrap, body.page-id-380 .final .wrap, body.page-id-381 .final .wrap, body.page-id-337 .final .wrap, body.page-id-382 .final .wrap, body.page-id-383 .final .wrap, body.page-id-226 .final .wrap, body.page-id-384 .final .wrap, body.page-id-385 .final .wrap, body.page-id-229 .final .wrap, body.page-id-386 .final .wrap, body.page-id-387 .final .wrap, body.page-id-232 .final .wrap, body.page-id-388 .final .wrap, body.page-id-389 .final .wrap, body.page-id-235 .final .wrap, body.page-id-238 .final .wrap, body.page-id-241 .final .wrap, body.page-id-244 .final .wrap, body.page-id-258 .final .wrap, body.page-id-264 .final .wrap, body.page-id-270 .final .wrap, body.page-id-293 .final .wrap, body.page-id-390 .final .wrap, body.page-id-391 .final .wrap, body.page-id-392 .final .wrap, body.page-id-393 .final .wrap, body.page-id-394 .final .wrap, body.page-id-395 .final .wrap, body.page-id-396 .final .wrap, body.page-id-397 .final .wrap, body.page-id-398 .final .wrap, body.page-id-399 .final .wrap, body.page-id-402 .final .wrap, body.page-id-403 .final .wrap, body.page-id-404 .final .wrap, body.page-id-405 .final .wrap, body.page-id-408 .final .wrap, body.page-id-409 .final .wrap, body.tax-grid_room_cat .final .wrap, body.single-grid_experience .final .wrap{ padding-left: clamp(20px,4vw,52px) !important; padding-right: clamp(20px,4vw,52px) !important; }
+  /* CÍL zůstává striktně na střed — symetrický základní padding. */
+body.has-section-nav .final .wrap{ padding-left: clamp(20px,4vw,52px) !important; padding-right: clamp(20px,4vw,52px) !important; }
   /* Vlastní striktně-na-střed třída (mimo .final) – viz .wrap-centered výše. */
-  body.page-id-261 .wrap.wrap-centered, body.page-id-400 .wrap.wrap-centered, body.page-id-401 .wrap.wrap-centered{ padding-right: clamp(20px,4vw,52px) !important; }
+  .wrap.wrap-centered{ padding-right: clamp(20px,4vw,52px) !important; }
   /* .sp-content má stejnou "100%=viewport" referenci jako .entries/.reviews
      (ne vycentrovaný .wrap box), takže používá stejný vzorec
      --entries-right-match-wrap, jen jako padding (ne margin+width), protože
@@ -879,17 +988,19 @@ html:not([lang^="cs"]):not([lang^="en"]):not([lang^="de"]) .grid-lang-cs{ displa
      skutečnou šířku, než by čistě 50/50 dělení řádku dávalo (zbytkový
      Diviho vlastní obal kolem sloupce, který nejde přebít stejným trikem
      jako .split > * kvůli jinému místu v DOM stromu). */
-  body.home .sp-content, body.page-id-261 .sp-content, body.page-id-400 .sp-content, body.page-id-401 .sp-content, body.page-id-226 .sp-content, body.page-id-384 .sp-content, body.page-id-385 .sp-content, body.page-id-232 .sp-content, body.page-id-388 .sp-content, body.page-id-389 .sp-content{ padding-right: calc(var(--entries-right-match-wrap) - 39px) !important; }
-  body.home .exp, body.page-id-261 .exp, body.page-id-400 .exp, body.page-id-401 .exp, body.page-id-337 .exp, body.page-id-382 .exp, body.page-id-383 .exp, body.single-grid_experience .exp{ padding-right: max(0px, var(--rail-pad)); }               /* mřížka zážitků */
-  body.home .entries,body.home .et_pb_row.entries{
+  /* Textová půlka dělené sekce — stejná reference jako .entries. */
+body.has-section-nav .sp-content{ padding-right: calc(var(--entries-right-match-wrap) - 39px) !important; }
+  /* Mřížka zážitků T4. */
+body.has-section-nav .exp{ padding-right: max(0px, var(--rail-pad)); }               /* mřížka zážitků */
+  body.has-section-nav .entries,body.has-section-nav .et_pb_row.entries{
     margin-right: var(--entries-right-match-wrap) !important;
     width: calc(100% - var(--entries-left) - var(--entries-right-match-wrap)) !important;
   }  /* karty T1 vstupy */
-  body.home .reviews,body.home .et_pb_row.reviews{
+  body.has-section-nav .reviews,body.has-section-nav .et_pb_row.reviews{
     margin-right: var(--entries-right-match-wrap) !important;
     width: calc(100% - var(--entries-left) - var(--entries-right-match-wrap)) !important;
   } /* karty T8 recenze */
-  body.home .hero-content{ padding-right: calc(clamp(20px,4vw,52px) + var(--rail)); }
+  body.has-section-nav .hero-content{ padding-right: calc(clamp(20px,4vw,52px) + var(--rail)); }
 }
 
 /* ============================================================
@@ -906,7 +1017,7 @@ html:not([lang^="cs"]):not([lang^="en"]):not([lang^="de"]) .grid-lang-cs{ displa
 .tp-point.tp-on-light.active .tp-dot{ border-color:var(--red); background:var(--red); }
 
 /* Rezervační lišta je nahoře (nad viditelnou částí trati) → nemusí rezervovat pravý prostor */
-@media (min-width:1081px){
+@media (min-width:960px){
   .booking .wrap{ padding-right: clamp(20px,4vw,52px) !important; }
 }
 
@@ -941,7 +1052,7 @@ html:not([lang^="cs"]):not([lang^="en"]):not([lang^="de"]) .grid-lang-cs{ displa
 .rd-photo{width:100%;aspect-ratio:4/3;object-fit:cover;border-radius:6px;border:1px solid rgba(255,255,255,.12);display:block;margin-bottom:22px}
 .rd-aside h3{font-size:1rem;color:#fff;margin:20px 0 10px}
 .rd-aside h3:first-of-type{margin-top:0}
-@media(max-width:900px){.rd-grid{grid-template-columns:1fr}.rd-photo{max-width:440px}}
+@media(max-width:959px){.rd-grid{grid-template-columns:1fr}.rd-photo{max-width:440px}}
 .rd-actions{margin-top:28px;display:flex;gap:14px;flex-wrap:wrap}
 /* srovnávací tabulka */
 .rd-tablewrap{overflow-x:auto}
@@ -956,8 +1067,8 @@ html:not([lang^="cs"]):not([lang^="en"]):not([lang^="de"]) .grid-lang-cs{ displa
 .roomgallery .rg-item{overflow:hidden;border:1px solid var(--line-c);display:block}
 .roomgallery img{width:100%;height:240px;object-fit:cover;transition:transform .5s;display:block}
 .roomgallery .rg-item:hover img{transform:scale(1.06)}
-@media(max-width:900px){.roomgallery{grid-template-columns:repeat(2,1fr)}}
-@media(max-width:560px){.roomgallery{grid-template-columns:1fr}}
+@media(max-width:959px){.roomgallery{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:640px){.roomgallery{grid-template-columns:1fr}}
 /* lightbox */
 .grid-lightbox{position:fixed;inset:0;z-index:9999;background:rgba(8,9,11,.93);display:none;align-items:center;justify-content:center;padding:30px}
 .grid-lightbox.open{display:flex}
@@ -1024,7 +1135,7 @@ html:not([lang^="cs"]):not([lang^="en"]):not([lang^="de"]) .grid-lang-cs{ displa
 .dp-col li{font-size:.92rem;color:var(--muted);padding-left:16px;position:relative}
 .dp-col li::before{content:"›";position:absolute;left:0;color:var(--red)}
 .dp-col li b{color:var(--fg)}
-@media(max-width:780px){.doprava-grid{grid-template-columns:1fr}}
+@media(max-width:959px){.doprava-grid{grid-template-columns:1fr}}
 /* právní texty — čitelná dlouhá forma */
 .grid-legal .legal-body{color:var(--muted);font-size:.98rem;line-height:1.75}
 .grid-legal .legal-body h2{font-size:1.5rem;margin:28px 0 12px;color:var(--ink)}
@@ -1132,7 +1243,7 @@ html:not([lang^="cs"]):not([lang^="en"]):not([lang^="de"]) .grid-lang-cs{ displa
 .vou-order p{margin:0 0 8px}
 .vou-order a{color:var(--red-hi,#FF5A50)}
 .vou-note{color:var(--grey-dim);font-size:.82rem}
-@media(max-width:720px){.vou-grid{grid-template-columns:1fr}}
+@media(max-width:640px){.vou-grid{grid-template-columns:1fr}}
 
 /* ===== REZERVACE — zástupný prvek ===== */
 .rezervace-box{border:1px dashed rgba(202,167,95,.5);border-radius:6px;padding:clamp(30px,5vw,64px) 24px;background:rgba(255,255,255,.03);margin-top:10px}
@@ -1186,13 +1297,13 @@ html:not([lang^="cs"]):not([lang^="en"]):not([lang^="de"]) .grid-lang-cs{ displa
 .bkmock-smuted{color:#999;font-size:.78rem}
 .bkmock-guar span{color:#444}
 .bkmock-foot{display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px;padding:14px 18px;background:#fff;border-top:1px solid #ececee;font-size:.78rem;color:#777}
-@media(max-width:900px){.bkmock-layout{grid-template-columns:1fr}.bkmock-card{grid-template-columns:1fr}}
+@media(max-width:959px){.bkmock-layout{grid-template-columns:1fr}.bkmock-card{grid-template-columns:1fr}}
 
 /* ===== TÝDENNÍ JÍDELNÍČEK ===== */
 .menu-week{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:20px}
 /* 8 karet (Po–Ne + celotýdenní) v matici 4×2 */
 .menu-week--8{grid-template-columns:repeat(4,1fr)}
-@media(max-width:1080px){.menu-week--8{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:1279px){.menu-week--8{grid-template-columns:repeat(2,1fr)}}
 @media(max-width:640px){.menu-week--8{grid-template-columns:1fr}}
 /* ===== FLUENT FORMS — můstek na design GRID ===== */
 .fluentform .ff-el-group{margin-bottom:16px}
@@ -1259,7 +1370,7 @@ html:not([lang^="cs"]):not([lang^="en"]):not([lang^="de"]) .grid-lang-cs{ displa
 .menu-stala{columns:4;column-gap:22px}
 .menu-stala .menu-grp{display:block;break-inside:avoid;-webkit-column-break-inside:avoid;background:#fff;border:1px solid rgba(20,22,25,.12);border-radius:6px;padding:16px 18px;margin:0 0 22px}
 .menu-stala .menu-grp-l{display:block;font-family:var(--f-head);font-weight:700;font-size:1.02rem;letter-spacing:.02em;text-transform:uppercase;color:var(--ink,#16181B);border-bottom:2px solid var(--red);padding-bottom:7px;margin-bottom:9px}
-@media(max-width:1080px){.menu-stala{columns:2}}
+@media(max-width:1279px){.menu-stala{columns:2}}
 @media(max-width:640px){.menu-stala{columns:1}}
 .menu-day{border:1px solid rgba(20,22,25,.1);border-radius:6px;padding:18px 18px 10px;background:#fff}
 .menu-day h3{font-size:1.1rem;color:var(--ink,#16181B);margin:0 0 12px;padding-bottom:8px;border-bottom:2px solid var(--red)}
@@ -1285,7 +1396,7 @@ html:not([lang^="cs"]):not([lang^="en"]):not([lang^="de"]) .grid-lang-cs{ displa
 .df-q textarea{width:100%;background:#fff;border:1px solid rgba(20,22,25,.18);border-radius:4px;padding:10px 12px;font-family:var(--f-body);color:var(--ink,#16181B);outline:none}
 .df-optional{font-family:var(--f-mono);font-size:.72rem;letter-spacing:.14em;text-transform:uppercase;color:var(--gold);margin:26px 0 12px}
 .df-thanks{margin-top:16px;color:var(--muted);font-style:italic}
-@media(max-width:520px){.df-sub{flex-direction:column;align-items:flex-start;gap:6px}}
+@media(max-width:640px){.df-sub{flex-direction:column;align-items:flex-start;gap:6px}}
 
 /* ===== KONTAKTNÍ STRÁNKA ===== */
 .kontakt-grid{display:grid;grid-template-columns:1fr 1fr;gap:clamp(24px,4vw,54px);margin-top:30px;align-items:start}
@@ -1298,8 +1409,8 @@ html:not([lang^="cs"]):not([lang^="en"]):not([lang^="de"]) .grid-lang-cs{ displa
 .k-block.k-full{grid-column:1/-1}
 .k-block .data{font-family:var(--f-mono);font-size:.8rem;color:var(--muted)}
 .k-form h3{font-size:1.4rem;margin-bottom:16px}
-@media(max-width:1080px){.kontakt-grid{grid-template-columns:1fr}}
-@media(max-width:600px){.k-info{grid-template-columns:1fr}}
+@media(max-width:1279px){.kontakt-grid{grid-template-columns:1fr}}
+@media(max-width:640px){.k-info{grid-template-columns:1fr}}
 
 /* ===== DOPRAVA — karty tras + letiště ===== */
 .dp-cols{display:grid;grid-template-columns:1fr 1fr;gap:clamp(24px,4vw,48px)}
@@ -1316,7 +1427,7 @@ html:not([lang^="cs"]):not([lang^="en"]):not([lang^="de"]) .grid-lang-cs{ displa
 .dp-badge{font-family:var(--f-mono);font-size:.7rem;color:var(--red-hi);border:1px solid rgba(255,90,80,.45);padding:3px 9px;border-radius:2px;white-space:nowrap}
 .dp-airport p{color:var(--muted);font-size:.9rem;margin-bottom:6px;line-height:1.6}
 .dp-airport .dp-vign{display:inline-block;margin-top:6px;font-family:var(--f-mono);font-size:.66rem;color:var(--grey-dim);text-transform:uppercase;letter-spacing:.08em}
-@media(max-width:900px){.dp-cols,.dp-air-grid{grid-template-columns:1fr}}
+@media(max-width:959px){.dp-cols,.dp-air-grid{grid-template-columns:1fr}}
 
 /* ===== GALERIE — filtr + mřížka ===== */
 .galerie-filter{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:24px}
@@ -1328,8 +1439,9 @@ html:not([lang^="cs"]):not([lang^="en"]):not([lang^="de"]) .grid-lang-cs{ displa
 .gal-item img{width:100%;height:100%;object-fit:cover;transition:transform .5s}
 .gal-item:hover img{transform:scale(1.07)}
 .gal-item.hide{display:none}
-@media(max-width:900px){.galerie-grid{grid-template-columns:repeat(3,1fr)}}
-@media(max-width:560px){.galerie-grid{grid-template-columns:repeat(2,1fr)}}
+/* Matice galerie je 4/2/2/2 — třísloupcový mezistupeň v ní není. */
+@media(max-width:1279px){.galerie-grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:640px){.galerie-grid{grid-template-columns:repeat(2,1fr)}}
 
 /* ============================================================
    FLUENT FORMS — sladění s designem GRID (světlý i tmavý podklad)

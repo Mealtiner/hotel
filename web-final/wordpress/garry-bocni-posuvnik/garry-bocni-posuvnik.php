@@ -3,7 +3,7 @@
  * Plugin Name:       GARRY – Sekční navigace
  * Plugin URI:        https://www.garry.cz
  * Description:       Boční navigace mezi sekcemi jedné stránky s automatickým načtením kotev, vlastním pojmenováním a skrytím položek. Vhodná pro dlouhé landing pages, prezentace a obsahové stránky; původně vytvořena pro GRID Hotel jako navigace ve stylu trati.
- * Version:           1.4.2
+ * Version:           1.5.0
  * Author:            GARRY Promotion
  * Author URI:        https://www.garry.cz
  * License:           Proprietary — Copyright © GARRY Promotion
@@ -20,7 +20,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
  * GARRY – Boční posuvník (track progress) — per-stránka konfigurace
  * ============================================================================ */
 
-define( 'GARRY_SCR_VER', '1.4.2' );
+define( 'GARRY_SCR_VER', '1.5.0' );
 define( 'GARRY_SCR_OPT', 'garry_scroller' );
 
 /* Aktuální jazyk (Polylang, fallback locale) */
@@ -316,6 +316,28 @@ function garry_section_nav_parse_items( $source ) {
 function garry_scr_mark_rendered() {
 	$GLOBALS['garry_scr_rendered'] = true;
 }
+
+/**
+ * Třída na <body>, když se na této stránce boční navigace skutečně vykreslí.
+ *
+ * Bez ní musel child theme rezervovat pravý prostor přes ručně udržovaný
+ * seznam desítek `body.page-id-NNN` selektorů. Ten byl dvojnásobně špatně:
+ * musel se ručně doplňovat u každé nové stránky, a hlavně rezervoval místo
+ * i tam, kde se lišta nikdy nevykreslila (dnes běží jen na úvodní stránce),
+ * takže těm stránkám ubíral až 245 px obsahu.
+ *
+ * Podmínka musí zrcadlit skutečné vykreslení ve wp_footer níže: zapnuto pro
+ * stránku A alespoň dva platné body. body_class se volá dřív než wp_footer,
+ * proto se počítá znovu, ne z $GLOBALS.
+ */
+add_filter( 'body_class', function ( $classes ) {
+	if ( is_admin() || ! is_page() ) return $classes;
+	$pid = get_queried_object_id();
+	if ( $pid && garry_scr_enabled_for( $pid ) && count( garry_scr_points( $pid ) ) >= 2 ) {
+		$classes[] = 'has-section-nav';
+	}
+	return $classes;
+} );
 add_action( 'wp_footer', function () {
 	if ( is_admin() || ! is_page() ) return;
 	$pid = get_queried_object_id();
