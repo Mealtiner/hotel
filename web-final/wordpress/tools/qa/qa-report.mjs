@@ -1,0 +1,93 @@
+/**
+ * GRID Hotel — vyhodnocení responzivního auditu proti akceptačním kritériím.
+ *
+ * Čte out/resp-audit.json a hlásí porušení pravidel z GRID-RESPONSIVE-02/04:
+ *   OVERFLOW   horizontální přetečení dokumentu (tolerance 0 px)
+ *   PRVEK      konkrétní prvek přesahující pravý okraj viewportu
+ *   RAIL       pravá sekční navigace viditelná/skrytá proti pravidlu (hranice 960 px)
+ *   KORIDOR    kontejner mimo bezpečné hranice (tolerance ±2 px)
+ *   ROZJEZD    sdílené kontejnery nemají shodný levý/pravý okraj
+ *   SLOUPCE    počet sloupců mřížky neodpovídá matici (bez tolerance)
+ *
+ * Použití: node qa-report.mjs [--json] [--page=kontakt] [--rule=SLOUPCE]
+ */
+import fs from 'fs';
+import path from 'path';
+import { EXPECTED_COLS, SAFE, RAIL_VISIBLE_FROM, VIEWPORTS } from './qa-config.mjs';
+
+const argv = Object.fromEntries(process.argv.slice(2).map(a => { const [k, v] = a.replace(/^--/, '').split('='); return [k, v ?? true]; }));
+const dir = path.join(path.dirname(new URL(import.meta.url).pathname), 'out');
+const data = JSON.parse(fs.readFileSync(path.join(dir, 'resp-audit.json'), 'utf8'));
+const modeOf = w => (VIEWPORTS.find(v => v.w === w) || {}).mode;
+
+const findings = [];
+const add = (r, rec, msg, detail) => findings.push({ rule: r, page: rec.page, lang: rec.lang, vw: rec.vw, msg, detail });
+
+for (const rec of data) {
+  if (rec.error) { add('CHYBA', rec, rec.error); continue; }
+  if (rec.status && rec.status >= 400 && rec.page !== '404') { add('CHYBA', rec, `HTTP ${rec.status}`); continue; }
+  const mode = modeOf(rec.vw);
+
+  if (rec.overflow > 0) add('OVERFLOW', rec, `dokument pretekaji o ${rec.overflow} px`);
+
+  for (const o of (rec.overflowers || []).slice(0, 3)) {
+    add('PRVEK', rec, `${o.tag}.${o.cls || '(bez tridy)'} presahuje o ${o.over} px`);
+  }
+
+  if (rec.rail) {
+    const should = rec.vw >= RAIL_VISIBLE_FROM;
+    if (rec.rail.vis !== should) add('RAIL', rec, should ? 'sekcni navigace ma byt VIDITELNA, je skryta' : 'sekcni navigace ma byt SKRYTA, je videt');
+  }
+
+  const safe = SAFE[rec.vw];
+  if (safe && rec.corridor) {
+    const edges = [];
+    for (const [sel, list] of Object.entries(rec.corridor)) {
+      if (!list) continue;
+      for (const b of list) {
+        if (b.W >= rec.vw - 2) continue;              // full-bleed prvek, koridor se ho netyka
+        edges.push({ sel, ...b });
+        if (b.L < safe.left - 2)  add('KORIDOR', rec, `${sel} zacina na ${b.L}, bezpecna hranice je ${safe.left}`);
+        if (b.R > safe.right + 2) add('KORIDOR', rec, `${sel} konci na ${b.R}, bezpecna hranice je ${safe.right}`);
+      }
+    }
+    for (const side of ['L', 'R']) {
+      const vals = [...new Set(edges.map(e => e[side]))];
+      if (vals.length > 1 && Math.max(...vals) - Math.min(...vals) > 2) {
+        const worst = edges.filter(e => e[side] === Math.min(...vals) || e[side] === Math.max(...vals)).slice(0, 4);
+        add('ROZJEZD', rec, `${side === 'L' ? 'leve' : 'prave'} okraje se lisi o ${Math.max(...vals) - Math.min(...vals)} px`,
+            worst.map(e => `${e.sel}=${e[side]}`).join(' '));
+      }
+    }
+  }
+
+  for (const [sel, exp] of Object.entries(EXPECTED_COLS)) {
+    const got = rec.cols && rec.cols[sel];
+    if (!got || !exp[mode]) continue;
+    if (got.n !== exp[mode]) add('SLOUPCE', rec, `${sel} ma ${got.n} sloupcu, ocekava se ${exp[mode]}`, got.tpl);
+  }
+}
+
+if (argv.json) { console.log(JSON.stringify(findings, null, 1)); process.exit(0); }
+
+let f = findings;
+if (argv.page) f = f.filter(x => String(argv.page).split(',').includes(x.page));
+if (argv.rule) f = f.filter(x => String(argv.rule).split(',').includes(x.rule));
+
+const byRule = {}; for (const x of f) (byRule[x.rule] ||= []).push(x);
+console.log(`\nMERENI: ${data.length}   NALEZY: ${f.length}\n` + '='.repeat(78));
+for (const rule of ['CHYBA', 'OVERFLOW', 'RAIL', 'SLOUPCE', 'KORIDOR', 'ROZJEZD', 'PRVEK']) {
+  const list = byRule[rule]; if (!list) continue;
+  console.log(`\n### ${rule}  (${list.length})`);
+  const byPage = {}; for (const x of list) (byPage[`${x.page}`] ||= []).push(x);
+  for (const [pg, items] of Object.entries(byPage)) {
+    const msgs = {}; for (const i of items) (msgs[i.msg] ||= []).push(`${i.vw}/${i.lang}`);
+    console.log(`  ${pg}`);
+    for (const [m, where] of Object.entries(msgs)) {
+      const vws = [...new Set(where.map(w => w.split('/')[0]))].sort((a,b)=>a-b);
+      const langs = [...new Set(where.map(w => w.split('/')[1]))];
+      console.log(`     ${m}\n        @ ${vws.join(',')} px  [${langs.join(',')}]`);
+    }
+  }
+}
+console.log('');

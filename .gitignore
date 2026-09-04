@@ -1,8 +1,10 @@
 # macOS
 .DS_Store
 
-# Lokální nastavení Claude
-.claude/
+# Lokální nastavení Claude — skills se verzují, lokální nastavení ne
+.claude/*
+!.claude/skills/
+.claude/settings.local.json
 
 # Citlivé údaje — hesla, přístupy, API klíče (NIKDY necommitovat)
 no-git/
@@ -27,3 +29,7 @@ web-navrh.zip
 web-final/wordpress/tools/out/
 web-final/wordpress/tools/d5-dump/
 web-final/wordpress/tools/d5-new/
+
+# QA nástroje — závislosti a výstupy měření
+web-final/wordpress/tools/qa/node_modules
+web-final/wordpress/tools/qa/out/
