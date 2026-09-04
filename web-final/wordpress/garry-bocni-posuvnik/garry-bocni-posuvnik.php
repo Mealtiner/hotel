@@ -3,7 +3,7 @@
  * Plugin Name:       GARRY – Boční posuvník (trať)
  * Plugin URI:        https://www.garry.cz
  * Description:       Boční „progress" navigace po sekcích stránky (styl trať) pro web GRID Hotel. Per-stránka: zapnutí, načtení sekcí, editace názvů, skrytí sekcí (přečíslování) a živý náhled.
- * Version:           1.3.0
+ * Version:           1.3.1
  * Author:            GARRY Promotion
  * Author URI:        https://www.garry.cz
  * License:           Proprietary — Copyright © GARRY Promotion
@@ -799,15 +799,19 @@ function garry_scr_is_front( $pid ) {
 	}
 	return false;
 }
-/* Sekce pro danou stránku: detekce z obsahu; na titulní stránce (vč. mutací) fallback na kanonickou sadu. */
+/* Sekce pro danou stránku: na titulní stránce (vč. mutací) VŽDY kanonická sada
+ * (struktura úvodky je pevně daná; po granulární přestavbě do Divi 5 modulů se
+ * shortcody sekcí nahradily HTML a el_id je uložené jako blokový atribut
+ * "value":"vstupy", takže detekce z obsahu najde jen zbytkové shortcody
+ * [grid_hero]/[grid_rooms_cards]/[grid_season_events] = 3 sekce místo 10;
+ * proto na úvodce vždy vracíme plnou kanonickou sadu). Jinde detekce z obsahu. */
 function garry_scr_sections_for( $pid ) {
 	$page = get_post( $pid );
 	$lang = garry_scr_page_lang( $pid );
-	$sections = $page ? garry_scr_detect( $page->post_content, $lang ) : array();
-	if ( empty( $sections ) && garry_scr_is_front( $pid ) ) {
-		$sections = garry_scr_front_sections( $lang );
+	if ( garry_scr_is_front( $pid ) ) {
+		return garry_scr_front_sections( $lang );
 	}
-	return $sections;
+	return $page ? garry_scr_detect( $page->post_content, $lang ) : array();
 }
 function garry_scr_all() { $o = get_option( GARRY_SCR_OPT, array() ); return is_array( $o ) ? $o : array(); }
 function garry_scr_cfg( $pid ) { $a = garry_scr_all(); return isset( $a[ $pid ] ) ? $a[ $pid ] : array(); }

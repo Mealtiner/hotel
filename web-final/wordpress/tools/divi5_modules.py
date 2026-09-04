@@ -67,29 +67,87 @@ def _combine(*parts) -> str:
 # Sekce / řádek / sloupec — struktura
 # ------------------------------------------------------------------
 
-def section(inner_blocks: str, cls: str = "", el_id: str = "") -> str:
+def section(inner_blocks: str, cls: str = "", el_id: str = "", padding_top: str = "", padding_bottom: str = "") -> str:
+    """padding_top/bottom: libovolná CSS hodnota (px, clamp(), %...). POZOR —
+    Divi 5 vyžaduje VŠECHNY klíče objektu 'padding' najednou (top/right/bottom/
+    left/syncVertical/syncHorizontal); částečný objekt způsobí, že celá
+    'decoration' větev (třeba i sousední 'attributes' s custom class) tiše
+    zmizí a modul se vykreslí bez wrapperu. Ověřeno render testem."""
     attrs = _raw_attrs(cls, el_id, "main")
-    module = '"module":{"decoration":{"attributes":{"desktop":{"value":{"attributes":[%s]}}}}}' % attrs if attrs else ""
+    decoration = ""
+    if attrs:
+        decoration += '"attributes":{"desktop":{"value":{"attributes":[%s]}}}' % attrs
+    if padding_top or padding_bottom:
+        pad = (
+            '"top":"%s","right":"","bottom":"%s","left":"","syncVertical":"off","syncHorizontal":"off"'
+            % (padding_top or "0px", padding_bottom or "0px")
+        )
+        decoration = _combine(decoration, '"spacing":{"desktop":{"value":{"padding":{%s}}}}' % pad)
+    module = '"module":{"decoration":{%s}}' % decoration if decoration else ""
     attrs_str = _combine(module, '"builderVersion":"%s"' % BUILDER_VERSION)
     return "<!-- wp:divi/section {%s} -->\n%s\n<!-- /wp:divi/section -->" % (attrs_str, inner_blocks)
 
 
-def row(inner_blocks: str, columns: str = "4_4", cls: str = "", el_id: str = "") -> str:
+def row(inner_blocks: str, columns: str = "4_4", cls: str = "", el_id: str = "", justify: str = "center",
+        stack_tablet: bool = False, stack_phone: bool = False, margin_bottom: str = "") -> str:
     """columns: '4_4' (1 sloupec), '1_2,1_2' (2 stejné), '2_3,1_3' apod. —
     stejná syntax jako Divi 4 column_structure; flexColumnStructure se
-    dopočítá jako 'equal-columns_N' pro N sloupců."""
+    dopočítá jako 'equal-columns_N' pro N sloupců.
+
+    justify="center" (výchozí): Divi 5 sloupce jsou display:flex a když má
+    sloupec vlastní max-width (např. přes .wrap třídu), 'margin:0 auto' z
+    CSS ho NEVYCENTRUJE — flex container potřebuje justify-content:center
+    na řádku, jinak zůstane přilepený k levému okraji. Ověřeno render testem
+    (bez justify: left=0,right=128px na 1440px; s justify=center:
+    left=128,right=128 — teprve to je vycentrované).
+
+    stack_tablet/stack_phone: vícesloupcový řádek se na Divi tablet (~980px)
+    / phone (~767px) breakpointu zhroutí na 1 sloupec pod sebou (ekvivalent
+    CSS media query grid-template-columns:1fr) — nastavuje columnStructure a
+    flexColumnStructure PRO DANÝ breakpoint na '4_4'/'equal-columns_1'.
+
+    margin_bottom: mezera pod řádkem (např. mezi dvěma "řádky karet") —
+    bez toho sousední Divi řádky sedí přímo na sobě beze spáry a vizuálně
+    splývají do jednoho širšího řádku (i když v HTML jsou správně oddělené)."""
     n = len(columns.split(","))
     flex = "equal-columns_%d" % n if n > 1 else "equal-columns_1"
     attrs = _raw_attrs(cls, el_id, "main")
-    decoration = '"layout":{"desktop":{"value":{"flexWrap":"nowrap"}}}'
+    layout = '"flexWrap":"nowrap"'
+    if justify:
+        layout += ',"justifyContent":"%s"' % justify
+    decoration = '"layout":{"desktop":{"value":{%s}}}' % layout
     if attrs:
         decoration += ',"attributes":{"desktop":{"value":{"attributes":[%s]}}}' % attrs
+    if margin_bottom:
+        decoration += ',"spacing":{"desktop":{"value":{"margin":{"top":"","right":"","bottom":"%s","left":"","syncVertical":"off","syncHorizontal":"off"}}}}' % margin_bottom
+    col_struct = '"columnStructure":{"desktop":{"value":"%s"}' % columns
+    flex_struct = '"flexColumnStructure":{"desktop":{"value":"%s"}' % flex
+    if stack_tablet:
+        col_struct += ',"tablet":{"value":"4_4"}'
+        flex_struct += ',"tablet":{"value":"equal-columns_1"}'
+    if stack_phone:
+        col_struct += ',"phone":{"value":"4_4"}'
+        flex_struct += ',"phone":{"value":"equal-columns_1"}'
+    col_struct += "}"
+    flex_struct += "}"
     module = (
-        '"module":{"advanced":{"columnStructure":{"desktop":{"value":"%s"}},'
-        '"flexColumnStructure":{"desktop":{"value":"%s"}}},"decoration":{%s}}'
-    ) % (columns, flex, decoration)
+        '"module":{"advanced":{%s,%s},"decoration":{%s}}'
+    ) % (col_struct, flex_struct, decoration)
     attrs_str = _combine(module, '"builderVersion":"%s"' % BUILDER_VERSION)
     return "<!-- wp:divi/row {%s} -->\n%s\n<!-- /wp:divi/row -->" % (attrs_str, inner_blocks)
+
+
+def frame(inner_blocks: str, cls: str = "", el_id: str = "", justify: str = "flex-start") -> str:
+    """Zabalí libovolné sousední moduly (např. Heading + Text) do společného
+    'rámce' — Divi 5 nemá jiný způsob, jak napojit sdílenou CSS třídu
+    (padding/border/mezery) na víc sousedních modulů bez jejich sloučení do
+    jednoho Text HTML blobu, proto se použije Row s jedním sloupcem a class
+    na tom Row. POZOR — sloupec je pak vždy 'et-last-child' a Divi core na
+    něj vynucuje margin-right:0 !important, což by rozbilo margin:0 auto
+    centrování (viz .wrap fix ve style.css); pro frame() to není problém,
+    protože sloupec je typicky celoširý (4_4) a justify tu řeší jen
+    zarovnání OBSAHU uvnitř, ne šířku sloupce samotného."""
+    return row(column(inner_blocks, "4_4", cls=""), "4_4", cls=cls, justify=justify)
 
 
 def column(inner_blocks: str, col_type: str = "4_4", cls: str = "", el_id: str = "") -> str:

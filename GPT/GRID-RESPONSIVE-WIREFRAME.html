@@ -1,0 +1,1026 @@
+<div id="grid-hotel-layout-contract" data-viewport="desktop">
+  <style>
+    #grid-hotel-layout-contract {
+      color: var(--foreground);
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      width: 100%;
+    }
+    #grid-hotel-layout-contract * { box-sizing: border-box; }
+    #grid-hotel-layout-contract .gh-controls {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: end;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+    #grid-hotel-layout-contract .gh-control-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+    #grid-hotel-layout-contract .gh-heading {
+      margin: 0 0 12px;
+      font-weight: 500;
+    }
+    #grid-hotel-layout-contract .gh-metrics {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 8px;
+      margin-bottom: 14px;
+    }
+    #grid-hotel-layout-contract .gh-metric {
+      border-top: 2px solid var(--border);
+      padding-top: 7px;
+      min-width: 0;
+    }
+    #grid-hotel-layout-contract .gh-metric strong,
+    #grid-hotel-layout-contract .gh-metric span { display: block; }
+    #grid-hotel-layout-contract .gh-metric strong { font-weight: 500; }
+    #grid-hotel-layout-contract .gh-metric span { color: var(--muted-foreground); }
+    #grid-hotel-layout-contract .gh-stage {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 16 / 9;
+      min-height: 390px;
+      border: 2px solid var(--foreground);
+      overflow: hidden;
+      background: color-mix(in srgb, var(--background) 94%, var(--foreground));
+    }
+    #grid-hotel-layout-contract .gh-ruler {
+      position: absolute;
+      inset: 0 0 auto 0;
+      height: 34px;
+      border-bottom: 1px solid var(--border);
+      background: var(--background);
+      z-index: 10;
+    }
+    #grid-hotel-layout-contract .gh-ruler-mark {
+      position: absolute;
+      top: 0;
+      height: 34px;
+      border-left: 1px solid var(--foreground);
+      padding: 4px 0 0 4px;
+      white-space: nowrap;
+    }
+    #grid-hotel-layout-contract .gh-ruler-mark.end {
+      right: 0;
+      border-left: 0;
+      border-right: 1px solid var(--foreground);
+      padding: 4px 4px 0 0;
+    }
+    #grid-hotel-layout-contract .gh-safe {
+      position: absolute;
+      top: 34px;
+      bottom: 0;
+      left: var(--content-left);
+      right: var(--content-right);
+      border-left: 2px solid var(--viz-series-1);
+      border-right: 2px solid var(--viz-series-1);
+      pointer-events: none;
+      z-index: 8;
+    }
+    #grid-hotel-layout-contract .gh-safe-label {
+      position: absolute;
+      top: 39px;
+      left: calc(var(--content-left) + 6px);
+      color: var(--foreground);
+      z-index: 9;
+    }
+    #grid-hotel-layout-contract .gh-hud {
+      position: absolute;
+      z-index: 20;
+      left: 0;
+      bottom: 18px;
+      width: var(--hud-edge);
+      height: 86px;
+      border: 2px solid var(--viz-series-1);
+      background: color-mix(in srgb, var(--background) 88%, var(--viz-series-1));
+      display: grid;
+      place-items: center;
+      text-align: center;
+    }
+    #grid-hotel-layout-contract .gh-track {
+      position: absolute;
+      z-index: 20;
+      left: var(--rail-x);
+      top: 34px;
+      bottom: 0;
+      width: calc(100% - var(--rail-x));
+      border-left: 3px solid var(--viz-series-1);
+      background: color-mix(in srgb, var(--background) 91%, var(--viz-series-1));
+      padding: 12px 5px;
+    }
+    #grid-hotel-layout-contract .gh-section {
+      position: absolute;
+      inset: 34px 0 0;
+      display: none;
+      padding-top: var(--section-pad);
+      padding-bottom: var(--section-pad);
+    }
+    #grid-hotel-layout-contract .gh-section.is-active { display: block; }
+    #grid-hotel-layout-contract .gh-box {
+      border: 1px solid var(--foreground);
+      background: color-mix(in srgb, var(--background) 97%, var(--foreground));
+      min-width: 0;
+      display: grid;
+      place-items: center;
+      text-align: center;
+      padding: 6px;
+    }
+    #grid-hotel-layout-contract .gh-box.ghost {
+      background: transparent;
+      color: var(--muted-foreground);
+    }
+    #grid-hotel-layout-contract .gh-tag {
+      position: absolute;
+      left: 2.5%;
+      top: 13%;
+      width: 10%;
+      height: 18%;
+      border: 1px solid var(--foreground);
+      display: grid;
+      place-items: center;
+      color: var(--muted-foreground);
+    }
+    #grid-hotel-layout-contract .gh-content {
+      position: absolute;
+      left: var(--content-left);
+      right: var(--content-right);
+      top: var(--section-pad);
+      bottom: var(--section-pad);
+    }
+    #grid-hotel-layout-contract .gh-intro {
+      width: 50%;
+      height: 31%;
+      display: grid;
+      grid-template-rows: 22% 43% 35%;
+    }
+    #grid-hotel-layout-contract .gh-grid {
+      display: grid;
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      top: 38%;
+      gap: var(--grid-gap);
+    }
+    #grid-hotel-layout-contract .gh-hero-bg {
+      position: absolute;
+      inset: 0;
+      border: 1px solid var(--foreground);
+      display: grid;
+      place-items: center;
+      color: var(--muted-foreground);
+    }
+    #grid-hotel-layout-contract .gh-hero-copy {
+      position: absolute;
+      left: var(--content-left);
+      right: var(--content-right);
+      top: 23%;
+      bottom: 14%;
+      display: grid;
+      grid-template-rows: 18% 48% 22% 12%;
+      z-index: 5;
+    }
+    #grid-hotel-layout-contract .gh-split {
+      position: absolute;
+      inset: 0;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+    }
+    #grid-hotel-layout-contract .gh-split-photo { border: 1px solid var(--foreground); display: grid; place-items: center; }
+    #grid-hotel-layout-contract .gh-split-copy { position: relative; border: 1px solid var(--foreground); }
+    #grid-hotel-layout-contract .gh-split-copy-inner {
+      position: absolute;
+      left: 8%;
+      right: var(--split-copy-right);
+      top: 16%;
+      bottom: 16%;
+      display: grid;
+      grid-template-rows: 18% 42% 40%;
+    }
+    #grid-hotel-layout-contract .gh-t1 { grid-template-columns: repeat(4, 1fr); gap: 0; }
+    #grid-hotel-layout-contract .gh-t3 { grid-template-columns: repeat(2, 1fr); grid-template-rows: repeat(2, 1fr); }
+    #grid-hotel-layout-contract .gh-t4 { grid-template-columns: repeat(3, 1fr); grid-template-rows: repeat(2, 1fr); }
+    #grid-hotel-layout-contract .gh-t5 { grid-template-columns: repeat(3, 1fr); }
+    #grid-hotel-layout-contract .gh-t6 { grid-template-columns: 3fr 2fr; }
+    #grid-hotel-layout-contract .gh-t8 {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: var(--grid-gap);
+      position: absolute;
+      left: 0;
+      right: 0;
+      top: 36%;
+      bottom: 17%;
+    }
+    #grid-hotel-layout-contract .gh-partners {
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      height: 11%;
+      display: grid;
+      grid-template-columns: .7fr repeat(3, 1fr);
+      gap: var(--grid-gap);
+      border-top: 1px solid var(--foreground);
+      padding-top: 1.5%;
+    }
+    #grid-hotel-layout-contract .gh-booking-grid {
+      position: absolute;
+      left: 3.25%;
+      right: 3.25%;
+      top: 30%;
+      bottom: 30%;
+      display: grid;
+      grid-template-columns: repeat(4, 1fr) .8fr 1.25fr;
+      gap: 0;
+    }
+    #grid-hotel-layout-contract .gh-centered-media {
+      position: absolute;
+      width: min(60%, 960px);
+      left: 50%;
+      transform: translateX(-50%);
+      top: var(--section-pad);
+      bottom: var(--section-pad);
+      display: grid;
+      grid-template-rows: 12% 18% 16% 1fr;
+    }
+    #grid-hotel-layout-contract .gh-final-copy {
+      position: absolute;
+      width: 52%;
+      left: 50%;
+      top: 18%;
+      bottom: 18%;
+      transform: translateX(-50%);
+      display: grid;
+      grid-template-rows: 16% 40% 26% 18%;
+    }
+    #grid-hotel-layout-contract .gh-footer-layout {
+      position: absolute;
+      left: var(--content-left);
+      right: var(--content-right);
+      top: 13%;
+      bottom: 10%;
+      display: grid;
+      grid-template-rows: 1fr 20%;
+      gap: 8%;
+    }
+    #grid-hotel-layout-contract .gh-footer-top {
+      display: grid;
+      grid-template-columns: 1.4fr repeat(3, 1fr);
+      gap: var(--grid-gap);
+    }
+    #grid-hotel-layout-contract .gh-footer-bottom {
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: var(--grid-gap);
+      border-top: 1px solid var(--foreground);
+      padding-top: 2%;
+    }
+    #grid-hotel-layout-contract .gh-header-layout {
+      position: absolute;
+      left: 0;
+      right: 0;
+      top: 0;
+      height: 18%;
+      display: grid;
+      grid-template-columns: 1fr 4fr 1fr;
+      gap: 2%;
+      padding: 2% 3.25%;
+      border-bottom: 1px solid var(--foreground);
+      z-index: 16;
+    }
+    #grid-hotel-layout-contract .gh-page-underlay {
+      position: absolute;
+      inset: 18% 0 0;
+      display: grid;
+      place-items: center;
+      color: var(--muted-foreground);
+    }
+    #grid-hotel-layout-contract .gh-gastro-card { display: grid; grid-template-rows: 42% 58%; border: 1px solid var(--foreground); }
+    #grid-hotel-layout-contract .gh-gastro-card > div { display: grid; place-items: center; }
+    #grid-hotel-layout-contract .gh-gastro-card > div + div { border-top: 1px solid var(--foreground); }
+    #grid-hotel-layout-contract .gh-subhead {
+      width: 58%;
+      height: 25%;
+      display: grid;
+      grid-template-rows: 24% 46% 30%;
+    }
+    #grid-hotel-layout-contract .gh-detail-grid {
+      position: absolute;
+      left: 0;
+      right: 0;
+      top: 32%;
+      bottom: 0;
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 32.4%;
+      gap: var(--grid-gap);
+    }
+    #grid-hotel-layout-contract .gh-detail-main {
+      display: grid;
+      grid-template-rows: 18% 16% 1fr 17%;
+    }
+    #grid-hotel-layout-contract .gh-detail-aside {
+      display: grid;
+      grid-template-rows: 54% 1fr;
+    }
+    #grid-hotel-layout-contract .gh-data-stack {
+      position: absolute;
+      inset: 31% 0 0;
+      display: grid;
+      grid-template-rows: 44% 1fr;
+      gap: var(--grid-gap);
+    }
+    #grid-hotel-layout-contract .gh-data-lists {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: var(--grid-gap);
+    }
+    #grid-hotel-layout-contract .gh-gallery-tools {
+      height: 9%;
+      width: 62%;
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: var(--grid-gap);
+      margin-top: 2%;
+    }
+    #grid-hotel-layout-contract .gh-gallery-grid {
+      position: absolute;
+      inset: 39% 0 0;
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      grid-template-rows: repeat(2, 1fr);
+      gap: var(--grid-gap);
+    }
+    #grid-hotel-layout-contract .gh-season-grid {
+      position: absolute;
+      inset: 32% 0 0;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      grid-template-rows: repeat(2, 1fr);
+      gap: var(--grid-gap);
+    }
+    #grid-hotel-layout-contract .gh-voucher-layout {
+      position: absolute;
+      inset: 28% 0 0;
+      display: grid;
+      grid-template-rows: 1fr 1fr 30%;
+      gap: var(--grid-gap);
+    }
+    #grid-hotel-layout-contract .gh-voucher-row {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: var(--grid-gap);
+    }
+    #grid-hotel-layout-contract .gh-contact-layout {
+      position: absolute;
+      inset: 27% 0 0;
+      display: grid;
+      grid-template-rows: 1fr 26%;
+      gap: var(--grid-gap);
+    }
+    #grid-hotel-layout-contract .gh-contact-top {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: var(--grid-gap);
+    }
+    #grid-hotel-layout-contract .gh-contact-info {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      grid-template-rows: repeat(2, 1fr);
+    }
+    #grid-hotel-layout-contract .gh-route-layout {
+      position: absolute;
+      inset: 28% 0 0;
+      display: grid;
+      grid-template-rows: 34% 1fr;
+      gap: var(--grid-gap);
+    }
+    #grid-hotel-layout-contract .gh-route-map {
+      display: grid;
+      grid-template-columns: 3fr 1fr;
+      gap: var(--grid-gap);
+    }
+    #grid-hotel-layout-contract .gh-route-cards {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      grid-template-rows: repeat(2, 1fr);
+      gap: var(--grid-gap);
+    }
+    #grid-hotel-layout-contract .gh-narrow-layout {
+      position: absolute;
+      left: var(--content-left);
+      top: var(--section-pad);
+      bottom: var(--section-pad);
+      width: min(51.25%, 820px);
+      display: grid;
+      grid-template-rows: 12% 18% 12% 1fr;
+    }
+    #grid-hotel-layout-contract .gh-career-list {
+      display: grid;
+      grid-template-rows: repeat(3, 1fr);
+      gap: var(--grid-gap);
+      padding-top: 3%;
+    }
+    #grid-hotel-layout-contract .gh-form-fields {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      grid-template-rows: repeat(4, 1fr);
+      gap: var(--grid-gap);
+      padding-top: 3%;
+    }
+    #grid-hotel-layout-contract .gh-form-fields .wide { grid-column: 1 / -1; }
+    #grid-hotel-layout-contract .gh-legal-copy {
+      display: grid;
+      grid-template-rows: repeat(5, 1fr);
+      gap: var(--grid-gap);
+      padding-top: 3%;
+    }
+    #grid-hotel-layout-contract .gh-menu-grid {
+      position: absolute;
+      inset: 32% 0 0;
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      grid-template-rows: repeat(2, 1fr);
+      gap: var(--grid-gap);
+    }
+    #grid-hotel-layout-contract .gh-reservation-layout {
+      position: absolute;
+      inset: 29% 0 0;
+      display: grid;
+      grid-template-rows: 18% 1fr;
+      gap: var(--grid-gap);
+    }
+    #grid-hotel-layout-contract .gh-reservation-controls {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+    }
+    #grid-hotel-layout-contract .gh-reservation-body {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 23%;
+      gap: var(--grid-gap);
+    }
+    #grid-hotel-layout-contract .gh-reservation-results {
+      display: grid;
+      grid-template-columns: 34% 1fr;
+      grid-template-rows: repeat(2, 1fr);
+    }
+    #grid-hotel-layout-contract[data-viewport="desktop"] {
+      --content-left: 18.125%;
+      --content-right: 16.25%;
+      --hud-edge: 15.625%;
+      --rail-x: 86.5625%;
+      --section-pad: 11%;
+      --grid-gap: 1.5%;
+      --split-copy-right: 32.5%;
+    }
+    #grid-hotel-layout-contract[data-viewport="tablet-landscape"] {
+      --content-left: 27.8%;
+      --content-right: 25.390625%;
+      --hud-edge: 23.9%;
+      --rail-x: 79.00390625%;
+      --section-pad: 9%;
+      --grid-gap: 2%;
+      --split-copy-right: 50.78125%;
+    }
+    #grid-hotel-layout-contract[data-viewport="tablet-portrait"] {
+      --content-left: 31.9010417%;
+      --content-right: 4.0364583%;
+      --hud-edge: 26.6927083%;
+      --rail-x: 100%;
+      --section-pad: 8%;
+      --grid-gap: 2%;
+      --split-copy-right: 5%;
+    }
+    #grid-hotel-layout-contract[data-viewport="mobile"] {
+      --content-left: 5.1%;
+      --content-right: 5.1%;
+      --hud-edge: 26%;
+      --rail-x: 100%;
+      --section-pad: 7%;
+      --grid-gap: 2%;
+      --split-copy-right: 7%;
+    }
+    #grid-hotel-layout-contract[data-viewport="tablet-portrait"] .gh-track,
+    #grid-hotel-layout-contract[data-viewport="mobile"] .gh-track { display: none; }
+    #grid-hotel-layout-contract[data-viewport="tablet-portrait"] .gh-ruler-mark[data-gh-mark="right"],
+    #grid-hotel-layout-contract[data-viewport="mobile"] .gh-ruler-mark[data-gh-mark="right"] {
+      transform: translateX(-100%);
+      padding-left: 0;
+      padding-right: 4px;
+    }
+    #grid-hotel-layout-contract[data-viewport="tablet-portrait"] .gh-ruler-mark[data-gh-mark="end"],
+    #grid-hotel-layout-contract[data-viewport="mobile"] .gh-ruler-mark[data-gh-mark="end"] { display: none; }
+    #grid-hotel-layout-contract[data-viewport="mobile"] .gh-hud {
+      width: 26%;
+      height: 44px;
+    }
+    #grid-hotel-layout-contract:is([data-viewport="tablet-landscape"],[data-viewport="tablet-portrait"]) .gh-t1,
+    #grid-hotel-layout-contract:is([data-viewport="tablet-landscape"],[data-viewport="tablet-portrait"]) .gh-t3,
+    #grid-hotel-layout-contract:is([data-viewport="tablet-landscape"],[data-viewport="tablet-portrait"]) .gh-t4 { grid-template-columns: repeat(2, 1fr); grid-template-rows: repeat(2, 1fr); }
+    #grid-hotel-layout-contract:is([data-viewport="tablet-landscape"],[data-viewport="tablet-portrait"]) .gh-t4 { grid-template-rows: repeat(3, 1fr); }
+    #grid-hotel-layout-contract:is([data-viewport="tablet-landscape"],[data-viewport="tablet-portrait"]) .gh-t5 { grid-template-columns: 1fr; grid-template-rows: repeat(3, 1fr); }
+    #grid-hotel-layout-contract:is([data-viewport="tablet-landscape"],[data-viewport="tablet-portrait"]) .gh-gastro-card { grid-template-columns: 40% 60%; grid-template-rows: 1fr; }
+    #grid-hotel-layout-contract:is([data-viewport="tablet-landscape"],[data-viewport="tablet-portrait"]) .gh-gastro-card > div + div { border-top: 0; border-left: 1px solid var(--foreground); }
+    #grid-hotel-layout-contract:is([data-viewport="tablet-landscape"],[data-viewport="tablet-portrait"]) .gh-t6 { grid-template-columns: 1fr; grid-template-rows: 1fr 1fr; }
+    #grid-hotel-layout-contract:is([data-viewport="tablet-landscape"],[data-viewport="tablet-portrait"]) .gh-t8 { grid-template-columns: 1fr; grid-template-rows: repeat(3, 1fr); }
+    #grid-hotel-layout-contract:is([data-viewport="tablet-landscape"],[data-viewport="tablet-portrait"]) .gh-partners { grid-template-columns: repeat(2, 1fr); }
+    #grid-hotel-layout-contract:is([data-viewport="tablet-landscape"],[data-viewport="tablet-portrait"]) .gh-booking-grid { left: var(--content-left); right: var(--content-right); grid-template-columns: repeat(3, 1fr); grid-template-rows: 1fr 1fr; }
+    #grid-hotel-layout-contract:is([data-viewport="tablet-landscape"],[data-viewport="tablet-portrait"]) .gh-footer-top { grid-template-columns: 1fr 1fr; }
+    #grid-hotel-layout-contract:is([data-viewport="tablet-landscape"],[data-viewport="tablet-portrait"]) .gh-centered-media { width: calc(100% - var(--content-left) - var(--content-right)); }
+    #grid-hotel-layout-contract:is([data-viewport="tablet-landscape"],[data-viewport="tablet-portrait"]) .gh-subhead { width: 100%; }
+    #grid-hotel-layout-contract:is([data-viewport="tablet-landscape"],[data-viewport="tablet-portrait"]) .gh-detail-grid { grid-template-columns: 1fr; grid-template-rows: 1fr 1fr; }
+    #grid-hotel-layout-contract:is([data-viewport="tablet-landscape"],[data-viewport="tablet-portrait"]) .gh-detail-aside { grid-template-columns: 42% 1fr; grid-template-rows: 1fr; }
+    #grid-hotel-layout-contract:is([data-viewport="tablet-landscape"],[data-viewport="tablet-portrait"]) .gh-data-lists { grid-template-columns: repeat(2, 1fr); }
+    #grid-hotel-layout-contract:is([data-viewport="tablet-landscape"],[data-viewport="tablet-portrait"]) .gh-gallery-grid { grid-template-columns: repeat(2, 1fr); grid-template-rows: repeat(4, 1fr); }
+    #grid-hotel-layout-contract:is([data-viewport="tablet-landscape"],[data-viewport="tablet-portrait"]) .gh-gallery-tools { width: 100%; }
+    #grid-hotel-layout-contract:is([data-viewport="tablet-landscape"],[data-viewport="tablet-portrait"]) .gh-season-grid { grid-template-columns: repeat(2, 1fr); grid-template-rows: repeat(3, 1fr); }
+    #grid-hotel-layout-contract:is([data-viewport="tablet-landscape"],[data-viewport="tablet-portrait"]) .gh-voucher-row { grid-template-columns: 1fr; grid-template-rows: repeat(3, 1fr); }
+    #grid-hotel-layout-contract[data-viewport="tablet-landscape"] .gh-voucher-layout { inset: 25% 0 0; grid-template-columns: 1fr 1fr; grid-template-rows: 1fr; }
+    #grid-hotel-layout-contract[data-viewport="tablet-portrait"] .gh-voucher-layout { inset: 25% 0 0; grid-template-columns: 1fr; grid-template-rows: 1fr 1fr; }
+    #grid-hotel-layout-contract:is([data-viewport="tablet-landscape"],[data-viewport="tablet-portrait"]) .gh-contact-layout { grid-template-rows: 1fr 22%; }
+    #grid-hotel-layout-contract:is([data-viewport="tablet-landscape"],[data-viewport="tablet-portrait"]) .gh-contact-top { grid-template-columns: 1fr; grid-template-rows: 1fr 1fr; }
+    #grid-hotel-layout-contract:is([data-viewport="tablet-landscape"],[data-viewport="tablet-portrait"]) .gh-route-map { grid-template-columns: 1fr; }
+    #grid-hotel-layout-contract:is([data-viewport="tablet-landscape"],[data-viewport="tablet-portrait"]) .gh-route-map .gh-box:last-child { display: none; }
+    #grid-hotel-layout-contract[data-viewport="tablet-portrait"] .gh-route-cards { grid-template-columns: 1fr; grid-template-rows: repeat(4, 1fr); }
+    #grid-hotel-layout-contract:is([data-viewport="tablet-landscape"],[data-viewport="tablet-portrait"]) .gh-narrow-layout { width: calc(100% - var(--content-left) - var(--content-right)); }
+    #grid-hotel-layout-contract:is([data-viewport="tablet-landscape"],[data-viewport="tablet-portrait"]) .gh-menu-grid { grid-template-columns: repeat(2, 1fr); grid-template-rows: repeat(4, 1fr); }
+    #grid-hotel-layout-contract:is([data-viewport="tablet-landscape"],[data-viewport="tablet-portrait"]) .gh-reservation-body { grid-template-columns: 1fr; }
+    #grid-hotel-layout-contract:is([data-viewport="tablet-landscape"],[data-viewport="tablet-portrait"]) .gh-reservation-body > .gh-box:last-child { display: none; }
+    #grid-hotel-layout-contract[data-viewport="tablet-portrait"] .gh-header-layout { grid-template-columns: 1fr 1fr; }
+    #grid-hotel-layout-contract[data-viewport="tablet-portrait"] .gh-header-layout .gh-desktop-nav { display: none; }
+    #grid-hotel-layout-contract[data-viewport="tablet-portrait"] .gh-split { grid-template-columns: 1fr; grid-template-rows: 44% 56%; }
+    #grid-hotel-layout-contract[data-viewport="tablet-portrait"] .gh-split-copy-inner { left: 6%; right: 6%; top: 10%; bottom: 10%; }
+    #grid-hotel-layout-contract[data-viewport="mobile"] .gh-intro { width: 100%; height: 27%; }
+    #grid-hotel-layout-contract[data-viewport="mobile"] .gh-grid { top: 33%; }
+    #grid-hotel-layout-contract[data-viewport="mobile"] .gh-t1,
+    #grid-hotel-layout-contract[data-viewport="mobile"] .gh-t3,
+    #grid-hotel-layout-contract[data-viewport="mobile"] .gh-t4,
+    #grid-hotel-layout-contract[data-viewport="mobile"] .gh-t5,
+    #grid-hotel-layout-contract[data-viewport="mobile"] .gh-t6 { grid-template-columns: 1fr; }
+    #grid-hotel-layout-contract[data-viewport="mobile"] .gh-t1 { grid-template-rows: repeat(4, 1fr); }
+    #grid-hotel-layout-contract[data-viewport="mobile"] .gh-t3 { grid-template-rows: repeat(4, 1fr); }
+    #grid-hotel-layout-contract[data-viewport="mobile"] .gh-t4 { grid-template-rows: repeat(6, 1fr); }
+    #grid-hotel-layout-contract[data-viewport="mobile"] .gh-t5 { grid-template-rows: repeat(3, 1fr); }
+    #grid-hotel-layout-contract[data-viewport="mobile"] .gh-t6 { grid-template-rows: 1fr 1fr; }
+    #grid-hotel-layout-contract[data-viewport="mobile"] .gh-t8 { grid-template-columns: 1fr; grid-template-rows: repeat(3, 1fr); top: 31%; bottom: 20%; }
+    #grid-hotel-layout-contract[data-viewport="mobile"] .gh-partners { grid-template-columns: repeat(2, 1fr); height: 15%; }
+    #grid-hotel-layout-contract[data-viewport="mobile"] .gh-booking-grid { left: var(--content-left); right: var(--content-right); top: 12%; bottom: 12%; grid-template-columns: 1fr; grid-template-rows: repeat(6, 1fr); }
+    #grid-hotel-layout-contract[data-viewport="mobile"] .gh-centered-media { width: 89.8%; grid-template-rows: 12% 18% 16% 1fr; }
+    #grid-hotel-layout-contract[data-viewport="mobile"] .gh-final-copy { width: 78%; }
+    #grid-hotel-layout-contract[data-viewport="mobile"] .gh-footer-top { grid-template-columns: 1fr; }
+    #grid-hotel-layout-contract[data-viewport="mobile"] .gh-footer-bottom { grid-template-columns: 1fr; }
+    #grid-hotel-layout-contract[data-viewport="mobile"] .gh-header-layout { grid-template-columns: 1fr 1fr; }
+    #grid-hotel-layout-contract[data-viewport="mobile"] .gh-header-layout .gh-desktop-nav { display: none; }
+    #grid-hotel-layout-contract[data-viewport="mobile"] .gh-split { grid-template-columns: 1fr; grid-template-rows: 44% 56%; }
+    #grid-hotel-layout-contract[data-viewport="mobile"] .gh-split-copy-inner { left: 6%; right: 6%; top: 10%; bottom: 10%; }
+    #grid-hotel-layout-contract[data-viewport="mobile"] .gh-tag { display: none; }
+    #grid-hotel-layout-contract[data-viewport="mobile"] .gh-subhead { width: 100%; }
+    #grid-hotel-layout-contract[data-viewport="mobile"] .gh-detail-grid { grid-template-columns: 1fr; grid-template-rows: 1fr 1fr; top: 30%; }
+    #grid-hotel-layout-contract[data-viewport="mobile"] .gh-detail-aside { grid-template-columns: 44% 1fr; grid-template-rows: 1fr; }
+    #grid-hotel-layout-contract[data-viewport="mobile"] .gh-data-stack { inset: 30% 0 0; }
+    #grid-hotel-layout-contract[data-viewport="mobile"] .gh-data-lists { grid-template-columns: repeat(2, 1fr); }
+    #grid-hotel-layout-contract[data-viewport="mobile"] .gh-gallery-tools { width: 100%; grid-template-columns: repeat(2, 1fr); height: 12%; }
+    #grid-hotel-layout-contract[data-viewport="mobile"] .gh-gallery-grid { inset: 42% 0 0; grid-template-columns: repeat(2, 1fr); grid-template-rows: repeat(4, 1fr); }
+    #grid-hotel-layout-contract[data-viewport="mobile"] .gh-season-grid { grid-template-columns: 1fr; grid-template-rows: repeat(6, 1fr); }
+    #grid-hotel-layout-contract[data-viewport="mobile"] .gh-voucher-layout { inset: 24% 0 0; grid-template-columns: 1fr 1fr; grid-template-rows: 1fr; }
+    #grid-hotel-layout-contract[data-viewport="mobile"] .gh-contact-layout { inset: 25% 0 0; grid-template-rows: 1fr 18%; }
+    #grid-hotel-layout-contract[data-viewport="mobile"] .gh-contact-info { grid-template-columns: 1fr; grid-template-rows: repeat(4, 1fr); }
+    #grid-hotel-layout-contract[data-viewport="mobile"] .gh-route-layout { inset: 25% 0 0; }
+    #grid-hotel-layout-contract[data-viewport="mobile"] .gh-narrow-layout { left: var(--content-left); width: calc(100% - var(--content-left) - var(--content-right)); }
+    #grid-hotel-layout-contract[data-viewport="mobile"] .gh-form-fields { grid-template-columns: 1fr; grid-template-rows: repeat(6, 1fr); }
+    #grid-hotel-layout-contract[data-viewport="mobile"] .gh-form-fields .wide { grid-column: auto; }
+    #grid-hotel-layout-contract[data-viewport="mobile"] .gh-menu-grid { grid-template-columns: 1fr; grid-template-rows: repeat(8, 1fr); }
+    #grid-hotel-layout-contract[data-viewport="mobile"] .gh-reservation-controls { grid-template-columns: 1fr; grid-template-rows: repeat(5, 1fr); }
+    #grid-hotel-layout-contract[data-viewport="mobile"] .gh-reservation-layout { inset: 27% 0 0; grid-template-rows: 32% 1fr; }
+    #grid-hotel-layout-contract[data-viewport="mobile"] .gh-reservation-results { grid-template-columns: 1fr; grid-template-rows: 1fr 1fr; }
+    #grid-hotel-layout-contract[data-viewport="mobile"] .gh-reservation-results .gh-box:nth-child(n+3) { display: none; }
+    #grid-hotel-layout-contract .gh-note {
+      margin-top: 12px;
+      color: var(--muted-foreground);
+    }
+    #grid-hotel-layout-contract .gh-audit-title { margin: 18px 0 8px; font-weight: 500; }
+    #grid-hotel-layout-contract .gh-audit-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 10px;
+    }
+    #grid-hotel-layout-contract .gh-audit-cell {
+      border-top: 2px solid var(--border);
+      padding-top: 7px;
+      min-width: 0;
+    }
+    #grid-hotel-layout-contract .gh-audit-cell strong,
+    #grid-hotel-layout-contract .gh-audit-cell span { display: block; }
+    #grid-hotel-layout-contract .gh-audit-cell strong { font-weight: 500; }
+    #grid-hotel-layout-contract .gh-audit-cell span { color: var(--muted-foreground); }
+    #grid-hotel-layout-contract .gh-audit-cell[data-state="error"] strong { color: var(--destructive); }
+    #grid-hotel-layout-contract .gh-audit-cell[data-state="risk"] strong { color: var(--viz-series-2); }
+    #grid-hotel-layout-contract .gh-audit-cell[data-state="ok"] strong { color: var(--viz-series-1); }
+    @media (max-width: 600px) {
+      #grid-hotel-layout-contract .gh-metrics { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      #grid-hotel-layout-contract .gh-audit-grid { grid-template-columns: 1fr; }
+      #grid-hotel-layout-contract .gh-stage { min-height: 420px; aspect-ratio: 4 / 5; }
+      #grid-hotel-layout-contract .gh-ruler-mark.hide-small { display: none; }
+    }
+  </style>
+
+  <h2 class="gh-heading">GRID Hotel — jednotný layout contract</h2>
+
+  <div class="gh-controls">
+    <div>
+      <label class="form-label" for="gh-template">Typ sekce</label>
+      <select class="form-select" id="gh-template">
+        <option value="header">Globální fixed hlavička</option>
+        <option value="hero">Hero</option>
+        <option value="booking">Rezervační lišta</option>
+        <option value="t1">T1 — 4 karty</option>
+        <option value="t2">T2 / T7 — dělená sekce</option>
+        <option value="t3">T3 — 2 × 2 karty</option>
+        <option value="t4">T4 — 3 × 2 karty</option>
+        <option value="t5">T5 — gastro</option>
+        <option value="t6">T6 — obsah 3 : 2</option>
+        <option value="t8">T8 — recenze a partneři</option>
+        <option value="media">Centrovaná mediální sekce</option>
+        <option value="detail">Detail pokoje / zážitku</option>
+        <option value="data">Srovnávací tabulka + seznamy</option>
+        <option value="gallery">Galerie</option>
+        <option value="season">Sezóna — karty akcí</option>
+        <option value="voucher">Dárkové poukazy + formulář</option>
+        <option value="contact">Kontakt + formulář + mapa</option>
+        <option value="routes">Doprava — mapa, trasy, letiště</option>
+        <option value="form">Samostatný formulář / dotazník</option>
+        <option value="career">Kariéra — seznam pozic</option>
+        <option value="menu">Týdenní / stálé menu</option>
+        <option value="reservation">Rezervační systém</option>
+        <option value="legal">Právní dlouhý text</option>
+        <option value="final">Finální CTA</option>
+        <option value="footer">Globální patička</option>
+      </select>
+    </div>
+    <div>
+      <span class="form-label">Viewport</span>
+      <div class="gh-control-group" role="group" aria-label="Viewport">
+        <button type="button" class="btn btn-primary" data-gh-viewport="desktop" aria-pressed="true">1600 px</button>
+        <button type="button" class="btn" data-gh-viewport="tablet-landscape" aria-pressed="false">Tablet na šířku · 1024 px</button>
+        <button type="button" class="btn" data-gh-viewport="tablet-portrait" aria-pressed="false">Tablet na výšku · 768 px</button>
+        <button type="button" class="btn" data-gh-viewport="mobile" aria-pressed="false">390 px</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="gh-metrics" aria-live="polite">
+    <div class="gh-metric"><strong id="gh-viewport-value">1600 px</strong><span>viewport</span></div>
+    <div class="gh-metric"><strong id="gh-hud-value">0–250 px</strong><span>levý HUD / pravý okraj</span></div>
+    <div class="gh-metric"><strong id="gh-left-value">290 px</strong><span>začátek obsahu</span></div>
+    <div class="gh-metric"><strong id="gh-right-value">1340 px</strong><span>konec obsahu</span></div>
+    <div class="gh-metric"><strong id="gh-rail-value">1385 px</strong><span>pravá fixed navigace</span></div>
+  </div>
+
+  <div class="gh-stage" role="img" aria-label="Wireframe vybraného typu sekce">
+    <div class="gh-ruler" aria-hidden="true">
+      <span class="gh-ruler-mark" data-gh-mark="zero" style="left:0">0</span>
+      <span class="gh-ruler-mark hide-small" data-gh-mark="hud" style="left:15.625%">250</span>
+      <span class="gh-ruler-mark" data-gh-mark="left" style="left:18.125%">290</span>
+      <span class="gh-ruler-mark" data-gh-mark="right" style="left:83.75%">1340</span>
+      <span class="gh-ruler-mark hide-small" data-gh-mark="rail" style="left:86.5625%">1385</span>
+      <span class="gh-ruler-mark end" data-gh-mark="end">1600</span>
+    </div>
+    <div class="gh-safe"></div>
+    <div class="gh-safe-label">bezpečný obsahový koridor</div>
+    <div class="gh-hud">LEVÝ OVERLAY<br>SITUACE NA TRATI<br>(HUD)</div>
+    <div class="gh-track">PRAVÝ<br>OVERLAY<br>NAVIGACE<br>NA TRATI</div>
+
+    <section class="gh-section is-active" data-gh-section="header">
+      <div class="gh-header-layout">
+        <div class="gh-box">LOGO</div>
+        <div class="gh-box gh-desktop-nav">HLAVNÍ NAVIGACE + JAZYKY</div>
+        <div class="gh-box">CTA / MENU</div>
+      </div>
+      <div class="gh-page-underlay">OBSAH STRÁNKY POD FIXED HLAVIČKOU · z-index nižší</div>
+    </section>
+
+    <section class="gh-section" data-gh-section="hero">
+      <div class="gh-hero-bg">FULL-BLEED COVER IMAGE · 100 % × min. 100 vh</div>
+      <div class="gh-hero-copy">
+        <div class="gh-box">PODNADPIS</div>
+        <div class="gh-box">H1</div>
+        <div class="gh-box">TEXT</div>
+        <div class="gh-box">AKCE</div>
+      </div>
+    </section>
+
+    <section class="gh-section" data-gh-section="booking">
+      <div class="gh-booking-grid">
+        <div class="gh-box">PŘÍJEZD</div><div class="gh-box">ODJEZD</div><div class="gh-box">HOSTÉ</div><div class="gh-box">TYP POKOJE</div><div class="gh-box">CENA</div><div class="gh-box">CTA</div>
+      </div>
+    </section>
+
+    <section class="gh-section" data-gh-section="t1">
+      <div class="gh-tag">T1</div>
+      <div class="gh-content">
+        <div class="gh-intro"><div class="gh-box">PODNADPIS</div><div class="gh-box">H2</div><div class="gh-box">TEXT · 50 %</div></div>
+        <div class="gh-grid gh-t1"><div class="gh-box">KARTA 1</div><div class="gh-box">KARTA 2</div><div class="gh-box">KARTA 3</div><div class="gh-box">KARTA 4</div></div>
+      </div>
+    </section>
+
+    <section class="gh-section" data-gh-section="t2">
+      <div class="gh-tag">T2 / T7</div>
+      <div class="gh-split">
+        <div class="gh-split-photo">FOTO · FULL BLEED V LEVÉ ½</div>
+        <div class="gh-split-copy"><div class="gh-split-copy-inner"><div class="gh-box">PODNADPIS</div><div class="gh-box">H2</div><div class="gh-box">TEXT / DATA / AKCE</div></div></div>
+      </div>
+    </section>
+
+    <section class="gh-section" data-gh-section="t3">
+      <div class="gh-tag">T3</div>
+      <div class="gh-content">
+        <div class="gh-intro"><div class="gh-box">PODNADPIS</div><div class="gh-box">H2</div><div class="gh-box">TEXT · 50 %</div></div>
+        <div class="gh-grid gh-t3"><div class="gh-box">KARTA 1</div><div class="gh-box">KARTA 2</div><div class="gh-box">KARTA 3</div><div class="gh-box">KARTA 4</div></div>
+      </div>
+    </section>
+
+    <section class="gh-section" data-gh-section="t4">
+      <div class="gh-tag">T4</div>
+      <div class="gh-content">
+        <div class="gh-intro"><div class="gh-box">PODNADPIS</div><div class="gh-box">H2</div><div class="gh-box">TEXT · 50 %</div></div>
+        <div class="gh-grid gh-t4"><div class="gh-box">1</div><div class="gh-box">2</div><div class="gh-box">3</div><div class="gh-box">4</div><div class="gh-box">5</div><div class="gh-box">6</div></div>
+      </div>
+    </section>
+
+    <section class="gh-section" data-gh-section="t5">
+      <div class="gh-tag">T5</div>
+      <div class="gh-content">
+        <div class="gh-intro"><div class="gh-box">PODNADPIS</div><div class="gh-box">H2</div><div class="gh-box">TEXT · 50 %</div></div>
+        <div class="gh-grid gh-t5">
+          <div class="gh-gastro-card"><div>FOTO</div><div>TEXT</div></div>
+          <div class="gh-gastro-card"><div>FOTO</div><div>TEXT</div></div>
+          <div class="gh-gastro-card"><div>FOTO</div><div>TEXT</div></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="gh-section" data-gh-section="t6">
+      <div class="gh-tag">T6</div>
+      <div class="gh-content">
+        <div class="gh-intro"><div class="gh-box">PODNADPIS</div><div class="gh-box">H2</div><div class="gh-box">TEXT · 50 %</div></div>
+        <div class="gh-grid gh-t6"><div class="gh-box">HLAVNÍ OBSAH · 3/5</div><div class="gh-box">VEDLEJŠÍ OBSAH · 2/5</div></div>
+      </div>
+    </section>
+
+    <section class="gh-section" data-gh-section="t8">
+      <div class="gh-tag">T8</div>
+      <div class="gh-content">
+        <div class="gh-intro"><div class="gh-box">PODNADPIS</div><div class="gh-box">H2</div><div class="gh-box">TEXT · 50 %</div></div>
+        <div class="gh-t8"><div class="gh-box">RECENZE 1</div><div class="gh-box">RECENZE 2</div><div class="gh-box">RECENZE 3</div></div>
+        <div class="gh-partners"><div class="gh-box ghost">PARTNEŘI</div><div class="gh-box ghost">LOGO / NÁZEV</div><div class="gh-box ghost">LOGO / NÁZEV</div><div class="gh-box ghost">LOGO / NÁZEV</div></div>
+      </div>
+    </section>
+
+    <section class="gh-section" data-gh-section="media">
+      <div class="gh-centered-media">
+        <div class="gh-box">PODNADPIS</div><div class="gh-box">H2</div><div class="gh-box">TEXT</div><div class="gh-box">VIDEO / MAPA / MÉDIUM · max. 960 px</div>
+      </div>
+    </section>
+
+    <section class="gh-section" data-gh-section="detail">
+      <div class="gh-content">
+        <div class="gh-subhead"><div class="gh-box">ZPĚT + PODNADPIS</div><div class="gh-box">H1</div><div class="gh-box">PEREX</div></div>
+        <div class="gh-detail-grid">
+          <div class="gh-detail-main"><div class="gh-box">PARAMETRY / CHIPS</div><div class="gh-box">ÚVOD</div><div class="gh-box">HLAVNÍ POPIS</div><div class="gh-box">CTA</div></div>
+          <div class="gh-detail-aside"><div class="gh-box">NÁHLEDOVÁ FOTKA · 4 : 3</div><div class="gh-box">VYBAVENÍ / DOPLŇKY</div></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="gh-section" data-gh-section="data">
+      <div class="gh-content">
+        <div class="gh-subhead"><div class="gh-box">PODNADPIS</div><div class="gh-box">H2</div><div class="gh-box">TEXT</div></div>
+        <div class="gh-data-stack"><div class="gh-box">SROVNÁVACÍ TABULKA · 100 % KORIDORU</div><div class="gh-data-lists"><div class="gh-box">SEZNAM 1</div><div class="gh-box">SEZNAM 2</div><div class="gh-box">SEZNAM 3</div></div></div>
+      </div>
+    </section>
+
+    <section class="gh-section" data-gh-section="gallery">
+      <div class="gh-content">
+        <div class="gh-subhead"><div class="gh-box">PODNADPIS</div><div class="gh-box">H1 / H2</div><div class="gh-box">TEXT</div></div>
+        <div class="gh-gallery-tools"><div class="gh-box">FILTR 1</div><div class="gh-box">FILTR 2</div><div class="gh-box">FILTR 3</div><div class="gh-box">FILTR 4</div></div>
+        <div class="gh-gallery-grid"><div class="gh-box">FOTO 1</div><div class="gh-box">FOTO 2</div><div class="gh-box">FOTO 3</div><div class="gh-box">FOTO 4</div><div class="gh-box">FOTO 5</div><div class="gh-box">FOTO 6</div><div class="gh-box">FOTO 7</div><div class="gh-box">FOTO 8</div></div>
+      </div>
+    </section>
+
+    <section class="gh-section" data-gh-section="season">
+      <div class="gh-tag">T6</div>
+      <div class="gh-content">
+        <div class="gh-subhead"><div class="gh-box">PODNADPIS</div><div class="gh-box">H2</div><div class="gh-box">TEXT · max. 62 ch</div></div>
+        <div class="gh-season-grid"><div class="gh-box">AKCE 1</div><div class="gh-box">AKCE 2</div><div class="gh-box">AKCE 3</div><div class="gh-box">AKCE 4</div><div class="gh-box">AKCE 5</div><div class="gh-box">AKCE 6</div></div>
+      </div>
+    </section>
+
+    <section class="gh-section" data-gh-section="voucher">
+      <div class="gh-content">
+        <div class="gh-subhead"><div class="gh-box">PODNADPIS</div><div class="gh-box">H2</div><div class="gh-box">TEXT</div></div>
+        <div class="gh-voucher-layout">
+          <div class="gh-voucher-row"><div class="gh-box">1 OSOBA · 1</div><div class="gh-box">1 OSOBA · 2</div><div class="gh-box">1 OSOBA · 3</div></div>
+          <div class="gh-voucher-row"><div class="gh-box">2 OSOBY · 1</div><div class="gh-box">2 OSOBY · 2</div><div class="gh-box">2 OSOBY · 3</div></div>
+          <div class="gh-box">OBJEDNÁVKOVÝ FORMULÁŘ · 2 SLOUPCE / MOBIL 1</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="gh-section" data-gh-section="contact">
+      <div class="gh-content">
+        <div class="gh-subhead"><div class="gh-box">PODNADPIS</div><div class="gh-box">H1</div><div class="gh-box">TEXT</div></div>
+        <div class="gh-contact-layout">
+          <div class="gh-contact-top"><div class="gh-contact-info"><div class="gh-box">ADRESA</div><div class="gh-box">REZERVACE</div><div class="gh-box">RECEPCE</div><div class="gh-box">DALŠÍ KONTAKTY</div></div><div class="gh-box">KONTAKTNÍ FORMULÁŘ · 2 → 1 SLOUPEC</div></div>
+          <div class="gh-box">MAPA · 100 % KORIDORU</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="gh-section" data-gh-section="routes">
+      <div class="gh-content">
+        <div class="gh-subhead"><div class="gh-box">PODNADPIS</div><div class="gh-box">H1</div><div class="gh-box">TEXT</div></div>
+        <div class="gh-route-layout"><div class="gh-route-map"><div class="gh-box">MAPA</div><div class="gh-box">NAVIGOVAT / SHUTTLE</div></div><div class="gh-route-cards"><div class="gh-box">AUTO</div><div class="gh-box">MHD / TAXI</div><div class="gh-box">LETIŠTĚ 1–2</div><div class="gh-box">LETIŠTĚ 3–4</div></div></div>
+      </div>
+    </section>
+
+    <section class="gh-section" data-gh-section="form">
+      <div class="gh-narrow-layout">
+        <div class="gh-box">PODNADPIS</div><div class="gh-box">H1</div><div class="gh-box">ÚVOD / LEGENDA</div>
+        <div class="gh-form-fields"><div class="gh-box">POLE 1</div><div class="gh-box">POLE 2</div><div class="gh-box wide">ŠKÁLA / VOLBA</div><div class="gh-box wide">TEXTAREA</div><div class="gh-box">JMÉNO</div><div class="gh-box">E-MAIL</div></div>
+      </div>
+    </section>
+
+    <section class="gh-section" data-gh-section="career">
+      <div class="gh-narrow-layout">
+        <div class="gh-box">PODNADPIS</div><div class="gh-box">H1</div><div class="gh-box">ÚVOD</div>
+        <div class="gh-career-list"><div class="gh-box">POZICE / PRÁZDNÝ STAV 1</div><div class="gh-box">POZICE 2</div><div class="gh-box">POZICE 3</div></div>
+      </div>
+    </section>
+
+    <section class="gh-section" data-gh-section="menu">
+      <div class="gh-content">
+        <div class="gh-subhead"><div class="gh-box">PODNADPIS</div><div class="gh-box">H2</div><div class="gh-box">TEXT / DATUM</div></div>
+        <div class="gh-menu-grid"><div class="gh-box">PO</div><div class="gh-box">ÚT</div><div class="gh-box">ST</div><div class="gh-box">ČT</div><div class="gh-box">PÁ</div><div class="gh-box">SO</div><div class="gh-box">NE</div><div class="gh-box">CELÝ TÝDEN</div></div>
+      </div>
+    </section>
+
+    <section class="gh-section" data-gh-section="reservation">
+      <div class="gh-content">
+        <div class="gh-subhead"><div class="gh-box">PODNADPIS</div><div class="gh-box">H1</div><div class="gh-box">VYSVĚTLENÍ</div></div>
+        <div class="gh-reservation-layout"><div class="gh-reservation-controls"><div class="gh-box">PŘÍJEZD</div><div class="gh-box">ODJEZD</div><div class="gh-box">POKOJE</div><div class="gh-box">HOSTÉ</div><div class="gh-box">FILTRY</div></div><div class="gh-reservation-body"><div class="gh-reservation-results"><div class="gh-box">FOTO</div><div class="gh-box">POKOJ</div><div class="gh-box">SAZBA</div><div class="gh-box">CENA + CTA</div></div><div class="gh-box">SHRNUTÍ</div></div></div>
+      </div>
+    </section>
+
+    <section class="gh-section" data-gh-section="legal">
+      <div class="gh-narrow-layout">
+        <div class="gh-box">PODNADPIS</div><div class="gh-box">H1</div><div class="gh-box">ÚVOD / DATUM</div>
+        <div class="gh-legal-copy"><div class="gh-box">H2 + ODSTAVCE</div><div class="gh-box">H2 + SEZNAM</div><div class="gh-box">H3 + ODSTAVCE</div><div class="gh-box">TABULKA / BODY</div><div class="gh-box">DALŠÍ KAPITOLY</div></div>
+      </div>
+    </section>
+
+    <section class="gh-section" data-gh-section="final">
+      <div class="gh-hero-bg">VOLITELNÉ POZADÍ · FULL WIDTH</div>
+      <div class="gh-final-copy"><div class="gh-box">PODNADPIS</div><div class="gh-box">H2</div><div class="gh-box">TEXT · max. 52 ch</div><div class="gh-box">CTA AKCE</div></div>
+    </section>
+
+    <section class="gh-section" data-gh-section="footer">
+      <div class="gh-footer-layout">
+        <div class="gh-footer-top"><div class="gh-box">ZNAČKA + KONTAKT</div><div class="gh-box">SLOUPEC 2</div><div class="gh-box">SLOUPEC 3</div><div class="gh-box">NEWSLETTER</div></div>
+        <div class="gh-footer-bottom"><div class="gh-box">PRÁVNÍ ODKAZY</div><div class="gh-box">AUTOR / COPYRIGHT</div></div>
+      </div>
+    </section>
+  </div>
+
+  <div class="gh-note" id="gh-note">Desktop: obsah 290–1340 px (šířka 1050 px), intro 525 px, mezera HUD→obsah 40 px, obsah→osa navigace 45 px. Sekce: svislý padding clamp(80px, 12vh, 150px).</div>
+
+  <div class="gh-audit-title">Aktuální stav gridhotel.local · ověřeno v CZ / EN / DE</div>
+  <div class="gh-audit-grid" aria-live="polite">
+    <div class="gh-audit-cell" id="gh-audit-desktop"><strong>Desktop</strong><span></span></div>
+    <div class="gh-audit-cell" id="gh-audit-landscape"><strong>Tablet na šířku</strong><span></span></div>
+    <div class="gh-audit-cell" id="gh-audit-portrait"><strong>Tablet na výšku</strong><span></span></div>
+    <div class="gh-audit-cell" id="gh-audit-mobile"><strong>Mobil</strong><span></span></div>
+  </div>
+
+  <script>
+    (() => {
+      const root = document.getElementById('grid-hotel-layout-contract');
+      const template = document.getElementById('gh-template');
+      const notes = {
+        desktop: 'Desktop: obsah 290–1340 px (šířka 1050 px), intro 525 px, mezera HUD→obsah 40 px, obsah→osa navigace 45 px. Sekce: svislý padding clamp(80px, 12vh, 150px).',
+        'tablet-landscape': 'Tablet na šířku 1024 px: pravá fixed navigace zůstává viditelná. Obsah 284–764 px končí 45 px před její osou. T1/T3 jsou 2 × 2, T4 2 × 3, T5 tři horizontální karty a T6 dva řádky.',
+        'tablet-portrait': 'Tablet na výšku 768 px: pravá navigace je skrytá, levý HUD zůstává. Obsah 245–737 px začíná 40 px za HUD. Dělené sekce se skládají pod sebe; T1/T3 jsou 2 × 2 a T4 2 × 3.',
+        mobile: 'Mobil 390 px: obě boční rezervace se ruší; obsah má 20 px po stranách. Navigace je skrytá a HUD musí být sbalený, aby nepřekrýval text. Všechny matice jsou jednosloupcové.'
+      };
+      const templateNotes = {
+        detail: 'Detail: desktop 1fr + 340 px; na obou tabletech skládat pod sebe, protože na šířku zůstává fixed navigace a na výšku je koridor úzký.',
+        data: 'Tabulka zabírá celý koridor; vybavení 3 sloupce → 2 na obou tabletech → 2 na mobilu, dlouhé definice 2 → 1.',
+        gallery: 'Galerie 4 sloupce na desktopu → 2 na obou tabletech → 2 na mobilu; fotografie drží poměr 4 : 3.',
+        season: 'Karty akcí 3 × 2 → 2 × 3 na obou tabletech → 1 × 6. Následný čekací list používá samostatný vzor T6.',
+        voucher: 'Dvě skupiny po 3 cenových kartách; tablet na šířku drží skupiny vedle sebe, tablet na výšku a mobil je skládají pod sebe.',
+        contact: 'Desktop informace : formulář = 1 : 1, mapa pod nimi. Na obou tabletech bloky pod sebe; formulář 2 sloupce, na mobilu 1.',
+        routes: 'Mapa je plná šířka koridoru; trasy mohou být 2 sloupce na desktopu a tabletu na šířku, na výšku a mobilu 1.',
+        form: 'Samostatný formulář má maximální šířku 820 px; pole 2 sloupce na desktopu a tabletech, 1 na mobilu.',
+        career: 'Úzký obsahový sloupec max. 760 px; pozice jsou svislý seznam, nikdy vícesloupcová matice.',
+        menu: 'Týdenní menu 4 × 2 → 2 × 4 → 1 × 8. Stálá nabídka používá stejné zlomy 4 → 2 → 1.',
+        reservation: 'Rezervační rozhraní je uvnitř bezpečného koridoru; výsledky + souhrn na desktopu, na obou tabletech a mobilu pod sebou.',
+        legal: 'Dlouhý právní text max. 760–820 px, zarovnaný k levé hraně bezpečného koridoru; žádné široké řádky přes celý viewport.'
+      };
+      const metrics = {
+        desktop: ['1600 px', '0–250 px', '290 px', '1340 px', '1385 px'],
+        'tablet-landscape': ['1024 × 768', '0–244 px', '284 px', '764 px', '809 px'],
+        'tablet-portrait': ['768 × 1024', '15–205 px', '245 px', '737 px', 'skrytá'],
+        mobile: ['390 px', 'sbalený', '20 px', '370 px', 'skrytá']
+      };
+      const ids = ['gh-viewport-value', 'gh-hud-value', 'gh-left-value', 'gh-right-value', 'gh-rail-value'];
+      const ruler = {
+        desktop: {hud:['15.625%','250'],left:['18.125%','290'],right:['83.75%','1340'],rail:['86.5625%','1385'],end:[null,'1600']},
+        'tablet-landscape': {hud:['23.828125%','244'],left:['27.734375%','284'],right:['74.609375%','764'],rail:['79.00390625%','809'],end:[null,'1024']},
+        'tablet-portrait': {hud:['26.6927083%','205'],left:['31.9010417%','245'],right:['95.9635417%','737'],rail:['100%',''],end:[null,'768']},
+        mobile: {hud:['0%',''],left:['5.128205%','20'],right:['94.871795%','370'],rail:['100%',''],end:[null,'390']}
+      };
+
+      const auditDefaults = {
+        desktop: ['ok', 'OK · bez horizontálního přetečení'],
+        landscape: ['error', 'CHYBA · pravá navigace je při 1024 px skrytá'],
+        portrait: ['risk', 'RIZIKO · HUD a vnořené paddingy zužují obsah'],
+        mobile: ['error', 'CHYBA · --hud-pad zůstává 278 px; stránka přetéká']
+      };
+      const audit = {
+        header: {desktop:['ok','OK · plná navigace'],landscape:['ok','OK · CZ/EN/DE se vejdou'],portrait:['ok','OK · hamburger'],mobile:['ok','OK · hamburger']},
+        hero: {},
+        booking: {desktop:['ok','OK · 6 polí v řádku'],landscape:['risk','RIZIKO · chybí rezervace pro pravý rail'],portrait:['risk','RIZIKO · ověřit 3 × 2'],mobile:['error','CHYBA · globální přetečení stránky']},
+        t1: {desktop:['ok','OK · 4 karty, x 290–1349'],landscape:['error','CHYBA · karty končí x 968, rail má být x 809'],portrait:['error','CHYBA · 1 sloupec místo 2 × 2'],mobile:['error','CHYBA · použitelná šířka karty jen asi 77 px']},
+        t2: {desktop:['ok','OK · dělení 50 : 50'],landscape:['risk','RIZIKO · správné dělení, chybný koridor'],portrait:['error','CHYBA · zůstává 2 sloupce'],mobile:['error','CHYBA · zůstává 2 sloupce kvůli specificitě CSS']},
+        t3: {desktop:['ok','OK · matice 2 × 2'],landscape:['error','CHYBA · obsah zasahuje do budoucího railu'],portrait:['risk','RIZIKO · skládá se do 1 sloupce'],mobile:['error','CHYBA · obsahový koridor se smrští téměř na nulu']},
+        t4: {desktop:['error','CHYBA · blok x 159–1427 není v koridoru 290–1340'],landscape:['error','CHYBA · x 101–908 koliduje s oběma overlay zónami'],portrait:['risk','RIZIKO · 1 sloupec místo 2 × 3'],mobile:['error','CHYBA · globální HUD padding a přetečení']},
+        t5: {desktop:['ok','OK · 3 gastro karty'],landscape:['error','CHYBA · zůstávají 3 úzké svislé karty'],portrait:['error','CHYBA · zůstávají 3 sloupce po asi 137 px'],mobile:['error','CHYBA · 3 sloupce po asi 15 px']},
+        t6: {desktop:['ok','OK · poměr 3 : 2'],landscape:['error','CHYBA · skládání je správné, koridor ne'],portrait:['risk','RIZIKO · skládá se, ale obsah je přepaddingovaný'],mobile:['error','CHYBA · sloupce mají asi 77 px']},
+        t8: {desktop:['ok','OK · 3 recenze'],landscape:['error','CHYBA · pravý rail chybí a obsah je příliš široký'],portrait:['risk','RIZIKO · jednosloupcové, ale úzké'],mobile:['error','CHYBA · globální přetečení']},
+        media: {},
+        detail: {desktop:['ok','OK · hlavní obsah + 340 px aside'],landscape:['error','CHYBA · zůstává 302 + 340 px; má se složit'],portrait:['risk','RIZIKO · skládá se, ale je přepaddingovaný'],mobile:['error','CHYBA · obsah asi 147 px a přetečení']},
+        data: {desktop:['ok','OK · tabulka a seznamy'],landscape:['risk','RIZIKO · hustota nepočítá s viditelným railem'],portrait:['error','CHYBA · vybavení je příliš úzké'],mobile:['error','CHYBA · tabulky a dlouhé hodnoty přetékají']},
+        gallery: {desktop:['risk','NEOVĚŘENO · galerie je aktuálně prázdná'],landscape:['risk','RIZIKO · CSS drží 4 příliš úzké sloupce'],portrait:['risk','RIZIKO · CSS drží 3 sloupce'],mobile:['risk','NEOVĚŘENO · chybí reálné fotografie']},
+        season: {desktop:['ok','OK · 3 sloupce'],landscape:['error','CHYBA · bez rezervy pro pravý rail'],portrait:['risk','RIZIKO · 2 sloupce, ale úzký vnitřek'],mobile:['error','CHYBA · horizontální overflow +187 px']},
+        voucher: {desktop:['ok','OK · skupiny i formulář'],landscape:['error','CHYBA · tři karty jsou v koridoru příliš úzké'],portrait:['error','CHYBA · 3 karty po asi 110 px'],mobile:['error','CHYBA · overflow až +141 px']},
+        contact: {desktop:['ok','OK · informace 1 : 1 formulář'],landscape:['risk','RIZIKO · správně pod sebou, globálně chybí rail'],portrait:['error','CHYBA · formulář 350 px uniká z rodiče 292 px'],mobile:['error','CHYBA · formulář x 142–491; overflow +111 px']},
+        routes: {desktop:['ok','OK · mapa + dvě trasy'],landscape:['risk','RIZIKO · 2 sloupce se vejdou jen těsně'],portrait:['risk','RIZIKO · skládá se, ale obsah je příliš úzký'],mobile:['error','CHYBA · mapa má šířku asi 2 px; overflow +63 px']},
+        form: {desktop:['ok','OK · formulář 2 sloupce'],landscape:['risk','RIZIKO · nutno omezit na nový koridor'],portrait:['risk','RIZIKO · dvě pole potřebují min. 220 px'],mobile:['error','CHYBA · dotazník přetéká asi o 86 px']},
+        career: {},
+        menu: {desktop:['ok','OK · 4 × 2'],landscape:['risk','RIZIKO · cílit na 2 × 4 v novém koridoru'],portrait:['risk','RIZIKO · 2 × 4 se vejde těsně'],mobile:['error','CHYBA · globální mobilní přetečení']},
+        reservation: {desktop:['ok','OK · výsledky + souhrn'],landscape:['error','CHYBA · karta 280 + 98 px je příliš stísněná'],portrait:['risk','RIZIKO · skládá se, ale zůstává dvojitý padding'],mobile:['error','CHYBA · overflow +38 px']},
+        legal: {},
+        final: {desktop:['ok','OK · centrovaná výjimka'],landscape:['ok','OK · bez boční matice'],portrait:['ok','OK · centrované'],mobile:['risk','RIZIKO · CTA je správné, stránka ale globálně přetéká']},
+        footer: {desktop:['ok','OK · 4 sloupce'],landscape:['risk','RIZIKO · nový rail vyžaduje užší koridor'],portrait:['risk','RIZIKO · 2 sloupce jsou použitelné'],mobile:['error','CHYBA · footer dědí chybný --hud-pad']}
+      };
+
+      const updateNote = () => {
+        const mode = root.dataset.viewport || 'desktop';
+        document.getElementById('gh-note').textContent = notes[mode] + (templateNotes[template.value] ? ' ' + templateNotes[template.value] : '');
+      };
+
+      const updateAudit = () => {
+        const current = audit[template.value] || {};
+        const targets = [
+          ['desktop', 'gh-audit-desktop'],
+          ['landscape', 'gh-audit-landscape'],
+          ['portrait', 'gh-audit-portrait'],
+          ['mobile', 'gh-audit-mobile']
+        ];
+        targets.forEach(([key, id]) => {
+          const cell = document.getElementById(id);
+          const value = current[key] || auditDefaults[key];
+          cell.dataset.state = value[0];
+          cell.querySelector('span').textContent = value[1];
+        });
+      };
+
+      template.addEventListener('change', () => {
+        root.querySelectorAll('[data-gh-section]').forEach(section => section.classList.toggle('is-active', section.dataset.ghSection === template.value));
+        updateNote();
+        updateAudit();
+      });
+
+      root.querySelectorAll('[data-gh-viewport]').forEach(button => {
+        button.addEventListener('click', () => {
+          const mode = button.dataset.ghViewport;
+          root.dataset.viewport = mode;
+          root.querySelectorAll('[data-gh-viewport]').forEach(item => {
+            const active = item === button;
+            item.setAttribute('aria-pressed', String(active));
+            item.classList.toggle('btn-primary', active);
+          });
+          ids.forEach((id, index) => document.getElementById(id).textContent = metrics[mode][index]);
+          Object.entries(ruler[mode]).forEach(([key, value]) => {
+            const mark = root.querySelector(`[data-gh-mark="${key}"]`);
+            if (value[0]) mark.style.left = value[0];
+            mark.textContent = value[1];
+          });
+          updateNote();
+        });
+      });
+      updateAudit();
+    })();
+  </script>
+</div>

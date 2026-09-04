@@ -199,7 +199,6 @@
         var name = row.getAttribute('data-ev');
         for(var i=0;i<wbEv.options.length;i++){ if(wbEv.options[i].value === name){ wbEv.selectedIndex = i; break; } }
         syncWaitbox(name, statusOf(row));
-        var sec = $('sezona'); if(sec) sec.scrollIntoView({behavior:'smooth', block:'start'});
       });
     });
     wbEv.addEventListener('change', function(){

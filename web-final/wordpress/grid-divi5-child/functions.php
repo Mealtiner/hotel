@@ -10,7 +10,7 @@
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
-define( 'GRID_CHILD_VER', '2.18.0' );
+define( 'GRID_CHILD_VER', '2.41.0' );
 
 /* ------------------------------------------------------------------
  * 1) Styly a skripty
@@ -269,6 +269,21 @@ add_filter( 'rest_authentication_errors', function ( $result ) {
  * a jinak umožňují dohledat uživatelské jméno/slug enumerací ?author=1,2,3… */
 add_action( 'template_redirect', function () {
 	if ( is_author() && ! is_user_logged_in() ) wp_safe_redirect( home_url( '/' ), 301 );
+} );
+
+/* "Privacy statement" (250/412/413) byl jen prázdný Complianz setup-wizard
+ * stub (shortcode bez obsahu) — Complianz sám má jako skutečnou EU privacy
+ * statement stránku nastavenou 258/398/399 (GDPR). Stránky 250/412/413 jsou
+ * odpublikované (draft), tohle 301 přesměrování je pro staré odkazy/bookmarky. */
+add_action( 'template_redirect', function () {
+	$redirects = array(
+		'/privacy-statement/'      => '/ochrana-osobnich-udaju-gdpr/',
+		'/privacy-statement-en/'   => '/statement-for-processing-of-personal-data/',
+		'/datenschutzhinweise/'    => '/erklaerung-zur-verarbeitung-von-personenbezogenen-daten/',
+		'/sezona-2026/'            => '/sezona/', // slug zkrácen 2026-07-23, stará URL zůstává ve staré komunikaci/bookmarcích
+	);
+	$uri = strtok( (string) ( $_SERVER['REQUEST_URI'] ?? '' ), '?' );
+	if ( isset( $redirects[ $uri ] ) ) { wp_safe_redirect( home_url( $redirects[ $uri ] ), 301 ); exit; }
 } );
 
 /* readme.html / license.txt / *.php-old / *.bak / *.orig — standardní WP fingerprinting
