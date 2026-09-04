@@ -1,0 +1,71 @@
+{
+  "schema_version": "2.3",
+  "slug": "gridhotel-components",
+  "name": "GARRY – GRID Components",
+  "plugin_version": "1.0.4",
+  "framework_protocol": "2.4.0",
+  "framework_minimum": "2.4.0",
+  "icon": {
+    "type": "dashicon",
+    "value": "dashicons-layout"
+  },
+  "surfaces": [
+    "admin-page",
+    "shortcodes"
+  ],
+  "admin": {
+    "capability": "manage_options",
+    "local_menu_slug": "gridhotel-components"
+  },
+  "dependencies": {
+    "required": [
+      "gridhotel-core"
+    ],
+    "optional": [
+      "garry-denni-menu",
+      "garry-kategorie-pokoju",
+      "garry-sezona-cekaci-list",
+      "advanced-custom-fields-pro",
+      "polylang",
+      "fluentform"
+    ]
+  },
+  "data": {
+    "stores_personal_data": false,
+    "settings_option_prefix": "gridhotel_components_",
+    "log_retention_days": 90,
+    "uninstall_behavior": "non-destructive-content-preserved"
+  },
+  "external_origins": [],
+  "documentation": {
+    "local_path": "README.md"
+  },
+  "security_profile": {
+    "admin_assets_scope": "not_applicable",
+    "inline_assets": {
+      "css": false,
+      "js": false
+    },
+    "public_surfaces": [
+      "grid_menu_hlavni", "grid_socials", "grid_paticka_kontakt", "grid_video_embed",
+      "grid_header", "grid_footer", "grid_hero", "grid_booking", "grid_final",
+      "grid_rezervace", "grid_rooms", "grid_gastro", "grid_zazitky", "grid_season",
+      "grid_poukazy", "grid_vstupy", "grid_pribeh", "grid_firemni", "grid_reference",
+      "grid_kontakt", "grid_doprava", "grid_form_dotaznik", "grid_legal",
+      "grid_podminky", "grid_gdpr", "grid_onas", "grid_kariera", "grid_kariera_pozice",
+      "grid_video", "grid_galerie"
+    ],
+    "editor_custom_css": false,
+    "performance_budget": {
+      "max_public_items": null,
+      "bounded": true,
+      "note": "30 sekčních shortcodů, assety se enqueue jen když je [grid_header]/[grid_galerie] skutečně na stránce"
+    },
+    "multisite_tested": "untested",
+    "personal_data": {
+      "stores_personal_data": false
+    },
+    "external_origins_verified": []
+  },
+  "notes": "Nepřevzalo [grid_tracknav] a [grid_telemetry] z child theme — ty vlastní pluginy „Sekční navigace“ (garry-bocni-posuvnik) a „Situace na trati“ (garry-situace-na-trati), viz GRID-SUITE-00 master plán, vlastnická tabulka."
+}

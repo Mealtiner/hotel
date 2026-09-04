@@ -264,7 +264,7 @@ function grid_sc_socials() {
 	foreach ( $socials as $so ) $h .= '<a href="' . esc_url( $so['url'] ) . '" target="_blank" rel="noopener" aria-label="' . esc_attr( $so['label'] ) . '">' . esc_html( $so['short'] ) . '</a>';
 	return $h . '</div>';
 }
-add_shortcode( 'grid_socials', 'grid_sc_socials' );
+if ( ! shortcode_exists( 'grid_socials' ) ) { add_shortcode( 'grid_socials', 'grid_sc_socials' ); } // GRID-SUITE-09 §5: gridhotel-components ≥ 1.0.0 registruje tenhle tag jako první (pluginy se načítají před theme) — tahle registrace je jen neaktivní záložní síť.
 
 /* [grid_paticka_kontakt] — adresní blok patičky z GRID Nastavení (lokalizované labely) */
 function grid_sc_footer_kontakt() {
@@ -287,7 +287,7 @@ function grid_sc_footer_kontakt() {
 		. esc_html( $L['shuttle'][ $li ] ) . ': <a href="tel:' . esc_attr( $raw( $tels ) ) . '">' . esc_html( $tels ) . '</a><br>'
 		. '<a href="mailto:' . esc_attr( $email ) . '">' . esc_html( $email ) . '</a></span>';
 }
-add_shortcode( 'grid_paticka_kontakt', 'grid_sc_footer_kontakt' );
+if ( ! shortcode_exists( 'grid_paticka_kontakt' ) ) { add_shortcode( 'grid_paticka_kontakt', 'grid_sc_footer_kontakt' ); } // GRID-SUITE-09 §5: gridhotel-components ≥ 1.0.0 registruje tenhle tag jako první (pluginy se načítají před theme) — tahle registrace je jen neaktivní záložní síť.
 
 /* [grid_video_embed] — YouTube/Vimeo embed z GRID Nastavení → Video (časosběr) */
 function grid_sc_video_embed() {
@@ -297,7 +297,7 @@ function grid_sc_video_embed() {
 	$note = array( '// Vlož odkaz na video v GRID Nastavení → Video (časosběr).', '// Add the video link in GRID Settings → Video.', '// Videolink in GRID-Einstellungen → Video eintragen.' );
 	return '<div style="padding:60px 24px;text-align:center;color:var(--muted);font-family:var(--f-mono);font-size:.8rem">' . esc_html( $note[ $li ] ) . '</div>';
 }
-add_shortcode( 'grid_video_embed', 'grid_sc_video_embed' );
+if ( ! shortcode_exists( 'grid_video_embed' ) ) { add_shortcode( 'grid_video_embed', 'grid_sc_video_embed' ); } // GRID-SUITE-09 §5: gridhotel-components ≥ 1.0.0 registruje tenhle tag jako první (pluginy se načítají před theme) — tahle registrace je jen neaktivní záložní síť.
 
 /* Cíl VŠECH rezervačních CTA: stránka /rezervace/ (pokud existuje),
  * jinak ACF pole rezervace_url, jinak kotva #booking na homepage. */
@@ -393,7 +393,7 @@ function grid_sc_header() {
 	</div>
 	<?php return ob_get_clean();
 }
-add_shortcode( 'grid_header', 'grid_sc_header' );
+if ( ! shortcode_exists( 'grid_header' ) ) { add_shortcode( 'grid_header', 'grid_sc_header' ); } // GRID-SUITE-09 §5: gridhotel-components ≥ 1.0.0 registruje tenhle tag jako první (pluginy se načítají před theme) — tahle registrace je jen neaktivní záložní síť.
 
 /* ============================================================
  * TRACK NAV (pravá „trať" — jen pro one-page domov)
@@ -491,7 +491,7 @@ function grid_sc_hero() {
 	</section>
 	<?php return ob_get_clean();
 }
-add_shortcode( 'grid_hero', 'grid_sc_hero' );
+if ( ! shortcode_exists( 'grid_hero' ) ) { add_shortcode( 'grid_hero', 'grid_sc_hero' ); } // GRID-SUITE-09 §5: gridhotel-components ≥ 1.0.0 registruje tenhle tag jako první (pluginy se načítají před theme) — tahle registrace je jen neaktivní záložní síť.
 
 /* ============================================================
  * BOOKING BAR
@@ -510,7 +510,7 @@ function grid_sc_booking() {
 	</section>
 	<?php return ob_get_clean();
 }
-add_shortcode( 'grid_booking', 'grid_sc_booking' );
+if ( ! shortcode_exists( 'grid_booking' ) ) { add_shortcode( 'grid_booking', 'grid_sc_booking' ); } // GRID-SUITE-09 §5: gridhotel-components ≥ 1.0.0 registruje tenhle tag jako první (pluginy se načítají před theme) — tahle registrace je jen neaktivní záložní síť.
 
 /* ============================================================
  * T1 VSTUPY (light)
@@ -541,7 +541,7 @@ function grid_sc_vstupy() {
 	</section>
 	<?php return ob_get_clean();
 }
-add_shortcode( 'grid_vstupy', 'grid_sc_vstupy' );
+if ( ! shortcode_exists( 'grid_vstupy' ) ) { add_shortcode( 'grid_vstupy', 'grid_sc_vstupy' ); } // GRID-SUITE-09 §5: gridhotel-components ≥ 1.0.0 registruje tenhle tag jako první (pluginy se načítají před theme) — tahle registrace je jen neaktivní záložní síť.
 
 /* ============================================================
  * T2 PŘÍBĚH (dark carbon, split)
@@ -569,7 +569,7 @@ function grid_sc_pribeh() {
 	</section>
 	<?php return ob_get_clean();
 }
-add_shortcode( 'grid_pribeh', 'grid_sc_pribeh' );
+if ( ! shortcode_exists( 'grid_pribeh' ) ) { add_shortcode( 'grid_pribeh', 'grid_sc_pribeh' ); } // GRID-SUITE-09 §5: gridhotel-components ≥ 1.0.0 registruje tenhle tag jako první (pluginy se načítají před theme) — tahle registrace je jen neaktivní záložní síť.
 
 /* ============================================================
  * T3 POKOJE (light) — repeater
@@ -598,7 +598,7 @@ function grid_sc_rooms() {
 	if ( ! is_front_page() ) echo grid_stay_info( $rooms );
 	return ob_get_clean();
 }
-add_shortcode( 'grid_rooms', 'grid_sc_rooms' );
+if ( ! shortcode_exists( 'grid_rooms' ) ) { add_shortcode( 'grid_rooms', 'grid_sc_rooms' ); } // GRID-SUITE-09 §5: gridhotel-components ≥ 1.0.0 registruje tenhle tag jako první (pluginy se načítají před theme) — tahle registrace je jen neaktivní záložní síť.
 
 /* ============================================================
  * T4 ZÁŽITKY (dark carbon) — repeater
@@ -639,7 +639,7 @@ function grid_sc_zazitky() {
 	if ( ! is_front_page() && function_exists( 'grid_sc_poukazy' ) ) echo grid_sc_poukazy();
 	return ob_get_clean();
 }
-add_shortcode( 'grid_zazitky', 'grid_sc_zazitky' );
+if ( ! shortcode_exists( 'grid_zazitky' ) ) { add_shortcode( 'grid_zazitky', 'grid_sc_zazitky' ); } // GRID-SUITE-09 §5: gridhotel-components ≥ 1.0.0 registruje tenhle tag jako první (pluginy se načítají před theme) — tahle registrace je jen neaktivní záložní síť.
 
 /* ============================================================
  * T5 GASTRONOMIE (light) — repeater
@@ -687,7 +687,7 @@ function grid_sc_gastro() {
 	if ( ! is_front_page() && function_exists( 'grid_gastro_extra' ) ) echo grid_gastro_extra();
 	return ob_get_clean();
 }
-add_shortcode( 'grid_gastro', 'grid_sc_gastro' );
+if ( ! shortcode_exists( 'grid_gastro' ) ) { add_shortcode( 'grid_gastro', 'grid_sc_gastro' ); } // GRID-SUITE-09 §5: gridhotel-components ≥ 1.0.0 registruje tenhle tag jako první (pluginy se načítají před theme) — tahle registrace je jen neaktivní záložní síť.
 
 /* Catering (samostatná služba) + týdenní jídelníček — jen na stránce Gastronomie. */
 function grid_gastro_extra() {
@@ -813,7 +813,7 @@ function grid_sc_season() {
 	<?php endif;
 	return ob_get_clean();
 }
-add_shortcode( 'grid_season', 'grid_sc_season' );
+if ( ! shortcode_exists( 'grid_season' ) ) { add_shortcode( 'grid_season', 'grid_sc_season' ); } // GRID-SUITE-09 §5: gridhotel-components ≥ 1.0.0 registruje tenhle tag jako první (pluginy se načítají před theme) — tahle registrace je jen neaktivní záložní síť.
 
 /* ============================================================
  * T7 FIREMNÍ AKCE & SVATBY (light, split + formulář)
@@ -853,7 +853,7 @@ function grid_sc_firemni() {
 	if ( ! is_front_page() && function_exists( 'grid_firemni_extra' ) ) echo grid_firemni_extra();
 	return ob_get_clean();
 }
-add_shortcode( 'grid_firemni', 'grid_sc_firemni' );
+if ( ! shortcode_exists( 'grid_firemni' ) ) { add_shortcode( 'grid_firemni', 'grid_sc_firemni' ); } // GRID-SUITE-09 §5: gridhotel-components ≥ 1.0.0 registruje tenhle tag jako první (pluginy se načítají před theme) — tahle registrace je jen neaktivní záložní síť.
 
 /* Rozšíření stránky Firemní akce & svatby (typy akcí, co nabízíme, prostory) — mimo homepage. */
 function grid_firemni_extra() {
@@ -931,7 +931,7 @@ function grid_sc_reference() {
 	</section>
 	<?php return ob_get_clean();
 }
-add_shortcode( 'grid_reference', 'grid_sc_reference' );
+if ( ! shortcode_exists( 'grid_reference' ) ) { add_shortcode( 'grid_reference', 'grid_sc_reference' ); } // GRID-SUITE-09 §5: gridhotel-components ≥ 1.0.0 registruje tenhle tag jako první (pluginy se načítají před theme) — tahle registrace je jen neaktivní záložní síť.
 
 /* ============================================================
  * CÍL / FINAL CTA (dark)
@@ -948,7 +948,7 @@ function grid_sc_final() {
 	</section>
 	<?php return ob_get_clean();
 }
-add_shortcode( 'grid_final', 'grid_sc_final' );
+if ( ! shortcode_exists( 'grid_final' ) ) { add_shortcode( 'grid_final', 'grid_sc_final' ); } // GRID-SUITE-09 §5: gridhotel-components ≥ 1.0.0 registruje tenhle tag jako první (pluginy se načítají před theme) — tahle registrace je jen neaktivní záložní síť.
 
 /* ============================================================
  * FOOTER (globální) — kontakt z ACF
@@ -990,7 +990,7 @@ function grid_sc_footer() {
 	</footer>
 	<?php return ob_get_clean();
 }
-add_shortcode( 'grid_footer', 'grid_sc_footer' );
+if ( ! shortcode_exists( 'grid_footer' ) ) { add_shortcode( 'grid_footer', 'grid_sc_footer' ); } // GRID-SUITE-09 §5: gridhotel-components ≥ 1.0.0 registruje tenhle tag jako první (pluginy se načítají před theme) — tahle registrace je jen neaktivní záložní síť.
 
 /* ============================================================
  * Srovnávací tabulka kategorií pokojů (z popisů typů)
@@ -1141,7 +1141,7 @@ function grid_sc_poukazy() {
 	</section>
 	<?php return ob_get_clean();
 }
-add_shortcode( 'grid_poukazy', 'grid_sc_poukazy' );
+if ( ! shortcode_exists( 'grid_poukazy' ) ) { add_shortcode( 'grid_poukazy', 'grid_sc_poukazy' ); } // GRID-SUITE-09 §5: gridhotel-components ≥ 1.0.0 registruje tenhle tag jako první (pluginy se načítají před theme) — tahle registrace je jen neaktivní záložní síť.
 
 /* ============================================================
  * [grid_doprava] — Jak se k nám dostanete (Google mapa + navigace)
@@ -1215,7 +1215,7 @@ function grid_sc_doprava() {
 	</section>
 	<?php return ob_get_clean();
 }
-add_shortcode( 'grid_doprava', 'grid_sc_doprava' );
+if ( ! shortcode_exists( 'grid_doprava' ) ) { add_shortcode( 'grid_doprava', 'grid_sc_doprava' ); } // GRID-SUITE-09 §5: gridhotel-components ≥ 1.0.0 registruje tenhle tag jako první (pluginy se načítají před theme) — tahle registrace je jen neaktivní záložní síť.
 
 /* [grid_form_dotaznik] — stránka s dotazníkem spokojenosti (Fluent Form) */
 function grid_sc_form_dotaznik() {
@@ -1230,7 +1230,7 @@ function grid_sc_form_dotaznik() {
 	</section>
 	<?php return ob_get_clean();
 }
-add_shortcode( 'grid_form_dotaznik', 'grid_sc_form_dotaznik' );
+if ( ! shortcode_exists( 'grid_form_dotaznik' ) ) { add_shortcode( 'grid_form_dotaznik', 'grid_sc_form_dotaznik' ); } // GRID-SUITE-09 §5: gridhotel-components ≥ 1.0.0 registruje tenhle tag jako první (pluginy se načítají před theme) — tahle registrace je jen neaktivní záložní síť.
 
 /* [grid_legal]OBSAH[/grid_legal] — stylovaný obal pro právní texty (vlož text 1:1) */
 function grid_sc_legal( $atts, $content = '' ) {
@@ -1245,7 +1245,7 @@ function grid_sc_legal( $atts, $content = '' ) {
 	</section>
 	<?php return ob_get_clean();
 }
-add_shortcode( 'grid_legal', 'grid_sc_legal' );
+if ( ! shortcode_exists( 'grid_legal' ) ) { add_shortcode( 'grid_legal', 'grid_sc_legal' ); } // GRID-SUITE-09 §5: gridhotel-components ≥ 1.0.0 registruje tenhle tag jako první (pluginy se načítají před theme) — tahle registrace je jen neaktivní záložní síť.
 
 /* [grid_rezervace] — dočasný zástupný prvek pro rezervační systém (nasadí se na ostrém webu) */
 function grid_sc_rezervace() {
@@ -1324,7 +1324,7 @@ function grid_sc_rezervace() {
 	</section>
 	<?php return ob_get_clean();
 }
-add_shortcode( 'grid_rezervace', 'grid_sc_rezervace' );
+if ( ! shortcode_exists( 'grid_rezervace' ) ) { add_shortcode( 'grid_rezervace', 'grid_sc_rezervace' ); } // GRID-SUITE-09 §5: gridhotel-components ≥ 1.0.0 registruje tenhle tag jako první (pluginy se načítají před theme) — tahle registrace je jen neaktivní záložní síť.
 
 /* ============================================================
  * [grid_podminky] — Ubytovací a reklamační řád (text 1:1 z gridhotel.cz)
@@ -1468,7 +1468,7 @@ function grid_sc_podminky() {
 	</section>
 	<?php return ob_get_clean();
 }
-add_shortcode( 'grid_podminky', 'grid_sc_podminky' );
+if ( ! shortcode_exists( 'grid_podminky' ) ) { add_shortcode( 'grid_podminky', 'grid_sc_podminky' ); } // GRID-SUITE-09 §5: gridhotel-components ≥ 1.0.0 registruje tenhle tag jako první (pluginy se načítají před theme) — tahle registrace je jen neaktivní záložní síť.
 
 
 /* ============================================================
@@ -1514,7 +1514,7 @@ function grid_sc_kontakt() {
 	</section>
 	<?php return ob_get_clean();
 }
-add_shortcode( 'grid_kontakt', 'grid_sc_kontakt' );
+if ( ! shortcode_exists( 'grid_kontakt' ) ) { add_shortcode( 'grid_kontakt', 'grid_sc_kontakt' ); } // GRID-SUITE-09 §5: gridhotel-components ≥ 1.0.0 registruje tenhle tag jako první (pluginy se načítají před theme) — tahle registrace je jen neaktivní záložní síť.
 
 /* ============================================================
  * [grid_gdpr] — Prohlášení o ochraně osobních údajů (plný text 1:1)
@@ -1570,7 +1570,7 @@ function grid_sc_gdpr() {
 	</section>
 	<?php return ob_get_clean();
 }
-add_shortcode( 'grid_gdpr', 'grid_sc_gdpr' );
+if ( ! shortcode_exists( 'grid_gdpr' ) ) { add_shortcode( 'grid_gdpr', 'grid_sc_gdpr' ); } // GRID-SUITE-09 §5: gridhotel-components ≥ 1.0.0 registruje tenhle tag jako první (pluginy se načítají před theme) — tahle registrace je jen neaktivní záložní síť.
 
 /* ============================================================
  * [grid_onas] — O hotelu
@@ -1647,7 +1647,7 @@ function grid_sc_onas() {
 	</section>
 	<?php return ob_get_clean();
 }
-add_shortcode( 'grid_onas', 'grid_sc_onas' );
+if ( ! shortcode_exists( 'grid_onas' ) ) { add_shortcode( 'grid_onas', 'grid_sc_onas' ); } // GRID-SUITE-09 §5: gridhotel-components ≥ 1.0.0 registruje tenhle tag jako první (pluginy se načítají před theme) — tahle registrace je jen neaktivní záložní síť.
 
 /* ============================================================
  * [grid_kariera] — Kariéra
@@ -1668,7 +1668,7 @@ function grid_sc_kariera() {
 	</section>
 	<?php return ob_get_clean();
 }
-add_shortcode( 'grid_kariera', 'grid_sc_kariera' );
+if ( ! shortcode_exists( 'grid_kariera' ) ) { add_shortcode( 'grid_kariera', 'grid_sc_kariera' ); } // GRID-SUITE-09 §5: gridhotel-components ≥ 1.0.0 registruje tenhle tag jako první (pluginy se načítají před theme) — tahle registrace je jen neaktivní záložní síť.
 
 /* ============================================================
  * [grid_kariera_pozice] — dynamický výpis pracovních pozic
@@ -1725,7 +1725,7 @@ function grid_sc_kariera_pozice() {
 	<?php endif;
 	return ob_get_clean();
 }
-add_shortcode( 'grid_kariera_pozice', 'grid_sc_kariera_pozice' );
+if ( ! shortcode_exists( 'grid_kariera_pozice' ) ) { add_shortcode( 'grid_kariera_pozice', 'grid_sc_kariera_pozice' ); } // GRID-SUITE-09 §5: gridhotel-components ≥ 1.0.0 registruje tenhle tag jako první (pluginy se načítají před theme) — tahle registrace je jen neaktivní záložní síť.
 
 /* ============================================================
  * [grid_video] — Časosběr / video stavby hotelu
@@ -1745,7 +1745,7 @@ function grid_sc_video() {
 	</section>
 	<?php return ob_get_clean();
 }
-add_shortcode( 'grid_video', 'grid_sc_video' );
+if ( ! shortcode_exists( 'grid_video' ) ) { add_shortcode( 'grid_video', 'grid_sc_video' ); } // GRID-SUITE-09 §5: gridhotel-components ≥ 1.0.0 registruje tenhle tag jako první (pluginy se načítají před theme) — tahle registrace je jen neaktivní záložní síť.
 
 /* ============================================================
  * [grid_galerie] — Fotogalerie s filtrem podle kategorií
@@ -1788,4 +1788,4 @@ function grid_sc_galerie( $atts = array() ) {
 	</section>
 	<?php return ob_get_clean();
 }
-add_shortcode( 'grid_galerie', 'grid_sc_galerie' );
+if ( ! shortcode_exists( 'grid_galerie' ) ) { add_shortcode( 'grid_galerie', 'grid_sc_galerie' ); } // GRID-SUITE-09 §5: gridhotel-components ≥ 1.0.0 registruje tenhle tag jako první (pluginy se načítají před theme) — tahle registrace je jen neaktivní záložní síť.

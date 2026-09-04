@@ -3,9 +3,13 @@
  * GRID Hotel Core — jednoklikové naplnění obsahem.
  * Nástroje → „GRID: Naplnit obsahem".
  *  - Vytvoří 4 KATEGORIE pokojů (typy) s popisy, krátkými popisy a štítky.
- *  - Vytvoří výchozí zážitky, akce sezóny, gastro a reference.
+ *  - Vytvoří výchozí zážitky, gastro a reference.
  *  - Jednotlivé pokoje NEvytváří — ty přidáváš ručně a přiřadíš ke kategorii.
  * Naplní jen typy/položky, které jsou zatím prázdné (neduplikuje).
+ *
+ * Od verze 2.0.0 (GRID-SUITE-01 §12) už neseeduje `grid_event` — vlastnictví
+ * sezónních akcí přechází na plugin „Sezóna & čekací list". Existující
+ * grid_event záznamy zůstávají beze změny, jen se negenerují nové.
  */
 if ( ! defined( 'ABSPATH' ) ) exit;
 
@@ -83,13 +87,7 @@ function gridcore_seed_data() {
 			array( 'Odpočet trestných bodů', array( 'num'=>'4.5', 'text'=>'Akreditovaný kurz bezpečné jízdy pro odečet trestných bodů. Vhodné i jako firemní školení řidičů na míru.', 'cta'=>'Více →' ) ),
 			array( 'Dárkové poukazy', array( 'num'=>'4.6', 'text'=>'Zážitek u okruhu jako dárek — pobyt, simulátor, motokáry nebo kurz Polygonu v libovolné hodnotě. Pošleme i elektronicky.', 'cta'=>'Koupit poukaz →' ) ),
 		),
-		'grid_event' => array(
-			array( 'Track Day Open', array( 'date'=>'17.–19. 4. 2026', 'desc'=>'Volné jízdy pro veřejnost na okruhu', 'status'=>'free' ) ),
-			array( 'Endurance 8h Brno', array( 'date'=>'22.–24. 5. 2026', 'desc'=>'Vytrvalostní závod — den i noc na trati', 'status'=>'few' ) ),
-			array( 'MotoGP víkend', array( 'date'=>'7.–9. 8. 2026', 'desc'=>'Hlavní událost sezóny — vrchol roku', 'status'=>'full' ) ),
-			array( 'FIA WTCR', array( 'date'=>'11.–13. 9. 2026', 'desc'=>'Cestovní vozy na Masarykově okruhu', 'status'=>'few' ) ),
-			array( 'Classic & Historic', array( 'date'=>'2.–4. 10. 2026', 'desc'=>'Přehlídka historických závodních strojů', 'status'=>'free' ) ),
-		),
+		// grid_event záměrně bez seed dat od 2.0.0 — viz docblock nahoře souboru.
 		'grid_gastro' => array(
 			array( 'Hotelová restaurace', array( 'hours'=>'Snídaně · Oběd · Večeře', 'text'=>'Začněte den bohatou snídaní formou studeného i teplého bufetu v moderně zařízené hotelové restauraci. Přes den denní menu, večer à la carte s výhledem na trať.', 'list'=>"Snídaně=7:00–10:00|Obědy (denní menu)=12:00–15:00|Večeře (à la carte)=18:00–21:30" ) ),
 			array( 'GRID Club', array( 'hours'=>'Otevřeno 12:00–24:00', 'text'=>'Stylové prostory nedaleko recepce — ideální na pracovní i obchodní schůzky i k relaxaci. Široká nabídka nápojů a lehkého občerstvení a pohodlné posezení na letní terase s výhledem do centra okruhu.', 'list'=>"Koktejlový bar=|Terasa s výhledem=|Afterparty & race víkendy=" ) ),

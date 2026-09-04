@@ -1,733 +1,35 @@
 <?php
 /**
- * Plugin Name:       GARRY – Situace na trati (widget)
+ * Plugin Name:       GARRY – Lokální počasí a provozní stav
  * Plugin URI:        https://www.garry.cz
- * Description:       Plovoucí widget „živá situace na trati" pro GRID Hotel. Data se tahají automaticky z Open-Meteo podle GPS okruhu (teplota, pocitová, vlhkost, oblačnost, srážky, vítr, slovní popis počasí) a povrch trati se z počasí automaticky odhaduje. V nastavení lze volit zdroj (GPS), obnovovací interval, zobrazené údaje, ruční „Status" a výškovou pozici; živý náhled.
- * Version:           1.3.0
+ * Description:       Plovoucí widget s lokálním počasím, ručním provozním stavem a volitelným odhadem podmínek z dat Open-Meteo podle nastavené GPS polohy. Vhodný pro sportoviště, areály a venkovní provozy; původně vytvořen pro GRID Hotel.
+ * Version:           1.5.0
  * Author:            GARRY Promotion
  * Author URI:        https://www.garry.cz
  * License:           Proprietary — Copyright © GARRY Promotion
  * Text Domain:       garry-situace-na-trati
+ * Update URI:        https://www.garry.cz
  * Requires at least: 6.4
  * Requires PHP:      8.0
  */
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
-if ( ! defined( 'ABSPATH' ) ) exit;
-
-/* ============================================================================
- * GARRY Promotion – sdílený rámec pro mikropluginy (verze 2.0.0)
- * ============================================================================
- * Tento blok je IDENTICKY obsažen v každém mikropluginu od GARRY Promotion.
- * Veškeré definice jsou chráněné podmínkami if (!class_exists()) tak, aby si
- * pluginy navzájem nepřebíjely kód při různém pořadí načtení.
- *
- * Princip:
- *  - Každý plugin se zaregistruje voláním Garry_Promotion_Registry::register().
- *  - Registr je uložen v $GLOBALS['garry_promotion_plugins'] (sdílený mezi pluginy).
- *  - V admin_menu hooku se z registru vytvoří JEDINÁ hlavní položka „GARRY
- *    nastavení" s podpoložkami pro každý zaregistrovaný plugin a vždy
- *    poslední podpoložkou „Info" s prezentací agentury.
- *  - Hlavní položka má barevné SVG logo (vykreslené přes inline CSS data: URI),
- *    podpoložky mají dashicons ikonu zadanou v registru.
- *  - Vše respektuje aktivní/neaktivní stav: neaktivní plugin neregistruje nic,
- *    takže jeho podpoložka v menu prostě není.
- *
- * Tím lze do budoucna přidávat libovolné další mikropluginy bez úprav existujících.
- * ============================================================================
- */
-
-if (!class_exists('Garry_Promotion_Registry')) {
-
-    class Garry_Promotion_Registry {
-
-        const FRAMEWORK_VERSION = '2.1.0';
-        const MENU_SLUG         = 'garry-nastaveni';
-        const INFO_SLUG         = 'garry-info';
-        const CAPABILITY        = 'manage_options';
-        const STAFF_CAPABILITY  = 'edit_others_posts'; // personál hotelu (role Editor a výš)
-        const VISIBILITY_OPTION = 'garry_grid_visibility';
-        const MENU_POSITION     = 81;
-
-        /**
-         * Zaregistruje plugin v globálním sdíleném registru.
-         *
-         * @param array $args {
-         *     @type string   $slug         Slug pro add_submenu_page (povinný).
-         *     @type string   $title        Název podstránky v menu (povinný).
-         *     @type callable $callback     Vykreslovací funkce admin stránky (povinný).
-         *     @type string   $plugin_file  __FILE__ daného pluginu (povinný kvůli lokaci loga).
-         *     @type string   $dashicon     CSS třída dashicons (např. dashicons-editor-expand).
-         *     @type int      $position     Pořadí v podnabídce (čím menší, tím dřív).
-         * }
-         */
-        public static function register(array $args) {
-            $defaults = array(
-                'slug'        => '',
-                'title'       => '',
-                'callback'    => null,
-                'plugin_file' => '',
-                'dashicon'    => 'dashicons-admin-generic',
-                'position'    => 50,
-                'doc'         => '',  // HTML dokumentace implementace (shortcody, widgety)
-                'grid_slug'   => '',  // slug editační podstránky v „GRID Nastavení" (pokud existuje)
-            );
-
-            $args = array_merge($defaults, $args);
-
-            // Minimální validace – bez ní položku do registru nepřidáme.
-            if ($args['slug'] === '' || $args['title'] === '' || !is_callable($args['callback'])) {
-                return;
-            }
-
-            if (!isset($GLOBALS['garry_promotion_plugins']) || !is_array($GLOBALS['garry_promotion_plugins'])) {
-                $GLOBALS['garry_promotion_plugins'] = array();
-            }
-
-            // Klíč podle slugu eliminuje duplicity.
-            $GLOBALS['garry_promotion_plugins'][$args['slug']] = $args;
-        }
-
-        /**
-         * Vrátí všechny registrované (= aktivní) pluginy seřazené podle position.
-         */
-        public static function get_plugins() {
-            $plugins = isset($GLOBALS['garry_promotion_plugins']) && is_array($GLOBALS['garry_promotion_plugins'])
-                ? $GLOBALS['garry_promotion_plugins']
-                : array();
-
-            uasort($plugins, function ($a, $b) {
-                $pa = isset($a['position']) ? (int) $a['position'] : 50;
-                $pb = isset($b['position']) ? (int) $b['position'] : 50;
-                if ($pa === $pb) {
-                    return strcmp((string) $a['title'], (string) $b['title']);
-                }
-                return $pa - $pb;
-            });
-
-            return $plugins;
-        }
-
-        /**
-         * Má se editační stránka pluginu zobrazovat personálu v „GRID Nastavení"?
-         * Řídí se checkboxy na přehledové stránce GARRY nastavení. Výchozí: ano.
-         */
-        public static function grid_visible($slug) {
-            $v = get_option(self::VISIBILITY_OPTION, array());
-            if (!is_array($v) || !array_key_exists($slug, $v)) {
-                return true;
-            }
-            return !empty($v[$slug]);
-        }
-
-        /**
-         * Najde data: URI loga GARRY. Logo bere z prvního dostupného pluginu,
-         * který ho má ve své assets/garry-logo.svg složce.
-         * Výsledek je cachovaný v rámci jednoho requestu.
-         */
-        public static function locate_logo_uri() {
-            static $cached_uri = null;
-
-            if ($cached_uri !== null) {
-                return $cached_uri;
-            }
-
-            foreach (self::get_plugins() as $plugin) {
-                if (empty($plugin['plugin_file'])) {
-                    continue;
-                }
-
-                $path = plugin_dir_path($plugin['plugin_file']) . 'assets/garry-logo.svg';
-
-                if (is_readable($path)) {
-                    $svg = @file_get_contents($path);
-                    if ($svg !== false && $svg !== '') {
-                        $cached_uri = 'data:image/svg+xml;base64,' . base64_encode($svg);
-                        return $cached_uri;
-                    }
-                }
-            }
-
-            $cached_uri = '';
-            return $cached_uri;
-        }
-
-        /**
-         * Mapuje názvy dashicons CSS tříd na unicode glyfy.
-         * Submenu položkám WordPress dashicon ikonu sám nevykresluje,
-         * takže si ji vykreslíme přes ::before pseudoprvek.
-         */
-        public static function dashicon_glyph($dashicon_class) {
-            $map = array(
-                'dashicons-admin-generic'      => 'f111',
-                'dashicons-admin-settings'     => 'f108',
-                'dashicons-admin-tools'        => 'f107',
-                'dashicons-admin-customizer'   => 'f540',
-                'dashicons-admin-appearance'   => 'f100',
-                'dashicons-admin-comments'     => 'f117',
-                'dashicons-editor-textcolor'   => 'f215',
-                'dashicons-editor-expand'      => 'f211',
-                'dashicons-editor-contract'    => 'f506',
-                'dashicons-editor-alignleft'   => 'f207',
-                'dashicons-editor-paragraph'   => 'f476',
-                'dashicons-text'               => 'f478',
-                'dashicons-format-aside'       => 'f123',
-                'dashicons-format-status'      => 'f130',
-                'dashicons-format-chat'        => 'f125',
-                'dashicons-megaphone'          => 'f488',
-                'dashicons-info'               => 'f348',
-                'dashicons-info-outline'       => 'f14c',
-                'dashicons-welcome-write-blog' => 'f119',
-                'dashicons-lightbulb'          => 'f339',
-                'dashicons-warning'            => 'f534',
-                'dashicons-bell'               => 'f471',
-                'dashicons-flag'               => 'f227',
-            );
-
-            return isset($map[$dashicon_class]) ? $map[$dashicon_class] : 'f111';
-        }
-
-        /**
-         * Sestavení hlavní položky menu, podpoložek a stránky „Info".
-         * Volá se v admin_menu hooku s prioritou 99, aby byl registr již naplněný.
-         */
-        public static function build_admin_menu() {
-            add_menu_page(
-                'GARRY nastavení',
-                'GARRY nastavení',
-                self::CAPABILITY,
-                self::MENU_SLUG,
-                array(__CLASS__, 'render_overview_page'),
-                'none', // ikonu vykreslíme inline CSS s barevným SVG
-                self::MENU_POSITION
-            );
-
-            // Přejmenujeme výchozí duplicitní podpoložku „GARRY nastavení" na „Přehled".
-            add_submenu_page(
-                self::MENU_SLUG,
-                'GARRY nastavení – přehled',
-                'Přehled',
-                self::CAPABILITY,
-                self::MENU_SLUG,
-                array(__CLASS__, 'render_overview_page')
-            );
-
-            // Podpoložky podle registru (řazené podle position).
-            $position = 10;
-            foreach (self::get_plugins() as $plugin) {
-                add_submenu_page(
-                    self::MENU_SLUG,
-                    $plugin['title'],
-                    $plugin['title'],
-                    self::CAPABILITY,
-                    $plugin['slug'],
-                    $plugin['callback'],
-                    $position
-                );
-                $position += 10;
-            }
-
-            // Vždy poslední položka „Info" (vysoká position).
-            add_submenu_page(
-                self::MENU_SLUG,
-                'GARRY Promotion – Info',
-                'Info',
-                self::CAPABILITY,
-                self::INFO_SLUG,
-                array(__CLASS__, 'render_info_page'),
-                9999
-            );
-        }
-
-        /**
-         * Vykreslení přehledové stránky GARRY nastavení.
-         */
-        public static function render_overview_page() {
-            if (!current_user_can(self::CAPABILITY)) {
-                return;
-            }
-
-            $plugins = self::get_plugins();
-
-            // Uložení viditelnosti v GRID Nastavení (pouze administrátor).
-            if (isset($_POST['garry_grid_visibility_nonce'])
-                && wp_verify_nonce($_POST['garry_grid_visibility_nonce'], 'garry_grid_visibility')
-                && current_user_can('manage_options')) {
-                $vis = array();
-                foreach ($plugins as $slug => $p) {
-                    if (empty($p['grid_slug'])) continue;
-                    $vis[$slug] = empty($_POST['garry_vis'][$slug]) ? 0 : 1;
-                }
-                update_option(self::VISIBILITY_OPTION, $vis, false);
-                echo '<div class="notice notice-success is-dismissible"><p>Viditelnost v GRID Nastavení uložena. Změna se projeví po novém načtení stránky.</p></div>';
-            }
-            ?>
-            <div class="wrap garry-admin-wrap">
-                <h1>GARRY nastavení</h1>
-                <p class="garry-admin-lead">
-                    Společné administrační místo pro zakázkové mikropluginy vytvořené agenturou
-                    <strong>GARRY Promotion</strong>. Jednotlivé pluginy se zde objevují automaticky podle toho,
-                    které jsou aktivní.
-                </p>
-
-                <?php if (!empty($plugins)) : ?>
-                    <h2 class="title">Aktivní GARRY mikropluginy na tomto webu</h2>
-                    <div class="garry-admin-cards">
-                        <?php foreach ($plugins as $plugin) : ?>
-                            <a class="garry-admin-card" href="<?php echo esc_url(admin_url('admin.php?page=' . $plugin['slug'])); ?>">
-                                <span class="dashicons <?php echo esc_attr($plugin['dashicon']); ?>"></span>
-                                <span class="garry-admin-card-title"><?php echo esc_html($plugin['title']); ?></span>
-                                <span class="garry-admin-card-arrow dashicons dashicons-arrow-right-alt2"></span>
-                            </a>
-                        <?php endforeach; ?>
-                    </div>
-                <?php else : ?>
-                    <div class="notice notice-warning inline">
-                        <p>Aktuálně není zaregistrován žádný GARRY mikroplugin. Aktivujte některý z pluginů,
-                        nebo se podívejte do nabídky agentury.</p>
-                    </div>
-                <?php endif; ?>
-
-                <?php $grid_plugins = array_filter($plugins, function ($p) { return !empty($p['grid_slug']); }); ?>
-                <?php if (!empty($grid_plugins)) : ?>
-                    <h2 class="title">Viditelnost v „GRID Nastavení" (co vidí personál)</h2>
-                    <p class="garry-admin-lead">Zaškrtnuté pluginy mají svou editační stránku v menu
-                    <strong>GRID Nastavení</strong>, kde obsah spravuje personál hotelu (role Editor a výš).
-                    Odškrtnutím položku personálu skryjete — data zůstávají, zmizí jen položka menu.</p>
-                    <form method="post">
-                        <?php wp_nonce_field('garry_grid_visibility', 'garry_grid_visibility_nonce'); ?>
-                        <table class="widefat striped" style="max-width:620px">
-                            <tbody>
-                            <?php foreach ($grid_plugins as $slug => $p) : ?>
-                                <tr><td style="padding:10px 14px">
-                                    <label><input type="checkbox" name="garry_vis[<?php echo esc_attr($slug); ?>]" value="1" <?php checked(self::grid_visible($slug)); ?>>
-                                    <strong><?php echo esc_html($p['title']); ?></strong></label>
-                                </td></tr>
-                            <?php endforeach; ?>
-                            </tbody>
-                        </table>
-                        <?php submit_button('Uložit viditelnost'); ?>
-                    </form>
-                <?php endif; ?>
-
-                <?php $doc_plugins = array_filter($plugins, function ($p) { return !empty($p['doc']); }); ?>
-                <?php if (!empty($doc_plugins)) : ?>
-                    <h2 class="title">Implementační dokumentace (shortcody a widgety)</h2>
-                    <p class="garry-admin-lead">Technické informace pro správce webu — kde se jednotlivé
-                    prvky vykreslují a jakými shortcody je lze vložit do obsahu.</p>
-                    <?php foreach ($doc_plugins as $p) : ?>
-                        <details style="background:#fff;border:1px solid #c3c4c7;border-radius:4px;padding:10px 14px;margin-bottom:8px;max-width:860px">
-                            <summary style="cursor:pointer;font-weight:600"><?php echo esc_html($p['title']); ?></summary>
-                            <div style="padding-top:8px"><?php echo wp_kses_post($p['doc']); ?></div>
-                        </details>
-                    <?php endforeach; ?>
-                <?php endif; ?>
-
-                <p class="garry-admin-foot">
-                    Více o agentuře a všech našich službách najdete v podnabídce
-                    <a href="<?php echo esc_url(admin_url('admin.php?page=' . self::INFO_SLUG)); ?>"><strong>Info</strong></a>.
-                </p>
-            </div>
-            <?php
-        }
-
-        /**
-         * Vykreslení stránky „Info" – prezentace agentury GARRY Promotion.
-         */
-        public static function render_info_page() {
-            if (!current_user_can(self::CAPABILITY)) {
-                return;
-            }
-
-            $logo    = self::locate_logo_uri();
-            $plugins = self::get_plugins();
-            ?>
-            <div class="wrap garry-info-wrap">
-
-                <div class="garry-info-hero">
-                    <?php if ($logo) : ?>
-                        <img class="garry-info-logo" src="<?php echo esc_attr($logo); ?>" alt="GARRY Promotion" />
-                    <?php endif; ?>
-                    <p class="garry-info-tagline">
-                        Fluidní marketingová agentura<br>
-                        <span>offline · online · AI</span>
-                    </p>
-                </div>
-
-                <div class="garry-info-grid">
-                    <div class="garry-info-card garry-info-card--about">
-                        <h2>Kdo jsme</h2>
-                        <p>
-                            <strong>GARRY Promotion</strong> je <em>fluidní marketingová agentura</em>,
-                            která propojuje tři světy reklamy do jednoho funkčního celku:
-                            klasický <strong>offline marketing</strong>, datový <strong>online marketing</strong>
-                            a moderní <strong>AI marketing</strong>.
-                        </p>
-                        <p>
-                            Pracujeme rychle, koncepčně a tak, aby každý nástroj v komunikaci klienta měl smysl
-                            a navazoval na zbytek. Od velkého formátu na fasádě až po automatizaci ve skladovém
-                            systému – pro nás je to jeden projekt.
-                        </p>
-                    </div>
-
-                    <div class="garry-info-card garry-info-card--services">
-                        <h2>Co pro vás děláme</h2>
-                        <ul class="garry-info-list">
-                            <li><span class="dashicons dashicons-admin-site-alt3"></span><span class="garry-info-list-text">Tvorba <strong>webů na míru</strong> – WordPress, Divi, vlastní šablony</span></li>
-                            <li><span class="dashicons dashicons-admin-plugins"></span><span class="garry-info-list-text">Vývoj <strong>pluginů a webových aplikací</strong> přesně podle zadání</span></li>
-                            <li><span class="dashicons dashicons-car"></span><span class="garry-info-list-text"><strong>Polepy vozidel</strong>, fasád, výloh a velkoformátový tisk</span></li>
-                            <li><span class="dashicons dashicons-megaphone"></span><span class="garry-info-list-text">Výroba <strong>offline reklamy a tiskovin</strong> – od vizitky po billboard</span></li>
-                            <li><span class="dashicons dashicons-chart-line"></span><span class="garry-info-list-text"><strong>Online marketing</strong>: SEO, PPC, sociální sítě, mailing</span></li>
-                            <li><span class="dashicons dashicons-update-alt"></span><span class="garry-info-list-text"><strong>Automatizace procesů</strong> a integrace mezi systémy</span></li>
-                            <li><span class="dashicons dashicons-database"></span><span class="garry-info-list-text">Nastavení <strong>CRM, ERP a WMS</strong> systémů</span></li>
-                            <li><span class="dashicons dashicons-superhero"></span><span class="garry-info-list-text"><strong>AI marketing a vibecoding</strong> – nasazení AI nástrojů přímo do provozu firmy</span></li>
-                        </ul>
-                    </div>
-
-                    <div class="garry-info-card garry-info-card--contact">
-                        <h2>Kontakt</h2>
-                        <ul class="garry-info-contact">
-                            <li>
-                                <span class="dashicons dashicons-admin-site"></span>
-                                <span class="garry-info-contact-label">Web agentury</span>
-                                <a href="https://garry.cz/" target="_blank" rel="noopener noreferrer">garry.cz</a>
-                            </li>
-                            <li>
-                                <span class="dashicons dashicons-businessman"></span>
-                                <span class="garry-info-contact-label">Realizace projektů</span>
-                                <strong>Michal Truhlář</strong>
-                                <a href="mailto:michal@garry.eu">michal@garry.eu</a>
-                            </li>
-                            <li>
-                                <span class="dashicons dashicons-sos"></span>
-                                <span class="garry-info-contact-label">Technická podpora</span>
-                                <a href="mailto:podpora@garry.eu">podpora@garry.eu</a>
-                            </li>
-                        </ul>
-                    </div>
-                </div>
-
-                <?php if (!empty($plugins)) : ?>
-                    <div class="garry-info-installed">
-                        <h2>Aktivní GARRY mikropluginy na tomto webu</h2>
-                        <ul>
-                            <?php foreach ($plugins as $plugin) : ?>
-                                <li>
-                                    <span class="dashicons <?php echo esc_attr($plugin['dashicon']); ?>"></span>
-                                    <a href="<?php echo esc_url(admin_url('admin.php?page=' . $plugin['slug'])); ?>"><?php echo esc_html($plugin['title']); ?></a>
-                                </li>
-                            <?php endforeach; ?>
-                        </ul>
-                    </div>
-                <?php endif; ?>
-
-                <div class="garry-info-foot">
-                    <small>
-                        GARRY framework verze <?php echo esc_html(self::FRAMEWORK_VERSION); ?>.
-                        Doprovodné texty: Creative Commons Attribution / Uveďte původ – <strong>GARRY Promotion / Michal Truhlář</strong>.
-                    </small>
-                </div>
-            </div>
-            <?php
-        }
-
-        /**
-         * Inline CSS pro GARRY menu (logo, ikony podpoložek) a stránku Info.
-         */
-        public static function render_admin_styles() {
-            $logo    = self::locate_logo_uri();
-            $plugins = self::get_plugins();
-            ?>
-            <style id="garry-promotion-admin-css">
-                /* === Hlavní položka menu – barevné SVG logo === */
-                #adminmenu .toplevel_page_<?php echo esc_attr(self::MENU_SLUG); ?> .wp-menu-image {
-                    display: flex !important;
-                    align-items: center !important;
-                    justify-content: center !important;
-                    opacity: 1 !important;
-                    filter: none !important;
-                }
-                #adminmenu .toplevel_page_<?php echo esc_attr(self::MENU_SLUG); ?> .wp-menu-image:before {
-                    content: "" !important;
-                    display: block !important;
-                    width: 22px !important;
-                    height: 22px !important;
-                    margin: 0 !important;
-                    opacity: 1 !important;
-                    filter: none !important;
-                    background-repeat: no-repeat !important;
-                    background-position: center center !important;
-                    background-size: contain !important;
-                    <?php if ($logo) : ?>
-                    background-image: url('<?php echo esc_attr($logo); ?>') !important;
-                    <?php endif; ?>
-                }
-
-                /* === Ikony v podnabídce GARRY menu (dynamicky podle registru) === */
-                <?php foreach ($plugins as $plugin) : ?>
-                #adminmenu .toplevel_page_<?php echo esc_attr(self::MENU_SLUG); ?> .wp-submenu a[href*="page=<?php echo esc_attr($plugin['slug']); ?>"]::before {
-                    font-family: dashicons;
-                    content: "\<?php echo esc_attr(self::dashicon_glyph($plugin['dashicon'])); ?>";
-                    display: inline-block;
-                    width: 18px;
-                    margin-right: 6px;
-                    color: currentColor;
-                    font-size: 15px;
-                    line-height: 1;
-                    vertical-align: -2px;
-                }
-                <?php endforeach; ?>
-
-                /* Ikona Info položky */
-                #adminmenu .toplevel_page_<?php echo esc_attr(self::MENU_SLUG); ?> .wp-submenu a[href*="page=<?php echo esc_attr(self::INFO_SLUG); ?>"]::before {
-                    font-family: dashicons;
-                    content: "\f348";
-                    display: inline-block;
-                    width: 18px;
-                    margin-right: 6px;
-                    color: currentColor;
-                    font-size: 15px;
-                    line-height: 1;
-                    vertical-align: -2px;
-                }
-
-                /* === Přehledová stránka – karty === */
-                .garry-admin-wrap .garry-admin-lead {
-                    font-size: 14px;
-                    max-width: 780px;
-                    color: #50575e;
-                }
-                .garry-admin-wrap .garry-admin-cards {
-                    display: grid;
-                    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-                    gap: 14px;
-                    margin: 12px 0 18px;
-                }
-                .garry-admin-wrap .garry-admin-card {
-                    display: flex;
-                    align-items: center;
-                    gap: 12px;
-                    padding: 16px 18px;
-                    background: #fff;
-                    border: 1px solid #c3c4c7;
-                    border-radius: 6px;
-                    color: #1d2327;
-                    text-decoration: none;
-                    transition: box-shadow .15s, border-color .15s, transform .15s;
-                }
-                .garry-admin-wrap .garry-admin-card:hover {
-                    border-color: #e30613;
-                    box-shadow: 0 4px 12px rgba(227, 6, 19, .12);
-                    transform: translateY(-1px);
-                }
-                .garry-admin-wrap .garry-admin-card > .dashicons {
-                    font-size: 22px;
-                    width: 22px;
-                    height: 22px;
-                    color: #e30613;
-                    flex-shrink: 0;
-                }
-                .garry-admin-wrap .garry-admin-card-title {
-                    flex: 1;
-                    font-weight: 600;
-                    font-size: 14px;
-                }
-                .garry-admin-wrap .garry-admin-card-arrow {
-                    color: #8c8f94;
-                    font-size: 18px;
-                }
-                .garry-admin-wrap .garry-admin-foot {
-                    margin-top: 16px;
-                    font-size: 13px;
-                    color: #50575e;
-                }
-
-                /* === Info stránka === */
-                .garry-info-wrap {
-                    max-width: 1100px;
-                }
-                .garry-info-wrap .garry-info-hero {
-                    background: linear-gradient(135deg, #fff 0%, #fff5f5 100%);
-                    border: 1px solid #c3c4c7;
-                    border-radius: 8px;
-                    padding: 32px 24px 24px;
-                    text-align: center;
-                    margin: 16px 0 20px;
-                }
-                .garry-info-wrap .garry-info-logo {
-                    display: block;
-                    margin: 0 auto;
-                    max-width: 360px;
-                    width: 100%;
-                    height: auto;
-                }
-                .garry-info-wrap .garry-info-tagline {
-                    margin: 8px 0 0;
-                    color: #1d1d1b;
-                    font-size: 15px;
-                    line-height: 1.5;
-                }
-                .garry-info-wrap .garry-info-tagline span {
-                    color: #e30613;
-                    font-weight: 600;
-                    letter-spacing: .04em;
-                }
-                .garry-info-wrap .garry-info-grid {
-                    display: grid;
-                    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-                    gap: 16px;
-                }
-                .garry-info-wrap .garry-info-card {
-                    background: #fff;
-                    border: 1px solid #c3c4c7;
-                    border-radius: 8px;
-                    padding: 20px 22px;
-                }
-                .garry-info-wrap .garry-info-card h2 {
-                    margin: 0 0 12px;
-                    color: #1d1d1b;
-                    font-size: 17px;
-                    border-bottom: 2px solid #e30613;
-                    padding-bottom: 8px;
-                    display: inline-block;
-                }
-                .garry-info-wrap .garry-info-card p {
-                    margin: 0 0 10px;
-                    line-height: 1.55;
-                }
-                .garry-info-wrap .garry-info-list,
-                .garry-info-wrap .garry-info-contact {
-                    margin: 0;
-                    padding: 0;
-                    list-style: none;
-                }
-                .garry-info-wrap .garry-info-list li {
-                    display: flex;
-                    align-items: flex-start;
-                    gap: 10px;
-                    padding: 8px 0;
-                    border-bottom: 1px dashed #e5e7eb;
-                    line-height: 1.45;
-                }
-                .garry-info-wrap .garry-info-list li:last-child {
-                    border-bottom: none;
-                }
-                .garry-info-wrap .garry-info-list .dashicons {
-                    color: #e30613;
-                    flex-shrink: 0;
-                    margin-top: 1px;
-                }
-                .garry-info-wrap .garry-info-list-text {
-                    flex: 1 1 auto;
-                    min-width: 0;
-                }
-                .garry-info-wrap .garry-info-contact li {
-                    display: grid;
-                    grid-template-columns: 22px 1fr;
-                    column-gap: 10px;
-                    align-items: baseline;
-                    padding: 10px 0;
-                    border-bottom: 1px dashed #e5e7eb;
-                }
-                .garry-info-wrap .garry-info-contact li:last-child {
-                    border-bottom: none;
-                }
-                .garry-info-wrap .garry-info-contact > li > .dashicons {
-                    grid-row: 1 / 3;
-                    color: #e30613;
-                    align-self: center;
-                }
-                .garry-info-wrap .garry-info-contact-label {
-                    grid-column: 2;
-                    font-size: 12px;
-                    color: #6b7280;
-                    text-transform: uppercase;
-                    letter-spacing: .04em;
-                }
-                .garry-info-wrap .garry-info-contact li > strong,
-                .garry-info-wrap .garry-info-contact li > a {
-                    grid-column: 2;
-                }
-                .garry-info-wrap .garry-info-contact a {
-                    color: #e30613;
-                    text-decoration: none;
-                    font-weight: 500;
-                }
-                .garry-info-wrap .garry-info-contact a:hover {
-                    text-decoration: underline;
-                }
-                .garry-info-wrap .garry-info-installed {
-                    margin-top: 20px;
-                    padding: 18px 22px;
-                    background: #fff;
-                    border: 1px solid #c3c4c7;
-                    border-radius: 8px;
-                }
-                .garry-info-wrap .garry-info-installed h2 {
-                    margin-top: 0;
-                    font-size: 16px;
-                }
-                .garry-info-wrap .garry-info-installed ul {
-                    margin: 0;
-                    padding: 0;
-                    list-style: none;
-                }
-                .garry-info-wrap .garry-info-installed li {
-                    display: flex;
-                    align-items: center;
-                    gap: 8px;
-                    padding: 6px 0;
-                }
-                .garry-info-wrap .garry-info-installed .dashicons {
-                    color: #e30613;
-                }
-                .garry-info-wrap .garry-info-installed a {
-                    text-decoration: none;
-                    font-weight: 500;
-                }
-                .garry-info-wrap .garry-info-installed a:hover {
-                    text-decoration: underline;
-                }
-                .garry-info-wrap .garry-info-foot {
-                    margin-top: 18px;
-                    color: #6b7280;
-                    font-size: 12px;
-                    text-align: right;
-                }
-            </style>
-            <?php
-        }
-
-        /**
-         * Bootstrap registru – připojí akce na admin_menu a admin_head.
-         * Idempotentní: lze volat z každého pluginu, hooky se připojí jen jednou.
-         */
-        public static function bootstrap() {
-            static $bootstrapped = false;
-            if ($bootstrapped) {
-                return;
-            }
-            $bootstrapped = true;
-
-            // Vysoká priorita zaručí, že registr je už naplněný.
-            add_action('admin_menu', array(__CLASS__, 'build_admin_menu'), 99);
-
-            // CSS do <head> v administraci.
-            add_action('admin_head', array(__CLASS__, 'render_admin_styles'));
-        }
-    }
-}
-
-// Bootstrap je idempotentní, takže ho volá každý plugin – sjednotí se uvnitř.
-Garry_Promotion_Registry::bootstrap();
 
 
 /* ============================================================================
  * GARRY – Situace na trati (widget) — živá data z Open-Meteo dle GPS
  * ============================================================================ */
 
+define( 'GARRY_SIT_VER', '1.5.0' );
 define( 'GARRY_SIT_OPT', 'garry_sit_settings' );
+/**
+ * Fáze 6 GRID Suite refaktoringu — dřív tenhle plugin neměl žádnou vlastní
+ * capability ani GRID integraci (viz GRID-SUITE-06 §7/§10). Stejný
+ * SEC-SELF-001 vzor jako u ostatních GARRY pluginů: admin má přístup vždy,
+ * komukoli dalšímu se přidělí přes „Oprávnění personálu" v GARRY – GRID Core.
+ */
+define( 'GARRY_SIT_STAFF_CAP', 'garry_grid_manage_situace_na_trati' );
 
 /* Dostupné údaje (klíč => [popisek v adminu, popisek na webu, výchozí zapnuto]) */
 function garry_sit_fields() {
@@ -783,11 +85,44 @@ function garry_sit_get() {
 	return wp_parse_args( is_array( $o ) ? $o : array(), garry_sit_defaults() );
 }
 
-Garry_Promotion_Registry::register( array(
-	'slug' => 'garry-situace-na-trati', 'title' => 'Situace na trati',
-	'callback' => 'garry_sit_admin_page', 'plugin_file' => __FILE__,
-	'doc' => '<p>Vyjížděcí karta „GRID · LIVE" (počasí, stav trati, otevírací doba) se vykresluje na frontendu automaticky — bez shortcodu; nahradila starší <code>[grid_telemetry]</code>. Nastavení pouze zde (administrátor).</p>', 'dashicon' => 'dashicons-info', 'position' => 10,
-) );
+require_once __DIR__ . '/includes/framework-v23/bootstrap.php';
+\Garry\Embedded\SituaceNaTrati\V23\bootstrap( __FILE__, 'garry_sit_admin_page', 'Situace na trati' );
+
+register_activation_hook( __FILE__, function () {
+	$role = get_role( 'administrator' );
+	if ( $role && ! $role->has_cap( GARRY_SIT_STAFF_CAP ) ) {
+		$role->add_cap( GARRY_SIT_STAFF_CAP );
+	}
+} );
+add_action( 'admin_init', function () {
+	$role = get_role( 'administrator' );
+	if ( $role && ! $role->has_cap( GARRY_SIT_STAFF_CAP ) ) {
+		$role->add_cap( GARRY_SIT_STAFF_CAP );
+	}
+} );
+
+/**
+ * Registrace do GARRY – GRID Core modul registru (GRID-SUITE-06 §10).
+ * Feature track_status zatím žádný jiný plugin nekonzumuje (GRID Hotel
+ * Components [grid_telemetry] záměrně nepřevzala — viz manifest Components,
+ * widget už dnes vlastní tenhle plugin end-to-end), ale registrace patří do
+ * Core diagnostiky/Moduly stránky konzistentně se zbytkem sady.
+ */
+add_action( 'gridhotel_register_modules', function () {
+	if ( ! function_exists( 'gridhotel_register_module' ) ) {
+		return;
+	}
+	gridhotel_register_module( array(
+		'id'                  => 'garry-situace-na-trati',
+		'name'                => 'Situace na trati',
+		'version'             => defined( 'GARRY_SIT_VER' ) ? GARRY_SIT_VER : '1.5.0',
+		'admin_slug'          => 'garry-situace-na-trati',
+		'capability'          => GARRY_SIT_STAFF_CAP,
+		'shortcodes'          => array( 'grid_telemetry' ),
+		'features'            => array( 'track_status' ),
+		'hidden_in_grid_menu' => true, // zatím bez vlastní GRID Nastavení karty (GRID-SUITE-06 §7 zbývá) — widget se ovládá v GARRY Nastavení
+	) );
+} );
 
 add_action( 'admin_init', function () { register_setting( 'garry_sit_group', GARRY_SIT_OPT, 'garry_sit_sanitize' ); } );
 function garry_sit_sanitize( $in ) {
@@ -900,22 +235,20 @@ add_action( 'wp_footer', function () {
 	  var GSIT=<?php echo wp_json_encode( array( 'locale' => $L['locale'], 'codes' => $L['codes'], 'povrch' => $L['povrch'] ) ); ?>;
 	  var el=document.getElementById('hud'); if(!el)return;
 	  var reopen=document.getElementById('hudReopen');
-	  /* V Divi Visual/Backend Builderu se do DOM nezasahuje — reparenting mimo modul
-	     by mátl React strom builderu. Fixed positioning tam navíc neřeší, canvas je jen náhled. */
-	  var isBuilder = /[?&]et_fb=1/.test(location.search)
-	    || document.body.classList.contains('et-fb')
-	    || document.body.classList.contains('et-bfb')
-	    || document.documentElement.classList.contains('et-fb-preview');
 	  /* Přesun mimo Divi kontejnery (transform ruší position:fixed) — řídí plugin sám,
 	     nezávisle na pořadí načtení skriptů šablony. */
-	  if(!isBuilder){
-	    if(el.parentNode!==document.body) document.body.appendChild(el);
-	    if(reopen && reopen.parentNode!==document.body) document.body.appendChild(reopen);
-	  }
-	  /* Zavření křížkem + znovuotevření boční kartou „Live" */
+	  if(el.parentNode!==document.body) document.body.appendChild(el);
+	  if(reopen && reopen.parentNode!==document.body) document.body.appendChild(reopen);
+	  /* Zavření křížkem + znovuotevření boční kartou „Live" — stav se pamatuje přes
+	     localStorage, ať zůstane schovaný i po přechodu na další stránku (dřív se
+	     při každém novém načtení stránky tiše zapomněl a widget se vždy vrátil). */
+	  var HUD_KEY='garry_sit_hud_hidden';
+	  function hudStore(v){ try{ if(v) localStorage.setItem(HUD_KEY,'1'); else localStorage.removeItem(HUD_KEY); }catch(e){} }
+	  function hudRecall(){ try{ return localStorage.getItem(HUD_KEY)==='1'; }catch(e){ return false; } }
+	  if(hudRecall()){ el.classList.add('hidden'); if(reopen) reopen.classList.add('show'); }
 	  var xbtn=document.getElementById('hudX');
-	  if(xbtn) xbtn.addEventListener('click', function(){ el.classList.add('hidden'); if(reopen) reopen.classList.add('show'); });
-	  if(reopen) reopen.addEventListener('click', function(){ el.classList.remove('hidden'); reopen.classList.remove('show'); });
+	  if(xbtn) xbtn.addEventListener('click', function(){ el.classList.add('hidden'); if(reopen) reopen.classList.add('show'); hudStore(true); });
+	  if(reopen) reopen.addEventListener('click', function(){ el.classList.remove('hidden'); reopen.classList.remove('show'); hudStore(false); });
 	  var lat=el.getAttribute('data-lat')||'49.2043', lon=el.getAttribute('data-lon')||'16.4471', refresh=parseInt(el.getAttribute('data-refresh')||'10',10);
 	  function setF(f,v){ var s=el.querySelector('[data-field="'+f+'"]'); if(s)s.innerHTML=v; }
 	  if(el.querySelector('[data-field="cas"]')){ var tick=function(){ setF('cas', new Date().toLocaleTimeString(GSIT.locale,{hour:'2-digit',minute:'2-digit',second:'2-digit'})); }; tick(); setInterval(tick,1000); }

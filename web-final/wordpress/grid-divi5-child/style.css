@@ -4,7 +4,7 @@ Theme URI: https://www.garry.cz
 Author: GARRY Promotion
 Author URI: https://www.garry.cz
 Description: Prémiová child šablona pro Divi 5 vytvořená na míru pro GRID Hotel — **** hotel a restauraci přímo v areálu Autodromu Brno u Masarykova okruhu. Designový systém „Circuit Line": vlastní barevná paleta a typografie s plnou českou diakritikou, karbonová textura tmavých sekcí, živý telemetry widget (čas + teplota trati), sekce Sezóna 2026 s čekacím listem a obsah řízený přes ACF. Navrhla a vyvinula fluidní marketingová agentura GARRY Promotion.
-Version: 2.17.0
+Version: 3.0.4
 Requires at least: 6.4
 Tested up to: 6.8
 Requires PHP: 8.0
@@ -19,7 +19,6 @@ Text Domain: grid-divi5-child
    Šířka webu: uprav --maxw (1200 / 1280 / 1320)
    ============================================================ */
 :root{
-    --rail:0px; /* rezerva pro bocni posuvnik; realna hodnota v @media >=1081px */
     --graphite:#16181B;
     --graphite-deep:#0E0F11;
     --graphite-soft:#1D2025;
@@ -38,6 +37,13 @@ Text Domain: grid-divi5-child
     --f-mono:'JetBrains Mono',monospace;
     --f-body:'Inter',sans-serif;
     --maxw:1280px;  /* šířka webu: 1200 | 1280 | 1320 */
+    --rail:190px;   /* prostor pro sekční navigaci vpravo (.track-progress) */
+    /* Doplňkový levý odstup od HUD "situace na trati" (.telemetry-hud) se
+       počítá dynamicky (viz .wrap,.entries níže), ne pevnou hodnotou –
+       .wrap je sám vycentrovaný (max-width:1280px;margin:auto), takže
+       přirozená mezera od okraje viewportu se mění s šířkou okna a pevné
+       číslo by na širokém displeji zbytečně ukrajovalo desítky px navíc a
+       na užším displeji (blízko 1280px) by nestačilo. */
   }
   *{margin:0;padding:0;box-sizing:border-box}
   html{scroll-behavior:smooth}
@@ -55,7 +61,15 @@ Text Domain: grid-divi5-child
   ::selection{background:var(--red);color:#fff}
 
   /* ===== SECTION THEMING (alternating light / dark) ===== */
-  .sec{--fg:var(--offwhite);--muted:var(--grey);--line-c:var(--line);--card:var(--graphite);--card-line:var(--line);--stroke:rgba(185,183,185,.12);color:var(--fg)}
+  /* position:relative je nutné, aby se .sec-tag (position:absolute) přišpendlil
+     k rohu KAŽDÉ sekce – vlastní `section{position:relative}` níže platí jen pro
+     doslovný <section> tag, ne pro sekce, které Divi builder atomizoval na
+     <div class="et_pb_section ...">. .sec je na obou variantách vždy přítomná. */
+  .sec{position:relative;--fg:var(--offwhite);--muted:var(--grey);--line-c:var(--line);--card:var(--graphite);--card-line:var(--line);--stroke:rgba(185,183,185,.12);color:var(--fg)}
+  /* Diviho vlastní .et_flex_section má row-gap podle --module-gutter mezi
+     přímými potomky (sec-tag modul, řádky sekce) – u T2/T7 to dělalo mezeru
+     nad bezokrajovou fotkou, přestože samotný sec-tag modul má výšku 0. */
+  .et_flex_section{row-gap:0 !important}
   .sec-dark{
     background:var(--graphite-deep);
     --fg:var(--offwhite);--muted:var(--grey);--line-c:rgba(255,255,255,.11);
@@ -84,76 +98,24 @@ Text Domain: grid-divi5-child
   /* ===== TYPOGRAPHY HELPERS ===== */
   .kicker{
     font-family:var(--f-mono);font-size:.72rem;letter-spacing:.32em;text-transform:uppercase;
-    color:var(--red);display:inline-flex;align-items:center;gap:.7em;line-height:1.6;
+    color:var(--red);display:inline-flex;align-items:center;gap:.7em;
   }
   .kicker::before{content:"";width:30px;height:1px;background:linear-gradient(90deg,var(--red),var(--gold))}
   /* GLOBÁLNÍ pravidlo: kicker na tmavém pozadí = zlatá (jako patička), na světlém = brandová červená (default). Hero má bílý (výjimka). */
   .sec-dark:not(.hero) .kicker{color:var(--gold)}
   .sec-dark:not(.hero) .kicker::before{background:linear-gradient(90deg,var(--gold),rgba(202,167,95,.25))}
   h1,h2,h3{font-family:var(--f-head);text-transform:uppercase;line-height:.95;font-weight:700;letter-spacing:.01em;color:var(--fg)}
+  /* Divi 5 dává atomickým modulům (Heading/Text) vlastní typografii přes
+     --et_global_heading_font/--et_global_body_font (výchozí 'Open Sans',
+     různé od naší --f-head/--f-body) — jde o konkrétní, specifičtější
+     pravidla na .et_pb_module_header/.et_pb_text_inner, takže náš výše
+     uvedený obecný h1,h2,h3/body selektor bez !important prohrává. Jakmile
+     je stránka poskládaná z atomických Divi modulů, nadpisy i text tak tiše
+     přepadnou na Divi výchozí písmo. Vynucujeme font-family bez ohledu na
+     to, v jakém Divi obalu se prvek nachází. */
+  h1,h2,h3{font-family:var(--f-head) !important}
+  p{font-family:var(--f-body) !important}
   .data{font-family:var(--f-mono);letter-spacing:.06em}
-
-  /* ============================================================
-     GLOBÁLNÍ NADPISOVÝ SYSTÉM (H1–H6) — schváleno klientem 2026-07,
-     zaváděno napříč Divi granulárními stránkami. Nízká specificita
-     :where() nechává VŠECHNY existující komponentové nadpisové třídy
-     (níže v souboru — .hero h1, .final h2, .room h3, .k-block h2/h3,
-     .grid-legal .legal-body h1/h2/h3, .dp-route-title h3, .bkmock-*
-     h3/h4, .foot-col h4 atd.) beze změny přebít velikost/barvu/kolik
-     chtějí — global pravidlo je jen výchozí základ, ne strop.
-     Základní barevné pravidlo: světlé pozadí = červený accent,
-     tmavé pozadí = zlatý accent (stejně jako .kicker výše). */
-  :root{
-    --heading-on-light:#16181B;
-    --heading-on-dark:#F4F2F0;
-    --heading-accent-light:#C20E1A;
-    --heading-accent-dark:#CAA75F;
-    --heading-accent-image:#FF5A50;
-
-    --h1-size:4rem;       /* 64px */
-    --h2-size:3rem;       /* 48px */
-    --h3-size:1.875rem;   /* 30px */
-    --h4-size:1.5rem;     /* 24px */
-    --h5-size:1.25rem;    /* 20px */
-    --h6-size:1rem;       /* 16px */
-  }
-  .sec-light{--heading-color:var(--heading-on-light);--heading-accent:var(--heading-accent-light)}
-  .sec-dark{--heading-color:var(--heading-on-dark);--heading-accent:var(--heading-accent-dark)}
-
-  .sec :where(h1,h2,h3,h4,h5,h6){
-    font-family:var(--f-head);
-    color:var(--heading-color,var(--fg));
-    margin:0;padding:0;max-width:100%;
-    overflow-wrap:break-word;hyphens:auto;
-  }
-  .sec :where(h1,h2,h3){text-transform:uppercase;letter-spacing:.01em;text-wrap:balance}
-  .sec :where(h4,h5,h6){text-transform:none}
-  .sec :where(h1){font-size:var(--h1-size);line-height:1;font-weight:800}
-  .sec :where(h2){font-size:var(--h2-size);line-height:1.04;font-weight:700}
-  .sec :where(h3){font-size:var(--h3-size);line-height:1.10;font-weight:700}
-  .sec :where(h4){font-size:var(--h4-size);line-height:1.20;font-weight:700}
-  .sec :where(h5){font-size:var(--h5-size);line-height:1.25;font-weight:600}
-  .sec :where(h6){font-size:var(--h6-size);line-height:1.30;font-weight:600}
-  .sec .heading-accent :where(h1,h2,h3,h4,h5,h6),
-  .sec :where(h1,h2,h3,h4,h5,h6).heading-accent{color:var(--heading-accent)}
-
-  @media(max-width:980px){
-    :root{--h1-size:3.25rem;--h2-size:2.5rem;--h3-size:1.6875rem;--h4-size:1.375rem;--h5-size:1.125rem}
-  }
-  @media(max-width:640px){
-    :root{--h1-size:2.5rem;--h2-size:2rem;--h3-size:1.5rem;--h4-size:1.25rem}
-  }
-  /* Výjimky z globálního systému (dohodnuto s klientem):
-     - Homepage hero (.hero h1) a finální CTA (.final h2) si drží svou
-       zvětšenou velikost — netýká se jich, mají vlastní pravidla níže.
-     - Karty pokojů/zážitků/gastronomie/sezóny mají vlastní menší H3 —
-       vlastní třídy, global je nepřebije.
-     - Právní stránky (VOP/GDPR/Cookies/Ubytovací řád) používají
-       kompaktnější variantu BEZ verzálek — .legal-body/.vop-hero níže
-       teď explicitně vypínají uppercase/letter-spacing, aby jim ho
-       tento global blok nevnucoval.
-     - Patička (.foot-col h4) je mimo .sec, global se jí nedotýká.
-     - Bookolo mock (.bkmock-*) má vlastní typografii, mimo global. */
 
   /* ===== TOP NAV ===== */
   header{
@@ -170,8 +132,19 @@ Text Domain: grid-divi5-child
   body.home #topbar:not(.scrolled) .brand img{transform:scale(3);filter:drop-shadow(0 6px 24px rgba(0,0,0,.35))}
   @media(max-width:980px){ body.home #topbar:not(.scrolled) .brand img{transform:scale(2)} }
   @media(max-width:640px){ body.home #topbar:not(.scrolled) .brand img{transform:scale(1.6)} }
-  .topnav{display:flex;align-items:center;gap:clamp(16px,2vw,30px)}
-  .topnav nav{display:flex;gap:clamp(14px,1.6vw,26px)}
+  /* Diviho Text modul pouští syrové HTML hlavičky přes wpautop, které kolem
+     "osamocených" prvků (odkaz .brand, náš [grid_lang_switch] shortcode než
+     se rozbalí) vkládá prázdné <p></p> – prohlížeč je při parsování oddělí
+     jako vlastní (nulově široké) sourozence uvnitř #topbar/.topnav. Protože
+     obojí je display:flex, tyhle prázdné odstavce se počítají jako další
+     flex položky a justify-content:space-between/gap kvůli nim posouvá
+     tlačítko doprava jinak podle délky textu menu (jinak dlouhý text v
+     různých jazycích) – proto tlačítko nesedělo na stejném místě napříč
+     CZ/EN/DE. Řešíme jejich úplným vyřazením z layoutu, ne opravou zdroje
+     (ten je mimo náš control – Diviho vlastní zpracování Text modulu). */
+  #topbar > p, .topnav > p{display:none !important}
+  .topnav{display:flex !important;flex-direction:row !important;align-items:center;gap:clamp(16px,2vw,30px)}
+  .topnav nav{display:flex !important;flex-direction:row !important;gap:clamp(14px,1.6vw,26px)}
   .topnav nav a{font-family:var(--f-mono);font-size:.74rem;letter-spacing:.12em;text-transform:uppercase;color:var(--grey);transition:color .25s;position:relative;padding:4px 0}
   .topnav nav a::after{content:"";position:absolute;left:0;bottom:-2px;width:0;height:1px;background:var(--red);transition:width .3s}
   .topnav nav a:hover{color:#fff}
@@ -180,10 +153,20 @@ Text Domain: grid-divi5-child
   .lang a{padding:2px 4px;transition:color .2s}
   .lang a.active{color:var(--offwhite)}
   .lang a:hover{color:var(--gold)}
-  .btn{font-family:var(--f-mono);font-size:.74rem;letter-spacing:.14em;text-transform:uppercase;background:var(--red);color:#fff;padding:11px 20px;border:1px solid var(--red);cursor:pointer;transition:background .25s,transform .2s,box-shadow .25s;display:inline-block}
-  .btn:hover{background:var(--red-bright);box-shadow:0 0 22px rgba(194,14,26,.5);transform:translateY(-1px)}
-  .btn-ghost{background:transparent;color:var(--fg);border:1px solid var(--line-c)}
-  .btn-ghost:hover{background:transparent;border-color:var(--red);color:var(--fg);box-shadow:none}
+  .btn{font-family:var(--f-mono);font-size:.74rem;letter-spacing:.14em;text-transform:uppercase;background:var(--red) !important;color:#fff !important;padding:11px 20px;border:1px solid var(--red);cursor:pointer;transition:background .25s,transform .2s,box-shadow .25s;display:inline-block}
+  /* padding/border !important – když je .btn opravdový Divi Button modul
+     (např. sekce CÍL), Diviho vlastní hover CSS (.et_pb_button:hover) mění
+     padding na 0.3em 2em 0.3em 0.7em (nesouměrné, tlačítko na hover
+     poskočí/změní velikost) a border na 2px solid transparent (zdvojnásobí
+     tloušťku a "vertikálně" ho zprůhlední) – bez !important to naše
+     pravidlo prohrává, protože Divi svůj <style> vkládá později. */
+  .btn:hover{background:var(--red-bright) !important;box-shadow:0 0 22px rgba(194,14,26,.5);transform:translateY(-1px);padding:11px 20px !important;border:1px solid var(--red) !important}
+  /* !important nutné – .btn{background:var(--red)!important} má stejnou
+     specificitu a bez něj by na prvcích s oběma třídami (.btn.btn-ghost,
+     typicky Divi Button moduly v sekci CÍL) vždy vyhrálo plné červené
+     pozadí místo průhledného stylu s obrysem. */
+  .btn-ghost{background:transparent !important;color:var(--fg);border:1px solid var(--line-c)}
+  .btn-ghost:hover{background:transparent !important;border-color:var(--red);color:var(--fg);box-shadow:none;padding:11px 20px !important;border-width:1px !important;border-style:solid !important}
   .hamburger{display:none;flex-direction:column;gap:5px;background:none;border:none;cursor:pointer;padding:6px}
   .hamburger span{width:26px;height:2px;background:var(--offwhite);transition:.3s}
   .mobile-menu{display:none}
@@ -237,64 +220,101 @@ Text Domain: grid-divi5-child
 
   /* ===== SECTION FRAME ===== */
   section{position:relative}
-  .wrap{max-width:var(--maxw);margin:0 auto;padding:0 clamp(20px,4vw,52px)}
-  .wrap.wrap-narrow{max-width:760px}
-  /* Právní stránky (VOP/293/GDPR/Cookies — poznat přes legal-body/vop-hero
-     na stejném elementu jako wrap-narrow) mají širší textové pole 860px.
-     Kariéra/Dotazník spokojenosti NEJSOU právní dokumenty, ale chtějí
-     stejnou šířku/mezery/H1 chování — proto .content-wide: honestně
-     nazvaná paralelní třída se stejnou mechanikou (šířka + gap:0 + H1
-     margin/line-height níže), ale BEZ legal-document typografie
-     (.grid-legal .legal-body h2/h3/p barva/line-height), kterou tyto
-     stránky nepotřebují (nemají H2/H3, vlastní paragrafy mají inline
-     styly). */
-  .wrap.wrap-narrow.legal-body,.wrap.wrap-narrow.vop-hero,.wrap.wrap-narrow.content-wide{max-width:860px}
-  /* VOP/293 dávají "vop-hero" na VNĚJŠÍ sloupec (kicker+H1+intro+celý
-     legal-body frame() jako přímé děti), zatímco GDPR/Cookies mají
-     "legal-body" přímo na tomto sloupci — .legal-body{gap:0} tedy na
-     vop-hero neplatí a kicker→H1→intro měly navíc Divi default gap:30px
-     (H1 seděl o ~14px níž než na GDPR/Cookies). Sjednoceno. */
-  .vop-hero{gap:0 !important}
-  /* Granulární Divi 5 rebuild: .wrap sedí na jediném sloupci v řádku (tj. je
-   * vždy zároveň .et-last-child), na který Divi core vynucuje
-   * margin-right:0 !important — to rozbije naše margin:0 auto (jen levá
-   * strana zůstane auto a spolkne celý volný prostor -> obsah je přilepený
-   * vpravo místo na střed). Vycentrování už dělá justify-content:center na
-   * řádku (viz row() v tools/divi5_modules.py) — sloupci proto vynutíme
-   * margin:0 na obě strany, ať to dělá čistě flexbox, ne margin auto. */
-  .et_pb_row>.et_pb_column.wrap,.et_pb_row_inner>.et_pb_column.wrap{margin-left:0 !important;margin-right:0 !important}
-  /* SJEDNOCENI SIREK: Divi dava top-level radku default sirku 80% (=1152px na
-     1440 viewportu), takze .wrap sloupec (max 1280) nikdy nedosahne 1280 pokud
-     radek nema explicitni row_full/grid-fullrow. Vynutime u VSECH ne-vnorenych
-     radku v .sec plnou sirku -> .wrap se pak vzdy vycentruje na 1280.
-     (Splity/full-bleed maji uz max-width:100%, tohle je nezmeni.) */
-  .sec .et_pb_row.et_flex_row:not(.et_pb_row_nested):not(.et_pb_row_inner){width:100% !important}
-  .sec-pad{padding:clamp(120px,16vh,180px) 0}
-  .sec-tag{position:absolute;top:clamp(40px,7vh,80px);left:clamp(20px,4vw,52px);font-family:var(--f-head);font-size:clamp(3rem,9vw,7rem);font-weight:800;color:transparent;-webkit-text-stroke:1px var(--stroke);line-height:.8;z-index:0;pointer-events:none}
-  /* Granulární rebuild (Ubytování/Zážitky/Gastronomie/Sezóna/Firemní akce,
-   * 2026-07): .sec-tag jako <span> UVNITŘ Divi modulu nefunguje — Divi
-   * obaluje KAŽDÝ modul (et_pb_text_inner/et_pb_module/et_pb_column/
-   * et_pb_row) vlastním position:relative, takže absolute positioning se
-   * ukotví k nejbližšímu z TĖCH wrapperů, ne k .sec sekci, i když je
-   * span "někde uvnitř sekce" — proto to vypadalo posunuté pod nadpis.
-   * Fix: watermark jako ::before přímo na SEKCI (ta position:relative
-   * má garantovaně a nic blíž mezi ::before a sekcí není), text přes
-   * dedikovanou třídu per stránka. */
-  .tag-t1::before{content:"T1"}
-  .tag-t2::before{content:"T2"}
-  .tag-t3::before{content:"T3"}
-  .tag-t4::before{content:"T4"}
-  .tag-t5::before{content:"T5"}
-  .tag-t6::before{content:"T6"}
-  .tag-t7::before{content:"T7";z-index:1} /* puvodni span mel z-index:1 (split layout, nad obrazkem) */
-  .tag-t8::before{content:"T8"}
-  #firemni::before{-webkit-text-stroke-color:rgba(20,22,25,.34)} /* T7 v levem hornim rohu NAD fotkou (dle
-    designu jako ostatni stranky); default svetly --stroke by na bezove zdi nebyl videt, proto tmavsi obrys */
-  .tag-t1::before,.tag-t2::before,.tag-t3::before,.tag-t4::before,.tag-t5::before,.tag-t6::before,.tag-t7::before,.tag-t8::before{
-    position:absolute;top:clamp(40px,7vh,80px);left:clamp(20px,4vw,52px);font-family:var(--f-head);
-    font-size:clamp(3rem,9vw,7rem);font-weight:800;color:transparent;-webkit-text-stroke:1px var(--stroke);
-    line-height:.8;z-index:0;pointer-events:none;
+  .wrap{max-width:var(--maxw) !important;margin:0 auto !important;padding:0 clamp(20px,4vw,52px)}
+  /* Divi generuje pro každou stránku vlastní CSS cache (wp-content/et-cache/),
+     kde konkrétní řádky (podle pořadí v obsahu, např. .et_pb_row_5) dostanou
+     vlastní max-width:100% !important – při stejné specificitě/důležitosti
+     vyhrává to, co se v HTML načte později, a Diviho cache se u atomizovaných
+     sekcí načítá až po tomhle souboru. Řešíme vyšší specificitou (dvě třídy
+     místo jedné), ne bojem o pořadí načtení, které se navíc mění při každém
+     přegenerování cache. */
+  .et_pb_row.wrap,.et_pb_column.wrap{max-width:var(--maxw) !important;margin:0 auto !important}
+  /* Levý obsahový sloupec musí zůstat mimo HUD widget "situace na trati"
+     (.telemetry-hud, position:fixed;left:...;width:224px – viz níže), na
+     každé stránce webu, ne jen na homepage (HUD je vidět všude). Stejný
+     princip jako --rail vpravo (viz níže) pro sekční navigaci, jen zrcadlově
+     a bez body.home vazby. .sp-media (fotky T2/T7) je záměrně vyjmutá –
+     ty mají jít až od úplně levého okraje, HUD nad nimi jen plave (z-index). */
+  /* Levý padding musí garantovat, že obsah začne alespoň ~15px napravo od
+     pravého okraje HUD widgetu (situace na trati), ať je okno jakkoli
+     široké. .wrap je sám vycentrovaný (max-width:1280px;margin:auto), takže
+     jeho vlastní odstup od okraje viewportu (--wrap-inset) roste se šířkou
+     okna – kolik navíc paddingu je potřeba, se proto dopočítává (--hud-pad),
+     a použije se buď to, nebo běžný základní padding, podle toho, co je větší. */
+  /* ============================================================================
+     ZLATÉ PRAVIDLO OBSAHOVÉHO SLOUPCE — platí pro celý web, ne jen homepage.
+     Levá vodicí hranice = 40px napravo od pravého okraje HUD widgetu
+     "situace na trati" (ten je vidět na každé stránce). Pravá vodicí
+     hranice = 45px nalevo od levého okraje boční sekční navigace (ta se dnes
+     zobrazuje jen tam, kde je zapnutá — výchozí je homepage, ale mechanismus
+     (proměnné níže) je stejný a připravený i pro libovolnou další stránku,
+     kde se posuvník do budoucna zapne). Žádný obsah nesmí tyto dvě hranice
+     přesahovat; jediná výjimka jsou fotky T2/T7 (jdou úplně od levého
+     okraje, widget nad nimi jen plave přes z-index) a sekce CÍL (zůstává
+     striktně na střed, bez ohledu na tyto hranice).
+     ============================================================================ */
+  :root{
+    --hud-right-edge: calc(clamp(14px,2vw,26px) + 224px);
+    --wrap-inset: max(0px, calc((100vw - var(--maxw)) / 2));
+    --hud-pad: calc(var(--hud-right-edge) + 40px - var(--wrap-inset));
+    /* .entries/.reviews NEJSOU .wrap (nemají max-width:1280px;margin:auto) –
+       jejich rodič (Divi sloupec) je celou šířku sekce, prakticky 100vw. Pro
+       ně proto počítáme odsazení přímo ve viewport jednotkách, ne
+       "navíc k základnímu paddingu" jako u .wrap. */
+    --entries-left: calc(var(--hud-right-edge) + 40px);
+    --entries-right-base: clamp(20px,4vw,52px);
+    /* Stejná logika zrcadlově pro pravou lištu sekční navigace
+       (.track-progress, width:200px, right:0) – POUŽÍVÁ SE JEN tam, kde je
+       nahlášeno, že je pravý okraj moc konzervativní (.wrap, .exp, .entries);
+       .hero-content/.final .wrap zůstávají na starém --rail,
+       protože u nich změna nebyla hlášená/žádaná. */
+    --rail-pad: calc(200px + 45px - var(--wrap-inset));
+    /* .entries/.reviews mají vlastní 100%=viewport referenci (ne
+       vycentrovaný box jako .wrap), takže aby jejich pravý okraj skutečně
+       seděl na STEJNÉ místo jako .wrap/.exp (potvrzeno správně u T3-T6),
+       musí se k pravé mezeře přičíst i --wrap-inset, který si .wrap kompenzuje
+       automaticky svým vlastním vycentrováním, ale .entries/.reviews ne. */
+    /* -9px: drobná změřená korekce vůči .wrap (T3 karty pokojů, referenční
+       pravý okraj) – vw jednotky (--wrap-inset) a % šířka .entries se v
+       přítomnosti scrollbaru počítají z mírně odlišné dostupné šířky. */
+    --entries-right-match-wrap: calc(var(--wrap-inset) + max(0px, var(--rail-pad)) - 9px);
   }
+  .wrap{padding-left:max(clamp(20px,4vw,52px), var(--hud-pad))}
+  /* Sekce CÍL zůstává vycentrovaná na celou šířku (i pod HUD) – vlastní
+     kompenzační pravidlo pro pravou lištu (--rail) níže na ni platí dál. */
+  .final .wrap{padding-left:clamp(20px,4vw,52px)}
+  /* Rezervační lišta je nahoře nad HUD → nemusí rezervovat levý prostor (viz i
+     analogické pravidlo pro --rail vpravo o pár řádků níže). */
+  .booking .wrap{padding-left:clamp(20px,4vw,52px) !important}
+  /* .split nese kvůli původnímu markupu i třídu .wrap ("wrap split") – bez
+     vyjmutí by tak dostal stejný levý padding jako .wrap, a fotka T2/T7 by
+     nikdy nebyla bezokrajová. .split žádný levý padding nemá mít vůbec. */
+  .split.wrap{padding-left:0 !important}
+  /* Sekce, které mají zůstat striktně na střed (bez levé HUD ani pravé rail
+     kompenzace) mimo .final (CÍL) – použití: přidat tuto třídu vedle .wrap. */
+  .wrap.wrap-centered{padding-left:clamp(20px,4vw,52px)}
+  /* Sekce na homepage (T1–T7 i CÍL) byly v Divi builderu převedené z
+     jednoho syrového <section> (kde měl nadpis inline
+     style="font-size:clamp(2rem,4vw,3.6rem)") na atomické
+     Section/Row/Column/Heading moduly — inline velikost se při tom
+     ztratila, takže KAŽDÝ nadpis sekce spadl na Divi výchozí (větší)
+     velikost. Na živém webu mají VŠECHNY sekce stejnou hodnotu (ověřeno
+     přímo v jeho HTML), takže jde o jedno obecné pravidlo, ne
+     patchování sekci po sekci. */
+  .sec h2{font-size:clamp(2rem,4vw,3.6rem) !important}
+  .sec-pad{padding:clamp(80px,12vh,150px) 0}
+  .sec-tag{position:absolute;top:clamp(40px,7vh,80px);left:clamp(20px,4vw,52px);font-family:var(--f-head);font-size:clamp(3rem,9vw,7rem);font-weight:800;color:transparent;-webkit-text-stroke:1px var(--stroke);line-height:.8;z-index:0;pointer-events:none}
+  /* Když je .sec-tag vložený jako vlastní Divi Text modul (atomizované
+     sekce), Diviho vlastní .et_pb_text_inner/.et_pb_text mají
+     position:relative – to je BLÍŽ než .sec, takže se watermark přišpendlí
+     jen k malému boxu textového modulu, ne k celé sekci. Modul, který drží
+     .sec-tag, proto necháváme staticky. */
+  .et_pb_text:has(> .et_pb_text_inner > p > .sec-tag),
+  .et_pb_text:has(> .et_pb_text_inner > p > .sec-tag) .et_pb_text_inner{position:static !important}
+  /* Watermark je position:absolute, ale modul kolem něj (Diviho vlastní
+     margin-bottom mezi moduly) pořád zabíral místo v běžném toku – proto
+     byl třeba u T2/T7 mezi horním okrajem sekce a fotkou. */
+  .et_pb_text:has(> .et_pb_text_inner > p > .sec-tag){height:0 !important;margin:0 !important;overflow:visible}
   .reveal{opacity:0;transform:translateY(38px);transition:opacity .9s cubic-bezier(.16,1,.3,1),transform .9s cubic-bezier(.16,1,.3,1)}
   .reveal.in{opacity:1;transform:none}
   .reveal.d1{transition-delay:.08s}.reveal.d2{transition-delay:.16s}.reveal.d3{transition-delay:.24s}.reveal.d4{transition-delay:.32s}
@@ -339,11 +359,35 @@ Text Domain: grid-divi5-child
   .bk-submit .btn{height:100%;display:flex;align-items:center;white-space:nowrap}
 
   /* ===== VSTUPY (channels) ===== */
-  /* .entries/.reviews jsou grid-radky bez vlastniho gutteru — zarovnat jejich box
-     na stejnou OBSAHOVOU sirku jako .wrap/.exp (maxw - 2*gutter = ~1176, vycentrovano
-     -> pravy okraj 1308 jako ostatni sekce). */
-  .entries,.reviews{max-width:calc(var(--maxw) - 2*clamp(20px,4vw,52px)) !important;margin-left:auto !important;margin-right:auto !important}
-  .entries{display:grid;grid-template-columns:repeat(4,1fr);gap:0;border:1px solid var(--line-c);border-radius:2px;overflow:hidden}
+  #vstupy h2{max-width:50%}
+  #zazitky h2{max-width:50%}
+  #proc-grid h2{max-width:50%}
+  /* .entries má na rozdíl od .wrap/.exp vlastní viditelný rámeček kolem
+     celé karetní řady (border+overflow:hidden, karty se dotýkají, gap:0) –
+     kdyby dostal levý/pravý odstup jako padding (jako .wrap), vznikla by
+     uvnitř rámečku prázdná díra místo toho, aby se celý rámeček zúžil a
+     posunul. Proto se odsazení řeší přes margin, ne padding – Diviho
+     obecné pravidlo `.et_pb_row{max-width:...;margin:auto}` navíc pro
+     tenhle řádek musíme přebít na vlastní míru (viz .et_pb_row.entries níže). */
+  /* Šířka natvrdo přes calc(), ne margin+max-width – margin-left a
+     margin-right zároveň nenulové spolu s Diviho max-width:1280px z jeho
+     obecného pravidla pro řádky se chovaly nepředvídatelně (prohlížeč si
+     šířku dopočítal jinak, než jsme čekali). width:calc() je jednoznačné. */
+  .entries{display:grid !important;grid-template-columns:repeat(4,1fr) !important;gap:0;border:1px solid var(--line-c);border-radius:2px;overflow:hidden}
+  .et_pb_row.entries{
+    max-width:none !important;
+    margin-left:var(--entries-left) !important;
+    margin-right:var(--entries-right-base) !important;
+    width:calc(100% - var(--entries-left) - var(--entries-right-base)) !important;
+  }
+  /* Diviho vlastní per-instance CSS (et-cache/.../deferred-*.min.css) dává
+     každému sloupci vlastní šířku/flex-basis podle columnStructure – to
+     přebíjí naše grid-template-columns a karty vyjdou nerovnoměrně (viz
+     stejná oprava a vysvětlení u .split výše). Reset napříč všemi
+     kartovými mřížkami sekcí T1/T4/T5/T7/T8. */
+  .entries > *,.exp > *,.gastro > *,.b2b-grid > *,.reviews > *{
+    width:auto !important;max-width:none !important;flex:none !important;min-width:0 !important;
+  }
   .entry{position:relative;padding:clamp(34px,4vw,52px) clamp(22px,2.4vw,34px);border-right:1px solid var(--line-c);min-height:300px;display:flex;flex-direction:column;justify-content:flex-start;overflow:hidden;transition:background .35s}
   .entry:last-child{border-right:none}
   .entry::before{content:"";position:absolute;inset:0;background:var(--red);transform:translateY(100%);transition:transform .45s cubic-bezier(.16,1,.3,1);z-index:0}
@@ -361,46 +405,56 @@ Text Domain: grid-divi5-child
   .entry:hover .e-arrow{color:#fff}
 
   /* ===== SPLIT SCREEN ===== */
-  .split{display:grid;grid-template-columns:1fr 1fr;min-height:88vh}
+  .split{display:grid !important;grid-template-columns:1fr 1fr !important;justify-content:stretch !important;min-height:88vh;column-gap:0 !important;row-gap:0 !important}
+  /* Divi svým vlastním .et_flex_row/.et_flex_column dává column-gap podle
+     --module-gutter (30px) – i v grid layoutu je column-gap platná
+     vlastnost, takže bez nulování vznikala mezera mezi fotkou a okrajem
+     sekce (fotka měla být bezokrajová). */
+  .sp-media{margin:0 !important}
   .split.reverse .sp-media{order:2}
-  /* height:100% zabezpecena i explicitne, ne jen pres CSS grid align-items:
-   * stretch -- v Chromiu se percentage-height na position:absolute potomkovi
-   * (.sp-media img nize) jinak umi spocitat jako 0, protoze "stretched" vyska
-   * grid itemu neni vzdy pro tento vypocet "definite" (objeveno na granularni
-   * verzi stranek Firemni akce/Gastronomie, 2026-07 - fotka v .split sekci
-   * "zmizela"). */
-  .sp-media{position:relative;overflow:hidden;min-height:340px;height:100%}
-  /* Skutecna pricina: obrazek je v granularni verzi Divi IMAGE modul, jehoz
-   * vlastni wrapper (.et_pb_image) je TAKE position:relative a nema zadnou
-   * vlastni vysku - protoze jeho jedine dite (img, position:absolute) se
-   * neucastni normalniho flow a nedava mu vysku, .et_pb_image se zhroutí na
-   * height:0. To je NEJBLIZSI positioned ancestor pro img (blize nez
-   * .sp-media), takze img height:100% pak znamena "100% z 0". Fix: dat
-   * i .et_pb_image wrapperu height:100% (zdedi definitivni vysku z
-   * .sp-media, ktera uz height:100% ma z radku vyse). */
-  .sp-media .et_pb_image{height:100%;width:100%}
-  .sp-media .et_pb_image_wrap{height:100%;width:100%;display:block} /* .et_pb_image_wrap span je TAKE position:relative a byla dalsi zhroucena vrstva; span je inline, takze width nema efekt bez display:block */
+  /* Když je .split zároveň Divi řádek (et_pb_row/et_flex_row), Divi ke každé
+     instanci generuje vlastní CSS (et-cache/.../deferred-*.min.css) s
+     explicitní šířkou/flex-basis pro každý sloupec podle jeho columnStructure
+     – to pak souboj o šířku s naší grid();grid-template-columns:1fr 1fr
+     vyhrává a sloupce vyjdou nerovnoměrně (např. 68px/zbytek). Přímé děti
+     .split proto natvrdo resetujeme, ať šířku sloupců řídí čistě grid. */
+  /* min-width:0 je nutné navíc – grid položky mají výchozí min-width:auto,
+     které respektuje minimální obsahovou šířku (u T7 např. formulář/karty
+     b2b-grid uvnitř .sp-content), takže by se 1fr/1fr nerozdělilo rovnoměrně
+     bez ohledu na width/flex reset výše. */
+  .split > *{width:auto !important;max-width:none !important;flex:none !important;min-width:0 !important}
+  .et_pb_row.split > .et_pb_column{width:auto !important;max-width:none !important;flex:none !important;min-width:0 !important}
+  .sp-media{position:relative;overflow:hidden;min-height:340px}
   .sp-media img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transition:transform 1.2s cubic-bezier(.16,1,.3,1)}
+  /* Když je fotka vložená jako nativní Divi Image modul (ne prosté <img>),
+     Divi obalí <img> do <span class="et_pb_image_wrap"> s position:relative a
+     width:fit-content – tenhle span se pak stane skutečným kontejnerem pro výše
+     absolutně pozicovaný <img>, ne .sp-media. Protože jeho jediné dítě (img) je
+     samo position:absolute a nepřispívá do fit-content výpočtu, span se smrskne
+     na 0×0 a fotka "zmizí". Oprava: span necháváme staticky a vyplněný na celou
+     plochu .sp-media, aby <img> správně dosáhl na .sp-media jako svůj kontejner. */
+  .sp-media .et_pb_image_wrap{position:static !important;display:block !important;width:100% !important;height:100% !important}
+  /* Řetězec height:100% musí projít i skrz Diviho vlastní modulový obal
+     (.et_pb_image), jinak se o kus výš přeruší na "auto" a schová fotku. */
+  .sp-media .et_pb_image{height:100% !important}
   .sp-media:hover img{transform:scale(1.05)}
-  .sp-content{display:flex;flex-direction:column;justify-content:center;padding:clamp(50px,7vw,110px) clamp(28px,5vw,90px);position:relative}
-  /* VSECHNY .split sekce (subpage #firemni/#catering i homepage #pribeh/#firemni):
-     full-bleed (sekce padding:0). Text bliz k fotce (mensi levy padding) a pravy
-     okraj na urovni OBSAHU .wrap ((100vw-maxw)/2 + vnitrni gutter). */
-  .split .sp-content{
-    padding-left:clamp(24px,2.6vw,48px);
-    padding-right:calc((100vw - min(100vw, var(--maxw)))/2 + clamp(20px,4vw,52px));
-  }
-  /* min-width:0 — bez nej se sloupec s obsahem (b2b grid, formular) roztahne pres
-     svuj 1fr track a ukradne sirku fotce; vrati sloupce na presnou pulku. */
-  .split .sp-media,.split .sp-content{min-width:0}
-  /* Divi dava .split gridu default column-gap:5.5% (~79px) — mrtva mezera mezi
-     fotkou a textem. Vynulovat, aby fotka sahala az do stredu. */
-  .sec .split{column-gap:0 !important;gap:0 !important}
+  /* Levý padding zúžený (blíž k hraně fotky, ne symetricky jako pravý,
+     který je řízen zvlášť kvůli boční navigaci – viz --entries-right-match-wrap
+     přiřazené k padding-right níže). z-index:2 drží text nad fotkou
+     (fotka je z-index:0 přes .sp-media), ale pod HUD widgetem (z-index:100). */
+  .sp-content{display:flex;flex-direction:column;justify-content:center;padding:clamp(50px,7vw,110px) clamp(28px,5vw,90px) clamp(50px,7vw,110px) clamp(24px,3vw,44px);position:relative;z-index:2}
   .sp-content h2{font-size:clamp(2.4rem,5vw,5rem);margin:20px 0}
   .sp-content p{color:var(--muted);max-width:52ch;margin-bottom:14px}
   .sp-content .lead{color:var(--fg);font-size:1.12rem}
-  .stat-row{display:flex;gap:clamp(24px,4vw,54px);margin-top:30px;flex-wrap:wrap}
-  .stat .data{font-size:2rem;color:var(--fg);font-weight:700;display:block}
+  .stat-row{display:flex;gap:clamp(14px,2vw,22px);margin-top:30px;flex-wrap:nowrap}
+  .stat{flex:1 1 0;min-width:0;background:var(--card);border:1px solid var(--card-line);border-radius:2px;padding:clamp(10px,1.2vw,16px)}
+  /* clamp() místo pevných 2rem – karta je úzká (3 karty vedle sebe bez
+     zalamování), takže "5,4 km" se do ní při 32px tučně nevešlo a
+     zděděné overflow-wrap:break-word ho lámalo doprostřed slova
+     ("K"/"M" na dvou řádcích). white-space:nowrap navíc garantuje, že se
+     už nikdy nezalomí uprostřed – nanejvýš by (teoreticky) přeteklo, ne
+     vypadalo rozbitě. */
+  .stat .data{font-size:clamp(1.3rem,2.2vw,2rem);color:var(--fg);font-weight:700;display:block;white-space:nowrap}
   .stat .data b,.stat .data strong{color:var(--gold)}
   .stat span{font-family:var(--f-mono);font-size:.66rem;letter-spacing:.16em;text-transform:uppercase;color:var(--muted)}
 
@@ -441,14 +495,14 @@ Text Domain: grid-divi5-child
   .room-table{width:100%;border-collapse:collapse;font-size:.95rem}
   .room-table th,.room-table td{text-align:left;padding:12px 14px;border-bottom:1px solid rgba(20,22,25,.1)}
   .room-table thead th{font-family:var(--f-mono);font-size:.7rem;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
-  .room-table td a{color:var(--ink,#16181B);text-decoration:underline;text-decoration-color:var(--red);text-decoration-thickness:1px;text-underline-offset:3px}
+  .room-table td a{color:var(--ink,#16181B);border-bottom:1px solid var(--red)}
   .room-table tfoot td{font-weight:700;color:var(--ink,#16181B);border-top:2px solid rgba(20,22,25,.2)}
   /* hover řádku + zvýraznění názvu s nápovědou (text z data-hint — lokalizovaný) */
   .room-table tbody tr{transition:background .2s}
   .room-table tbody tr:hover{background:rgba(194,14,26,.06)}
   .room-table td a{transition:font-weight .1s}
   .room-table td a:hover{font-weight:700}
-  .room-table td a::after{content:attr(data-hint);font-family:var(--f-mono);font-size:.64rem;letter-spacing:.08em;text-transform:uppercase;color:var(--red);text-decoration:none;opacity:0;margin-left:10px;transition:opacity .2s;white-space:nowrap}
+  .room-table td a::after{content:attr(data-hint);font-family:var(--f-mono);font-size:.64rem;letter-spacing:.08em;text-transform:uppercase;color:var(--red);opacity:0;margin-left:10px;transition:opacity .2s;white-space:nowrap}
   .room-table td a:hover::after{opacity:1}
   .amenity-grid{list-style:none;display:grid;grid-template-columns:repeat(3,1fr);gap:10px 24px;padding:0;margin:0}
   .amenity-grid li{position:relative;padding-left:26px;color:var(--muted);font-size:.92rem}
@@ -472,7 +526,7 @@ Text Domain: grid-divi5-child
   }
 
   /* ===== EXPERIENCES ===== */
-  .exp{display:grid;grid-template-columns:repeat(3,1fr);gap:clamp(14px,1.6vw,22px);max-width:var(--maxw);margin:0 auto;padding:0 clamp(20px,4vw,52px)}
+  .exp{display:grid !important;grid-template-columns:repeat(3,1fr) !important;gap:clamp(14px,1.6vw,22px);max-width:var(--maxw) !important;margin:0 auto !important;padding:0 clamp(20px,4vw,52px)}
   .exp-item{padding:clamp(30px,3.4vw,46px) clamp(18px,1.8vw,28px);border:1px solid var(--line-c);position:relative;transition:background .35s;min-height:250px;display:flex;flex-direction:column}
   .exp-item:hover{background:rgba(255,255,255,.03)}
   .exp-item .x-num{font-family:var(--f-mono);font-size:.66rem;letter-spacing:.16em;color:var(--red)}
@@ -502,25 +556,31 @@ Text Domain: grid-divi5-child
   .sec-light .exp-item:hover .sec-more span{color:#fff}
 
   /* ===== GASTRO (cards) ===== */
-  .gastro{display:grid;grid-template-columns:repeat(3,1fr);gap:clamp(16px,2vw,24px)}
+  .gastro{display:grid !important;grid-template-columns:repeat(3,1fr) !important;gap:clamp(16px,2vw,24px)}
   .gcard{border:1px solid var(--line-c);background:var(--card);border-radius:2px;overflow:hidden;display:flex;flex-direction:column}
+  /* Divi 5 dává KAŽDÉMU modulu (Heading/Text/Image…) vlastní margin-bottom:30px
+     (viz .et_pb_module ve vlastním Divi CSS) — jakmile je karta poskládaná z
+     atomických Divi modulů místo jednoho shortcode bloku, tenhle výchozí odstup
+     se sčítá s náší vlastní typografií a vznikají obří mezery. Uvnitř karty ho
+     proto vždy vynulujeme, ať řídí odstupy jen naše h3/.g-hours/p pravidla níže. */
+  .gcard .et_pb_module{margin-bottom:0 !important}
   .gcard .g-img{position:relative;aspect-ratio:16/10;overflow:hidden}
   .gcard .g-img img{width:100%;height:100%;object-fit:cover;transition:transform .6s}
   .gcard:hover .g-img img{transform:scale(1.06)}
-  /* granularni rebuild: .g-body je Divi "nested row" (frame()) - Divi core
-   * vynucuje padding:0 !important na .et_flex_row .et_pb_row_nested (viz
-   * stejny gotcha u .dp-route/.legal-body vyse) - proto zde take !important. */
+  /* !important nutné – .g-body je Divi řádek (et_pb_row) a Divi na řádky
+     sám aplikuje padding:0 se stejnou/vyšší prioritou, takže bez !important
+     text ležel přímo na okraji karty. */
   .gcard .g-body{padding:clamp(22px,2.4vw,30px) !important;display:flex;flex-direction:column;flex:1}
-  .gcard h3{font-size:1.6rem;margin-bottom:6px}
-  .gcard .g-hours{font-family:var(--f-mono);font-size:.68rem;letter-spacing:.08em;color:var(--red);margin-bottom:12px}
-  .gcard p{font-size:.9rem;color:var(--muted)}
+  .gcard h3{font-size:1.6rem;margin:0 0 6px !important}
+  .gcard .g-hours{font-family:var(--f-mono);font-size:.68rem;letter-spacing:.08em;color:var(--red);margin:0 0 12px !important}
+  .gcard p{font-size:.9rem;color:var(--muted);margin:0 !important}
   .gcard .g-list{list-style:none;margin-top:14px;font-family:var(--f-mono);font-size:.78rem;color:var(--muted)}
   .gcard .g-list li{padding:6px 0;border-top:1px dashed var(--line-c);display:flex;justify-content:space-between;gap:12px}
   .gcard .g-list li b{color:var(--fg)}
 
   /* ===== SEASON 2026 / WAITLIST ===== */
   /* Karty akcí sezóny (horní část stránky Sezóna) */
-  .sez-cards{display:grid;grid-template-columns:repeat(3,1fr);gap:clamp(14px,1.8vw,24px)}
+  .sez-cards{display:grid;grid-template-columns:repeat(3,1fr);gap:clamp(14px,1.8vw,24px);margin-bottom:clamp(40px,6vh,64px)}
   .sez-card{background:var(--card);border:1px solid var(--card-line);border-radius:2px;padding:clamp(20px,2.2vw,30px);display:flex;flex-direction:column;gap:10px}
   .sez-card-top{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
   .sez-card h3{font-size:clamp(1.2rem,1.8vw,1.5rem)}
@@ -541,7 +601,7 @@ Text Domain: grid-divi5-child
   @media(max-width:640px){.sez-cards{grid-template-columns:1fr}}
   .ev-ext{display:inline-block;margin-left:8px;color:var(--gold);font-weight:700}
   .ev-ext:hover{color:var(--red-hi,#FF5A50)}
-  .season{display:grid;grid-template-columns:1.35fr 1fr;gap:clamp(24px,4vw,56px);align-items:start}
+  .season{display:grid;grid-template-columns:3fr 2fr;gap:clamp(24px,4vw,56px);align-items:start}
   /* grid položky se nesmí roztáhnout na min-content (přetékaly na mobilu) */
   .season>*{min-width:0}
   .ev-name{min-width:0}
@@ -574,9 +634,14 @@ Text Domain: grid-divi5-child
   .wb-ok.show{display:block}
 
   /* ===== B2B / EVENTS ===== */
-  .b2b-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:clamp(14px,1.6vw,22px);margin:22px 0}
-  .b2b-card{background:var(--card);border:1px solid var(--card-line);padding:clamp(20px,2.2vw,30px);border-radius:2px;min-width:0}
-  .b2b-card .data{font-size:2.1rem;color:var(--red);display:block;font-weight:700;line-height:1;margin-bottom:10px}
+  /* Odsazení/mezery sladěné s .stat (T2/T7 – "64/5,4 km/0 m") na výslovné
+     přání – stejný padding karty, stejný responzivní clamp() na čísle
+     a stejné white-space:nowrap jako pojistka proti zalomení uprostřed
+     slova. Barva čísla zůstává var(--red) (BEZ (--fg)) – to je zavedený
+     akcent T7 na světlé sekci, není součástí požadavku na sladění. */
+  .b2b-grid{display:grid !important;grid-template-columns:repeat(2,1fr) !important;gap:clamp(14px,2vw,22px);margin:22px 0}
+  .b2b-card{background:var(--card);border:1px solid var(--card-line);padding:clamp(10px,1.2vw,16px);border-radius:2px}
+  .b2b-card .data{font-size:clamp(1.3rem,2.2vw,2rem);color:var(--red);display:block;font-weight:700;line-height:1;margin-bottom:10px;white-space:nowrap}
   .b2b-card span{font-family:var(--f-mono);font-size:.64rem;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
   .b2b-tags{display:flex;flex-wrap:wrap;gap:10px;margin:6px 0 4px}
   .b2b-tags span{font-family:var(--f-mono);font-size:.68rem;letter-spacing:.06em;color:var(--muted);border:1px solid var(--line-c);padding:6px 12px;border-radius:2px}
@@ -590,7 +655,29 @@ Text Domain: grid-divi5-child
   .form-grid textarea{resize:vertical;min-height:90px}
 
   /* ===== REVIEWS ===== */
-  .reviews{display:grid;grid-template-columns:repeat(3,1fr);gap:clamp(16px,2vw,26px)}
+  /* .reviews je (stejně jako .entries u T1) samostatný řádek vedle .wrap,
+     ne uvnitř něj – bez vlastního odsazení ho Divi jen vycentruje na
+     max-width:1280px bez ohledu na HUD/lištu. Stejná oprava jako .entries. */
+  .reviews{display:grid !important;grid-template-columns:repeat(3,1fr) !important;gap:clamp(16px,2vw,26px)}
+  .et_pb_row.reviews{
+    max-width:none !important;
+    margin-left:var(--entries-left) !important;
+    margin-right:var(--entries-right-base) !important;
+    width:calc(100% - var(--entries-left) - var(--entries-right-base)) !important;
+  }
+  /* Stejná pojistka jako u .wrap výše (Diviho per-řádková cache max-width/
+     display se stejnou specificitou a nepředvídatelným pořadím načtení) –
+     dvě třídy místo jedné napříč všemi kartovými mřížkami sekcí. */
+  .et_pb_row.entries{display:grid !important;grid-template-columns:repeat(4,1fr) !important}
+  /* Stejný problém jako .wrap/.entries – Diviho vlastní cache (per-řádková
+     pravidla podle et_pb_row_N) dávala .split max-width menší, než měl mít
+     (obsah/fotka byly zbytečně zúžené na ~550px místo poloviny sekce). */
+  .et_pb_row.split{display:grid !important;grid-template-columns:1fr 1fr !important;max-width:none !important;width:100% !important}
+  .et_pb_row.exp{display:grid !important;grid-template-columns:repeat(3,1fr) !important;max-width:var(--maxw) !important;margin:0 auto !important}
+  .et_pb_row.gastro{display:grid !important;grid-template-columns:repeat(3,1fr) !important}
+  .et_pb_row.b2b-grid{display:grid !important;grid-template-columns:repeat(2,1fr) !important}
+  .et_pb_row.reviews{display:grid !important;grid-template-columns:repeat(3,1fr) !important}
+  .et_pb_row.season{display:grid !important;grid-template-columns:3fr 2fr !important}
   .review{background:var(--card);border:1px solid var(--card-line);padding:clamp(26px,2.6vw,38px);border-radius:2px;display:flex;flex-direction:column;gap:16px}
   .review .stars{color:var(--red);font-size:.9rem;letter-spacing:3px}
   .review p{font-size:.96rem;color:var(--fg);font-style:italic}
@@ -632,31 +719,32 @@ Text Domain: grid-divi5-child
   /* ===== RESPONSIVE ===== */
   @media(max-width:1080px){
     .track-progress{display:none}
-    .entries{grid-template-columns:repeat(2,1fr)}
+    .entries,.et_pb_row.entries{grid-template-columns:repeat(2,1fr) !important}
     .entry:nth-child(2){border-right:none}
-    .exp{grid-template-columns:repeat(2,1fr)}
+    .exp,.et_pb_row.exp{grid-template-columns:repeat(2,1fr) !important}
     .exp-item:nth-child(2n){border-right:none}
-    .gastro{grid-template-columns:1fr}
-    .b2b-grid{grid-template-columns:repeat(2,1fr)}
-    .reviews{grid-template-columns:1fr}
+    .gastro{grid-template-columns:1fr !important}
+    .b2b-grid{grid-template-columns:repeat(2,1fr) !important}
+    .reviews,.et_pb_row.reviews{grid-template-columns:1fr !important}
     .season{grid-template-columns:1fr}
     .foot-top{grid-template-columns:1fr 1fr}
   }
   @media(max-width:780px){
-    .topnav nav,.topnav .btn{display:none}
+    .topnav nav{display:none !important}
+    .topnav .btn{display:none}
     .hamburger{display:flex}
     .lang{display:none}
     .telemetry-hud{width:190px}
-    .split{grid-template-columns:1fr}
+    .split{grid-template-columns:1fr !important}
     .split.reverse .sp-media{order:0}
     .sp-media{min-height:54vh}
     .rooms{grid-template-columns:1fr}
     .room.feat{grid-column:span 1}
-    .entries{grid-template-columns:1fr}
+    .entries,.et_pb_row.entries{grid-template-columns:1fr !important}
     .entry{border-right:none;min-height:auto}
-    .exp{grid-template-columns:1fr}
+    .exp,.et_pb_row.exp{grid-template-columns:1fr !important}
     .exp-item{border-right:none;min-height:auto}
-    .b2b-grid{grid-template-columns:1fr}
+    .b2b-grid{grid-template-columns:1fr !important}
     .form-grid{grid-template-columns:1fr}
     .ev-row{grid-template-columns:auto 1fr auto;gap:10px}
     .foot-top{grid-template-columns:1fr}
@@ -769,31 +857,38 @@ html:not([lang^="cs"]):not([lang^="en"]):not([lang^="de"]) .grid-lang-cs{ displa
    obsah sekcí doleva, aby nešel pod něj. Pozadí sekcí zůstává přes celou šířku.
    ============================================================ */
 @media (min-width:1081px){
-  /* --rail: obsah vpravo musi ustoupit bocnimu posuvniku (.track-progress, timeline
-     s tecky+stitky na 1240-1360). Puvodnich 190px delalo obsah moc uzky (~1118).
-     0px zase pouštělo bile karty POD tmave stitky posuvniku (T7 kolize). 96px =
-     kompromis: vsechny sekce konci ~1212 (vyrazne sirsi nez 1118, cisté minuti
-     posuvniku ~1245). Vsechny prave-dosahujici kontejnery (.wrap/.exp/.sp-content/
-     .entries/.reviews) sdili tuto rezervu -> jednotny pravy okraj. */
-  :root{ --rail:96px; }
-  /* entries/reviews jsou Divi radky (width:100% z globalniho pravidla) — box zuzit
-     max-widthem (aby cap fungoval pres width:100%) a zarovnat vlevo na 132, vpravo
-     ustoupit posuvniku (rail). Box = 132 .. (1308-rail). */
-  body.home .sec .et_pb_row.entries, body.home .sec .et_pb_row.reviews{
-    max-width: calc(var(--maxw) - 2*clamp(20px,4vw,52px) - var(--rail)) !important;
-    margin-left: calc((100vw - min(100vw, var(--maxw)))/2 + clamp(20px,4vw,52px)) !important;
-    margin-right: auto !important;
-  }
-  body.home .wrap{ padding-right: calc(clamp(20px,4vw,52px) + var(--rail)); }
-  body.home .final .wrap{ padding-left: calc(clamp(20px,4vw,52px) + var(--rail)); } /* CTA zůstane vycentrované */
-  /* Split text (sp-content) na homepage: pravy okraj zarovnat na stejny 1212 jako
-     .wrap sekce = (100vw-maxw)/2 + gutter + rail. Plati pro vsechny splity
-     (#pribeh, #firemni). Take b2b-grid uvnitr nesmi pretect (min-width + max-width). */
-  body.home .sp-content{ padding-right: calc((100vw - min(100vw, var(--maxw)))/2 + clamp(20px,4vw,52px) + var(--rail)) !important; }
-  /* Homepage firemni split: pulka (720px) minus rail je uzka pro 4 staty vedle sebe
-     (cisla se lamou) — 2x2 mrizka, karty siroke a citelne. */
-  body.home .sp-content .b2b-grid{ max-width:100% !important; grid-template-columns:repeat(2,minmax(0,1fr)) !important; }
-  body.home .exp{ padding-right: calc(clamp(20px,4vw,52px) + var(--rail)); }                                      /* mřížka zážitků */
+  :root{ --rail:190px; }
+  /* .wrap/.exp/.entries nahlášené jako moc konzervativní (velká prázdná
+     mezera k liště) – přepnuté na dynamický --rail-pad (viz definice výše u
+     --hud-pad), který zohledňuje, že .wrap už má vlastní přirozený odstup
+     od okraje z vycentrování (max-width:1280px;margin:auto). .hero-content/
+     .sp-content/.final .wrap NEHLÁŠENÉ jako špatné, zůstávají na původním
+     pevném --rail, aby se náhodou nezměnilo něco, co už bylo v pořádku. */
+  body.home .wrap, body.page-id-261 .wrap, body.page-id-400 .wrap, body.page-id-401 .wrap, body.page-id-220 .wrap, body.page-id-380 .wrap, body.page-id-381 .wrap, body.page-id-337 .wrap, body.page-id-382 .wrap, body.page-id-383 .wrap, body.page-id-226 .wrap, body.page-id-384 .wrap, body.page-id-385 .wrap, body.page-id-229 .wrap, body.page-id-386 .wrap, body.page-id-387 .wrap, body.page-id-232 .wrap, body.page-id-388 .wrap, body.page-id-389 .wrap, body.page-id-235 .wrap, body.page-id-238 .wrap, body.page-id-241 .wrap, body.page-id-244 .wrap, body.page-id-258 .wrap, body.page-id-264 .wrap, body.page-id-270 .wrap, body.page-id-293 .wrap, body.page-id-390 .wrap, body.page-id-391 .wrap, body.page-id-392 .wrap, body.page-id-393 .wrap, body.page-id-394 .wrap, body.page-id-395 .wrap, body.page-id-396 .wrap, body.page-id-397 .wrap, body.page-id-398 .wrap, body.page-id-399 .wrap, body.page-id-402 .wrap, body.page-id-403 .wrap, body.page-id-404 .wrap, body.page-id-405 .wrap, body.page-id-408 .wrap, body.page-id-409 .wrap, body.tax-grid_room_cat .wrap, body.single-grid_experience .wrap{ padding-right: max(0px, var(--rail-pad)); }
+  /* CÍL má být striktně na střed, ne kompenzovaně vyvážená kvůli boční
+     liště jako ostatní sekce – proto žádná zvláštní pravá/levá úprava,
+     jen symetrický základní padding z .final .wrap výše na obou stranách. */
+  body.home .final .wrap, body.page-id-261 .final .wrap, body.page-id-400 .final .wrap, body.page-id-401 .final .wrap, body.page-id-220 .final .wrap, body.page-id-380 .final .wrap, body.page-id-381 .final .wrap, body.page-id-337 .final .wrap, body.page-id-382 .final .wrap, body.page-id-383 .final .wrap, body.page-id-226 .final .wrap, body.page-id-384 .final .wrap, body.page-id-385 .final .wrap, body.page-id-229 .final .wrap, body.page-id-386 .final .wrap, body.page-id-387 .final .wrap, body.page-id-232 .final .wrap, body.page-id-388 .final .wrap, body.page-id-389 .final .wrap, body.page-id-235 .final .wrap, body.page-id-238 .final .wrap, body.page-id-241 .final .wrap, body.page-id-244 .final .wrap, body.page-id-258 .final .wrap, body.page-id-264 .final .wrap, body.page-id-270 .final .wrap, body.page-id-293 .final .wrap, body.page-id-390 .final .wrap, body.page-id-391 .final .wrap, body.page-id-392 .final .wrap, body.page-id-393 .final .wrap, body.page-id-394 .final .wrap, body.page-id-395 .final .wrap, body.page-id-396 .final .wrap, body.page-id-397 .final .wrap, body.page-id-398 .final .wrap, body.page-id-399 .final .wrap, body.page-id-402 .final .wrap, body.page-id-403 .final .wrap, body.page-id-404 .final .wrap, body.page-id-405 .final .wrap, body.page-id-408 .final .wrap, body.page-id-409 .final .wrap, body.tax-grid_room_cat .final .wrap, body.single-grid_experience .final .wrap{ padding-left: clamp(20px,4vw,52px) !important; padding-right: clamp(20px,4vw,52px) !important; }
+  /* Vlastní striktně-na-střed třída (mimo .final) – viz .wrap-centered výše. */
+  body.page-id-261 .wrap.wrap-centered, body.page-id-400 .wrap.wrap-centered, body.page-id-401 .wrap.wrap-centered{ padding-right: clamp(20px,4vw,52px) !important; }
+  /* .sp-content má stejnou "100%=viewport" referenci jako .entries/.reviews
+     (ne vycentrovaný .wrap box), takže používá stejný vzorec
+     --entries-right-match-wrap, jen jako padding (ne margin+width), protože
+     .sp-content nemá viditelný rámeček, který by paddingem vytvořil díru. */
+  /* -51px: změřená korekce – .sp-content sám má i po resetu výše menší
+     skutečnou šířku, než by čistě 50/50 dělení řádku dávalo (zbytkový
+     Diviho vlastní obal kolem sloupce, který nejde přebít stejným trikem
+     jako .split > * kvůli jinému místu v DOM stromu). */
+  body.home .sp-content, body.page-id-261 .sp-content, body.page-id-400 .sp-content, body.page-id-401 .sp-content, body.page-id-226 .sp-content, body.page-id-384 .sp-content, body.page-id-385 .sp-content, body.page-id-232 .sp-content, body.page-id-388 .sp-content, body.page-id-389 .sp-content{ padding-right: calc(var(--entries-right-match-wrap) - 39px) !important; }
+  body.home .exp, body.page-id-261 .exp, body.page-id-400 .exp, body.page-id-401 .exp, body.page-id-337 .exp, body.page-id-382 .exp, body.page-id-383 .exp, body.single-grid_experience .exp{ padding-right: max(0px, var(--rail-pad)); }               /* mřížka zážitků */
+  body.home .entries,body.home .et_pb_row.entries{
+    margin-right: var(--entries-right-match-wrap) !important;
+    width: calc(100% - var(--entries-left) - var(--entries-right-match-wrap)) !important;
+  }  /* karty T1 vstupy */
+  body.home .reviews,body.home .et_pb_row.reviews{
+    margin-right: var(--entries-right-match-wrap) !important;
+    width: calc(100% - var(--entries-left) - var(--entries-right-match-wrap)) !important;
+  } /* karty T8 recenze */
   body.home .hero-content{ padding-right: calc(clamp(20px,4vw,52px) + var(--rail)); }
 }
 
@@ -930,69 +1025,14 @@ html:not([lang^="cs"]):not([lang^="en"]):not([lang^="de"]) .grid-lang-cs{ displa
 .dp-col li::before{content:"›";position:absolute;left:0;color:var(--red)}
 .dp-col li b{color:var(--fg)}
 @media(max-width:780px){.doprava-grid{grid-template-columns:1fr}}
-/* právní texty — čitelná dlouhá forma. H1/H2/H3 velikost, font, uppercase a
- * letter-spacing teď VŽDY z globálního nadpisového systému (.sec :where(...)
- * výše, viz [[grid-heading-system]]) — žádné vlastní clamp()/text-transform
- * tady už není. Jediná zbylá výjimka: H3 je natvrdo červená (právní stránky
- * jsou vždy sec-light, takže by to i globální accent pravidlo dalo stejně,
- * jen accent-barva se normálně zapíná přes .heading-accent třídu, kterou
- * tyto H3 moduly nemají — proto explicitní barva místo accent mechanismu).
- * Margin/mezery zůstávají vlastní (dlouhý dokument s 15+ nadpisy potřebuje
- * jasné odsazení, jinak text splývá — global dává margin:0 na h1-h6). */
+/* právní texty — čitelná dlouhá forma */
 .grid-legal .legal-body{color:var(--muted);font-size:.98rem;line-height:1.75}
-.grid-legal .legal-body h2{margin:34px 0 10px !important}
-.grid-legal .legal-body h3{margin:24px 0 8px !important;color:var(--red) !important}
+.grid-legal .legal-body h2{font-size:1.5rem;margin:28px 0 12px;color:var(--ink)}
+.grid-legal .legal-body h3{font-size:1.2rem;margin:22px 0 10px;color:var(--ink)}
 .grid-legal .legal-body p{margin-bottom:14px}
 .grid-legal .legal-body ul,.grid-legal .legal-body ol{margin:0 0 14px 22px;display:flex;flex-direction:column;gap:6px}
 .grid-legal .legal-body strong{color:var(--ink)}
 .grid-legal .legal-body a{color:var(--red);text-decoration:underline}
-/* Granulární rebuild (CZ, stránka Všeobecné obchodní podmínky) — .legal-body
- * je teď Divi "nested row" (frame() se všemi Heading/Text moduly klauzulí),
- * na kterou Divi core vynucuje `.et_flex_row .et_pb_row_nested.et_flex_row
- * {padding:0;margin:0}` (viz .dp-route výše) — vlastní padding/margin by
- * potřeboval !important, ale tady žádný nechceme, jen zrušit Divi default
- * gap:30px mezi moduly ve sloupci, aby mezery řešily jen h2/h3/p margin
- * pravidla výše (28px/22px/14px), ne navíc 30px flex gap. Stejně tak
- * .et_pb_module_header má vlastní padding-bottom:10px, který by dělal
- * dvojitou mezeru pod nadpisy — vynulováno. */
-.legal-body>.et_pb_column{gap:0 !important}
-/* GDPR (258) dává .legal-body přímo na hlavní OBSAHOVÝ SLOUPEC (ne na
- * frame()-nested row jako VOP), protože tam nejsou karty/rámečky, jen
- * plochá řada Heading/Text sourozeneckých modulů — sloupec sám je flex
- * container s gap:30px, proto i tady zrušeno. */
-.legal-body{gap:0 !important}
-.legal-body .et_pb_module_header{padding-bottom:0 !important}
-/* .content-wide — stejná mechanika jako .legal-body (gap:0, zrušení
- * et_pb_module_header padding, H1 margin/line-height o kousek níž), ale
- * BEZ legal-document typografie (.grid-legal .legal-body výše). Používají
- * Kariéra a Dotazník spokojenosti — nejsou právní stránky, jen chtějí
- * vizuálně shodné 860px pole/mezery/H1 chování jako VOP/GDPR/Cookies. */
-/* Ambient font-size/line-height context — BEZ tohoto by kicker modul dostal
- * jiný "strut" (řádkový box) než na GDPR/VOP (ty ho dostávaly přes
- * .grid-legal .legal-body{font-size:.98rem;line-height:1.75}), takže by
- * kicker vycházel o ~15px níž posazený H1 než na právních stránkách i přes
- * stejné .content-wide gap/margin pravidla. Neovlivní vlastní odstavce —
- * ty už mají svůj explicitní inline font-size (1.1rem), který vždy vyhraje. */
-.content-wide{font-size:.98rem;line-height:1.75}
-.content-wide p{margin-bottom:14px}
-.content-wide{gap:0 !important}
-.content-wide .et_pb_module_header{padding-bottom:0 !important}
-/* H1 velikost/uppercase/font teď taky čistě z globálu (.sec :where(h1)) —
- * GDPR dává kicker+H1+úvod do STEJNÉHO sloupce jako .legal-body (na rozdíl
- * od VOP, kde je H1 v samostatném .vop-hero sloupci), ale ani jedno už
- * nepotřebuje font-size override. line-height:1.15 zůstává vlastní (global
- * má 1 — na dvouřádkovém uppercase titulku s diakritikou (Í/Č/Ř) by horní
- * řádek zasahoval do dolního, viz oprava z 2026-07-22). */
-.legal-body h1{margin:14px 0 20px !important;line-height:1.15 !important}
-.vop-hero h1{margin:14px 0 20px !important;line-height:1.15 !important}
-.content-wide h1{margin:14px 0 20px !important;line-height:1.15 !important}
-/* Complianz generuje na /cookies/ vlastní dokument (#cmplz-document) a
- * jeho plugin CSS styluje jeho h2/h3 přes ID selektor (#cmplz-document
- * h2/h3{font-size:22px;text-transform:initial;...}) — ID vždy vyhraje
- * nad .sec :where(...), i nad libovolnou class-based třídou, proto jde
- * přebít jen přes !important. Sjednoceno se zbytkem právních stránek. */
-#cmplz-document h2{font-size:var(--h2-size) !important;text-transform:uppercase !important;letter-spacing:.01em !important;color:var(--ink) !important;margin-top:34px !important;margin-bottom:10px !important}
-#cmplz-document h3{font-size:var(--h3-size) !important;text-transform:uppercase !important;letter-spacing:.01em !important;color:var(--red) !important;margin-top:24px !important;margin-bottom:8px !important}
 
 /* ============================================================
    COMPLIANZ — cookie lišta/modal v designu GRID
@@ -1165,14 +1205,9 @@ html:not([lang^="cs"]):not([lang^="en"]):not([lang^="de"]) .grid-lang-cs{ displa
 /* FF obaluje pole do <fieldset> — zprůhlednit pro grid/flex layouty */
 .fluentform form>fieldset{display:contents;border:0;padding:0;margin:0;min-width:0}
 .fluentform form>fieldset>legend{position:absolute!important;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
-/* Nápovědné "i" ikonky — Fluent Forms si barví svg přes vlastní proměnnou
- * `.ff-el-tooltip svg{fill:var(--fluentform-primary)}`, která se liší
- * formulář od formuláře (podle stylingu nastaveného v administraci FF) —
- * proto to bylo někde šedé, někde modré. !important garantuje jednotnou
- * červenou bez ohledu na per-formulářové nastavení. */
-.fluentform .ff-el-tooltip{color:var(--red) !important}
-.fluentform .ff-el-tooltip:hover{color:var(--red) !important}
-.fluentform .ff-el-tooltip svg{fill:var(--red) !important;width:14px;height:14px}
+/* nápovědné ikonky (tooltips) v brandových barvách, ne modré */
+.fluentform .ff-el-tooltip{color:var(--muted)}
+.fluentform .ff-el-tooltip svg{fill:currentColor;width:14px;height:14px}
 /* Dvousloupcový layout (kontakt, firemní poptávka) jako původní .form-grid */
 .k-form .fluentform form,#firemni .fluentform form{display:grid;grid-template-columns:1fr 1fr;gap:0 18px;align-items:start}
 .k-form .fluentform .ff-el-group,#firemni .fluentform .ff-el-group{margin-bottom:14px}
@@ -1183,10 +1218,7 @@ html:not([lang^="cs"]):not([lang^="en"]):not([lang^="de"]) .grid-lang-cs{ displa
 .fluentform .ff-el-form-check{display:inline-block;margin:4px 8px 4px 0}
 .fluentform .ff-el-form-check-label{border:1px solid rgba(20,22,25,.25);border-radius:3px;padding:9px 15px;cursor:pointer;font-family:var(--f-mono);display:inline-flex;align-items:center;gap:7px;transition:border-color .2s,background .2s,color .2s}
 .fluentform .ff-el-form-check-label:hover{border-color:var(--red)}
-/* .fluentform label{color:var(--muted) !important} (níž) míří na VŠECHNY
- * label tagy včetně tohoto — bez !important+dostatečné specificity by tam
- * zůstal šedý text na červeném pozadí u vybrané možnosti. */
-.fluentform .ff-el-form-check-label:has(input:checked){background:var(--red);border-color:var(--red);color:#fff !important;font-weight:700}
+.fluentform .ff-el-form-check-label:has(input:checked){background:var(--red);border-color:var(--red);color:#fff}
 .fluentform .ff-el-form-check-input{accent-color:var(--red)}
 /* FF v tmavých sekcích (čekací list, poukazy) */
 .waitbox .fluentform .ff-el-form-control,.vou-form .fluentform .ff-el-form-control{background:rgba(255,255,255,.04);border:1px solid var(--line);color:var(--offwhite)}
@@ -1258,72 +1290,29 @@ html:not([lang^="cs"]):not([lang^="en"]):not([lang^="de"]) .grid-lang-cs{ displa
 /* ===== KONTAKTNÍ STRÁNKA ===== */
 .kontakt-grid{display:grid;grid-template-columns:1fr 1fr;gap:clamp(24px,4vw,54px);margin-top:30px;align-items:start}
 .k-info{display:grid;grid-template-columns:1fr 1fr;gap:22px 30px}
-/* Granulární rebuild (CZ, 2026-07): nadpisy karet jsou teď Heading H2
- * moduly (jednotná úroveň hierarchie H1→H2, žádné přeskočení na H3) —
- * EN/DE verze (dosud nepřevedené) mají stejné karty jako holé <h3>, proto
- * obojí selektor, aby styl seděl na obě varianty beze změny vzhledu. */
-.k-block h2,.k-block h3{font-size:1.15rem;margin-bottom:6px}
+.k-block h3{font-size:1.15rem;margin-bottom:6px}
 .k-block p{color:var(--muted);font-size:.95rem;line-height:1.7}
 .k-block a{color:var(--red)}
 .k-block a:hover{color:var(--red-bright)}
 .k-block .btn-ghost{margin-top:10px}
 .k-block.k-full{grid-column:1/-1}
 .k-block .data{font-family:var(--f-mono);font-size:.8rem;color:var(--muted)}
-/* Divi dává flex "gap" mezi moduly VE SLOUPCI defaultně 30px — .k-block je
- * u 6 karet přímo ten sloupec (Heading+Text[+Button] jako sourozenci), u
- * "Fakturační údaje" (.k-block.k-full) je to přes frame() Row a skutečný
- * sloupec s gapem je vnořený uvnitř (bez vlastní třídy), proto obojí
- * selektor. Bez tohoto byl nadpis→text rozestup 36px (30 gap + 6 margin)
- * místo zamýšlených ~6px z .k-block h2 margin-bottom výše. */
-.k-block{gap:0 !important}
-.k-block.k-full>.et_pb_column{gap:0 !important}
-.k-form{gap:0 !important}
-.k-form h2,.k-form h3{font-size:1.4rem;margin-bottom:16px}
+.k-form h3{font-size:1.4rem;margin-bottom:16px}
 @media(max-width:1080px){.kontakt-grid{grid-template-columns:1fr}}
 @media(max-width:600px){.k-info{grid-template-columns:1fr}}
-/* Granulární rebuild (CZ): .k-blockrow je Divi Row (2× k-block sloupec
- * 1_2) — Divi vynucuje inline display:flex, takže mezera musí jít přes
- * "gap" (funguje i na flex containeru), ne přes grid-template-columns.
- * 30px odpovídá původnímu column-gap z .k-info CSS gridu (řádkový gap
- * mezi trojicí k-blockrow řádků řeší row(margin_bottom="22px") v Pythonu). */
-.k-blockrow{gap:0 30px}
 
 /* ===== DOPRAVA — karty tras + letiště ===== */
 .dp-cols{display:grid;grid-template-columns:1fr 1fr;gap:clamp(24px,4vw,48px)}
-.dp-card h2{font-size:1.4rem;margin-bottom:12px;display:flex;align-items:center;gap:12px}
-.dp-card h2::before{content:"";width:26px;height:2px;background:var(--red);flex:none}
-/* POZOR — .dp-route/.dp-airport/.dp-head jsou teď Divi "nested rows" (row
- * vnořený přes frame() do jiného row), na které Divi core vynucuje
- * `.et_flex_row .et_pb_row_nested.et_flex_row{padding:0;margin:0}` (3 třídy
- * = vyšší specificita než naše 1-třídové pravidlo) — proto tu VŠECHNO
- * padding/margin/border potřebuje !important, jinak se tiše vynuluje. */
-.dp-route{padding:12px 0 !important;border-bottom:1px solid var(--line-c) !important}
-.dp-route:last-child{border-bottom:none !important}
-/* Titulek/text tras jsou teď samostatné Heading(h3)+Text moduly (viz
- * route() v build_doprava*.py). Custom class (.dp-route-title) sedí na
- * WRAPPER divu toho modulu, ne na samotném <h3> — barvu/velikost/font
- * proto musíme cílit na vnořený "h3" (jinak vyhraje globální
- * `h1,h2,h3{color:var(--fg);font-family:var(--f-head);font-weight:700}`,
- * protože to je pravidlo přímo na tagu <h3>, ne zděděné z předka). */
-/* Divi dává flex "gap" mezi moduly VE SLOUPCI defaultně 30px (i bez
- * jakéhokoli marginu na modulech) — pro rámeček titulek+text to bylo o
- * hodně víc, než původních ~4px mezi labelem a popisem. Zdroj mezery je
- * ten sloupec, ne naše .dp-route-title, proto gap:0 tady a přesná mezera
- * jde přes margin-bottom na .dp-route-title. Stejně h3 má z Divi vlastní
- * padding-bottom:10px (.et_pb_module_header) — vynulováno. */
-.dp-route>.et_pb_column{gap:0 !important}
-.dp-route-title{display:block;margin-bottom:4px !important}
-.dp-route-title h3{font-family:var(--f-mono) !important;font-size:.875rem !important;font-weight:400 !important;letter-spacing:.08em;text-transform:uppercase;color:var(--red) !important;line-height:1.4;padding-bottom:0 !important}
-.dp-route-body{color:var(--muted);font-size:.94rem;line-height:1.6}
+.dp-card h3{font-size:1.4rem;margin-bottom:12px;display:flex;align-items:center;gap:12px}
+.dp-card h3::before{content:"";width:26px;height:2px;background:var(--red);flex:none}
+.dp-route{padding:12px 0;border-bottom:1px solid var(--line-c)}
+.dp-route:last-child{border-bottom:none}
+.dp-route b{display:block;font-family:var(--f-mono);font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;color:var(--red);margin-bottom:4px}
+.dp-route span{color:var(--muted);font-size:.94rem;line-height:1.6}
 .dp-air-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:clamp(16px,2vw,24px);margin-top:26px}
-.dp-airport{border:1px solid var(--card-line) !important;padding:22px !important;border-radius:2px;background:var(--card) !important}
-.dp-airport>.et_pb_column{gap:0 !important}
-/* .dp-head je teď Divi Row (jméno letiště jako Heading modul | badge jako
- * Text modul, vedle sebe) — auto šířka sloupců stejným trikem jako
- * .doprava-actions, aby se to nerozjelo na 50/50. */
-.dp-head{display:flex;align-items:baseline !important;justify-content:space-between;gap:12px;margin-bottom:10px !important}
-.dp-head>.et_pb_column{flex:0 0 auto !important;width:auto !important;max-width:100% !important}
-.dp-airport-title h3{font-family:var(--f-head) !important;text-transform:uppercase;font-size:1.15rem !important;font-weight:700 !important;color:var(--fg) !important;letter-spacing:.02em}
+.dp-airport{border:1px solid var(--card-line);padding:22px;border-radius:2px;background:var(--card)}
+.dp-airport .dp-head{display:flex;align-items:baseline;justify-content:space-between;gap:12px;margin-bottom:10px}
+.dp-airport h4{font-family:var(--f-head);text-transform:uppercase;font-size:1.15rem;color:var(--fg);letter-spacing:.02em}
 .dp-badge{font-family:var(--f-mono);font-size:.7rem;color:var(--red-hi);border:1px solid rgba(255,90,80,.45);padding:3px 9px;border-radius:2px;white-space:nowrap}
 .dp-airport p{color:var(--muted);font-size:.9rem;margin-bottom:6px;line-height:1.6}
 .dp-airport .dp-vign{display:inline-block;margin-top:6px;font-family:var(--f-mono);font-size:.66rem;color:var(--grey-dim);text-transform:uppercase;letter-spacing:.08em}
@@ -1396,53 +1385,3 @@ footer .socials a:hover{ color:var(--gold) !important; border-color:var(--gold) 
 
 /* Divi Visual Builder: reveal obsah nikdy neskrývat (jinak sekce v editoru vypadají prázdné) */
 .et-fb .reveal, .et-bfb .reveal, .et-fb-preview .reveal, body.et-fb .reveal{ opacity:1 !important; transform:none !important; }
-
-/* ------------------------------------------------------------------
- * Granulární Divi 5 rebuild (2026-07-23): responzivní zhroucení na 1
- * sloupec pro řádky složené z granulárních Divi Row/Column modulů, které
- * nesou naše vlastní CSS třídy (Kontakt a další postupně převáděné
- * stránky). Divi 5 řádek je display:flex — flex-direction:column ho
- * zhroutí na 1 sloupec identicky jako původní CSS Grid
- * grid-template-columns:1fr. Nespoléhat na Divi vlastní tablet/phone
- * breakpoint atributy pro columnStructure — v této verzi Divi je nevidí
- * žádná generovaná media query (ověřeno), tohle je funkční náhrada.
- * ------------------------------------------------------------------ */
-@media(max-width:980px){
-  .kontakt-grid{flex-direction:column}
-  .kontakt-grid>.et_pb_column{width:100% !important}
-}
-@media(max-width:640px){
-  .k-blockrow{flex-direction:column}
-  .k-blockrow>.et_pb_column{width:100% !important}
-}
-@media(max-width:900px){
-  .dp-cols{flex-direction:column}
-  .dp-cols>.et_pb_column{width:100% !important}
-  .dp-air-grid{flex-direction:column}
-  .dp-air-grid>.et_pb_column{width:100% !important}
-}
-
-/* Granulární Divi 5 rebuild: Divi Button modul přidává vlastní třídu
- * et_pb_button + et_pb_bg_layout_light/dark, jejíž barva textu
- * (.et_pb_bg_layout_light.et_pb_button{color:#c20e1a}) má vyšší
- * specificitu než naše .btn{color:#fff} — na červeném pozadí to dělalo
- * červený text na červeném pozadí (neviditelné). Přebito zde. */
-.et_pb_button.btn{color:#fff !important}
-.et_pb_button.btn:hover{background:var(--red-bright) !important;color:#fff !important}
-.et_pb_button.btn-ghost{color:var(--fg) !important;background:transparent !important}
-.et_pb_button.btn-ghost:hover{background:rgba(255,255,255,.05) !important}
-
-/* Granulární rebuild "Jak se k nám dostanete": .doprava-actions je teď Divi
- * řádek (2 sloupce, každý 1 Button modul) místo prostého divu — Divi si na
- * řádek nastavuje flex-wrap:nowrap a na sloupce 50% šířku (inline, vysoká
- * specificita), proto obojí přebito, aby tlačítka byla vedle sebe s mezerou
- * a šla zalomit na mobilu (stejné chování jako původní bare-HTML verze). */
-.doprava-actions{flex-wrap:wrap !important}
-.doprava-actions>.et_pb_column{flex:0 0 auto !important;width:auto !important;max-width:100% !important}
-
-/* Stejný fix pro sdílené finální CÍL CTA (.fc-actions) — použito na všech 5
- * granulárně rebuildovaných stránkách (220/226/229/232/337), řádek se 3
- * Button moduly musí být vedle sebe s mezerou a zalomit na mobilu, ne
- * stackovat na 100% šířky (viz vysvětlení u .doprava-actions výše). */
-.fc-actions{flex-wrap:wrap !important}
-.fc-actions>.et_pb_column{flex:0 0 auto !important;width:auto !important;max-width:100% !important}

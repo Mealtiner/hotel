@@ -1,0 +1,72 @@
+{
+  "schema_version": "2.3",
+  "slug": "garry-sezona-cekaci-list",
+  "name": "GARRY – Sezónní nabídka a čekací list",
+  "plugin_version": "2.6.0",
+  "framework_protocol": "2.4.0",
+  "framework_minimum": "2.4.0",
+  "icon": {
+    "type": "dashicon",
+    "value": "dashicons-calendar-alt"
+  },
+  "surfaces": [
+    "admin-page",
+    "frontend-render"
+  ],
+  "admin": {
+    "capability": "manage_options",
+    "local_menu_slug": "garry-sezona-cekaci-list"
+  },
+  "dependencies": {
+    "required": [],
+    "optional": []
+  },
+  "data": {
+    "stores_personal_data": true,
+    "settings_option_prefix": "garry_sezona_cekaci_list_",
+    "log_retention_days": 90,
+    "uninstall_behavior": "delete-on-uninstall"
+  },
+  "external_origins": [],
+  "documentation": {
+    "local_path": "README.md"
+  },
+  "security_profile": {
+    "admin_assets_scope": "not_applicable",
+    "inline_assets": {
+      "css": true,
+      "js": true
+    },
+    "public_surfaces": [
+      {
+        "type": "ajax",
+        "name": "garry_voucher_request",
+        "collects_personal_data": true,
+        "anti_spam": "nonce+honeypot+filter",
+        "rate_limit": "transient, 5 requests / 10 min per IP+bucket"
+      },
+      {
+        "type": "ajax",
+        "name": "garry_sez_request",
+        "collects_personal_data": true,
+        "anti_spam": "nonce+honeypot+filter",
+        "rate_limit": "transient, 5 requests / 10 min per IP+bucket"
+      }
+    ],
+    "editor_custom_css": false,
+    "performance_budget": {
+      "max_public_items": null,
+      "bounded": true,
+      "note": "no public list/query rendering"
+    },
+    "multisite_tested": "unsupported",
+    "personal_data": {
+      "stores_personal_data": true,
+      "what": "jmeno+email+ip v poptavkovem logu (GARRY_SEZ_LOG)",
+      "retention_declared": true,
+      "retention": "90 dni, vynuceno denne cronem garry_sez_daily_retention (drive jen count-cap 300 bez casove platnosti)",
+      "privacy_api": "wp_privacy_personal_data_exporters + erasers registrovany (garry_sez_privacy_exporter/eraser)"
+    },
+    "external_origins_verified": []
+  }
+}

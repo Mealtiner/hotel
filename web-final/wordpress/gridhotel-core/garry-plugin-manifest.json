@@ -1,0 +1,53 @@
+{
+  "schema_version": "2.3",
+  "slug": "gridhotel-core",
+  "name": "GARRY – GRID Core",
+  "plugin_version": "2.0.2",
+  "framework_protocol": "2.4.0",
+  "framework_minimum": "2.4.0",
+  "icon": {
+    "type": "dashicon",
+    "value": "dashicons-admin-settings"
+  },
+  "surfaces": [
+    "admin-page",
+    "custom-post-types"
+  ],
+  "admin": {
+    "capability": "manage_options",
+    "local_menu_slug": "gridhotel-core"
+  },
+  "dependencies": {
+    "required": [],
+    "optional": []
+  },
+  "data": {
+    "stores_personal_data": false,
+    "settings_option_prefix": "gridcore_",
+    "log_retention_days": 90,
+    "uninstall_behavior": "non-destructive-content-preserved"
+  },
+  "external_origins": [],
+  "documentation": {
+    "local_path": "README.md"
+  },
+  "security_profile": {
+    "admin_assets_scope": "not_applicable",
+    "inline_assets": {
+      "css": false,
+      "js": false
+    },
+    "public_surfaces": [],
+    "editor_custom_css": false,
+    "performance_budget": {
+      "max_public_items": null,
+      "bounded": true,
+      "note": "CPT vykreslení řeší šablony motivu, ne tenhle plugin"
+    },
+    "multisite_tested": "untested",
+    "personal_data": {
+      "stores_personal_data": false
+    },
+    "external_origins_verified": []
+  }
+}

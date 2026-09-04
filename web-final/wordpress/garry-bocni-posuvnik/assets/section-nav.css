@@ -1,0 +1,122 @@
+/**
+ * GARRY – Sekční navigace: neutrální funkční CSS (GRID-SUITE-08 §7).
+ * Theme smí vzhled plně přestylovat přes stejné .tp-*/.track-progress třídy
+ * (GRID theme tak už dělá) — tohle je jen bezpečný základ, aby navigace byla
+ * použitelná i bez theme brandingu. Žádné GRID barvy/fonty tady natvrdo.
+ */
+.garry-section-nav {
+	--garry-section-nav-offset: 0px;
+	--garry-section-nav-accent: currentColor;
+	--garry-section-nav-bg: transparent;
+	--garry-section-nav-z-index: 40;
+	--garry-section-nav-width: 200px;
+
+	position: fixed;
+	top: 0;
+	right: 0;
+	height: 100vh;
+	width: var(--garry-section-nav-width);
+	z-index: var(--garry-section-nav-z-index);
+	display: flex;
+	align-items: center;
+	pointer-events: none;
+	background: var(--garry-section-nav-bg);
+}
+.garry-section-nav .tp-inner {
+	position: relative;
+	height: 72vh;
+	margin: auto 0;
+	padding: 24px 0;
+	pointer-events: auto;
+}
+.garry-section-nav .tp-rail {
+	position: absolute;
+	left: 7px;
+	top: 0;
+	bottom: 0;
+	width: 2px;
+	background: rgba(128, 128, 128, 0.35);
+	border-radius: 2px;
+}
+.garry-section-nav .tp-fill {
+	position: absolute;
+	left: 7px;
+	top: 0;
+	width: 2px;
+	height: 0;
+	background: var(--garry-section-nav-accent);
+	border-radius: 2px;
+	transition: height 0.15s linear;
+}
+.garry-section-nav .tp-points {
+	position: relative;
+	height: 100%;
+	display: flex;
+	flex-direction: column;
+	justify-content: space-between;
+	list-style: none;
+	margin: 0;
+	padding: 0;
+}
+.garry-section-nav .tp-point {
+	position: relative;
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	text-decoration: none;
+	color: inherit;
+	min-height: 24px;
+	padding: 4px 0;
+}
+.garry-section-nav .tp-dot {
+	width: 11px;
+	height: 11px;
+	border-radius: 50%;
+	background: transparent;
+	border: 2px solid currentColor;
+	flex: none;
+	transition: transform 0.2s, background 0.2s;
+}
+.garry-section-nav .tp-text {
+	display: flex;
+	flex-direction: column;
+	line-height: 1.1;
+	opacity: 0.6;
+	transition: opacity 0.2s;
+}
+.garry-section-nav .tp-point:hover .tp-text,
+.garry-section-nav .tp-point:focus-visible .tp-text,
+.garry-section-nav .tp-point[aria-current="location"] .tp-text {
+	opacity: 1;
+}
+.garry-section-nav .tp-point[aria-current="location"] .tp-dot {
+	background: var(--garry-section-nav-accent);
+	border-color: var(--garry-section-nav-accent);
+	transform: scale(1.2);
+}
+.garry-section-nav .tp-point:focus-visible {
+	outline: 2px solid var(--garry-section-nav-accent);
+	outline-offset: 3px;
+}
+
+/* Sticky offset (admin bar apod.) — theme/plugin nastavuje --garry-section-nav-offset. */
+:where(html) {
+	scroll-padding-top: var(--garry-section-nav-offset, 0px);
+}
+
+@media (max-width: 782px) {
+	.garry-section-nav {
+		display: none; /* mobilní chování řeší theme vlastním přepínačem, pokud ho poskytuje — neutrální výchozí stav je skrýt na malé obrazovce */
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.garry-section-nav .tp-fill,
+	.garry-section-nav .tp-dot,
+	.garry-section-nav .tp-text {
+		transition: none;
+	}
+	html {
+		scroll-behavior: auto;
+	}
+}

@@ -1,0 +1,741 @@
+/* ==========================================================================
+   GARRY – Typografie · styly administrace
+   Vychází ze vzhledu ostatních GARRY mikropluginů (karty, přepínač, pilulka).
+   ========================================================================== */
+
+:root {
+    --garry-typo-green: #003f00;
+    --garry-typo-green-soft: #eff8ec;
+    --garry-typo-border: #dcdcde;
+    --garry-typo-muted: #646970;
+    --garry-typo-warn-bg: #fff8e5;
+    --garry-typo-warn-border: #dba617;
+}
+
+.garry-typo-wrap {
+    max-width: 1640px;
+}
+
+.garry-typo-version-pill {
+    display: inline-flex;
+    align-items: center;
+    background: var(--garry-typo-green-soft);
+    color: var(--garry-typo-green);
+    border: 1px solid rgba(0, 63, 0, .18);
+    border-radius: 999px;
+    padding: 5px 12px;
+    font-weight: 700;
+    margin: 4px 0 14px;
+}
+
+/* --------------------------------------------------------------- karty -- */
+
+.garry-typo-card {
+    background: #fff;
+    border: 1px solid var(--garry-typo-border);
+    border-radius: 14px;
+    padding: 22px 24px;
+    margin: 18px 0;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, .035);
+}
+
+.garry-typo-card h2 {
+    margin: 0 0 14px;
+    font-size: 20px;
+    line-height: 1.25;
+}
+
+.garry-typo-card h3 {
+    margin: 22px 0 10px;
+    font-size: 15px;
+}
+
+.garry-typo-card h3:first-of-type {
+    margin-top: 14px;
+}
+
+.garry-typo-intro {
+    border-left: 5px solid var(--garry-typo-green);
+}
+
+.garry-typo-intro p {
+    max-width: 930px;
+    font-size: 14px;
+    line-height: 1.7;
+}
+
+.garry-typo-help {
+    color: var(--garry-typo-muted);
+    max-width: 900px;
+    font-size: 14px;
+    line-height: 1.65;
+}
+
+.garry-typo-dim {
+    color: var(--garry-typo-muted);
+}
+
+.garry-typo-ok {
+    color: #1a7f37;
+    font-weight: 600;
+}
+
+.garry-typo-bad {
+    color: #a4262c;
+    font-weight: 600;
+}
+
+.garry-typo-warn-cell {
+    color: #8a5c1d;
+    font-weight: 600;
+}
+
+/* Rozpal písmen je hlavní téma korektur, proto je pole zvýrazněné. */
+.garry-typo-letterspacing {
+    border-color: var(--garry-typo-green) !important;
+    box-shadow: 0 0 0 1px rgba(0, 63, 0, .12);
+}
+
+/* ------------------------------------------------------------ rozvržení -- */
+
+.garry-typo-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 420px;
+    gap: 20px;
+    align-items: start;
+}
+
+.garry-typo-main {
+    min-width: 0;
+}
+
+.garry-typo-preview-panel {
+    position: sticky;
+    top: 42px;
+    min-width: 0;
+}
+
+.garry-typo-preview-card {
+    background: #fff;
+    border: 1px solid var(--garry-typo-border);
+    border-radius: 14px;
+    padding: 18px;
+    margin-bottom: 18px;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, .035);
+}
+
+.garry-typo-preview-card h2 {
+    margin: 0 0 10px;
+    font-size: 19px;
+}
+
+@media (max-width: 1400px) {
+    .garry-typo-layout {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .garry-typo-preview-panel {
+        position: static;
+    }
+}
+
+/* -------------------------------------------------------------- přepínač -- */
+
+.garry-typo-switch-row {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    flex-wrap: wrap;
+}
+
+.garry-typo-switch {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    width: 270px;
+    height: 58px;
+    border-radius: 999px;
+    padding: 5px;
+    background: var(--garry-typo-switch-off, #e02b20);
+    box-shadow: inset 0 0 0 2px rgba(0, 0, 0, .08);
+    cursor: pointer;
+    transition: background-color .2s ease;
+}
+
+.garry-typo-switch input {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+}
+
+.garry-typo-switch__knob {
+    position: absolute;
+    left: 6px;
+    width: 46px;
+    height: 46px;
+    border-radius: 999px;
+    background: #fff;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, .22);
+    transition: transform .22s ease;
+}
+
+.garry-typo-switch__text {
+    width: 100%;
+    text-align: center;
+    color: #fff;
+    font-weight: 800;
+    font-size: 12px;
+    padding-left: 42px;
+}
+
+.garry-typo-switch__text-on {
+    display: none;
+}
+
+.garry-typo-switch:has(input:checked) {
+    background: var(--garry-typo-switch-on, #68c020);
+}
+
+.garry-typo-switch:has(input:checked) .garry-typo-switch__knob {
+    transform: translateX(210px);
+}
+
+.garry-typo-switch:has(input:checked) .garry-typo-switch__text {
+    padding-left: 8px;
+    padding-right: 42px;
+}
+
+.garry-typo-switch:has(input:checked) .garry-typo-switch__text-on {
+    display: inline;
+}
+
+.garry-typo-switch:has(input:checked) .garry-typo-switch__text-off {
+    display: none;
+}
+
+.garry-typo-state {
+    background: #f6f7f7;
+    border: 1px solid var(--garry-typo-border);
+    border-radius: 12px;
+    padding: 12px 14px;
+    min-width: 360px;
+    max-width: 760px;
+    line-height: 1.55;
+}
+
+/* ------------------------------------------------------------- formuláře -- */
+
+.garry-typo-form-grid {
+    display: grid;
+    grid-template-columns: minmax(180px, 240px) 1fr;
+    gap: 14px 24px;
+    align-items: start;
+    margin-top: 12px;
+}
+
+.garry-typo-form-grid > label {
+    font-weight: 600;
+    padding-top: 6px;
+}
+
+.garry-typo-wide {
+    width: 100%;
+    max-width: 560px;
+}
+
+.garry-typo-check {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    margin: 6px 0;
+    line-height: 1.5;
+}
+
+.garry-typo-inline-fields {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 8px 0;
+}
+
+.garry-typo-inline-fields input {
+    width: 90px;
+}
+
+.garry-typo-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-top: 18px;
+    padding-top: 16px;
+    border-top: 1px solid var(--garry-typo-border);
+}
+
+.garry-typo-actions-note {
+    color: var(--garry-typo-muted);
+    font-size: 13px;
+}
+
+/* ------------------------------------------------------- jedna úroveň -- */
+
+.garry-typo-element {
+    border: 1px solid var(--garry-typo-border);
+    border-left: 4px solid #c3c4c7;
+    border-radius: 10px;
+    padding: 14px 16px;
+    margin: 12px 0;
+    background: #fbfbfb;
+    transition: border-color .15s, background .15s;
+}
+
+.garry-typo-element.is-on {
+    border-left-color: var(--garry-typo-switch-on, #68c020);
+    background: #fff;
+}
+
+.garry-typo-element-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+.garry-typo-element-label {
+    font-weight: 700;
+    font-size: 15px;
+}
+
+.garry-typo-element-desc {
+    margin: 4px 0 10px 26px;
+    color: var(--garry-typo-muted);
+    font-size: 13px;
+    line-height: 1.55;
+    max-width: 900px;
+}
+
+.garry-typo-selector-toggle {
+    background: none;
+    border: 1px solid var(--garry-typo-border);
+    border-radius: 999px;
+    padding: 3px 12px;
+    font-size: 12px;
+    color: var(--garry-typo-muted);
+    cursor: pointer;
+    flex: none;
+}
+
+.garry-typo-selector-toggle:hover {
+    border-color: var(--garry-typo-green);
+    color: var(--garry-typo-green);
+}
+
+.garry-typo-element-fields {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 10px 14px;
+    margin-left: 26px;
+}
+
+.garry-typo-field--wide {
+    grid-column: span 2;
+}
+
+.garry-typo-field--full {
+    grid-column: 1 / -1;
+}
+
+.garry-typo-field label {
+    display: block;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .04em;
+    color: var(--garry-typo-muted);
+    margin-bottom: 4px;
+}
+
+.garry-typo-field input[type="text"],
+.garry-typo-field select {
+    width: 100%;
+}
+
+.garry-typo-selectors {
+    margin: 14px 0 0 26px;
+    padding-top: 12px;
+    border-top: 1px dashed var(--garry-typo-border);
+}
+
+.garry-typo-selector-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-bottom: 12px;
+}
+
+.garry-typo-selector-list code {
+    background: #f0f0f1;
+    border-radius: 4px;
+    padding: 2px 7px;
+    font-size: 12px;
+}
+
+/* ------------------------------------------------------------- tabulky -- */
+
+.garry-typo-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 10px 0 4px;
+    font-size: 13px;
+}
+
+.garry-typo-table th,
+.garry-typo-table td {
+    border: 1px solid var(--garry-typo-border);
+    padding: 8px 10px;
+    text-align: left;
+    vertical-align: top;
+}
+
+.garry-typo-table thead th {
+    background: #f6f7f7;
+    font-weight: 700;
+}
+
+.garry-typo-file {
+    font-family: Consolas, Monaco, monospace;
+    font-size: 12px;
+}
+
+.garry-typo-notice {
+    border-radius: 8px;
+    padding: 12px 14px;
+    margin: 12px 0;
+    line-height: 1.55;
+    font-size: 13px;
+}
+
+.garry-typo-notice--warn {
+    background: var(--garry-typo-warn-bg);
+    border-left: 4px solid var(--garry-typo-warn-border);
+}
+
+.garry-typo-code {
+    background: #1d2327;
+    color: #e6e6e6;
+    border-radius: 10px;
+    padding: 14px 16px;
+    max-height: 380px;
+    overflow: auto;
+    font-size: 12px;
+    line-height: 1.55;
+    white-space: pre;
+}
+
+/* --------------------------------------------------------------- náhled -- */
+
+.garry-typo-preview {
+    border: 1px solid var(--garry-typo-border);
+    border-radius: 10px;
+    padding: 16px 18px;
+    background: #fff;
+}
+
+.garry-typo-preview h1 {
+    font-size: 30px;
+}
+
+.garry-typo-preview h2 {
+    font-size: 24px;
+}
+
+.garry-typo-preview h3 {
+    font-size: 19px;
+}
+
+.garry-typo-preview h1,
+.garry-typo-preview h2,
+.garry-typo-preview h3 {
+    margin: 0 0 8px;
+    padding: 0;
+    color: #cd9f67;
+}
+
+.garry-typo-preview p {
+    margin: 0 0 10px;
+    color: #003f00;
+}
+
+.garry-typo-preview ul {
+    list-style: disc;
+    padding-left: 20px;
+    margin: 0 0 10px;
+}
+
+.garry-typo-preview ol {
+    list-style: decimal;
+    padding-left: 20px;
+    margin: 0 0 10px;
+}
+
+.garry-typo-preview-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 12px;
+}
+
+.garry-typo-preview-table th,
+.garry-typo-preview-table td {
+    border: 1px solid var(--garry-typo-border);
+    padding: 6px 8px;
+    text-align: left;
+}
+
+.garry-typo-preview-button {
+    display: inline-block;
+    background: #68c020;
+    color: #003f00;
+    border-radius: 999px;
+    padding: 10px 22px;
+    font-weight: 700;
+}
+
+/* ------------------------------------------------------ test diakritiky -- */
+
+.garry-typo-verdict {
+    border-radius: 8px;
+    padding: 12px 14px;
+    margin: 12px 0;
+    font-size: 13px;
+    line-height: 1.55;
+    background: #f6f7f7;
+    border-left: 4px solid #c3c4c7;
+}
+
+.garry-typo-verdict.is-ok {
+    background: #edfaef;
+    border-left-color: #1a7f37;
+}
+
+.garry-typo-verdict.is-warn {
+    background: var(--garry-typo-warn-bg);
+    border-left-color: var(--garry-typo-warn-border);
+}
+
+.garry-typo-verdict.is-bad {
+    background: #fdf0f0;
+    border-left-color: #a4262c;
+}
+
+.garry-typo-test-row {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    padding: 6px 0;
+    border-bottom: 1px dashed var(--garry-typo-border);
+}
+
+.garry-typo-test-row:last-child {
+    border-bottom: none;
+}
+
+.garry-typo-test-weight {
+    flex: none;
+    width: 34px;
+    font-size: 11px;
+    color: var(--garry-typo-muted);
+    font-family: Consolas, Monaco, monospace;
+}
+
+.garry-typo-test-text {
+    font-size: 17px;
+    line-height: 1.4;
+    word-break: break-word;
+}
+
+/* ==========================================================================
+   Barvy, nahrané řezy písma a náhled na dvou pozadích
+   ========================================================================== */
+
+.garry-typo-sub {
+    margin: 4px 0 10px;
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: .04em;
+    color: var(--garry-typo-muted);
+}
+
+.garry-typo-element-fields--advanced {
+    margin-bottom: 16px;
+}
+
+/* ----------------------------------------------------------- barvy -- */
+
+.garry-typo-color-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.garry-typo-color-pick {
+    flex: none;
+    width: 32px;
+    height: 30px;
+    padding: 2px;
+    border: 1px solid var(--garry-typo-border);
+    border-radius: 4px;
+    background: #fff;
+    cursor: pointer;
+}
+
+.garry-typo-color-text {
+    min-width: 0;
+    flex: 1 1 auto;
+}
+
+.garry-typo-color-clear {
+    flex: none;
+    width: 26px;
+    height: 26px;
+    line-height: 1;
+    border: 1px solid var(--garry-typo-border);
+    border-radius: 4px;
+    background: #fff;
+    color: var(--garry-typo-muted);
+    cursor: pointer;
+    font-size: 16px;
+}
+
+.garry-typo-color-clear:hover {
+    border-color: #a4262c;
+    color: #a4262c;
+}
+
+.garry-typo-swatches {
+    display: flex;
+    gap: 4px;
+    margin-top: 5px;
+}
+
+.garry-typo-swatch {
+    width: 18px;
+    height: 18px;
+    border: 1px solid rgba(0, 0, 0, .18);
+    border-radius: 4px;
+    padding: 0;
+    cursor: pointer;
+}
+
+.garry-typo-swatch:hover {
+    outline: 2px solid var(--garry-typo-green);
+    outline-offset: 1px;
+}
+
+/* ------------------------------------------------- nahrané řezy písma -- */
+
+.garry-typo-face-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 12px 14px;
+    margin-bottom: 10px;
+    border: 1px solid var(--garry-typo-border);
+    border-radius: 10px;
+    background: #fbfbfb;
+}
+
+.garry-typo-field--grow {
+    flex: 1 1 260px;
+    min-width: 220px;
+}
+
+.garry-typo-field--action {
+    align-self: center;
+    padding-top: 14px;
+}
+
+.garry-typo-file-picker {
+    display: flex;
+    gap: 6px;
+}
+
+.garry-typo-file-picker input[type="text"] {
+    flex: 1 1 auto;
+    min-width: 0;
+}
+
+.garry-typo-mode-block {
+    margin-top: 18px;
+    padding-top: 12px;
+    border-top: 1px solid var(--garry-typo-border);
+}
+
+/* ----------------------------------------------------------- náhled -- */
+
+.garry-typo-preview-heading {
+    margin: 16px 0 6px;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: .05em;
+    color: var(--garry-typo-muted);
+}
+
+.garry-typo-preview--light {
+    background: #ffffff;
+}
+
+.garry-typo-preview--dark {
+    background: #12350e;
+    border-color: #12350e;
+}
+
+.garry-typo-preview--dark .garry-typo-preview-table th,
+.garry-typo-preview--dark .garry-typo-preview-table td {
+    border-color: rgba(255, 255, 255, .28);
+}
+
+.garry-typo-preview h2,
+.garry-typo-preview h3 {
+    padding: 0;
+}
+
+.garry-typo-preview-toggle {
+    display: inline-block;
+    margin-right: 12px;
+    cursor: pointer;
+}
+
+/* Doplňkové prvky živého náhledu */
+
+.garry-typo-notice--ok {
+    background: #edfaef;
+    border-left: 4px solid #1a7f37;
+}
+
+.garry-typo-preview-nav,
+.garry-typo-preview-anchors,
+.garry-typo-preview-modheading,
+.garry-typo-preview-caption,
+.garry-typo-preview-formlabel {
+    display: block;
+    margin-bottom: 10px;
+}
+
+.garry-typo-preview h4,
+.garry-typo-preview h5,
+.garry-typo-preview h6 {
+    margin: 0 0 8px;
+    padding: 0;
+    color: #68c020;
+}
+
+.garry-typo-preview blockquote {
+    margin: 0 0 10px;
+    padding-left: 12px;
+    border-left: 3px solid currentColor;
+}
+
+.garry-typo-preview a {
+    color: inherit;
+}

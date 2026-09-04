@@ -3,14 +3,35 @@
  * GRID Hotel — Divi 5 Child Theme
  * functions.php
  *
- * - načte fonty, CSS a JS designového systému
- * - registruje ACF Options page + acf-json cestu
- * - načte shortcody, které vykreslují jednotlivé sekce z ACF obsahu
+ * Fáze 9 GRID Suite refaktoringu (GRID-SUITE-09) — theme je teď čistě
+ * prezentační vrstva: design tokeny, CSS, Divi layout/template úpravy,
+ * obrázky. Vlastnictví dat/business logiky/hlavních shortcodů přešlo na
+ * pluginy (gridhotel-core, gridhotel-components, GARRY Hero křivka,
+ * GARRY Sekční navigace, GARRY Situace na trati) — viz GRID-SUITE-00
+ * master plán, "Mapování vlastnictví runtime".
+ *
+ * Co theme OD 3.0.0 už NEVLASTNÍ (a proto to tady není):
+ *  - GRID Nastavení (grid-options) + ACF options page — vlastní
+ *    gridhotel-core ≥ 2.0.0 (inc/options-page.php), stejné field names,
+ *    žádná migrace dat, jen změna KDO stránku registruje.
+ *  - Hlavních 30 z 32 grid_* shortcode callbacků — vlastní
+ *    gridhotel-components ≥ 1.0.0. [grid_tracknav]/[grid_telemetry]
+ *    vlastní GARRY Sekční navigace / GARRY Situace na trati.
+ *  - Hero křivka JS/SVG (window.gridHeroCurve byl jen konfigurace,
+ *    skutečné vykreslení dělá GARRY Hero křivka ≥ 1.2.0).
+ *  - Scroll-spy/aktivní stav sekční navigace (GARRY Sekční navigace ≥ 1.4.0).
+ *  - Telemetry/počasí polling (GARRY Situace na trati vlastní od začátku,
+ *    theme dřív běžel DUPLICITNÍ vlastní fetch — odstraněno, viz assets/js/grid.js).
+ *
+ * Tenhle theme proto VYŽADUJE aktivní gridhotel-core + gridhotel-components,
+ * aby web vykreslil obsah (žádná vlastní fallback data) — to je u
+ * projektově-specifického theme akceptovatelné (na rozdíl od přenositelných
+ * GARRY pluginů, které standalone fungovat MUSÍ).
  */
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
-define( 'GRID_CHILD_VER', '2.41.0' );
+define( 'GRID_CHILD_VER', '3.0.4' );
 
 /* ------------------------------------------------------------------
  * 1) Styly a skripty
@@ -36,37 +57,21 @@ function grid_enqueue_assets() {
 }
 add_action( 'wp_enqueue_scripts', 'grid_enqueue_assets', 5 ); // PŘED Divi (priorita 10) — jinak Divi nepozná, že child styl už je zaregistrovaný, a načte ho podruhé pod handle 'divi-style-child'
 
-/* ------------------------------------------------------------------
- * 2) ACF — cesta k acf-json (auto-load / auto-save definic polí)
- * ------------------------------------------------------------------ */
-add_filter( 'acf/settings/save_json', function ( $path ) {
-	return get_stylesheet_directory() . '/acf-json';
-} );
-add_filter( 'acf/settings/load_json', function ( $paths ) {
-	$paths[] = get_stylesheet_directory() . '/acf-json';
-	return $paths;
-} );
+/**
+ * 2)+3) GRID Nastavení / ACF options page — PŘESUNUTO do gridhotel-core
+ * ≥ 2.0.0 (inc/options-page.php), stejné field names/keys, žádná migrace
+ * dat. Theme už 'grid-options' ani acf-json cestu neregistruje. Zbytky
+ * acf-json/ (group_grid_options.json, group_grid_content.json,
+ * legacy group_grid_menu.json) byly z theme smazané — jsou teď jen v
+ * gridhotel-core (první dva) nebo úplně superseded (group_grid_menu, GARRY
+ * Týdenní menu má vlastní nezávislý datový model).
+ */
 
 /* ------------------------------------------------------------------
- * 3) ACF Options page (globální obsah: kontakt, hodiny, widget)
- * ------------------------------------------------------------------ */
-add_action( 'acf/init', function () {
-	if ( function_exists( 'acf_add_options_page' ) ) {
-		acf_add_options_page( array(
-			'page_title' => 'GRID — Nastavení webu',
-			'menu_title' => 'GRID Nastavení',
-			'menu_slug'  => 'grid-options',
-			'capability' => 'manage_options', // globální nastavení (Hero/Kontakt/Socials/Video) jen pro admina — Contributor/Editor mají WP core capability 'edit_posts' i bez vztahu k webu
-			'redirect'   => false,
-			'icon_url'   => 'none', // barevnou ikonu vykreslíme přes admin CSS (viz níže)
-			'position'   => 3,
-		) );
-	}
-} );
-
-/* ------------------------------------------------------------------
- * 4) Malý helper: bezpečné čtení ACF s fallbackem
- *    grid_field('slug', 'default', $post_or_option)
+ * 4) Malý fallback helper pro čtení ACF, jen pro sekce theme (šablony
+ *    single/archive/taxonomy níže), které GRID-SUITE-02 ještě nepřevzala.
+ *    Nové čtení má jít přes gridhotel_get_option() (Core), tenhle helper
+ *    zůstává jako záložní cesta, kdyby Core nebyl aktivní.
  * ------------------------------------------------------------------ */
 function grid_field( $name, $default = '', $id = 'option' ) {
 	if ( function_exists( 'get_field' ) ) {
@@ -76,18 +81,26 @@ function grid_field( $name, $default = '', $id = 'option' ) {
 	return $default;
 }
 
-/* ------------------------------------------------------------------
- * 5) Sekční shortcody (grid_hero, grid_rooms, grid_season, ...)
- * ------------------------------------------------------------------ */
+/**
+ * 5) Zbylé shortcody/helpery — POUZE to, co ještě potřebují šablony
+ * single-grid_experience.php/archive-grid_experience.php/taxonomy-grid_room_cat.php
+ * (grid_pf, grid_exp_defaults, grid_rezervace_url, grid_room_compare_table…).
+ * Všech 30 hlavních grid_* shortcodů (grid_hero, grid_rooms, grid_season…)
+ * PŘEVZALA gridhotel-components ≥ 1.0.0 a byly odsud odstraněny — viz
+ * inc/shortcodes.php (nově jen ~150 řádků helperů, dřív ~1791 řádků).
+ */
 require_once get_stylesheet_directory() . '/inc/shortcodes.php';
 require_once get_stylesheet_directory() . '/inc/errors.php';
 
 /* ------------------------------------------------------------------
  * 6) Obsahová šířka webu (sladěno s návrhem)
  *    1200 = doporučeno | 1280 = kompromis | 1320 = 1:1 návrh
+ *    Čte přes gridhotel_get_option() (Core), pokud je aktivní — přímé
+ *    get_field() zůstává jen jako fallback bez Core (GRID-SUITE-02 §8:
+ *    frontend nemá číst ACF přímo, pokud existuje Core API).
  * ------------------------------------------------------------------ */
 add_action( 'wp_head', function () {
-	$w = (int) grid_field( 'sirka_webu', 1280 );
+	$w = function_exists( 'gridhotel_get_option' ) ? (int) gridhotel_get_option( 'sirka_webu', 1280 ) : (int) grid_field( 'sirka_webu', 1280 );
 	echo '<style>:root{--maxw:' . esc_attr( $w ) . 'px}</style>' . "\n";
 }, 99 );
 
@@ -147,33 +160,22 @@ add_action( 'admin_menu', function () {
  * ------------------------------------------------------------------ */
 add_filter( 'fluentform/load_default_public_style', '__return_true' );
 
-/* ------------------------------------------------------------------
- * 11) Jazykový přepínač (Polylang) — URL překladů AKTUÁLNÍ stránky.
- *     Hlavička je statická v Divi; grid.js dosadí odkazy z této mapy.
- * ------------------------------------------------------------------ */
-add_action( 'wp_head', function () {
-	if ( ! function_exists( 'pll_get_post' ) ) return;
-	$urls = array();
-	foreach ( array( 'cs', 'en', 'de' ) as $l ) {
-		$u = '';
-		if ( is_singular() ) {
-			$t = pll_get_post( get_queried_object_id(), $l );
-			if ( $t && get_post_status( $t ) === 'publish' ) $u = get_permalink( $t );
-		} elseif ( is_tax() && function_exists( 'pll_get_term' ) ) {
-			$t = pll_get_term( get_queried_object_id(), $l );
-			if ( $t ) { $link = get_term_link( (int) $t ); if ( ! is_wp_error( $link ) ) $u = $link; }
-		}
-		if ( ! $u && function_exists( 'pll_home_url' ) ) $u = pll_home_url( $l );
-		$urls[ $l ] = $u;
-	}
-	echo '<script>window.gridLangUrls=' . wp_json_encode( $urls ) . ";</script>\n";
-} );
+/**
+ * 11) Jazykový přepínač (Polylang) — PŘESUNUTO do gridhotel-components ≥ 1.0.1
+ * (gridc_lang_switch_urls(), počítá se server-side rovnou v PHP). Dřívější
+ * mechanismus (window.gridLangUrls injektovaný v wp_head, dosazovaný teprve
+ * JS v grid.js) byl skutečná chyba, ne jen jiné umístění — bez JS jazykový
+ * přepínač vůbec nefungoval. Odstraněno odsud i z assets/js/grid.js.
+ */
 
-/* ------------------------------------------------------------------
- * 11b) Hlavní menu jako WP menu — editace ve Vzhled → Menu,
- *      jazykové mutace přiřazuje Polylang (lokace „grid-hlavni").
- *      V TB hlavičce je token [grid_menu_hlavni] → plain <a> odkazy.
- * ------------------------------------------------------------------ */
+/**
+ * 11b) Hlavní menu jako WP menu (lokace „grid-hlavni") — registrace lokace
+ * zůstává v theme (standardní WP konvence, theme vlastní strukturu menu).
+ * Samotný shortcode [grid_menu_hlavni] ale teď primárně vykresluje
+ * gridhotel-components ≥ 1.0.0 (gridc_render_hlavni_menu()) — funkce tady
+ * zůstává jen jako interní volání pro Divi TB kompatibilní vrstvu níže
+ * (bod 12), ne jako konkurenční shortcode registrace.
+ */
 add_action( 'after_setup_theme', function () {
 	register_nav_menus( array( 'grid-hlavni' => 'Hlavní menu (horní lišta)' ) );
 } );
@@ -188,49 +190,59 @@ function grid_render_hlavni_menu() {
 	}
 	return implode( ' ', $out );
 }
-add_shortcode( 'grid_menu_hlavni', 'grid_render_hlavni_menu' );
+if ( ! shortcode_exists( 'grid_menu_hlavni' ) ) { add_shortcode( 'grid_menu_hlavni', 'grid_render_hlavni_menu' ); } // GRID-SUITE-09 §5: záložní síť, gridhotel-components registruje tenhle tag jako první
 
 /* ------------------------------------------------------------------
- * 12) Shortcody v Theme Builder layoutech (hlavička/patička)
- * ------------------------------------------------------------------
- * KRITICKÁ OPRAVA (2026-07-23): dřív se tu dělalo ob_start()+str_replace()
- * nad CELOU HTTP odpovědí na template_redirect. V Divi 5 Visual/Theme
- * Builderu (?et_fb=1) je celá odpověď zároveň JS bootstrap (<script
- * id="divi-settings-js-extra">…serializovaný JSON…</script>) — vložení raw
- * HTML (uvozovky, <script> tagy z Fluent Forms) do něj řetězec syntakticky
- * rozbilo a React skončil v ErrorBoundary ("Oops! An Error Has Occurred").
- * Builder tím padal na VŠECH stránkách, protože header/footer TB layout je
- * součástí bootstrapu úplně každé stránky bez ohledu na její vlastní obsah.
- *
- * Řešení: render_block filtr níže spouští do_shortcode() na úrovni JEDNOHO
- * Divi bloku přes WordPress block-rendering API — to funguje stejně dobře
- * pro běžné stránky i pro Theme Builder hlavičku/patičku (ověřeno: tokeny
- * [grid_paticka_kontakt], [grid_socials] i [grid_menu_hlavni] se touto
- * cestou vykreslují správně, žádný output buffer nad celou stránkou nebyl
- * potřeba). [grid_ff_newsletter] proto níže registrujeme jako plnohodnotný
- * shortcode se stejnou cestou vykreslení.
- */
+ * 12) Shortcody v Theme Builder layoutech (hlavička/patička) —
+ *     Divi 5 je v TB obsahu samo nespouští, na stránkách ano.
+ * ------------------------------------------------------------------ */
 add_filter( 'et_builder_render_layout', 'do_shortcode', 12 ); // Divi 4 cesta
 add_filter( 'render_block', function ( $content, $block ) {
 	if ( is_admin() ) return $content;
 	if ( strpos( (string) ( $block['blockName'] ?? '' ), 'divi/' ) !== 0 ) return $content;
 	if ( strpos( $content, '[grid_' ) === false ) return $content;
 	return do_shortcode( $content );
-}, 20, 2 ); // Divi 5 bloky (běžné stránky i Theme Builder header/footer)
-
-/* [grid_ff_newsletter lang="cs|en|de"] — newsletter formulář Fluent Forms.
- * Atribut lang je NUTNÝ: v šabloně patičky je token 3× (jednou v každém
- * .grid-lang-cs/en/de bloku) a každý výskyt potřebuje SVOU jazykovou mutaci
- * formuláře — jinak by měly 3 kopie stejného formuláře identické HTML id. */
-add_shortcode( 'grid_ff_newsletter', function ( $atts ) {
-	if ( ! shortcode_exists( 'fluentform' ) ) return '';
-	$atts = shortcode_atts( array( 'lang' => '' ), $atts );
-	$lang = in_array( $atts['lang'], array( 'cs', 'en', 'de' ), true ) ? $atts['lang'] : grid_lang();
-	$ffmap = (array) get_option( 'grid_ff_forms', array() );
-	$fid = (int) ( $ffmap['newsletter'][ $lang ] ?? ( $ffmap['newsletter']['cs'] ?? 0 ) );
-	if ( ! $fid ) return '';
-	return do_shortcode( '[fluentform id=' . $fid . ']' );
-} );
+}, 20, 2 ); // Divi 5 bloky (Theme Builder)
+/* Divi 5 TB renderer shortcody nespouští vůbec → tokeny v hlavičce/patičce
+   nahradíme v celém výstupu; náhrady předpočítáme v wp_head (shortcody tam žijí). */
+add_action( 'template_redirect', function () {
+	if ( is_admin() ) return;
+	/* FF newsletter v patičce: spustíme shortcode TEĎ (assety se stihnou zařadit) — ZVLÁŠŤ pro
+	   každý jazyk. Token [grid_ff_newsletter] se v šabloně vyskytuje 3× (jednou v každém
+	   .grid-lang-cs/en/de bloku patičky, v tomto pořadí) — každý výskyt musí dostat SVOU
+	   jazykovou mutaci formuláře, jinak by 3 kopie stejného formuláře měly identické HTML id
+	   (neplatné duplicitní ID), než je grid.js později odstraní podle aktivního jazyka. */
+	$ff_newsletter_by_lang = array();
+	if ( shortcode_exists( 'fluentform' ) ) {
+		$ffmap = (array) get_option( 'grid_ff_forms', array() );
+		foreach ( array( 'cs', 'en', 'de' ) as $l ) {
+			$fid = (int) ( $ffmap['newsletter'][ $l ] ?? 0 );
+			if ( $fid ) $ff_newsletter_by_lang[ $l ] = do_shortcode( '[fluentform id=' . $fid . ']' );
+		}
+	}
+	ob_start( function ( $html ) use ( $ff_newsletter_by_lang ) {
+		$map = array(
+			'[grid_paticka_kontakt]' => function_exists( 'grid_sc_footer_kontakt' ) ? grid_sc_footer_kontakt() : '',
+			'[grid_socials]'         => function_exists( 'grid_sc_socials' ) ? grid_sc_socials() : '',
+			'[grid_menu_hlavni]'     => grid_render_hlavni_menu(),
+		);
+		foreach ( $map as $token => $out ) {
+			if ( strpos( $html, $token ) !== false ) $html = str_replace( $token, (string) $out, $html );
+		}
+		/* Token může v TB obsahu nést atribut lang="cs" (přímé určení mutace) — regex proto
+		   musí matchovat i s atributem, ne jen holé [grid_ff_newsletter]. Když je lang uveden
+		   a známe pro něj formulář, použije se přesně on; jinak (holý token / neznámý jazyk)
+		   padáme na první dostupnou mutaci jako bezpečný fallback. */
+		if ( $ff_newsletter_by_lang && preg_match( '~\[grid_ff_newsletter(?:\s+[^\]]*)?\]~', $html ) ) {
+			$html = preg_replace_callback( '~\[grid_ff_newsletter(?:\s+lang=["\']([a-z]{2})["\'])?(?:\s+[^\]]*)?\]~', function ( $m ) use ( $ff_newsletter_by_lang ) {
+				$lang = $m[1] ?? '';
+				if ( $lang && isset( $ff_newsletter_by_lang[ $lang ] ) ) return $ff_newsletter_by_lang[ $lang ];
+				return reset( $ff_newsletter_by_lang ) ?: '';
+			}, $html );
+		}
+		return $html;
+	} );
+}, 1 );
 
 /* ------------------------------------------------------------------
  * 13) Bezpečnostní hardening (audit 2026-07-22)
@@ -269,21 +281,6 @@ add_filter( 'rest_authentication_errors', function ( $result ) {
  * a jinak umožňují dohledat uživatelské jméno/slug enumerací ?author=1,2,3… */
 add_action( 'template_redirect', function () {
 	if ( is_author() && ! is_user_logged_in() ) wp_safe_redirect( home_url( '/' ), 301 );
-} );
-
-/* "Privacy statement" (250/412/413) byl jen prázdný Complianz setup-wizard
- * stub (shortcode bez obsahu) — Complianz sám má jako skutečnou EU privacy
- * statement stránku nastavenou 258/398/399 (GDPR). Stránky 250/412/413 jsou
- * odpublikované (draft), tohle 301 přesměrování je pro staré odkazy/bookmarky. */
-add_action( 'template_redirect', function () {
-	$redirects = array(
-		'/privacy-statement/'      => '/ochrana-osobnich-udaju-gdpr/',
-		'/privacy-statement-en/'   => '/statement-for-processing-of-personal-data/',
-		'/datenschutzhinweise/'    => '/erklaerung-zur-verarbeitung-von-personenbezogenen-daten/',
-		'/sezona-2026/'            => '/sezona/', // slug zkrácen 2026-07-23, stará URL zůstává ve staré komunikaci/bookmarcích
-	);
-	$uri = strtok( (string) ( $_SERVER['REQUEST_URI'] ?? '' ), '?' );
-	if ( isset( $redirects[ $uri ] ) ) { wp_safe_redirect( home_url( $redirects[ $uri ] ), 301 ); exit; }
 } );
 
 /* readme.html / license.txt / *.php-old / *.bak / *.orig — standardní WP fingerprinting

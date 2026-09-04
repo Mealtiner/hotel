@@ -391,6 +391,6 @@
     "label_placement": "top",
     "instruction_placement": "label",
     "active": true,
-    "description": "Globální kontakt, živý widget, hero texty, obrázky a menu.",
+    "description": "Globální kontakt, živý widget, hero texty, obrázky a menu. Vlastník: GARRY – GRID Core (přesunuto z child theme ve verzi 2.0.0, stejné klíče polí, žádná migrace dat).",
     "modified": 1784722790
 }

@@ -18,12 +18,14 @@ function gridcore_register_cpts() {
 		'grid_room' => array(
 			'singular' => 'Pokoj', 'plural' => 'Pokoje', 'slug' => 'pokoje',
 			'icon' => 'dashicons-bank', 'thumb' => true,
+			'domain_cap' => GRIDCORE_DCAP_ROOMS,
 		),
 		'grid_experience' => array(
 			'singular' => 'Zážitek', 'plural' => 'Zážitky', 'slug' => 'zazitky',
 			'icon' => 'dashicons-superhero', 'thumb' => false,
 			// BEZ archivu: /zazitky/ patří stránce (Divi layout), archiv CPT by ji přebil.
 			'archive' => false,
+			'domain_cap' => GRIDCORE_DCAP_EXPERIENCES,
 		),
 		'grid_event' => array(
 			'singular' => 'Akce sezóny', 'plural' => 'Sezóna 2026', 'slug' => 'akce',
@@ -31,24 +33,32 @@ function gridcore_register_cpts() {
 			// SKRYTO z menu: akce spravuje plugin „Sezóna & čekací list", CPT je jen datová legacy.
 			// BEZ archivu: /akce/ nikde v navigaci nevede, reálný obsah je na /sezona-2026/ (SEO: prázdný duplicitní archiv pryč).
 			'menu' => false, 'archive' => false,
+			// Bez vlastní doménové capability (viz GRID-SUITE-01 §12 – nové záznamy
+			// už negeneruje ani tenhle plugin, vlastnictví přechází na plugin
+			// „Sezóna & čekací list"; grid_manage_settings jen pro dočasný
+			// administrátorský přístup ke čtení starých dat).
+			'domain_cap' => GRIDCORE_DCAP_SETTINGS,
 		),
 		'grid_gastro' => array(
 			'singular' => 'Gastro provoz', 'plural' => 'Gastronomie', 'slug' => 'gastro',
 			'icon' => 'dashicons-food', 'thumb' => true,
 			// BEZ archivu: /gastro/ nikde v navigaci nevede, reálný obsah je na /gastronomie/ (SEO: prázdný duplicitní archiv pryč).
 			'archive' => false,
+			'domain_cap' => GRIDCORE_DCAP_GASTRO,
 		),
 		'grid_job' => array(
 			'singular' => 'Pracovní pozice', 'plural' => 'Kariéra', 'slug' => 'kariera-pozice',
 			'icon' => 'dashicons-groups', 'thumb' => false,
 			// vlastní podpoložka v GRID Nastavení (viz níže), z hlavního menu skryto
 			'menu' => false,
+			'domain_cap' => GRIDCORE_DCAP_CAREERS,
 		),
 		'grid_testimonial' => array(
 			'singular' => 'Reference', 'plural' => 'Reference', 'slug' => 'reference',
 			'icon' => 'dashicons-format-quote', 'thumb' => false,
 			// BEZ archivu: /reference/ nikde v navigaci nevede (reference odloženy, viz backlog) — SEO: prázdný archiv pryč.
 			'archive' => false,
+			'domain_cap' => GRIDCORE_DCAP_TESTIMONIALS,
 		),
 	);
 
@@ -76,7 +86,15 @@ function gridcore_register_cpts() {
 			'menu_icon'          => $t['icon'],
 			'supports'           => $supports,
 			'rewrite'            => array( 'slug' => $t['slug'], 'with_front' => false ),
-			'capability_type'    => 'post',
+			/**
+			 * Skutečné doménové capabilities (2.0.0) místo dřívějšího plošného
+			 * 'post' – viz inc/capabilities.php. capability_type zůstává
+			 * jednotné/množné (nutné pro map_meta_cap), ale všechna primitivní
+			 * práva výše míří na jednu sdílenou doménovou capabilitu daného typu.
+			 */
+			'capability_type'    => array( $key, $key . 's' ),
+			'map_meta_cap'       => true,
+			'capabilities'       => gridcore_cpt_capabilities( $key, $key . 's', $t['domain_cap'] ),
 		) );
 	}
 }
@@ -111,25 +129,32 @@ function gridcore_register_room_tax() {
 		'show_in_menu'      => false,          // schováno z menu Pokoje — spravuje se v Nastavení
 		'meta_box_cb'       => false,          // výběr řešíme ACF radiem (jedna ze 4)
 		'rewrite'           => array( 'slug' => 'kategorie-pokoje', 'with_front' => false ),
+		// Skutečná doménová capability (2.0.0) místo výchozí manage_categories — viz inc/capabilities.php.
+		'capabilities'      => gridcore_taxonomy_capabilities( GRIDCORE_DCAP_ROOM_CATEGORIES ),
 	) );
 }
 add_action( 'init', 'gridcore_register_room_tax' );
 
-/* Odkaz na správu kategorií pod „GRID Nastavení" */
+/**
+ * Odkaz na správu kategorií pod „GRID Nastavení". Capability granulární na
+ * kartu (verze 1.6.0, viz inc/staff-permissions.php) místo dřívějšího
+ * plošného edit_others_posts (to měl každý Editor bez ohledu na to, jestli
+ * má s pokoji/kariérou vůbec co dělat).
+ */
 add_action( 'admin_menu', function () {
 	if ( function_exists( 'acf_add_options_page' ) ) {
 		add_submenu_page(
 			'grid-options',
 			'Pokoje — fotky a galerie',
 			'— Pokoje: fotky a galerie',
-			'edit_others_posts',
+			GRIDCORE_CAP_ROOMS_GALLERY,
 			'edit-tags.php?taxonomy=grid_room_cat&post_type=grid_room'
 		);
 		add_submenu_page(
 			'grid-options',
 			'Kariéra — pracovní pozice',
 			'Kariéra',
-			'edit_others_posts',
+			GRIDCORE_CAP_CAREERS,
 			'edit.php?post_type=grid_job'
 		);
 	}

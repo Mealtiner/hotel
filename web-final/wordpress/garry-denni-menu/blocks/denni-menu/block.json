@@ -1,0 +1,25 @@
+{
+	"$schema": "https://schemas.wp.org/trunk/block.json",
+	"apiVersion": 3,
+	"name": "garry/denni-menu",
+	"title": "GARRY — Jídelníček",
+	"category": "widgets",
+	"icon": "food",
+	"description": "Vypíše jídelníček nebo nápojový lístek vybraného provozu (denní menu, celotýdenní nabídka, stálá nabídka, večerní menu).",
+	"textdomain": "garry-denni-menu",
+	"attributes": {
+		"provoz": {
+			"type": "string",
+			"default": ""
+		},
+		"typ": {
+			"type": "string",
+			"default": "cely"
+		}
+	},
+	"supports": {
+		"html": false,
+		"align": ["wide", "full"]
+	},
+	"editorScript": "garry-denni-menu-block-edit"
+}
