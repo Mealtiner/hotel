@@ -121,11 +121,11 @@ Text Domain: grid-divi5-child
   header{
     position:fixed;top:0;left:0;right:0;z-index:120;
     display:flex;align-items:center;justify-content:space-between;
-    padding:18px clamp(20px,4vw,52px);
+    padding:18px var(--gutter);
     transition:background .4s ease,padding .4s ease,border-color .4s ease;
     border-bottom:1px solid transparent;
   }
-  header.scrolled{background:rgba(14,15,17,.88);backdrop-filter:blur(14px);padding:12px clamp(20px,4vw,52px);border-bottom:1px solid var(--line)}
+  header.scrolled{background:rgba(14,15,17,.88);backdrop-filter:blur(14px);padding:12px var(--gutter);border-bottom:1px solid var(--line)}
   header .brand img{height:38px;width:auto}
   /* Úvodní stránka: po načtení logo přeteče z menu (~3×), scrollem se plynule vrátí do menu */
   body.home #topbar .brand img{transform-origin:left top;transition:transform .55s cubic-bezier(.22,.61,.36,1);will-change:transform}
@@ -220,7 +220,7 @@ Text Domain: grid-divi5-child
 
   /* ===== SECTION FRAME ===== */
   section{position:relative}
-  .wrap{max-width:var(--maxw) !important;margin:0 auto !important;padding:0 clamp(20px,4vw,52px)}
+  .wrap{max-width:var(--maxw) !important;margin:0 auto !important;padding:0 var(--gutter)}
   /* Divi dává každému nevnořenému řádku width:var(--content-width), což je
      ve výchozím nastavení 80 %. Samotné max-width na .wrap proto nestačí —
      řádek je na 1280px obrazovce široký jen 1024 px a .wrap se k --maxw
@@ -286,6 +286,11 @@ Text Domain: grid-divi5-child
                      641 → 244..615  ·  390 → 20..370
      --------------------------------------------------------------------- */
   :root{
+    /* Jediné postranní odsazení obsahu. Na mobilu je pevných 20 px (závazný
+       vzorec), jinak roste s šířkou okna. Dřív se na různých místech psalo
+       var(--gutter) natvrdo, takže na hranici 640 px se okraje
+       kontejnerů rozešly o 6 px. */
+    --gutter: clamp(20px,4vw,52px);
     --hud-left: clamp(14px,2vw,26px);
     --hud-width: 224px;
     --hud-right-edge: calc(var(--hud-left) + var(--hud-width));
@@ -302,13 +307,13 @@ Text Domain: grid-divi5-child
     --rail-pad: calc(var(--content-right-inset) - var(--wrap-inset));
 
     --entries-left: var(--content-left);
-    --entries-right-base: clamp(20px,4vw,52px);
+    --entries-right-base: var(--gutter);
     /* Dřív tu byla ruční korekce −9 px, kterou si vyžádala nepřesná geometrie
        koridoru. Po přepsání na závazné vzorce už není potřeba a posouvala
        .entries/.reviews o 9 px za pravou hranici. */
     --entries-right-match-wrap: calc(var(--wrap-inset) + max(0px, var(--rail-pad)));
   }
-  .wrap{padding-left:max(clamp(20px,4vw,52px), var(--hud-pad))}
+  .wrap{padding-left:max(var(--gutter), var(--hud-pad))}
   /* Na tabletu na výšku a níž je rail skrytý, ale pravá bezpečná hranice
      platí dál — drží ji inset, ne rezerva na lištu. */
   @media(max-width:959px){
@@ -341,6 +346,7 @@ Text Domain: grid-divi5-child
   /* ≤ 640 px: HUD je ve sbaleném režimu a nesmí rezervovat žádnou šířku. */
   @media(max-width:640px){
     :root{
+      --gutter: 20px;
       --content-left: 20px;
       --content-right-inset: 20px;
       --hud-pad: 0px;
@@ -353,7 +359,7 @@ Text Domain: grid-divi5-child
   }
   /* Sekce CÍL zůstává vycentrovaná na celou šířku (i pod HUD) – vlastní
      kompenzační pravidlo pro pravou lištu (--rail) níže na ni platí dál. */
-  .final .wrap{padding-left:clamp(20px,4vw,52px)}
+  .final .wrap{padding-left:var(--gutter)}
   /* Rezervační lišta je nahoře nad HUD → nemusí rezervovat levý prostor (viz i
      analogické pravidlo pro --rail vpravo o pár řádků níže). */
   /* Rezervační lišta je formulář, takže na ni platí stejné pravidlo jako na
@@ -361,7 +367,7 @@ Text Domain: grid-divi5-child
      nad HUD") platila jen na desktopu; na tabletu na výšku je hero nižší,
      lišta se dostane do dolní části okna a HUD jí kryl pole „Příjezd"
      i tlačítko. Změřeno testem překryvu. */
-  .booking .wrap{padding-left:max(clamp(20px,4vw,52px), var(--hud-pad)) !important}
+  .booking .wrap{padding-left:max(var(--gutter), var(--hud-pad)) !important}
   /* .split nese kvůli původnímu markupu i třídu .wrap ("wrap split") – bez
      vyjmutí by tak dostal stejný levý padding jako .wrap, a fotka T2/T7 by
      nikdy nebyla bezokrajová. .split žádný levý padding nemá mít vůbec. */
@@ -371,7 +377,7 @@ Text Domain: grid-divi5-child
   /* .wrap-centered dřív rušila levý koridor kvůli jedné stránce. Koridor
      ale platí všude; třída teď jen ruší pravou rezervu na lištu, aby blok
      zůstal opticky na střed dostupné šířky. */
-  .wrap.wrap-centered{padding-right:clamp(20px,4vw,52px) !important}
+  .wrap.wrap-centered{padding-right:var(--gutter) !important}
   /* Sekce na homepage (T1–T7 i CÍL) byly v Divi builderu převedené z
      jednoho syrového <section> (kde měl nadpis inline
      style="font-size:clamp(2rem,4vw,3.6rem)") na atomické
@@ -382,7 +388,7 @@ Text Domain: grid-divi5-child
      patchování sekci po sekci. */
   .sec h2{font-size:clamp(2rem,4vw,3.6rem) !important}
   .sec-pad{padding:clamp(80px,12vh,150px) 0}
-  .sec-tag{position:absolute;top:clamp(40px,7vh,80px);left:clamp(20px,4vw,52px);font-family:var(--f-head);font-size:clamp(3rem,9vw,7rem);font-weight:800;color:transparent;-webkit-text-stroke:1px var(--stroke);line-height:.8;z-index:0;pointer-events:none}
+  .sec-tag{position:absolute;top:clamp(40px,7vh,80px);left:var(--gutter);font-family:var(--f-head);font-size:clamp(3rem,9vw,7rem);font-weight:800;color:transparent;-webkit-text-stroke:1px var(--stroke);line-height:.8;z-index:0;pointer-events:none}
   /* Když je .sec-tag vložený jako vlastní Divi Text modul (atomizované
      sekce), Diviho vlastní .et_pb_text_inner/.et_pb_text mají
      position:relative – to je BLÍŽ než .sec, takže se watermark přišpendlí
@@ -405,7 +411,7 @@ Text Domain: grid-divi5-child
   .hero-overlay{position:absolute;inset:0;z-index:1;background:linear-gradient(180deg,rgba(14,15,17,.55) 0%,rgba(14,15,17,.2) 35%,rgba(14,15,17,.55) 70%,rgba(14,15,17,.96) 100%)}
   .hero-track{position:absolute;inset:0;z-index:2;pointer-events:none}
   .hero-track svg{width:100%;height:100%}
-  .hero-content{position:relative;z-index:3;width:100%;max-width:var(--maxw);margin:0 auto;padding:clamp(180px,24vh,260px) clamp(20px,4vw,52px) clamp(150px,20vh,200px)}
+  .hero-content{position:relative;z-index:3;width:100%;max-width:var(--maxw);margin:0 auto;padding:clamp(180px,24vh,260px) var(--gutter) clamp(150px,20vh,200px)}
   .hero-content .kicker{margin-bottom:22px}
   .hero h1{font-size:clamp(3rem,9vw,8.5rem);font-weight:800;max-width:15ch;letter-spacing:0;color:#fff}
   .hero h1 em{font-style:normal;color:var(--red)}
@@ -613,7 +619,7 @@ Text Domain: grid-divi5-child
   }
 
   /* ===== EXPERIENCES ===== */
-  .exp{display:grid !important;grid-template-columns:repeat(3,1fr) !important;gap:clamp(14px,1.6vw,22px);max-width:var(--maxw) !important;margin:0 auto !important;padding:0 clamp(20px,4vw,52px)}
+  .exp{display:grid !important;grid-template-columns:repeat(3,1fr) !important;gap:clamp(14px,1.6vw,22px);max-width:var(--maxw) !important;margin:0 auto !important;padding:0 var(--gutter)}
   .exp-item{padding:clamp(30px,3.4vw,46px) clamp(18px,1.8vw,28px);border:1px solid var(--line-c);position:relative;transition:background .35s;min-height:250px;display:flex;flex-direction:column}
   .exp-item:hover{background:rgba(255,255,255,.03)}
   .exp-item .x-num{font-family:var(--f-mono);font-size:.66rem;letter-spacing:.16em;color:var(--red)}
@@ -1056,9 +1062,9 @@ body.has-section-nav .wrap{ padding-right: max(0px, var(--rail-pad)); }
      liště jako ostatní sekce – proto žádná zvláštní pravá/levá úprava,
      jen symetrický základní padding z .final .wrap výše na obou stranách. */
   /* CÍL zůstává striktně na střed — symetrický základní padding. */
-body.has-section-nav .final .wrap{ padding-left: clamp(20px,4vw,52px) !important; padding-right: clamp(20px,4vw,52px) !important; }
+body.has-section-nav .final .wrap{ padding-left: var(--gutter) !important; padding-right: var(--gutter) !important; }
   /* Vlastní striktně-na-střed třída (mimo .final) – viz .wrap-centered výše. */
-  .wrap.wrap-centered{ padding-right: clamp(20px,4vw,52px) !important; }
+  .wrap.wrap-centered{ padding-right: var(--gutter) !important; }
   /* .sp-content má stejnou "100%=viewport" referenci jako .entries/.reviews
      (ne vycentrovaný .wrap box), takže používá stejný vzorec
      --entries-right-match-wrap, jen jako padding (ne margin+width), protože
@@ -1081,7 +1087,7 @@ body.has-section-nav .exp{ padding-right: max(0px, var(--rail-pad)); }          
     margin-right: var(--entries-right-match-wrap) !important;
     width: calc(100% - var(--entries-left) - var(--entries-right-match-wrap)) !important;
   } /* karty T8 recenze */
-  body.has-section-nav .hero-content{ padding-right: calc(clamp(20px,4vw,52px) + var(--rail)); }
+  body.has-section-nav .hero-content{ padding-right: calc(var(--gutter) + var(--rail)); }
 }
 
 /* ============================================================================
@@ -1095,8 +1101,8 @@ body.has-section-nav .exp{ padding-right: max(0px, var(--rail-pad)); }          
 
    .sp-media (fotka T2/T7) zůstává schválenou výjimkou a jde od nuly dál.
    ============================================================================ */
-.hero-content{ padding-left: max(clamp(20px,4vw,52px), var(--hud-pad)) !important; }
-.exp{ padding-left: max(clamp(20px,4vw,52px), var(--hud-pad)) !important; }
+.hero-content{ padding-left: max(var(--gutter), var(--hud-pad)) !important; }
+.exp{ padding-left: max(var(--gutter), var(--hud-pad)) !important; }
 /* Na detailech zážitků leží mřížka uvnitř .wrap, který koridor i postranní
    odsazení drží už sám — mřížka proto uvnitř nemá přidávat žádné vlastní,
    jinak by se sečetla dvakrát. */
@@ -1594,7 +1600,7 @@ body:not(.home) #topbar{
   background:rgba(14,15,17,.92);
   backdrop-filter:blur(14px); -webkit-backdrop-filter:blur(14px);
   border-bottom:1px solid var(--line);
-  padding:12px clamp(20px,4vw,52px);
+  padding:12px var(--gutter);
 }
 body:not(.home) #topbar .topnav nav a{ color:var(--grey); }
 
