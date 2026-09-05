@@ -17,7 +17,7 @@
 import { chromium } from 'playwright';
 import fs from 'fs';
 import path from 'path';
-import { PAGES, VIEWPORTS, CORRIDOR, GRIDS, ORIGIN, RESOLVER_RULE } from './qa-config.mjs';
+import { PAGES, VIEWPORTS, CORRIDOR, GRIDS, ORIGIN, RESOLVER_RULE, CORRIDOR_EXEMPT } from './qa-config.mjs';
 
 const argv = Object.fromEntries(process.argv.slice(2).map(a => {
   const [k, v] = a.replace(/^--/, '').split('='); return [k, v ?? true];
@@ -87,7 +87,12 @@ function measure(cfg) {
   for (const sel of corridor) {
     const els = [...document.querySelectorAll(sel)].filter(vis);
     if (!els.length) { corr[sel] = null; continue; }
-    corr[sel] = els.map(R);
+    corr[sel] = els.map(e => {
+      const r = R(e);
+      /* Schválené výjimky se označí už při měření — report je pak jen přeskočí. */
+      r.exempt = cfg.exempt.some(x => e.matches(x));
+      return r;
+    });
   }
 
   /* Počet sloupců mřížek — z gridTemplateColumns, ne z odhadu. */
@@ -138,7 +143,7 @@ async function run(job) {
       window.scrollTo(0, 0);
     });
     await page.waitForTimeout(150);
-    Object.assign(rec, await page.evaluate(measure, { vw: vp.w, corridor: CORRIDOR, grids: GRIDS }));
+    Object.assign(rec, await page.evaluate(measure, { vw: vp.w, corridor: CORRIDOR, grids: GRIDS, exempt: CORRIDOR_EXEMPT }));
     if (argv.shots) {
       const d = path.join(OUT, 'shots', `${vp.w}`); fs.mkdirSync(d, { recursive: true });
       await page.screenshot({ path: path.join(d, `${pg.id}-${lang}.png`), fullPage: true });

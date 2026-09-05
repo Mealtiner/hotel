@@ -240,6 +240,11 @@ Text Domain: grid-divi5-child
      místo jedné), ne bojem o pořadí načtení, které se navíc mění při každém
      přegenerování cache. */
   .et_pb_row.wrap,.et_pb_column.wrap{max-width:var(--maxw) !important;margin:0 auto !important}
+  /* Divi dává poslednímu sloupci v řádku margin-right:0 !important
+     (.et_pb_column.et-last-child). U sloupce, který je zároveň .wrap, tím
+     zbylo margin-left:auto — box se přilepil doprava (na Rezervaci začínal
+     na x=320 místo 160). Vyšší specificita to vrací na střed. */
+  .et_pb_row>.et_pb_column.wrap,.et_pb_row_inner>.et_pb_column.wrap{margin-left:auto !important;margin-right:auto !important}
   /* Levý obsahový sloupec musí zůstat mimo HUD widget "situace na trati"
      (.telemetry-hud, position:fixed;left:...;width:224px – viz níže), na
      každé stránce webu, ne jen na homepage (HUD je vidět všude). Stejný
@@ -298,9 +303,10 @@ Text Domain: grid-divi5-child
 
     --entries-left: var(--content-left);
     --entries-right-base: clamp(20px,4vw,52px);
-    /* -9px: změřená korekce vůči .wrap — vw jednotky a procentní šířka se
-       v přítomnosti svislého posuvníku počítají z mírně odlišné šířky. */
-    --entries-right-match-wrap: calc(var(--wrap-inset) + max(0px, var(--rail-pad)) - 9px);
+    /* Dřív tu byla ruční korekce −9 px, kterou si vyžádala nepřesná geometrie
+       koridoru. Po přepsání na závazné vzorce už není potřeba a posouvala
+       .entries/.reviews o 9 px za pravou hranici. */
+    --entries-right-match-wrap: calc(var(--wrap-inset) + max(0px, var(--rail-pad)));
   }
   .wrap{padding-left:max(clamp(20px,4vw,52px), var(--hud-pad))}
   /* Na tabletu na výšku a níž je rail skrytý, ale pravá bezpečná hranice
@@ -350,14 +356,22 @@ Text Domain: grid-divi5-child
   .final .wrap{padding-left:clamp(20px,4vw,52px)}
   /* Rezervační lišta je nahoře nad HUD → nemusí rezervovat levý prostor (viz i
      analogické pravidlo pro --rail vpravo o pár řádků níže). */
-  .booking .wrap{padding-left:clamp(20px,4vw,52px) !important}
+  /* Rezervační lišta je formulář, takže na ni platí stejné pravidlo jako na
+     ostatní obsah — HUD ji nesmí překrývat. Původní výjimka („lišta je nahoře
+     nad HUD") platila jen na desktopu; na tabletu na výšku je hero nižší,
+     lišta se dostane do dolní části okna a HUD jí kryl pole „Příjezd"
+     i tlačítko. Změřeno testem překryvu. */
+  .booking .wrap{padding-left:max(clamp(20px,4vw,52px), var(--hud-pad)) !important}
   /* .split nese kvůli původnímu markupu i třídu .wrap ("wrap split") – bez
      vyjmutí by tak dostal stejný levý padding jako .wrap, a fotka T2/T7 by
      nikdy nebyla bezokrajová. .split žádný levý padding nemá mít vůbec. */
   .split.wrap{padding-left:0 !important}
   /* Sekce, které mají zůstat striktně na střed (bez levé HUD ani pravé rail
      kompenzace) mimo .final (CÍL) – použití: přidat tuto třídu vedle .wrap. */
-  .wrap.wrap-centered{padding-left:clamp(20px,4vw,52px)}
+  /* .wrap-centered dřív rušila levý koridor kvůli jedné stránce. Koridor
+     ale platí všude; třída teď jen ruší pravou rezervu na lištu, aby blok
+     zůstal opticky na střed dostupné šířky. */
+  .wrap.wrap-centered{padding-right:clamp(20px,4vw,52px) !important}
   /* Sekce na homepage (T1–T7 i CÍL) byly v Divi builderu převedené z
      jednoho syrového <section> (kde měl nadpis inline
      style="font-size:clamp(2rem,4vw,3.6rem)") na atomické
@@ -841,6 +855,11 @@ Text Domain: grid-divi5-child
 
   /* --- TABLET NA VÝŠKU a níž (≤ 959 px) --- */
   @media(max-width:959px){
+    /* Rezervační lišta: na obou tabletech 3 x 2 (zadání GRID-RESPONSIVE-03).
+       Šest polí vedle sebe se do zúženého koridoru nevejde. */
+    .booking .wrap{flex-wrap:wrap}
+    .bk-field{flex:1 1 calc(33.333% - 1px);min-width:0}
+    .bk-submit{flex:1 1 100%}
     .track-progress{display:none}
     .telemetry-hud{width:190px}
     /* Hlavní navigace se sbaluje do hamburgeru už na tabletu na výšku —
@@ -886,7 +905,7 @@ Text Domain: grid-divi5-child
     .ev-meta{display:flex;flex-wrap:wrap;gap:8px 14px}
     .ev-status,.ev-cta{white-space:normal}
     .foot-top{grid-template-columns:1fr}
-    .booking .wrap{flex-direction:column}
+    .booking .wrap{flex-direction:column}   /* mobil: 1 x 6 */
     .bk-field,.bk-note{border-right:none;border-bottom:1px solid var(--line)}
   }
 
@@ -1052,6 +1071,8 @@ body.has-section-nav .final .wrap{ padding-left: clamp(20px,4vw,52px) !important
 body.has-section-nav .sp-content{ padding-right: calc(var(--entries-right-match-wrap) - 39px) !important; }
   /* Mřížka zážitků T4. */
 body.has-section-nav .exp{ padding-right: max(0px, var(--rail-pad)); }               /* mřížka zážitků */
+
+
   body.has-section-nav .entries,body.has-section-nav .et_pb_row.entries{
     margin-right: var(--entries-right-match-wrap) !important;
     width: calc(100% - var(--entries-left) - var(--entries-right-match-wrap)) !important;
@@ -1062,6 +1083,32 @@ body.has-section-nav .exp{ padding-right: max(0px, var(--rail-pad)); }          
   } /* karty T8 recenze */
   body.has-section-nav .hero-content{ padding-right: calc(clamp(20px,4vw,52px) + var(--rail)); }
 }
+
+/* ============================================================================
+   LEVÝ KORIDOR I PRO KONTEJNERY MIMO .wrap
+
+   Pravidlo „obsah vždy začíná až za pravým okrajem HUD + 40 px" platí pro
+   všechen obsah, ne jen pro ten uvnitř .wrap. Tři kontejnery si drží vlastní
+   vycentrování s pouhým základním odsazením, takže jejich text končil uvnitř
+   pásma HUD (změřeno: hero H1 na x=212 při 1600 px, mřížka zážitků rovněž
+   212, textová půlka složené dělené sekce 24–31 px na tabletu).
+
+   .sp-media (fotka T2/T7) zůstává schválenou výjimkou a jde od nuly dál.
+   ============================================================================ */
+.hero-content{ padding-left: max(clamp(20px,4vw,52px), var(--hud-pad)) !important; }
+.exp{ padding-left: max(clamp(20px,4vw,52px), var(--hud-pad)) !important; }
+/* Na detailech zážitků leží mřížka uvnitř .wrap, který koridor i postranní
+   odsazení drží už sám — mřížka proto uvnitř nemá přidávat žádné vlastní,
+   jinak by se sečetla dvakrát. */
+.wrap .exp{ padding-left:0 !important; padding-right:0 !important; }
+
+/* Dokud je dělená sekce dvousloupcová, leží text v pravé polovině a koridoru
+   se nedotkne. Jakmile se složí pod sebe (≤1024 px, viz úzký koridor), začíná
+   textový sloupec u levého okraje stránky a musí koridor respektovat sám. */
+@media(max-width:1024px){
+  .split .sp-content{ padding-left: var(--content-left) !important; }
+}
+
 
 /* ============================================================
    POSUVNÍK — dynamická čitelnost nad světlým pozadím
@@ -1078,7 +1125,9 @@ body.has-section-nav .exp{ padding-right: max(0px, var(--rail-pad)); }          
 
 /* Rezervační lišta je nahoře (nad viditelnou částí trati) → nemusí rezervovat pravý prostor */
 @media (min-width:960px){
-  .booking .wrap{ padding-right: clamp(20px,4vw,52px) !important; }
+  /* Pravá hranice platí pro rezervační lištu stejně jako pro ostatní obsah —
+     je to formulář, ne dekorace. */
+  body.has-section-nav .booking .wrap{ padding-right: max(0px, var(--rail-pad)) !important; }
 }
 
 /* ============================================================

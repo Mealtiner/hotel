@@ -41,6 +41,15 @@ export const CORRIDOR = ['.wrap', '.entries', '.reviews', '.exp', '.gastro', '.r
    porovnávat nemají. */
 export const CORRIDOR_ANCHORED = ['.wrap', '.entries', '.reviews', '.exp', '.gastro', '.rooms'];
 
+/* Schválené výjimky z koridoru (GRID-RESPONSIVE-01 §4). Prvek, který jednomu
+   z těchto selektorů odpovídá, se do kontroly hranic ani do porovnání okrajů
+   nepočítá — že se přesto nedostane pod HUD ani pod lištu, hlídá test
+   překryvu (`test-prekryv.mjs`), ne měření hranic.
+
+     .split          fotografie dělené sekce T2/T7 jde od okraje k okraji
+     .final .wrap    sekce CÍL zůstává na střed (rozhodnutí klienta) */
+export const CORRIDOR_EXEMPT = ['.split', '.final .wrap'];
+
 /* Mřížky, u kterých se hlídá počet sloupců podle matice GRID-RESPONSIVE-02 §6. */
 export const GRIDS = ['.entries', '.rooms', '.exp', '.gastro', '.split', '.reviews', '.season', '.b2b-grid', '.foot-top', '.gal-grid', '.sez-cards'];
 

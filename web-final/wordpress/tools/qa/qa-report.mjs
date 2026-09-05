@@ -13,7 +13,7 @@
  */
 import fs from 'fs';
 import path from 'path';
-import { EXPECTED_COLS, SAFE, RAIL_VISIBLE_FROM, VIEWPORTS, CORRIDOR_ANCHORED, NARROW_CORRIDOR } from './qa-config.mjs';
+import { EXPECTED_COLS, SAFE, RAIL_VISIBLE_FROM, VIEWPORTS, CORRIDOR_ANCHORED, NARROW_CORRIDOR, CORRIDOR_EXEMPT } from './qa-config.mjs';
 
 const argv = Object.fromEntries(process.argv.slice(2).map(a => { const [k, v] = a.replace(/^--/, '').split('='); return [k, v ?? true]; }));
 const dir = path.join(path.dirname(new URL(import.meta.url).pathname), 'out');
@@ -53,6 +53,7 @@ for (const rec of data) {
       if (!list) continue;
       for (const b of list) {
         if ((b.boxR - b.boxL) >= rec.vw - 2 && b.W >= rec.vw - 2) continue;  // full-bleed prvek, koridor se ho netyka
+        if (b.exempt) continue;                      // schvalena vyjimka z koridoru
         if (CORRIDOR_ANCHORED.includes(sel)) edges.push({ sel, ...b });
         if (b.L < safe.left - 2)  add('KORIDOR', rec, `${sel} zacina na ${b.L}, bezpecna hranice je ${safe.left}`);
         if (b.R > safe.right + 2) add('KORIDOR', rec, `${sel} konci na ${b.R}, bezpecna hranice je ${safe.right}`);
