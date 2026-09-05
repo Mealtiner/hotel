@@ -221,6 +221,15 @@ Text Domain: grid-divi5-child
   /* ===== SECTION FRAME ===== */
   section{position:relative}
   .wrap{max-width:var(--maxw) !important;margin:0 auto !important;padding:0 clamp(20px,4vw,52px)}
+  /* Divi dává každému nevnořenému řádku width:var(--content-width), což je
+     ve výchozím nastavení 80 %. Samotné max-width na .wrap proto nestačí —
+     řádek je na 1280px obrazovce široký jen 1024 px a .wrap se k --maxw
+     nikdy nedostane. Ke ztrátě 20 % šířky se navíc UVNITŘ řádku přičítá
+     ještě levá rezervace za HUD, takže se obojí sčítá: obsah na 1280 px
+     vycházel na 683 px a byl posunutý o 239 px doprava.
+     Nastavujeme jen width (ne max-width) — mřížkové řádky s vlastním
+     max-width (.entries/.reviews) tím zůstávají nedotčené. */
+  .sec .et_pb_row.et_flex_row:not(.et_pb_row_nested):not(.et_pb_row_inner){width:100% !important}
   /* Divi generuje pro každou stránku vlastní CSS cache (wp-content/et-cache/),
      kde konkrétní řádky (podle pořadí v obsahu, např. .et_pb_row_5) dostanou
      vlastní max-width:100% !important – při stejné specificitě/důležitosti
@@ -824,7 +833,12 @@ Text Domain: grid-divi5-child
     .exp-item{border-right:none;min-height:auto}
     .b2b-grid{grid-template-columns:1fr !important}
     .form-grid,.et_pb_row.form-grid{grid-template-columns:1fr !important}
-    .ev-row{grid-template-columns:auto 1fr auto;gap:10px}
+    /* Řádek akce sezóny: datum + název + stav/CTA. Na úzkém mobilu se tři
+       sloupce s nezalomitelným textem (white-space:nowrap na stavu a CTA)
+       nevejdou — proto pod sebe. */
+    .ev-row{grid-template-columns:minmax(0,1fr);gap:6px;text-align:left}
+    .ev-meta{display:flex;flex-wrap:wrap;gap:8px 14px}
+    .ev-status,.ev-cta{white-space:normal}
     .foot-top{grid-template-columns:1fr}
     .booking .wrap{flex-direction:column}
     .bk-field,.bk-note{border-right:none;border-bottom:1px solid var(--line)}
@@ -1035,7 +1049,7 @@ body.has-section-nav .exp{ padding-right: max(0px, var(--rail-pad)); }          
 .rd-aside .rd-col h3{margin-top:20px}
 @media(max-width:640px){.rd-aside{grid-template-columns:1fr}}
 .rd-facts{display:flex;flex-wrap:wrap;gap:10px 22px;margin:0 0 20px;font-family:var(--f-mono);font-size:.82rem;color:var(--grey)}
-.rd-facts span{display:inline-flex;align-items:center;gap:6px;padding:6px 12px;border:1px solid rgba(255,255,255,.16);border-radius:2px}
+.rd-facts span{display:inline-flex;align-items:center;gap:6px;padding:6px 12px;border:1px solid rgba(255,255,255,.16);border-radius:2px;max-width:100%;min-width:0;overflow-wrap:anywhere}
 .rd-facts b{color:#fff;font-weight:700}
 .rd-popis{max-width:74ch;color:var(--muted)}
 .rd-popis p{margin-bottom:14px}
@@ -1048,11 +1062,11 @@ body.has-section-nav .exp{ padding-right: max(0px, var(--rail-pad)); }          
 .rd-smoke{margin-top:22px;font-family:var(--f-mono);font-size:.76rem;color:var(--grey-dim)}
 @media(max-width:640px){.rd-amen{grid-template-columns:1fr}}
 /* detail typu — 2 sloupce: text vlevo + (náhledová foto & výbava) vpravo */
-.rd-grid{display:grid;grid-template-columns:1fr 340px;gap:clamp(28px,4vw,58px);align-items:start}
+.rd-grid{display:grid;grid-template-columns:minmax(0,1fr) 340px;gap:clamp(28px,4vw,58px);align-items:start}
 .rd-photo{width:100%;aspect-ratio:4/3;object-fit:cover;border-radius:6px;border:1px solid rgba(255,255,255,.12);display:block;margin-bottom:22px}
 .rd-aside h3{font-size:1rem;color:#fff;margin:20px 0 10px}
 .rd-aside h3:first-of-type{margin-top:0}
-@media(max-width:959px){.rd-grid{grid-template-columns:1fr}.rd-photo{max-width:440px}}
+@media(max-width:959px){.rd-grid{grid-template-columns:minmax(0,1fr)}.rd-photo{max-width:440px}}
 .rd-actions{margin-top:28px;display:flex;gap:14px;flex-wrap:wrap}
 /* srovnávací tabulka */
 .rd-tablewrap{overflow-x:auto}
@@ -1308,9 +1322,20 @@ body.has-section-nav .exp{ padding-right: max(0px, var(--rail-pad)); }          
 /* ===== FLUENT FORMS — můstek na design GRID ===== */
 .fluentform .ff-el-group{margin-bottom:16px}
 .fluentform .ff-el-input--label label{font-family:var(--f-mono);font-size:.72rem;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);font-weight:600}
-.fluentform .ff-el-form-control{width:100%}
+.fluentform .ff-el-form-control{width:100%;max-width:100%;min-width:0}
+/* Formulář ani jeho buňky nesmí být širší než rodič (GRID-RESPONSIVE-01 §9).
+   Bez min-width:0 drží grid buňka min-content pole a přeteče na 320 px ven. */
+.fluentform,.fluentform form,.fluentform .ff-el-group,.fluentform .ff-el-input--content,
+.fluentform .ff-t-container,.fluentform .ff-t-cell{min-width:0;max-width:100%}
+.fluentform .ff-t-container{flex-wrap:wrap}
 .fluentform .error.text-danger{font-size:.78rem;color:var(--red)}
-.fluentform .ff-btn-submit{font-family:var(--f-mono);font-size:.74rem;letter-spacing:.14em;text-transform:uppercase;border:1px solid var(--red);cursor:pointer;padding:12px 22px;transition:background .25s,transform .2s}
+.fluentform .ff-btn-submit{font-family:var(--f-mono);font-size:.74rem;letter-spacing:.14em;text-transform:uppercase;border:1px solid var(--red);cursor:pointer;padding:12px 22px;transition:background .25s,transform .2s;max-width:100%;white-space:normal;min-height:44px}
+/* Na mobilu je tlačítko přes celou šířku (GRID-RESPONSIVE-01 §9). Na 320 px
+   ho jinak rozšířilo dlouhé anglické/německé znění popisku plus letter-spacing
+   a stránka přetekla. */
+@media(max-width:640px){
+  .fluentform .ff-btn-submit,.fluentform .ff_submit_btn_wrapper button{width:100%;letter-spacing:.08em;padding:12px 14px}
+}
 .fluentform .ff-btn-submit:hover{transform:translateY(-1px)}
 .fluentform .ff-message-success{font-family:var(--f-mono);font-size:.85rem;border:1px solid #1d7a3c;background:rgba(29,122,60,.08);color:#1d7a3c;padding:12px 16px;margin-top:10px}
 /* FF obaluje pole do <fieldset> — zprůhlednit pro grid/flex layouty */
@@ -1493,7 +1518,7 @@ footer .socials a:hover{ color:var(--gold) !important; border-color:var(--gold) 
 /* badge na dopravě → jednotná brandová červená (světlý kontext) */
 .dp-badge{ color:var(--red) !important; border-color:rgba(194,14,26,.45) !important; }
 /* detail zážitku bez náhledové fotky = jeden sloupec */
-.rd-grid--single{ grid-template-columns:1fr }
+.rd-grid--single{ grid-template-columns:minmax(0,1fr) }
 
 /* Divi Visual Builder: reveal obsah nikdy neskrývat (jinak sekce v editoru vypadají prázdné) */
 .et-fb .reveal, .et-bfb .reveal, .et-fb-preview .reveal, body.et-fb .reveal{ opacity:1 !important; transform:none !important; }

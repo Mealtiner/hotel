@@ -283,6 +283,26 @@ add_action( 'template_redirect', function () {
 	if ( is_author() && ! is_user_logged_in() ) wp_safe_redirect( home_url( '/' ), 301 );
 } );
 
+/* Trvalá přesměrování zrušených nebo přejmenovaných URL. Stará adresa může
+ * být v tištěné komunikaci, v e-mailech nebo v záložkách návštěvníků —
+ * 301 ji drží funkční a předá i případnou SEO hodnotu.
+ *
+ * /vseobecne-obchodni-podminky/ (stránka 340) byla obsahově totožná
+ * s /ubytovaci-a-reklamacni-rad/ (293): stejný text i stejný nadpis H1,
+ * jen bez anglické a německé verze a bez správných tříd rozvržení.
+ * Nic na ni neodkazovalo, patička míří na 293. Odpublikováno 2026-09.
+ */
+add_action( 'template_redirect', function () {
+	$redirects = array(
+		'/vseobecne-obchodni-podminky/' => '/ubytovaci-a-reklamacni-rad/',
+	);
+	$uri = untrailingslashit( strtok( (string) ( $_SERVER['REQUEST_URI'] ?? '' ), '?' ) ) . '/';
+	if ( isset( $redirects[ $uri ] ) ) {
+		wp_safe_redirect( home_url( $redirects[ $uri ] ), 301 );
+		exit;
+	}
+}, 0 );
+
 /* readme.html / license.txt / *.php-old / *.bak / *.orig — standardní WP fingerprinting
  * a případné zapomenuté zálohy nikdy neservírovat veřejně. */
 add_action( 'template_redirect', function () {
