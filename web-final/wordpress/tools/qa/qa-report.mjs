@@ -43,7 +43,10 @@ for (const rec of data) {
     if (rec.rail.vis !== should) add('RAIL', rec, should ? 'sekcni navigace ma byt VIDITELNA, je skryta' : 'sekcni navigace ma byt SKRYTA, je videt');
   }
 
-  const safe = SAFE[rec.vw];
+  const safeDef = SAFE[rec.vw];
+  /* Pravá hranice se liší podle toho, jestli je na stránce sekční navigace. */
+  const hasRail = !!(rec.rail && rec.rail.vis);
+  const safe = safeDef ? { left: safeDef.left, right: hasRail ? safeDef.right : safeDef.rightNoRail } : null;
   if (safe && rec.corridor) {
     const edges = [];
     for (const [sel, list] of Object.entries(rec.corridor)) {

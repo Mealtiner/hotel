@@ -67,11 +67,19 @@ export const EXPECTED_COLS = {
 
 /* Bezpečné hranice koridoru podle GRID-RESPONSIVE-02 §2.
    Tolerance ±2 px dle GRID-RESPONSIVE-04. */
+/* `right` platí tam, kde se vykresluje pravá sekční navigace (obsah končí
+   45 px před její osou). Stránky bez ní mají vpravo jen bezpečný inset —
+   `rightNoRail`. Levá hranice je daná HUD widgetem a platí vždy. */
 export const SAFE = {
-  1600: { left: 290, right: 1340 },
-  1024: { left: 284, right: 764 },
-  768:  { left: 245, right: 737 },
-  390:  { left: 20,  right: 370 },
+  1600: { left: 290, right: 1340, rightNoRail: 1548 },
+  1280: { left: 290, right: 1020, rightNoRail: 1228 },
+  1024: { left: 284, right: 764,  rightNoRail: 983  },
+  960:  { left: 283, right: 700,  rightNoRail: 922  },
+  768:  { left: 245, right: 737,  rightNoRail: 737  },
+  641:  { left: 244, right: 615,  rightNoRail: 615  },
+  640:  { left: 20,  right: 620,  rightNoRail: 620  },
+  390:  { left: 20,  right: 370,  rightNoRail: 370  },
+  320:  { left: 20,  right: 300,  rightNoRail: 300  },
 };
 
 /* Pravá sekční navigace: viditelná od 960 px výš, jinak skrytá. */
