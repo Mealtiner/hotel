@@ -3,7 +3,7 @@
  * Plugin Name:       GARRY – Sekční navigace
  * Plugin URI:        https://www.garry.cz
  * Description:       Boční navigace mezi sekcemi jedné stránky s automatickým načtením kotev, vlastním pojmenováním a skrytím položek. Vhodná pro dlouhé landing pages, prezentace a obsahové stránky; původně vytvořena pro GRID Hotel jako navigace ve stylu trati.
- * Version:           1.5.0
+ * Version:           1.6.0
  * Author:            GARRY Promotion
  * Author URI:        https://www.garry.cz
  * License:           Proprietary — Copyright © GARRY Promotion
@@ -20,7 +20,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
  * GARRY – Boční posuvník (track progress) — per-stránka konfigurace
  * ============================================================================ */
 
-define( 'GARRY_SCR_VER', '1.5.0' );
+define( 'GARRY_SCR_VER', '1.6.0' );
 define( 'GARRY_SCR_OPT', 'garry_scroller' );
 
 /* Aktuální jazyk (Polylang, fallback locale) */
@@ -50,6 +50,73 @@ function garry_scr_map( $lang = null ) {
 		'grid_final'     => array( 'cil',       $n[9], 'cil' ),
 	);
 }
+/**
+ * Názvy sekcí, které se na webu opakují napříč stránkami.
+ *
+ * Obecná detekce níže najde kotvu sekce, ale ne její název. Tenhle slovník
+ * dá známým kotvám lidský popisek ve všech třech jazycích; neznámá kotva
+ * dostane zkrášlené jméno kotvy a přejmenovat ji jde v nastavení pluginu
+ * u konkrétní stránky.
+ */
+function garry_scr_labels( $lang = null ) {
+	$lang = $lang ?: garry_scr_lang();
+	$dict = array(
+		'cs' => array( 'start'=>'Okruh','vstupy'=>'Vstupy','pribeh'=>'Příběh','pokoje'=>'Pokoje','zazitky'=>'Zážitky','restaurace'=>'Restaurace','catering'=>'Catering','jidelnicek'=>'Jídelníček','sezona'=>'Sezóna','cekaci-list'=>'Čekací list','poukazy'=>'Poukazy','firemni'=>'Firmy','svatby'=>'Svatby','duvera'=>'Reference','cil'=>'Rezervace','kontakt'=>'Kontakt','mapa'=>'Mapa','galerie'=>'Galerie' ),
+		'en' => array( 'start'=>'Circuit','vstupy'=>'Ways in','pribeh'=>'Story','pokoje'=>'Rooms','zazitky'=>'Experiences','restaurace'=>'Restaurant','catering'=>'Catering','jidelnicek'=>'Menu','sezona'=>'Season','cekaci-list'=>'Waiting list','poukazy'=>'Vouchers','firemni'=>'Business','svatby'=>'Weddings','duvera'=>'Reviews','cil'=>'Booking','kontakt'=>'Contact','mapa'=>'Map','galerie'=>'Gallery' ),
+		'de' => array( 'start'=>'Ring','vstupy'=>'Einstiege','pribeh'=>'Story','pokoje'=>'Zimmer','zazitky'=>'Erlebnisse','restaurace'=>'Restaurant','catering'=>'Catering','jidelnicek'=>'Speisekarte','sezona'=>'Saison','cekaci-list'=>'Warteliste','poukazy'=>'Gutscheine','firemni'=>'Firmen','svatby'=>'Hochzeiten','duvera'=>'Referenzen','cil'=>'Buchung','kontakt'=>'Kontakt','mapa'=>'Karte','galerie'=>'Galerie' ),
+	);
+	return isset( $dict[ $lang ] ) ? $dict[ $lang ] : $dict['cs'];
+}
+
+/**
+ * Obecná detekce sekcí — funguje na KAŽDÉ stránce, ne jen na úvodní.
+ *
+ * Mapa shortcodů níž zná jen deset sekcí úvodní stránky, takže na
+ * podstránkách našla nanejvýš dvě a posuvník se tam nedal smysluplně
+ * zapnout. Po granulární přestavbě do Divi 5 modulů je kotva sekce uložená
+ * jako vlastní atribut ve tvaru {"name":"id","value":"pokoje"}; starší
+ * obsah má syrové id="pokoje". Bereme oba tvary v pořadí, v jakém jsou
+ * v obsahu, takže pořadí bodů odpovídá pořadí sekcí na stránce.
+ *
+ * Poslední sekce webu je vždy finální výzva s kotvou "cil" — dostane typ
+ * cíle, první sekce typ startu, ostatní se číslují T1, T2…
+ */
+function garry_scr_detect_generic( $content, $lang = null ) {
+	$lang   = $lang ?: garry_scr_lang();
+	$labels = garry_scr_labels( $lang );
+	$hits   = array();
+
+	$patterns = array(
+		'~"name"\s*:\s*"id"\s*,\s*"value"\s*:\s*"([a-z0-9_-]+)"~i',
+		'~\bid=\\?"([a-z0-9_-]+)\\?"~i',
+	);
+	foreach ( $patterns as $re ) {
+		if ( preg_match_all( $re, $content, $m, PREG_OFFSET_CAPTURE ) ) {
+			foreach ( $m[1] as $hit ) {
+				$id = strtolower( $hit[0] );
+				if ( $id === '' ) continue;
+				if ( ! isset( $hits[ $id ] ) || $hit[1] < $hits[ $id ] ) $hits[ $id ] = $hit[1];
+			}
+		}
+	}
+	if ( ! $hits ) return array();
+	asort( $hits );
+
+	$out = array();
+	$i   = 0;
+	foreach ( array_keys( $hits ) as $id ) {
+		$type = ( $id === 'cil' ) ? 'cil' : ( $i === 0 ? 'start' : 'mid' );
+		$out[] = array(
+			'sc'    => 'generic:' . $id,
+			'id'    => $id,
+			'label' => isset( $labels[ $id ] ) ? $labels[ $id ] : ucfirst( str_replace( '-', ' ', $id ) ),
+			'type'  => $type,
+		);
+		$i++;
+	}
+	return $out;
+}
+
 /* Detekce sekcí na stránce podle výskytu shortcodů v obsahu (seřazeno dle pozice) */
 function garry_scr_detect( $content, $lang = null ) {
 	$map = garry_scr_map( $lang );
@@ -106,11 +173,22 @@ function garry_scr_is_front( $pid ) {
 function garry_scr_sections_for( $pid ) {
 	$page = get_post( $pid );
 	$lang = garry_scr_page_lang( $pid );
-	$sections = $page ? garry_scr_detect( $page->post_content, $lang ) : array();
-	if ( empty( $sections ) && garry_scr_is_front( $pid ) ) {
-		$sections = garry_scr_front_sections( $lang );
+	if ( ! $page ) return array();
+	/* Na úvodní stránce vždy kanonická sada — její struktura je pevně daná
+	 * a po přestavbě do granulárních modulů by detekce z obsahu našla jen
+	 * zbytkové shortcody. */
+	if ( garry_scr_is_front( $pid ) ) {
+		$front = garry_scr_front_sections( $lang );
+		if ( $front ) return $front;
 	}
-	return $sections;
+	/* Jinak zkusíme obojí a vezmeme úplnější výsledek: mapa známých sekcí
+	 * drží zavedené názvy, ale zná jen deset kotev úvodní stránky, takže na
+	 * podstránce najde jen ty, které se shodou okolností jmenují stejně
+	 * (na Gastronomii například jen „restaurace" a „cíl", i když má sekce
+	 * čtyři). Obecná detekce najde všechny skutečné kotvy. */
+	$mapped  = garry_scr_detect( $page->post_content, $lang );
+	$generic = garry_scr_detect_generic( $page->post_content, $lang );
+	return count( $generic ) > count( $mapped ) ? $generic : $mapped;
 }
 function garry_scr_all() { $o = get_option( GARRY_SCR_OPT, array() ); return is_array( $o ) ? $o : array(); }
 function garry_scr_cfg( $pid ) { $a = garry_scr_all(); return isset( $a[ $pid ] ) ? $a[ $pid ] : array(); }
