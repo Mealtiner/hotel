@@ -46,6 +46,12 @@ export const GRIDS = ['.entries', '.rooms', '.exp', '.gastro', '.split', '.revie
 
 /* Očekávaný počet sloupců podle režimu (GRID-RESPONSIVE-02 §6).
    null = matice pro daný prvek nic nepředepisuje. */
+/* Pásmo 960–1024 px má koridor jen 417–480 px široký, takže karty, T2/T7
+   a formulářové dvojice tam přecházejí na jeden sloupec dřív (buňka by jinak
+   klesla pod 220 px). Viewporty v tomhle pásmu se proto v matici hodnotí
+   jako mobil. */
+export const NARROW_CORRIDOR = { from: 960, to: 1024 };
+
 export const EXPECTED_COLS = {
   '.entries': { desktop: 4, 'tablet-l': 2, 'tablet-p': 2, mobil: 1 },  // T1 vstupy
   '.split':   { desktop: 2, 'tablet-l': 2, 'tablet-p': 1, mobil: 1 },  // T2/T7 dělená sekce

@@ -13,7 +13,7 @@
  */
 import fs from 'fs';
 import path from 'path';
-import { EXPECTED_COLS, SAFE, RAIL_VISIBLE_FROM, VIEWPORTS, CORRIDOR_ANCHORED } from './qa-config.mjs';
+import { EXPECTED_COLS, SAFE, RAIL_VISIBLE_FROM, VIEWPORTS, CORRIDOR_ANCHORED, NARROW_CORRIDOR } from './qa-config.mjs';
 
 const argv = Object.fromEntries(process.argv.slice(2).map(a => { const [k, v] = a.replace(/^--/, '').split('='); return [k, v ?? true]; }));
 const dir = path.join(path.dirname(new URL(import.meta.url).pathname), 'out');
@@ -26,7 +26,11 @@ const add = (r, rec, msg, detail) => findings.push({ rule: r, page: rec.page, la
 for (const rec of data) {
   if (rec.error) { add('CHYBA', rec, rec.error); continue; }
   if (rec.status && rec.status >= 400 && rec.page !== '404') { add('CHYBA', rec, `HTTP ${rec.status}`); continue; }
-  const mode = modeOf(rec.vw);
+  let mode = modeOf(rec.vw);
+  /* V úzkém koridoru se karty, T2/T7 a formulářové dvojice skládají jako na
+     mobilu — matice se tam hodnotí podle toho, ne podle tabletu na šířku. */
+  const narrow = rec.vw >= NARROW_CORRIDOR.from && rec.vw <= NARROW_CORRIDOR.to;
+  const narrowSel = ['.entries', '.rooms', '.exp', '.split', '.foot-top'];
 
   if (rec.overflow > 0) add('OVERFLOW', rec, `dokument pretekaji o ${rec.overflow} px`);
 
@@ -64,8 +68,9 @@ for (const rec of data) {
 
   for (const [sel, exp] of Object.entries(EXPECTED_COLS)) {
     const got = rec.cols && rec.cols[sel];
-    if (!got || !exp[mode]) continue;
-    if (got.n !== exp[mode]) add('SLOUPCE', rec, `${sel} ma ${got.n} sloupcu, ocekava se ${exp[mode]}`, got.tpl);
+    const m = (narrow && narrowSel.includes(sel) && sel !== '.foot-top') ? 'mobil' : mode;
+    if (!got || !exp[m]) continue;
+    if (got.n !== exp[m]) add('SLOUPCE', rec, `${sel} ma ${got.n} sloupcu, ocekava se ${exp[m]}`, got.tpl);
   }
 }
 

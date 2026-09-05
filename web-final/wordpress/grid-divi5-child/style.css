@@ -227,9 +227,11 @@ Text Domain: grid-divi5-child
      nikdy nedostane. Ke ztrátě 20 % šířky se navíc UVNITŘ řádku přičítá
      ještě levá rezervace za HUD, takže se obojí sčítá: obsah na 1280 px
      vycházel na 683 px a byl posunutý o 239 px doprava.
-     Nastavujeme jen width (ne max-width) — mřížkové řádky s vlastním
-     max-width (.entries/.reviews) tím zůstávají nedotčené. */
-  .sec .et_pb_row.et_flex_row:not(.et_pb_row_nested):not(.et_pb_row_inner){width:100% !important}
+     Nastavujeme jen width (ne max-width). .entries a .reviews jsou z
+     pravidla VYJMUTÉ — ty si šířku počítají samy z vlastních okrajů
+     (width: calc(100% − levý − pravý)), a plná šířka by se k jejich
+     marginům přičetla, takže by úvodní stránka přetekla. */
+  .sec .et_pb_row.et_flex_row:not(.et_pb_row_nested):not(.et_pb_row_inner):not(.entries):not(.reviews){width:100% !important}
   /* Divi generuje pro každou stránku vlastní CSS cache (wp-content/et-cache/),
      kde konkrétní řádky (podle pořadí v obsahu, např. .et_pb_row_5) dostanou
      vlastní max-width:100% !important – při stejné specificitě/důležitosti
@@ -262,33 +264,50 @@ Text Domain: grid-divi5-child
      okraje, widget nad nimi jen plave přes z-index) a sekce CÍL (zůstává
      striktně na střed, bez ohledu na tyto hranice).
      ============================================================================ */
+  /* ---------------------------------------------------------------------
+     ZÁVAZNÉ VZORCE KORIDORU (zadání klienta, září 2026)
+
+     Pro návrh se HUD považuje za trvale rozbalený, nezavíratelný objekt.
+     Hlavní obsah proto vždy začíná až za jeho pravým okrajem plus 40 px.
+     HUD nesmí překrývat hlavní text, formuláře ani karty.
+     Pravý rail je jediná fixed navigace; obsah končí 45 px před jeho osou.
+
+       režim            HUD    obsah začíná   obsah končí
+       ≥ 960 px         224px  hud+40         osa railu − 45  (= 100vw − 260)
+       641–959 px       190px  hud+40         100vw − clamp(24,4vw,32)
+       ≤ 640 px         sbalen 20px           100vw − 20
+
+     Kontrolní body: 1600 → 290..1340 · 1024 → 284..764 · 768 → 245..737
+                     641 → 244..615  ·  390 → 20..370
+     --------------------------------------------------------------------- */
   :root{
-    --hud-right-edge: calc(clamp(14px,2vw,26px) + 224px);
+    --hud-left: clamp(14px,2vw,26px);
+    --hud-width: 224px;
+    --hud-right-edge: calc(var(--hud-left) + var(--hud-width));
+    --content-left: calc(var(--hud-right-edge) + 40px);
+
+    --rail-axis: calc(100vw - 215px);
+    --content-right-inset: 260px;      /* = 215 osa + 45 mezera */
+
+    /* .wrap je vycentrovaný box s max-width, takže si část odstupu od okraje
+       drží sám; dopočítáváme jen to, co chybí. .entries/.reviews vycentrované
+       nejsou a počítají se přímo ve viewportu. */
     --wrap-inset: max(0px, calc((100vw - var(--maxw)) / 2));
-    --hud-pad: calc(var(--hud-right-edge) + 40px - var(--wrap-inset));
-    /* .entries/.reviews NEJSOU .wrap (nemají max-width:1280px;margin:auto) –
-       jejich rodič (Divi sloupec) je celou šířku sekce, prakticky 100vw. Pro
-       ně proto počítáme odsazení přímo ve viewport jednotkách, ne
-       "navíc k základnímu paddingu" jako u .wrap. */
-    --entries-left: calc(var(--hud-right-edge) + 40px);
+    --hud-pad:  calc(var(--content-left) - var(--wrap-inset));
+    --rail-pad: calc(var(--content-right-inset) - var(--wrap-inset));
+
+    --entries-left: var(--content-left);
     --entries-right-base: clamp(20px,4vw,52px);
-    /* Stejná logika zrcadlově pro pravou lištu sekční navigace
-       (.track-progress, width:200px, right:0) – POUŽÍVÁ SE JEN tam, kde je
-       nahlášeno, že je pravý okraj moc konzervativní (.wrap, .exp, .entries);
-       .hero-content/.final .wrap zůstávají na starém --rail,
-       protože u nich změna nebyla hlášená/žádaná. */
-    --rail-pad: calc(200px + 45px - var(--wrap-inset));
-    /* .entries/.reviews mají vlastní 100%=viewport referenci (ne
-       vycentrovaný box jako .wrap), takže aby jejich pravý okraj skutečně
-       seděl na STEJNÉ místo jako .wrap/.exp (potvrzeno správně u T3-T6),
-       musí se k pravé mezeře přičíst i --wrap-inset, který si .wrap kompenzuje
-       automaticky svým vlastním vycentrováním, ale .entries/.reviews ne. */
-    /* -9px: drobná změřená korekce vůči .wrap (T3 karty pokojů, referenční
-       pravý okraj) – vw jednotky (--wrap-inset) a % šířka .entries se v
-       přítomnosti scrollbaru počítají z mírně odlišné dostupné šířky. */
+    /* -9px: změřená korekce vůči .wrap — vw jednotky a procentní šířka se
+       v přítomnosti svislého posuvníku počítají z mírně odlišné šířky. */
     --entries-right-match-wrap: calc(var(--wrap-inset) + max(0px, var(--rail-pad)) - 9px);
   }
   .wrap{padding-left:max(clamp(20px,4vw,52px), var(--hud-pad))}
+  /* Na tabletu na výšku a níž je rail skrytý, ale pravá bezpečná hranice
+     platí dál — drží ji inset, ne rezerva na lištu. */
+  @media(max-width:959px){
+    .wrap{padding-right:var(--content-right-inset)}
+  }
 
   /* ============================================================================
      MOBIL A TABLET NA VÝŠKU — reset rezervace za HUD widgetem.
@@ -305,18 +324,22 @@ Text Domain: grid-divi5-child
      jednotlivých sekcích jsou zakázané (GRID-RESPONSIVE-10 §Implementační
      zásahy bod 1).
      ============================================================================ */
+  /* 641–959 px: HUD je užší (190 px) a pravý rail je skrytý, takže vpravo
+     stačí bezpečný inset, ne rezerva na lištu. */
   @media(max-width:959px){
     :root{
-      --gh-hud-w: 190px;
-      --hud-right-edge: calc(clamp(14px,2vw,26px) + 190px);
-      --entries-left: calc(var(--hud-right-edge) + 40px);
+      --hud-width: 190px;
+      --content-right-inset: clamp(24px,4vw,32px);
     }
   }
+  /* ≤ 640 px: HUD je ve sbaleném režimu a nesmí rezervovat žádnou šířku. */
   @media(max-width:640px){
     :root{
-      --hud-pad: 0px;                    /* HUD na mobilu nerezervuje šířku */
-      --rail-pad: 0px;                   /* lišta je na mobilu skrytá */
-      --entries-left: 20px;              /* obsah 20..(šířka−20) dle matice */
+      --content-left: 20px;
+      --content-right-inset: 20px;
+      --hud-pad: 0px;
+      --rail-pad: 0px;
+      --entries-left: 20px;
       --entries-right-base: 20px;
       --entries-right-match-wrap: 20px;
     }
@@ -793,6 +816,29 @@ Text Domain: grid-divi5-child
     .season,.et_pb_row.season{grid-template-columns:1fr !important}
     .foot-top{grid-template-columns:1fr 1fr}
   }
+  /* --- ÚZKÝ KORIDOR (960–1024 px) ---
+     V tomhle pásmu je obsahový sloupec jen 417–480 px široký (vlevo HUD
+     224 px + 40, vpravo osa railu − 45). Dvousloupcové rozvržení by tu
+     dávalo poloviny po zhruba 200 px, což je pod hranicí 220 px, kterou
+     zadání pro buňku dvousloupcové mřížky vyžaduje. Karty, dělené sekce
+     T2/T7 i dvojice formulářových polí proto přecházejí na jeden sloupec
+     dřív než ostatní mřížky. Geometrie koridoru se tím nemění. */
+  @media (min-width:960px) and (max-width:1024px){
+    .entries,.et_pb_row.entries,
+    .rooms,.et_pb_row.rooms,
+    .exp,.et_pb_row.exp,
+    .split,.et_pb_row.split,
+    .b2b-grid,
+    .form-grid,.et_pb_row.form-grid,
+    .amenity-grid,
+    .k-grid,
+    .dp-cols,.dp-air-grid,
+    .rd-aside,.rd-amen{grid-template-columns:minmax(0,1fr) !important}
+    .k-form .fluentform form,#firemni .fluentform form{grid-template-columns:minmax(0,1fr)}
+    .split.reverse .sp-media{order:0}
+    .entry,.exp-item{border-right:none}
+  }
+
   /* --- TABLET NA VÝŠKU a níž (≤ 959 px) --- */
   @media(max-width:959px){
     .track-progress{display:none}
