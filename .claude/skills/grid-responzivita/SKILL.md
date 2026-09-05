@@ -34,48 +34,65 @@ při 960 px musí být vidět a obsah se přepočítá.
 důvod, proč nejde nic opravit globálně. Každý dotyk kódu je příležitost
 sjednotit dotčené pravidlo na tyto čtyři režimy. Nezavádět nové mezihodnoty.
 
-## Koridor obsahu — jediný zdroj geometrie
+## Koridor obsahu — závazné vzorce
 
-Geometrii počítá **jedna** sada proměnných v `:root`. Žádná sekce si nesmí
-počítat vlastní koridor, žádná stránka nesmí mít vlastní kompenzaci.
+Geometrii počítá **jedna** sada proměnných. Žádná sekce si nesmí počítat
+vlastní koridor, žádná stránka nesmí mít vlastní kompenzaci.
 
-```css
-:root{
-  --gh-header-h: 86px;
-  --gh-hud-left: clamp(14px, 2vw, 26px);
-  --gh-hud-w: 224px;             /* tablet na výšku: 190px */
-  --gh-overlay-gap-left: 40px;   /* mezera HUD → obsah */
-  --gh-rail-axis-offset: 215px;  /* šířka overlay pravé navigace */
-  --gh-overlay-gap-right: 45px;  /* mezera obsah → osa navigace */
-  --gh-content-max: 1050px;
-  --gh-section-py: clamp(80px, 12vh, 150px);
-  --gh-grid-gap: clamp(16px, 1.6vw, 26px);
-}
-```
-
-Odvozené hodnoty se počítají **jen jednou**:
+Pro návrh se HUD („situace na trati") považuje za **trvale rozbalený,
+nezavíratelný objekt**. Hlavní obsah proto vždy začíná až za jeho pravým
+okrajem plus 40 px. HUD nesmí překrývat text, formuláře ani karty.
+Pravá sekční navigace je jediná fixed navigace; obsah končí 45 px před
+její osou, a to všude, kde se navigace **skutečně vykreslí**.
 
 ```css
---gh-hud-edge:      calc(var(--gh-hud-left) + var(--gh-hud-w));
---gh-content-start: calc(var(--gh-hud-edge) + var(--gh-overlay-gap-left));
---gh-rail-axis:     calc(100vw - var(--gh-rail-axis-offset));
---gh-content-end:   calc(var(--gh-rail-axis) - var(--gh-overlay-gap-right));
---gh-content-width: calc(var(--gh-content-end) - var(--gh-content-start));
+/* ≥ 960 px */
+--hud-left: clamp(14px, 2vw, 26px);
+--hud-width: 224px;
+--content-left: calc(var(--hud-left) + var(--hud-width) + 40px);
+--rail-axis: calc(100vw - 215px);
+--content-right: calc(var(--rail-axis) - 45px);   /* = 100vw − 260 */
+
+/* 641–959 px  — rail je skrytý, hranice vpravo platí dál */
+--hud-width: 190px;
+--content-left: calc(var(--hud-left) + var(--hud-width) + 40px);
+--content-right: calc(100vw - clamp(24px, 4vw, 32px));
+
+/* ≤ 640 px — HUD je ve sbaleném režimu a nerezervuje žádnou šířku */
+--content-left: 20px;
+--content-right: calc(100vw - 20px);
 ```
 
-Cílové bezpečné hranice (tolerance ±2 px):
+Kontrolní body (tolerance ±2 px, ověřuje `tools/qa`):
 
-| Viewport | Obsah od | Obsah do | Šířka |
-|---|---|---|---|
-| 1600 | 290 | 1340 | 1050 |
-| 1024 | 284 | 764 | 480 |
-| 768 | 245 | 737 | 492 |
-| 390 | 20 | 370 | 350 |
+| Viewport | HUD | Obsah začíná | Obsah končí | Šířka |
+|---:|---:|---:|---:|---:|
+| 1600 | 224 | 290 | 1340 | 1050 |
+| 1440 | 224 | 290 | 1180 | 890 |
+| 1366 | 224 | 290 | 1106 | 816 |
+| 1280 | 224 | 290 | 1020 | 730 |
+| 1024 | 224 | 284 | 764 | 480 |
+| 960 | 224 | 283 | 700 | 417 |
+| 768 | 190 | 245 | 737 | 492 |
+| 641 | 190 | 244 | 615 | 371 |
+| 390 | sbalený | 20 | 370 | 350 |
 
-**Na mobilu se rezervace za HUD musí explicitně vynulovat.** Nejčastější
-chyba webu: `--hud-pad` zůstane vypočtený na ~278 px i na 390px displeji,
-takže obsahu zbude ~92 px. Reset patří do mobilního režimu, ne do jednotlivých
-sekcí.
+Na stránce **bez** sekční navigace platí vpravo jen bezpečný inset, ne
+rezerva na lištu. Rozhoduje o tom třída `has-section-nav`, kterou dává
+plugin GARRY Boční posuvník podle toho, jestli se lišta opravdu vykreslí —
+nikdy ne výčet ID stránek.
+
+**Na mobilu se rezervace za HUD musí explicitně vynulovat.** Historická
+chyba: `--hud-pad` zůstal vypočtený na ~278 px i na 390px displeji, takže
+obsahu zbylo 92 px a každá stránka přetékala.
+
+### Úzký koridor 960–1024 px
+
+V tomhle pásmu je obsah široký jen 417–480 px. Dvousloupcové rozvržení by
+tu dávalo poloviny po zhruba 200 px, tedy pod hranicí 220 px, kterou zadání
+pro buňku dvousloupcové mřížky vyžaduje. **Karty, dělené sekce T2/T7 a
+dvojice formulářových polí zde přecházejí na jeden sloupec dřív** než
+ostatní mřížky. Geometrie koridoru se tím nemění.
 
 ## Co smí přesáhnout koridor
 
@@ -153,6 +170,14 @@ Konkrétně: `.et_pb_row.split` a `.et_pb_row.gastro` mají v základu
 `grid-template-columns … !important`. Přepis musí být psaný jako
 `.et_pb_row.split` / `.et_pb_row.gastro` (ne holé `.split` / `.gastro`),
 jinak neprojde.
+
+**Šířka řádku.** Divi dává každému nevnořenému řádku
+`width: var(--content-width)`, ve výchozím nastavení 80 %. Samotné
+`max-width` na `.wrap` proto nestačí — řádek je na 1280px obrazovce široký
+jen 1024 px. Řeší to
+`.sec .et_pb_row.et_flex_row:not(.et_pb_row_nested):not(.et_pb_row_inner):not(.entries):not(.reviews){width:100% !important}`.
+`.entries` a `.reviews` jsou vyjmuté — ty si šířku počítají samy z vlastních
+okrajů a plná šířka by se k jejich marginům přičetla.
 
 ## Typografie a textový tok
 
