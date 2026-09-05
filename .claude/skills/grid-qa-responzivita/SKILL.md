@@ -28,6 +28,7 @@ node resp-audit.mjs --pages=kontakt,doprava --lang=cs
 node resp-audit.mjs --shots                          # + fullpage screenshoty do out/shots/
 node qa-report.mjs                                   # vyhodnocení proti kritériím
 node qa-report.mjs --rule=SLOUPCE --page=domov
+node test-prekryv.mjs > out/prekryv.json             # co reálně leží pod HUD a lištou
 ```
 
 Web musí běžet — viz [[grid-local-nasazeni]]. Po každém zásahu do CSS nebo
@@ -46,6 +47,23 @@ layoutu **nejdřív smaž Divi cache**, jinak měříš starý stav.
 
 `ROZJEZD` je nejcennější nález — ukazuje místa, kde web počítá tutéž hranici
 víckrát a různě. To je přesně to, co brání globálním opravám.
+
+## Test překryvu
+
+Měření hranic samo neprokáže, že overlay nic nezakrývá — full-bleed prvky a
+schválené výjimky hranice legitimně přesahují. `test-prekryv.mjs` proto
+projede každou stránku po čtvrtinách výšky okna a hlásí každý text, formulář
+nebo kartu, jejichž obdélník se protne s obdélníkem HUD nebo boční lišty.
+To je přímý test pravidla „HUD nesmí překrývat hlavní text, formuláře ani
+karty". Vlastní vnitřek overlayů, hlavička a cookie lišta se nepočítají.
+
+Krok čtvrtiny okna je důležitý: při hrubším kroku test přehlédne kolizi,
+která nastane jen v části rolování. Takhle se našly zakryté pole rezervační
+lišty na tabletu na výšku.
+
+**Schválené výjimky z koridoru** jsou v `CORRIDOR_EXEMPT` (fotografie dělené
+sekce T2/T7 a sekce CÍL). Neznamená to, že se smí dostat pod overlay — to
+hlídá právě test překryvu.
 
 ## Povinná testovací matice
 
