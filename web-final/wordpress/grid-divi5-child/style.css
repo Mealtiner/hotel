@@ -650,7 +650,7 @@ Text Domain: grid-divi5-child
      proto se člení do tematických skupin — plochý výčet 60 položek se nedá číst. */
   .amenity-groups{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:clamp(20px,2.4vw,34px);margin:26px 0 0}
   .amenity-groups section{min-width:0}
-  .amenity-groups h3{font-family:var(--f-mono);font-size:.7rem;letter-spacing:.12em;text-transform:uppercase;color:var(--ink,#16181B);margin:0 0 10px;padding-bottom:8px;border-bottom:1px solid rgba(20,22,25,.12)}
+  .amenity-groups h3{font-family:var(--f-mono);font-size:.7rem;letter-spacing:.12em;text-transform:uppercase;color:var(--fg);margin:0 0 10px;padding-bottom:8px;border-bottom:1px solid var(--line-c)}
   .amenity-groups ul{list-style:none;margin:0;padding:0;display:grid;gap:6px}
   .amenity-groups li{min-width:0;overflow-wrap:anywhere;position:relative;padding-left:20px;color:var(--muted);font-size:.88rem;line-height:1.45}
   .amenity-groups li::before{content:"·";position:absolute;left:6px;color:var(--red);font-weight:700}
@@ -659,7 +659,25 @@ Text Domain: grid-divi5-child
   .know-list{display:grid;grid-template-columns:1fr 1fr;gap:14px 30px;margin:0}
   .know-list div{display:flex;flex-direction:column;gap:2px;padding-bottom:10px;border-bottom:1px solid rgba(20,22,25,.08)}
   .know-list dt{font-family:var(--f-mono);font-size:.7rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
-  .know-list dd{margin:0;color:var(--ink,#16181B);font-size:.92rem}
+  .know-list dd{margin:0;color:var(--fg);font-size:.92rem}
+  /* Dobré vědět s ikonami — ikona nese význam řádku na první pohled, proto je
+     v brandové červené i na světlém povrchu. Text zůstává hlavním nositelem
+     informace, ikona je jen návěstí (aria-hidden). */
+  .know-list--ikony dt{display:flex;align-items:center;gap:9px}
+  .know-list--ikony .kl-ikona{flex:none;width:17px;height:17px;fill:none;stroke:var(--red);stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+  .sec-dark .know-list--ikony .kl-ikona{stroke:#FF5A50}
+
+  /* Dva terciární odkazy vedle sebe (titulní strana pod kartami pokojů). */
+  .sec-more-radek{display:flex;flex-wrap:wrap;align-items:center;gap:14px clamp(20px,3vw,44px);margin-top:26px}
+  .sec-more-radek .sec-more{margin-top:0}
+
+  /* Skok na kotvu sekce musí skončit POD fixní hlavičkou, jinak se nadpis
+     sekce schová za menu. Platí pro každou sekci s kotvou, ne jen pro tu,
+     u které se to zrovna řešilo. */
+  .sec[id]{scroll-margin-top:calc(var(--gh-header-h,86px) + 12px)}
+
+  /* Přehled vybavení hotelu nad kartami pokojů (Ubytování, sekce T1). */
+  .amenity-uvod{margin:0 0 clamp(30px,3.5vw,46px)}
   @media(max-width:959px){
     /* Široká srovnávací tabulka se skládá do řádkových karet už na tabletu
        na výšku — na 768 px se šest sloupců nevejde ani se zalomením. */

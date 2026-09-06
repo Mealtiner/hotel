@@ -3,7 +3,7 @@
  * Plugin Name:       GARRY – Sekční navigace
  * Plugin URI:        https://www.garry.cz
  * Description:       Boční navigace mezi sekcemi jedné stránky s automatickým načtením kotev, vlastním pojmenováním a skrytím položek. Vhodná pro dlouhé landing pages, prezentace a obsahové stránky; původně vytvořena pro GRID Hotel jako navigace ve stylu trati.
- * Version:           1.6.0
+ * Version:           1.7.0
  * Author:            GARRY Promotion
  * Author URI:        https://www.garry.cz
  * License:           Proprietary — Copyright © GARRY Promotion
@@ -61,9 +61,9 @@ function garry_scr_map( $lang = null ) {
 function garry_scr_labels( $lang = null ) {
 	$lang = $lang ?: garry_scr_lang();
 	$dict = array(
-		'cs' => array( 'start'=>'Okruh','vstupy'=>'Vstupy','pribeh'=>'Příběh','pokoje'=>'Pokoje','kategorie'=>'Kategorie','moznosti'=>'Možnosti','zazemi'=>'Zázemí','zazitky'=>'Zážitky','restaurace'=>'Restaurace','catering'=>'Catering','jidelnicek'=>'Jídelníček','sezona'=>'Sezóna','cekaci-list'=>'Čekací list','poukazy'=>'Poukazy','firemni'=>'Firmy','svatby'=>'Svatby','duvera'=>'Reference','cil'=>'Rezervace','kontakt'=>'Kontakt','mapa'=>'Mapa','galerie'=>'Galerie' ),
-		'en' => array( 'start'=>'Circuit','vstupy'=>'Ways in','pribeh'=>'Story','pokoje'=>'Rooms','kategorie'=>'Categories','moznosti'=>'Options','zazemi'=>'Facilities','zazitky'=>'Experiences','restaurace'=>'Restaurant','catering'=>'Catering','jidelnicek'=>'Menu','sezona'=>'Season','cekaci-list'=>'Waiting list','poukazy'=>'Vouchers','firemni'=>'Business','svatby'=>'Weddings','duvera'=>'Reviews','cil'=>'Booking','kontakt'=>'Contact','mapa'=>'Map','galerie'=>'Gallery' ),
-		'de' => array( 'start'=>'Ring','vstupy'=>'Einstiege','pribeh'=>'Story','pokoje'=>'Zimmer','kategorie'=>'Kategorien','moznosti'=>'Möglichkeiten','zazemi'=>'Ausstattung','zazitky'=>'Erlebnisse','restaurace'=>'Restaurant','catering'=>'Catering','jidelnicek'=>'Speisekarte','sezona'=>'Saison','cekaci-list'=>'Warteliste','poukazy'=>'Gutscheine','firemni'=>'Firmen','svatby'=>'Hochzeiten','duvera'=>'Referenzen','cil'=>'Buchung','kontakt'=>'Kontakt','mapa'=>'Karte','galerie'=>'Galerie' ),
+		'cs' => array( 'start'=>'Okruh','vstupy'=>'Vstupy','pribeh'=>'Příběh','pokoje'=>'Pokoje','kategorie'=>'Kategorie','prehled-pokoju'=>'Přehled','srovnani-pokoju'=>'Srovnání','vybaveni'=>'Vybavení','dobre-vedet'=>'Dobré vědět','moznosti'=>'Možnosti','zazemi'=>'Zázemí','zazitky'=>'Zážitky','restaurace'=>'Restaurace','catering'=>'Catering','jidelnicek'=>'Jídelníček','sezona'=>'Sezóna','cekaci-list'=>'Čekací list','poukazy'=>'Poukazy','firemni'=>'Firmy','svatby'=>'Svatby','duvera'=>'Reference','cil'=>'Rezervace','kontakt'=>'Kontakt','mapa'=>'Mapa','galerie'=>'Galerie' ),
+		'en' => array( 'start'=>'Circuit','vstupy'=>'Ways in','pribeh'=>'Story','pokoje'=>'Rooms','kategorie'=>'Categories','prehled-pokoju'=>'Overview','srovnani-pokoju'=>'Comparison','vybaveni'=>'Amenities','dobre-vedet'=>'Good to know','moznosti'=>'Options','zazemi'=>'Facilities','zazitky'=>'Experiences','restaurace'=>'Restaurant','catering'=>'Catering','jidelnicek'=>'Menu','sezona'=>'Season','cekaci-list'=>'Waiting list','poukazy'=>'Vouchers','firemni'=>'Business','svatby'=>'Weddings','duvera'=>'Reviews','cil'=>'Booking','kontakt'=>'Contact','mapa'=>'Map','galerie'=>'Gallery' ),
+		'de' => array( 'start'=>'Ring','vstupy'=>'Einstiege','pribeh'=>'Story','pokoje'=>'Zimmer','kategorie'=>'Kategorien','prehled-pokoju'=>'Übersicht','srovnani-pokoju'=>'Vergleich','vybaveni'=>'Ausstattung','dobre-vedet'=>'Gut zu wissen','moznosti'=>'Möglichkeiten','zazemi'=>'Ausstattung','zazitky'=>'Erlebnisse','restaurace'=>'Restaurant','catering'=>'Catering','jidelnicek'=>'Speisekarte','sezona'=>'Saison','cekaci-list'=>'Warteliste','poukazy'=>'Gutscheine','firemni'=>'Firmen','svatby'=>'Hochzeiten','duvera'=>'Referenzen','cil'=>'Buchung','kontakt'=>'Kontakt','mapa'=>'Karte','galerie'=>'Galerie' ),
 	);
 	return isset( $dict[ $lang ] ) ? $dict[ $lang ] : $dict['cs'];
 }

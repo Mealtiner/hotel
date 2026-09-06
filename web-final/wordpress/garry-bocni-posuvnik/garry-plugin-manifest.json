@@ -2,7 +2,7 @@
   "schema_version": "2.3",
   "slug": "garry-bocni-posuvnik",
   "name": "GARRY – Sekční navigace",
-  "plugin_version": "1.6.0",
+  "plugin_version": "1.7.0",
   "framework_protocol": "2.4.0",
   "framework_minimum": "2.4.0",
   "icon": {

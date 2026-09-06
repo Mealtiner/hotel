@@ -3,7 +3,7 @@
  * Plugin Name:       GARRY – Kategorie a srovnání
  * Plugin URI:        https://www.garry.cz
  * Description:       Spravuje vícejazyčné kategorie pokojů nebo podobných položek a zobrazuje je jako karty či srovnávací tabulku. Obsah se vkládá přes shortcody grid_rooms_cards a grid_rooms_table; původně vytvořeno pro GRID Hotel.
- * Version:           1.4.0
+ * Version:           1.5.0
  * Author:            GARRY Promotion
  * Author URI:        https://www.garry.cz
  * License:           Proprietary — Copyright © GARRY Promotion
@@ -20,7 +20,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
  * GARRY – Kategorie pokojů
  * ============================================================================ */
 
-define( 'GARRY_POK_VER', '1.4.0' );
+define( 'GARRY_POK_VER', '1.5.0' );
 define( 'GARRY_POK_OPT', 'garry_pokoje' );
 
 function garry_pok_lang() {
@@ -673,7 +673,7 @@ add_action( 'gridhotel_register_modules', function () {
 		'version'    => defined( 'GARRY_POK_VER' ) ? GARRY_POK_VER : '1.4.0',
 		'admin_slug' => 'garry-pokoje-grid',
 		'capability' => defined( 'GARRY_POK_STAFF_CAP' ) ? GARRY_POK_STAFF_CAP : 'manage_options',
-		'shortcodes' => array( 'grid_rooms_cards', 'grid_rooms_table', 'garry_room_categories' ),
+		'shortcodes' => array( 'grid_rooms_cards', 'grid_rooms_table', 'grid_rooms_compare', 'garry_room_categories' ),
 		'features'   => array( 'room_comparison' ),
 	) );
 } );
@@ -708,6 +708,19 @@ function garry_pokoje_compare_html( $current = '' ) {
 	echo '</tbody></table></div>';
 	return ob_get_clean();
 }
+
+/**
+ * [grid_rooms_compare] — srovnávací tabulka mimo detail kategorie.
+ *
+ * Bez atributu nezvýrazní žádný sloupec: na přehledové stránce není „aktuální"
+ * kategorie, a zvýraznění náhodného sloupce by čtenáře mátlo. Atributem
+ * zvyraznit="superior" jde sloupec zvýraznit, když je to potřeba.
+ */
+function garry_pok_sc_compare( $atts = array() ) {
+	$a = shortcode_atts( array( 'zvyraznit' => '' ), (array) $atts, 'grid_rooms_compare' );
+	return garry_pokoje_compare_html( (string) $a['zvyraznit'] );
+}
+add_action( 'init', function () { add_shortcode( 'grid_rooms_compare', 'garry_pok_sc_compare' ); }, 5 );
 
 /* Data pokoje pro šablonu detailu (dle klíče, aktuální jazyk) */
 function garry_pokoje_room( $key ) {
