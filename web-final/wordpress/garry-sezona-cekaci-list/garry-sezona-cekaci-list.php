@@ -3,7 +3,7 @@
  * Plugin Name:       GARRY – Sezónní nabídka a čekací list
  * Plugin URI:        https://www.garry.cz
  * Description:       Spravuje sezónní akce, štítky dostupnosti a čekací formulář s lokálním logem poptávek. Nabídku a voucherový formulář vloží shortcody grid_season_events a grid_voucher_form; původně vytvořeno pro GRID Hotel. Pro odesílání je nutné správně nastavit WordPress e-mail a případně CAPTCHA.
- * Version:           2.6.0
+ * Version:           2.7.0
  * Author:            GARRY Promotion
  * Author URI:        https://www.garry.cz
  * License:           Proprietary — Copyright © GARRY Promotion
@@ -20,7 +20,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
  * GARRY – Sezóna & čekací list v2 — data
  * ============================================================================ */
 
-define( 'GARRY_SEZ_VER', '2.6.0' );
+define( 'GARRY_SEZ_VER', '2.7.0' );
 define( 'GARRY_SEZ_OPT', 'garry_sezona' );
 define( 'GARRY_SEZ_LOG', 'garry_sezona_log' );
 /**
@@ -87,9 +87,55 @@ function garry_sez_default_events() {
 function garry_sez_get() {
 	$o = get_option( GARRY_SEZ_OPT, null );
 	if ( ! is_array( $o ) ) $o = array( 'events' => garry_sez_default_events() );
-	$o = wp_parse_args( $o, array( 'events' => array(), 'states' => array(), 'email' => '' ) );
+	$o = wp_parse_args( $o, array(
+		'events' => array(), 'states' => array(), 'email' => '',
+		/* Kolik připravovaných akcí se nejvýš vypíše na webu. Dřív to řídil jen
+		   atribut shortcodu, takže se to nedalo změnit bez zásahu do stránky. */
+		'max_pripravovanych' => 5,
+		'import_aktivni'  => 1,
+		'import_posledni' => '',
+		'import_stav'     => '',
+		'import_rucne'    => 0,
+	) );
 	if ( empty( $o['states'] ) ) $o['states'] = garry_sez_default_states();
+
+	/* Akce uložené před verzí 2.7.0 nové klíče nemají. Doplníme je při čtení,
+	   ne migrací volby — ta by se musela hlídat a spouštět jen jednou, kdežto
+	   takhle je stav konzistentní vždycky. Ručně zadané akce se považují za
+	   publikované, jinak by po aktualizaci pluginu zmizely z webu. */
+	foreach ( $o['events'] as $i => $e ) {
+		if ( ! is_array( $e ) ) { unset( $o['events'][ $i ] ); continue; }
+		$o['events'][ $i ] = wp_parse_args( $e, array(
+			'url_en' => '', 'publikovano' => 1, 'nova' => 0, 'zdroj' => 'rucne', 'nacteno' => '',
+		) );
+	}
+	$o['events'] = array_values( $o['events'] );
 	return $o;
+}
+
+/** Akce rozdělené na připravované a uplynulé podle dnešního data. */
+function garry_sez_rozdel_akce( array $akce ) {
+	$dnes = current_time( 'Y-m-d' );
+	$pripravovane = $uplynule = array();
+	foreach ( $akce as $i => $e ) {
+		$konec = ( $e['do'] ?? '' ) ?: ( $e['od'] ?? '' );
+		if ( $konec === '' || $konec >= $dnes ) $pripravovane[ $i ] = $e;
+		else $uplynule[ $i ] = $e;
+	}
+	uasort( $pripravovane, function ( $x, $y ) { return strcmp( $x['od'] ?? '', $y['od'] ?? '' ); } );
+	uasort( $uplynule, function ( $x, $y ) { return strcmp( $y['od'] ?? '', $x['od'] ?? '' ); } );
+	return array( $pripravovane, $uplynule );
+}
+
+/**
+ * Odkaz na detail akce na webu Automotodromu podle jazyka. Zdroj má jen českou
+ * a anglickou mutaci, německý návštěvník proto dostane anglickou — je to
+ * srozumitelnější než čeština a lepší než odkaz vynechat.
+ */
+function garry_sez_url_akce( array $e, $li ) {
+	$en = trim( (string) ( $e['url_en'] ?? '' ) );
+	if ( $li > 0 && $en !== '' ) return $en;
+	return (string) ( $e['url'] ?? '' );
 }
 /* Štítky jako mapa key => data (pořadí zachováno) */
 function garry_sez_states() {
@@ -115,6 +161,8 @@ function garry_sez_state_cta( $st, $li )   { return $st[ array( 'cta_cz', 'cta_e
 define( 'GARRY_SEZ_STAFF_CAP', 'garry_grid_manage_sezona_cekaci_list' );
 
 /* ---------- registrace do menu (GARRY + GRID Nastavení) ---------- */
+require_once __DIR__ . '/includes/import.php';
+
 require_once __DIR__ . '/includes/framework-v23/bootstrap.php';
 \Garry\Embedded\SezonaCekaciList\V23\bootstrap( __FILE__, 'garry_sez_admin_page', 'Sezóna a čekací list' );
 
@@ -250,9 +298,18 @@ add_action( 'admin_init', function () { register_setting( 'garry_sez_group', GAR
 /* personál (Editor) smí ukládat přes options.php */
 add_filter( 'option_page_capability_garry_sez_group', function () { return GARRY_SEZ_STAFF_CAP; } );
 function garry_sez_sanitize( $in ) {
+	$puvodni = get_option( GARRY_SEZ_OPT, array() );
 	$out = array( 'events' => array(), 'states' => array(), 'email' => '' );
 	if ( ! is_array( $in ) ) return $out;
 	$out['email'] = sanitize_email( $in['email'] ?? '' );
+
+	$out['max_pripravovanych'] = max( 1, min( 50, (int) ( $in['max_pripravovanych'] ?? 5 ) ) );
+	$out['import_aktivni'] = empty( $in['import_aktivni'] ) ? 0 : 1;
+	/* Stav posledního běhu zapisuje import, ne formulář — kdyby se přenášel
+	   skrytým polem, přepsal by ho každé uložení nastavení. */
+	foreach ( array( 'import_posledni', 'import_stav', 'import_rucne' ) as $k ) {
+		$out[ $k ] = is_array( $puvodni ) ? ( $puvodni[ $k ] ?? '' ) : '';
+	}
 
 	/* štítky */
 	$st = $in['states'] ?? array();
@@ -295,7 +352,14 @@ function garry_sez_sanitize( $in ) {
 			'dcz'  => sanitize_textarea_field( $e['dcz'][ $i ] ?? '' ),
 			'den'  => sanitize_textarea_field( $e['den'][ $i ] ?? '' ),
 			'dde'  => sanitize_textarea_field( $e['dde'][ $i ] ?? '' ),
+			'url_en' => esc_url_raw( $e['url_en'][ $i ] ?? '' ),
+			'publikovano' => empty( $e['publikovano'][ $i ] ) ? 0 : 1,
+			/* Příznak „nová akce" zhasne v okamžiku publikace — dokud akce visí
+			   nepublikovaná, zůstává v upozornění na nástěnce. */
+			'zdroj'   => sanitize_key( $e['zdroj'][ $i ] ?? 'rucne' ),
+			'nacteno' => sanitize_text_field( $e['nacteno'][ $i ] ?? '' ),
 		);
+		$row['nova'] = ( ! empty( $e['nova'][ $i ] ) && ! $row['publikovano'] ) ? 1 : 0;
 		if ( $row['cz'] === '' && $row['od'] === '' ) continue;
 		$out['events'][] = $row;
 	}
@@ -326,6 +390,35 @@ function garry_sez_admin_page() {
 	$active = $_GET['tab'] ?? 'akce';
 	if ( ! in_array( $active, array( 'akce', 'stitky', 'log' ), true ) ) $active = 'akce';
 	?>
+	<style>
+	  /* Stav akce pozná redakce i se zavřeným detailem: barva proužku vlevo,
+	     tečka a odznak. Nová akce je jantarová, publikovaná zelená, ostatní šedé. */
+	  .sez-event{background:#fff;border:1px solid #c3c4c7;border-left:4px solid #c3c4c7;border-radius:8px;padding:10px 16px;margin-bottom:14px}
+	  .sez-event.je-nova{border-left-color:#dba617;background:#fffaf0}
+	  .sez-event.je-na-webu{border-left-color:#68C020}
+	  .sez-event.je-publikovana:not(.je-na-webu){border-left-color:#8c8f94}
+	  .sez-event > summary{cursor:pointer;display:flex;gap:12px;align-items:center;flex-wrap:wrap;padding:4px 0;list-style-position:outside}
+	  .sez-event .sez-znacka{flex:none;width:9px;height:9px;border-radius:50%;background:#c3c4c7}
+	  .sez-event.je-nova .sez-znacka{background:#dba617}
+	  .sez-event.je-na-webu .sez-znacka{background:#68C020}
+	  .sez-odznak{font-size:11px;letter-spacing:.04em;padding:2px 8px;border-radius:10px;white-space:nowrap}
+	  .sez-odznak--nova{background:#dba617;color:#fff}
+	  .sez-odznak--chybi{background:#fcf0f1;color:#b32d2e;border:1px solid #f0c5c7}
+	  .sez-odznak--web{background:#edf7e6;color:#3a6b12;border:1px solid #c6e3ad}
+	  .sez-odznak--nad-limit,.sez-odznak--skryta{background:#f0f0f1;color:#646970;border:1px solid #dcdcde}
+	  .sez-event .sez-sum-meta{margin-right:auto}
+	  .sez-hlaska{margin:8px 0 0;padding:8px 12px;background:#fcf0f1;border-left:3px solid #b32d2e;color:#8a1f1f;font-size:13px}
+	  .sez-publikace{display:flex;gap:14px;align-items:center;flex-wrap:wrap;margin:10px 0 0;padding:8px 12px;background:#f6f7f7;border-radius:4px}
+	  /* Prázdné pole, které je potřeba doplnit před publikací. */
+	  .sez-pole.sez-chybi input,.sez-pole.sez-chybi textarea{background:#fcf0f1;border-color:#e0a3a6}
+	  .sez-pole.sez-chybi{color:#8a1f1f}
+	  .sez-skupina{margin:22px 0 10px;font-size:15px}
+	  .sez-uplynule > summary{cursor:pointer;list-style-position:outside}
+	  .sez-uplynule > summary h3{display:inline-block;margin:0}
+	  .sez-uplynule .sez-event{opacity:.72}
+	  .sez-panel{margin:16px 0 6px;padding:14px 18px;background:#fff;border:1px solid #c3c4c7;border-radius:8px}
+	  .sez-panel-stav{color:#50575e;font-size:13px}
+	</style>
 	<div class="wrap"><h1>Sezóna & čekací list</h1>
 	<?php if ( isset( $_GET['cleared'] ) ) echo '<div class="notice notice-success is-dismissible"><p>Log poptávek byl smazán.</p></div>'; ?>
 	<h2 class="nav-tab-wrapper" id="sez-tabs">
@@ -341,12 +434,98 @@ function garry_sez_admin_page() {
 	<div class="sez-tab" data-tab="akce">
 	  <div style="display:flex;gap:26px;flex-wrap:wrap;align-items:flex-start;margin-top:16px">
 	    <div style="flex:1 1 620px;min-width:560px" id="sez-events">
-	      <?php foreach ( $events as $ev ) : ?>
-	      <details class="sez-event" style="background:#fff;border:1px solid #c3c4c7;border-radius:8px;padding:10px 16px;margin-bottom:14px">
-	        <summary style="cursor:pointer;display:flex;gap:14px;align-items:center;flex-wrap:wrap;padding:4px 0;list-style-position:outside">
+	      <?php if ( isset( $_GET['import'] ) ) : ?>
+	        <div class="notice notice-<?php echo $_GET['import'] === 'chyba' ? 'error' : 'success'; ?> is-dismissible"><p>
+	          <?php echo $_GET['import'] === 'chyba'
+	            ? esc_html( 'Import se nepovedl: ' . ( $s['import_stav'] ?? '' ) )
+	            : esc_html( sprintf( 'Import hotov — nových akcí: %d.', (int) $_GET['import'] ) ); ?>
+	        </p></div>
+	      <?php endif; ?>
+
+	      <div class="sez-panel">
+	        <h3 style="margin-top:0">Automatický import z kalendáře Automotodromu</h3>
+	        <p class="description" style="max-width:760px">
+	          Jednou týdně se načte <a href="https://www.automotodrombrno.cz/kalendar-akci/zavody/" target="_blank" rel="noopener">výpis závodů</a>
+	          a nové termíny se sem zapíšou jako <strong>nepublikované</strong>. Zdroj neumí němčinu a angličtinu má jen
+	          na detailech akcí, takže překlady je potřeba doplnit ručně — proto se nic nezveřejní samo.
+	        </p>
+	        <p>
+	          <label><input type="checkbox" name="<?php echo $O; ?>[import_aktivni]" value="1" <?php checked( ! empty( $s['import_aktivni'] ) ); ?>> Kontrolovat kalendář jednou týdně</label>
+	        </p>
+	        <p>
+	          <label>Nejvíc připravovaných akcí na webu
+	            <input type="number" min="1" max="50" style="width:80px" name="<?php echo $O; ?>[max_pripravovanych]" value="<?php echo esc_attr( (string) ( $s['max_pripravovanych'] ?? 5 ) ); ?>">
+	          </label>
+	          <span class="description">Publikované akce nad tímto počtem zůstanou uložené, ale na web se nedostanou.</span>
+	        </p>
+	        <p class="sez-panel-stav">
+	          <?php if ( ! empty( $s['import_posledni'] ) ) : ?>
+	            Poslední běh: <strong><?php echo esc_html( $s['import_posledni'] ); ?></strong> — <?php echo esc_html( (string) ( $s['import_stav'] ?? '' ) ); ?>
+	          <?php else : ?>
+	            Import zatím neproběhl.
+	          <?php endif; ?>
+	          <?php $dalsi = wp_next_scheduled( 'garry_sez_tydenni_import' ); ?>
+	          <?php if ( $dalsi ) : ?>
+	            <br>Další běh: <?php echo esc_html( wp_date( 'j. n. Y H:i', $dalsi ) ); ?>
+	          <?php endif; ?>
+	        </p>
+	        <p>
+	          <a class="button" href="<?php echo esc_url( wp_nonce_url( admin_url( 'admin-post.php?action=garry_sez_import_ted&back=' . urlencode( $page_slug ) ), 'garry_sez_import_ted' ) ); ?>">Načíst kalendář teď</a>
+	          <span class="description">Změny v tomhle panelu uložte tlačítkem dole; ruční načtení běží zvlášť.</span>
+	        </p>
+	      </div>
+
+	      <?php
+	      list( $pripravovane, $uplynule ) = garry_sez_rozdel_akce( $events );
+	      $max_zobrazenych = (int) ( $s['max_pripravovanych'] ?? 5 );
+	      $poradi_publikovanych = 0;
+
+	      /* Vykreslení jedné akce. Pořadí polí v odeslaném formuláři musí sedět
+	         napříč oběma skupinami, proto se obě vypisují do stejné fronty. */
+	      $poradi_pole = 0;
+	      $vykresli = function ( $ev ) use ( $O, $states, &$poradi_publikovanych, &$poradi_pole, $max_zobrazenych ) {
+	        $chybi = garry_sez_chybi( $ev );
+	        $je_nova = ! empty( $ev['nova'] );
+	        $je_publ = ! empty( $ev['publikovano'] );
+	        $na_webu = false;
+	        if ( $je_publ ) {
+	          $poradi_publikovanych++;
+	          $na_webu = $poradi_publikovanych <= $max_zobrazenych;
+	        }
+	        $tridy = 'sez-event' . ( $je_nova ? ' je-nova' : '' ) . ( $je_publ ? ' je-publikovana' : ' je-skryta' ) . ( $na_webu ? ' je-na-webu' : '' );
+	        $pole = function ( $klic ) use ( $chybi ) { return isset( $chybi[ $klic ] ) ? ' sez-chybi' : ''; };
+	        ?>
+	      <details class="<?php echo esc_attr( $tridy ); ?>" <?php echo $je_nova ? 'open' : ''; ?>>
+	        <summary>
+	          <span class="sez-znacka" aria-hidden="true"></span>
 	          <strong class="sez-sum-name"><?php echo esc_html( $ev['cz'] ?: 'Nová akce' ); ?></strong>
 	          <span class="sez-sum-meta description"><?php echo esc_html( trim( ( $ev['od'] ?: '' ) . ( $ev['do'] && $ev['do'] !== $ev['od'] ? ' – ' . $ev['do'] : '' ) ) ); ?></span>
+	          <?php if ( $je_nova ) : ?>
+	            <span class="sez-odznak sez-odznak--nova">Nová akce</span>
+	          <?php endif; ?>
+	          <?php if ( $chybi ) : ?>
+	            <span class="sez-odznak sez-odznak--chybi"><?php printf( 'Chybí %d %s', count( $chybi ), count( $chybi ) === 1 ? 'položka' : ( count( $chybi ) < 5 ? 'položky' : 'položek' ) ); ?></span>
+	          <?php endif; ?>
+	          <?php if ( $na_webu ) : ?>
+	            <span class="sez-odznak sez-odznak--web" title="Zobrazuje se na webu">● Na webu</span>
+	          <?php elseif ( $je_publ ) : ?>
+	            <span class="sez-odznak sez-odznak--nad-limit" title="Publikovaná, ale nad nastaveným limitem">Publikovaná (nad limit)</span>
+	          <?php else : ?>
+	            <span class="sez-odznak sez-odznak--skryta">Nepublikovaná</span>
+	          <?php endif; ?>
 	        </summary>
+	        <?php if ( $chybi ) : ?>
+	          <p class="sez-hlaska">Před publikací doplňte: <strong><?php echo esc_html( implode( ', ', $chybi ) ); ?></strong>. Červeně podbarvená pole jsou prázdná.</p>
+	        <?php endif; ?>
+	        <div class="sez-publikace">
+	          <label><input type="checkbox" name="<?php echo $O; ?>[events][publikovano][<?php echo (int) $poradi_pole; ?>]" value="1" <?php checked( $je_publ ); ?> class="sez-publ"> <strong>Publikovat na webu</strong></label>
+	          <input type="hidden" name="<?php echo $O; ?>[events][nova][<?php echo (int) $poradi_pole; ?>]" value="<?php echo $je_nova ? 1 : 0; ?>">
+	          <input type="hidden" name="<?php echo $O; ?>[events][zdroj][<?php echo (int) $poradi_pole; ?>]" value="<?php echo esc_attr( $ev['zdroj'] ?? 'rucne' ); ?>">
+	          <input type="hidden" name="<?php echo $O; ?>[events][nacteno][<?php echo (int) $poradi_pole; ?>]" value="<?php echo esc_attr( $ev['nacteno'] ?? '' ); ?>">
+	          <?php if ( ! empty( $ev['nacteno'] ) ) : ?>
+	            <span class="description">Načteno z kalendáře Automotodromu <?php echo esc_html( $ev['nacteno'] ); ?></span>
+	          <?php endif; ?>
+	        </div>
 	        <div class="sez-event-body" style="padding-top:10px;border-top:1px solid #eee;margin-top:8px">
 	        <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin-bottom:10px">
 	          <label>Od <input type="date" name="<?php echo $O; ?>[events][od][]" value="<?php echo esc_attr( $ev['od'] ); ?>"></label>
@@ -354,28 +533,45 @@ function garry_sez_admin_page() {
 	          <label>Obsazenost <select name="<?php echo $O; ?>[events][stav][]" class="sez-ev-stav">
 	            <?php foreach ( $states as $k => $st ) printf( '<option value="%s" %s>%s</option>', esc_attr( $k ), selected( $ev['stav'], $k, false ), esc_html( $st['cz'] ) ); ?>
 	          </select></label>
-	          <label style="flex:1;min-width:260px">Detail akce (URL na autodrom) <input type="url" style="width:100%" name="<?php echo $O; ?>[events][url][]" value="<?php echo esc_attr( $ev['url'] ?? '' ); ?>" placeholder="https://www.automotodrombrno.cz/…"></label>
+	          <label style="flex:1;min-width:240px">Detail akce — CZ <input type="url" style="width:100%" name="<?php echo $O; ?>[events][url][]" value="<?php echo esc_attr( $ev['url'] ?? '' ); ?>" placeholder="https://www.automotodrombrno.cz/…"></label>
+	          <label style="flex:1;min-width:240px">Detail akce — EN <input type="url" style="width:100%" name="<?php echo $O; ?>[events][url_en][]" value="<?php echo esc_attr( $ev['url_en'] ?? '' ); ?>" placeholder="https://www.automotodrombrno.cz/en/…"><span class="description">Použije se pro anglickou i německou verzi webu — zdroj němčinu nemá.</span></label>
 	          <button type="button" class="button-link sez-ev-del" style="color:#b32d2e;margin-left:auto">Smazat akci ×</button>
 	        </div>
 	        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:8px">
 	          <label>Název CZ<input type="text" style="width:100%" name="<?php echo $O; ?>[events][cz][]" value="<?php echo esc_attr( $ev['cz'] ); ?>"></label>
-	          <label>Název EN<input type="text" style="width:100%" name="<?php echo $O; ?>[events][en][]" value="<?php echo esc_attr( $ev['en'] ); ?>"></label>
-	          <label>Název DE<input type="text" style="width:100%" name="<?php echo $O; ?>[events][de][]" value="<?php echo esc_attr( $ev['de'] ); ?>"></label>
+	          <label class="sez-pole<?php echo $pole( 'en' ); ?>">Název EN<input type="text" style="width:100%" name="<?php echo $O; ?>[events][en][]" value="<?php echo esc_attr( $ev['en'] ); ?>"></label>
+	          <label class="sez-pole<?php echo $pole( 'de' ); ?>">Název DE<input type="text" style="width:100%" name="<?php echo $O; ?>[events][de][]" value="<?php echo esc_attr( $ev['de'] ); ?>"></label>
 	        </div>
 	        <div style="display:grid;grid-template-columns:1fr;gap:8px">
-	          <label>Perex CZ<input type="text" style="width:100%" name="<?php echo $O; ?>[events][pcz][]" value="<?php echo esc_attr( $ev['pcz'] ); ?>" placeholder="Krátká věta do seznamu akcí"></label>
-	          <label>Perex EN<input type="text" style="width:100%" name="<?php echo $O; ?>[events][pen][]" value="<?php echo esc_attr( $ev['pen'] ); ?>"></label>
-	          <label>Perex DE<input type="text" style="width:100%" name="<?php echo $O; ?>[events][pde][]" value="<?php echo esc_attr( $ev['pde'] ); ?>"></label>
+	          <label class="sez-pole<?php echo $pole( 'pcz' ); ?>">Perex CZ<input type="text" style="width:100%" name="<?php echo $O; ?>[events][pcz][]" value="<?php echo esc_attr( $ev['pcz'] ); ?>" placeholder="Krátká věta do seznamu akcí"></label>
+	          <label class="sez-pole<?php echo $pole( 'pen' ); ?>">Perex EN<input type="text" style="width:100%" name="<?php echo $O; ?>[events][pen][]" value="<?php echo esc_attr( $ev['pen'] ); ?>"></label>
+	          <label class="sez-pole<?php echo $pole( 'pde' ); ?>">Perex DE<input type="text" style="width:100%" name="<?php echo $O; ?>[events][pde][]" value="<?php echo esc_attr( $ev['pde'] ); ?>"></label>
 	        </div>
 	        <p class="description" style="margin:8px 0 4px">Detailní popis („O akci") — zobrazuje se v kartách akcí na stránce Sezóna:</p>
 	        <div style="display:grid;grid-template-columns:1fr;gap:6px">
-	          <label>O akci CZ<textarea style="width:100%" rows="2" name="<?php echo $O; ?>[events][dcz][]"><?php echo esc_textarea( $ev['dcz'] ?? '' ); ?></textarea></label>
-	          <label>O akci EN<textarea style="width:100%" rows="2" name="<?php echo $O; ?>[events][den][]"><?php echo esc_textarea( $ev['den'] ?? '' ); ?></textarea></label>
-	          <label>O akci DE<textarea style="width:100%" rows="2" name="<?php echo $O; ?>[events][dde][]"><?php echo esc_textarea( $ev['dde'] ?? '' ); ?></textarea></label>
+	          <label class="sez-pole<?php echo $pole( 'dcz' ); ?>">O akci CZ<textarea style="width:100%" rows="2" name="<?php echo $O; ?>[events][dcz][]"><?php echo esc_textarea( $ev['dcz'] ?? '' ); ?></textarea></label>
+	          <label class="sez-pole<?php echo $pole( 'den' ); ?>">O akci EN<textarea style="width:100%" rows="2" name="<?php echo $O; ?>[events][den][]"><?php echo esc_textarea( $ev['den'] ?? '' ); ?></textarea></label>
+	          <label class="sez-pole<?php echo $pole( 'dde' ); ?>">O akci DE<textarea style="width:100%" rows="2" name="<?php echo $O; ?>[events][dde][]"><?php echo esc_textarea( $ev['dde'] ?? '' ); ?></textarea></label>
 	        </div>
 	        </div>
+	      
 	      </details>
-	      <?php endforeach; ?>
+	        <?php
+	      };
+	      ?>
+
+	      <h3 class="sez-skupina">Připravované akce <span class="description">(<?php echo count( $pripravovane ); ?>)</span></h3>
+	      <p class="description" style="margin-top:-6px">Na webu se vypíše nejvýš <strong><?php echo (int) $max_zobrazenych; ?></strong> publikovaných, seřazených podle data.</p>
+	      <?php foreach ( $pripravovane as $ev ) { $vykresli( $ev ); $poradi_pole++; } ?>
+	      <?php if ( ! $pripravovane ) : ?><p class="description">Žádná připravovaná akce.</p><?php endif; ?>
+
+	      <?php if ( $uplynule ) : ?>
+	        <details class="sez-uplynule">
+	          <summary><h3 class="sez-skupina">Uplynulé akce <span class="description">(<?php echo count( $uplynule ); ?>)</span></h3></summary>
+	          <p class="description">Na web se nedostanou, ať jsou publikované, nebo ne. Zůstávají tu kvůli historii a pro případ, že se termín opakuje.</p>
+	          <?php foreach ( $uplynule as $ev ) { $vykresli( $ev ); $poradi_pole++; } ?>
+	        </details>
+	      <?php endif; ?>
 	      <p style="display:flex;gap:8px;flex-wrap:wrap"><button type="button" class="button" id="sez-ev-add">+ Přidat akci</button>
 	      <button type="button" class="button" id="sez-expand">Rozbalit vše</button>
 	      <button type="button" class="button" id="sez-collapse">Sbalit vše</button></p>
@@ -470,8 +666,19 @@ function garry_sez_admin_page() {
 	    var sn=c.querySelector('.sez-sum-name'); if(sn) sn.textContent='Nová akce';
 	    var sm=c.querySelector('.sez-sum-meta'); if(sm) sm.textContent='';
 	    evWrap.insertBefore(c, cards[cards.length-1].nextSibling);
+	    preindexuj();
 	    preview();
 	  });
+	  /* Zaškrtávátko „publikovat" a skrytá pole mají pevný index, protože
+	     nezaškrtnutý checkbox se vůbec neodešle a pořadí by se rozešlo se
+	     zbytkem formuláře. Po přidání i smazání karty se proto přečíslují. */
+	  function preindexuj(){
+	    evWrap.querySelectorAll('.sez-event').forEach(function(karta,i){
+	      karta.querySelectorAll('input[name*="[events]["]').forEach(function(pole){
+	        pole.name = pole.name.replace(/\[(publikovano|nova|zdroj|nacteno)\]\[\d*\]/, '[$1][' + i + ']');
+	      });
+	    });
+	  }
 	  document.getElementById('sez-expand').addEventListener('click', function(){ evWrap.querySelectorAll('.sez-event').forEach(function(d){ d.setAttribute('open',''); }); });
 	  document.getElementById('sez-collapse').addEventListener('click', function(){ evWrap.querySelectorAll('.sez-event').forEach(function(d){ d.removeAttribute('open'); }); });
 	  /* souhrn karty se aktualizuje při psaní */
@@ -487,6 +694,7 @@ function garry_sez_admin_page() {
 	      var cards=evWrap.querySelectorAll('.sez-event');
 	      if(cards.length>1) e.target.closest('.sez-event').remove();
 	      else e.target.closest('.sez-event').querySelectorAll('input').forEach(function(i){ i.value=''; });
+	      preindexuj();
 	      preview();
 	    }
 	    if(e.target.classList.contains('sez-st-del')){
@@ -577,12 +785,20 @@ function garry_sez_render( $atts = array() ) {
 	$show_list  = ( $rezim === 'seznam' || $rezim === 'vse' );
 	$s = garry_sez_get(); $STATES = garry_sez_states(); $li = garry_sez_lang_idx();
 	$today = current_time( 'Y-m-d' );
+	/* Na web jdou jen publikované a jen připravované — uplynulé zůstávají
+	   v administraci kvůli historii, návštěvníkovi by jen zabíraly místo. */
 	$events = array_values( array_filter( $s['events'], function ( $e ) use ( $today ) {
+		if ( empty( $e['publikovano'] ) ) return false;
 		$konec = $e['do'] ?: $e['od'];
 		return $konec === '' || $konec >= $today;
 	} ) );
 	usort( $events, function ( $x, $y ) { return strcmp( $x['od'], $y['od'] ); } );
-	if ( (int) $a['limit'] > 0 ) $events = array_slice( $events, 0, (int) $a['limit'] );
+	/* Počet řídí nastavení pluginu. Atribut shortcodu ho přebije jen kladnou
+	   hodnotou — stránky mají v obsahu limit="0", což dřív znamenalo „bez
+	   omezení"; teď to znamená „použij nastavení", jinak by se počet nedal
+	   změnit bez zásahu do Divi obsahu. */
+	$limit = (int) $a['limit'] > 0 ? (int) $a['limit'] : (int) ( $s['max_pripravovanych'] ?? 5 );
+	if ( $limit > 0 ) $events = array_slice( $events, 0, $limit );
 	if ( ! $events ) return '<style>#sezona{display:none}</style>';
 
 	$T = array(
@@ -630,7 +846,7 @@ function garry_sez_render( $atts = array() ) {
 	    <?php $detail = $e[ array( 'dcz', 'den', 'dde' )[ $li ] ] ?? ''; if ( $detail === '' ) $detail = ( $e['dcz'] ?? '' ) ?: $perex; ?>
 	    <p><?php echo esc_html( $detail ); ?></p>
 	    <div class="sez-card-links">
-	      <?php if ( ! empty( $e['url'] ) ) : ?><a class="sec-more" href="<?php echo esc_url( $e['url'] ); ?>" target="_blank" rel="noopener"><?php echo esc_html( $tx[0] ); ?> <span aria-hidden="true">↗</span></a><?php endif; ?>
+	      <?php $odkaz_akce = garry_sez_url_akce( $e, $li ); ?><?php if ( $odkaz_akce ) : ?><a class="sec-more" href="<?php echo esc_url( $odkaz_akce ); ?>" target="_blank" rel="noopener"><?php echo esc_html( $tx[0] ); ?> <span aria-hidden="true">↗</span></a><?php endif; ?>
 	      <a class="sec-more" href="#cekaci-list"><?php echo esc_html( $tx[1] ); ?> <span aria-hidden="true">↓</span></a>
 	    </div>
 	  </div>
@@ -646,7 +862,7 @@ function garry_sez_render( $atts = array() ) {
 			$st = $STATES[ $e['stav'] ] ?? null; if ( ! $st ) continue; ?>
 	    <div class="ev-row" role="button" tabindex="0" data-ev="<?php echo esc_attr( $name ); ?>">
 	      <span class="ev-date"><?php echo esc_html( garry_sez_fmt_range( $e['od'], $e['do'] ) ); ?></span>
-	      <span class="ev-name"><?php echo esc_html( $name ); ?><small><?php echo esc_html( $perex ); ?><?php if ( ! empty( $e['url'] ) ) : ?> <a class="ev-ext" href="<?php echo esc_url( $e['url'] ); ?>" target="_blank" rel="noopener" onclick="event.stopPropagation()">↗</a><?php endif; ?></small></span>
+	      <span class="ev-name"><?php echo esc_html( $name ); ?><small><?php echo esc_html( $perex ); ?><?php $odkaz_akce = garry_sez_url_akce( $e, $li ); ?><?php if ( $odkaz_akce ) : ?> <a class="ev-ext" href="<?php echo esc_url( $odkaz_akce ); ?>" target="_blank" rel="noopener" onclick="event.stopPropagation()">↗</a><?php endif; ?></small></span>
 	      <span class="ev-meta"><span class="ev-status <?php echo esc_attr( sanitize_html_class( $e['stav'] ) . ' ' . $st['legacy'] ); ?>"><?php echo esc_html( garry_sez_state_label( $st, $li ) ); ?></span>
 	      <span class="ev-cta"><?php echo esc_html( garry_sez_state_cta( $st, $li ) ); ?></span></span>
 	    </div>
@@ -854,6 +1070,9 @@ add_filter( 'fluentform/rendering_field_data_select', function ( $data, $form ) 
 	$today = current_time( 'Y-m-d' );
 	$opts = array();
 	foreach ( garry_sez_get()['events'] as $e ) {
+		/* Nepublikovaná akce se nesmí nabízet ani tady — čekací list by přijímal
+		   přihlášky na termín, který na webu ještě není. */
+		if ( empty( $e['publikovano'] ) ) continue;
 		if ( ( ( $e['do'] ?: $e['od'] ) ) < $today ) continue;
 		$name = $e[ array( 'cz', 'en', 'de' )[ $li ] ] ?: $e['cz'];
 		if ( $name === '' ) continue;
