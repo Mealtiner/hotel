@@ -156,8 +156,31 @@ function gflb_admin_page() {
 					   <label class="gflb-roh">aktivní bod <?php gflb_pole_barva( $n, 'ukazatel_barva_aktiv' ); ?></label>
 					   <label class="gflb-roh">číslo <?php gflb_pole_barva( $n, 'ukazatel_barva_cislo' ); ?></label></p>
 				</td></tr>
-				<tr><th scope="row">Nejvíc bodů</th><td>
-					<?php gflb_pole_text( $n, 'ukazatel_max_bodu', 'Nad tímto počtem snímků se body skryjí a zůstane jen postupová čára — jinak by se slily do nečitelné řady.', 'number', 'min="2" max="200"' ); ?>
+				<tr><th scope="row">Bodů v jednom okně</th><td>
+					<?php gflb_pole_prepinac( $n, 'ukazatel_auto', 'Spočítat podle skutečné šířky ukazatele' ); ?>
+					<p><?php gflb_pole_text( $n, 'ukazatel_max_bodu', '', 'number', 'min="2" max="200"' ); ?></p>
+					<p class="description">
+						U delších sérií se body nezmenšují, ale stránkují po oknech — jinak by se čísla
+						slila a přestala splňovat čitelnost podle WCAG. Sousední okna sdílejí krajní bod,
+						takže poslední bod jednoho okna je prvním bodem dalšího (1–20, 20–39, 39–58…).
+						Se zapnutým automatickým výpočtem je tohle číslo horní strop; na užší obrazovce
+						se okno samo zmenší.
+					</p>
+				</td></tr>
+			</table>
+
+			<h2 class="title">Náhledy pod ukazatelem</h2>
+			<table class="form-table" role="presentation">
+				<tr><th scope="row">Zobrazit</th><td>
+					<?php gflb_pole_prepinac( $n, 'nahledy_zobrazit', 'Zobrazit pás náhledů celé série' ); ?>
+					<p class="description">Pás se posouvá tak, aby aktivní snímek zůstal na třetí pozici zleva — dva náhledy dozadu, tři dopředu.</p>
+				</td></tr>
+				<tr><th scope="row">Výška náhledu</th><td><?php gflb_pole_text( $n, 'nahledy_vyska', 'V pixelech.', 'number', 'min="28" max="160"' ); ?></td></tr>
+				<tr><th scope="row">Mezera</th><td><?php gflb_pole_text( $n, 'nahledy_mezera', 'V pixelech.', 'number', 'min="0" max="40"' ); ?></td></tr>
+				<tr><th scope="row">Krytí neaktivních</th><td><?php gflb_pole_text( $n, 'nahledy_kryti', 'V procentech.', 'number', 'min="0" max="100"' ); ?></td></tr>
+				<tr><th scope="row">Rámeček aktivního</th><td>
+					<?php gflb_pole_barva( $n, 'nahledy_ramecek' ); ?>
+					<p class="description">Prázdné pole = převezme barvu aktivního bodu ukazatele.</p>
 				</td></tr>
 			</table>
 

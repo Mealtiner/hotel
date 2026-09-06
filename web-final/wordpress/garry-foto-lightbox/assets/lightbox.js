@@ -37,12 +37,17 @@
 		var sipkaVlevo = box.querySelector('.glb-sipka--vlevo');
 		var sipkaVpravo = box.querySelector('.glb-sipka--vpravo');
 		var tlacitkoZavrit = box.querySelector('.glb-zavrit');
+		var panelNahledu = box.querySelector('.glb-nahledy');
+		var pasNahledu = box.querySelector('.glb-nahledy-pas');
 
 		var polozky = [];      // aktuální skupina snímků
 		var index = 0;
 		var puvodniOhnisko = null;
 		var casovacAutoplay = null;
 		var puvodniHash = '';
+		var okno = 0;            // index okna bodů ukazatele
+		var naOkno = 20;         // kolik bodů se do jednoho okna vejde
+		var bezAnimace = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
 		/* ---------- nastavení do CSS proměnných ---------- */
 		function nastavStyl() {
@@ -67,6 +72,10 @@
 			s.setProperty('--glb-sipka-velikost', cislo('sipkyVelikost', 44) + 'px');
 			s.setProperty('--glb-zavrit-barva', d.zavritBarva || '#fff');
 			s.setProperty('--glb-zavrit-hover', d.zavritHover || '#ff5a50');
+			s.setProperty('--glb-nahled-vyska', cislo('nahledVyska', 56) + 'px');
+			s.setProperty('--glb-nahled-kryti', String(cislo('nahledKryti', 0.45)));
+			s.setProperty('--glb-nahled-mezera', cislo('nahledMezera', 10) + 'px');
+			s.setProperty('--glb-nahled-ramecek', d.nahledRamecek || d.uAktiv || '#ff5a50');
 			box.setAttribute('data-styl-sipek', d.sipkyStyl || 'kruh');
 			box.setAttribute('data-pozice-loga', d.logoPozice || 'vlevo-nahore');
 			if (logo && !ano('logo') && !d.logo) { logo.hidden = true; }
@@ -146,39 +155,78 @@
 				.trim();
 		}
 
-		/* ---------- ukazatel pořadí ---------- */
+		/* ---------- ukazatel pořadí ----------
+		   Body se u delších sérií nezmenšují, ale stránkují po oknech. Okna se
+		   překrývají o jeden snímek, takže poslední bod jednoho okna je prvním
+		   bodem následujícího a čtenář má o skoku vodítko. */
+
+		/** Kolik bodů se vejde, aby se čísla nedotýkala a text zůstal čitelný. */
+		function spocitejOkno() {
+			var strop = Math.max(2, cislo('uMax', 20));
+			if (!ano('uAuto')) { return strop; }
+			var ukaz = box.querySelector('.glb-ukazatel');
+			var sirka = ukaz.clientWidth - 2 * parseFloat(getComputedStyle(ukaz).paddingLeft || 0);
+			// Slot = bod (12 px) + nejširší dvouciferné číslo (11 px font) + odstup.
+			// Pod 782 px se čísla u neaktivních bodů skrývají, stačí užší slot.
+			var slot = window.innerWidth <= 782 ? 24 : 38;
+			var vejde = Math.floor(sirka / slot) + 1;
+			return Math.max(2, Math.min(strop, vejde));
+		}
+
+		/** Rozsah okna, do kterého patří daný snímek. Okna sdílejí krajní bod. */
+		function oknoProIndex(i) {
+			var krok = Math.max(1, naOkno - 1);
+			return Math.min(Math.floor(i / krok), Math.max(0, Math.ceil((polozky.length - 1) / krok) - 1));
+		}
+
+		function rozsahOkna(o) {
+			var krok = Math.max(1, naOkno - 1);
+			var od = o * krok;
+			return { od: od, do: Math.min(polozky.length - 1, od + krok) };
+		}
+
 		function postavUkazatel() {
-			seznamBodu.innerHTML = '';
 			var ukaz = box.querySelector('.glb-ukazatel');
 			if (!ano('ukazatel') || polozky.length < 2) { ukaz.hidden = true; return; }
 			ukaz.hidden = false;
-			var max = cislo('uMax', 24);
-			// Nad nastavený počet by se body slily do nečitelné řady — zůstane jen čára.
-			box.classList.toggle('glb-bez-bodu', polozky.length > max);
-			if (polozky.length > max) { return; }
-			polozky.forEach(function (_, i) {
-				var li = document.createElement('li');
-				var b = document.createElement('button');
-				b.type = 'button';
-				b.className = 'glb-bod';
-				b.setAttribute('aria-label', String(i + 1));
-				b.addEventListener('click', function () { jdi(i); });
-				li.appendChild(b);
-				if (ano('ukazatelCisla')) {
-					var num = document.createElement('span');
-					num.className = 'glb-cislo';
-					num.setAttribute('aria-hidden', 'true');
-					num.textContent = String(i + 1);
-					li.appendChild(num);
-				}
-				seznamBodu.appendChild(li);
-			});
+			naOkno = spocitejOkno();
+			okno = oknoProIndex(index);
+			vykresliOkno();
+		}
+
+		function vykresliOkno() {
+			var r = rozsahOkna(okno);
+			seznamBodu.innerHTML = '';
+			for (var i = r.od; i <= r.do; i++) {
+				(function (poradi) {
+					var li = document.createElement('li');
+					var b = document.createElement('button');
+					b.type = 'button';
+					b.className = 'glb-bod';
+					b.setAttribute('aria-label', String(poradi + 1));
+					b.addEventListener('click', function () { jdi(poradi); });
+					li.appendChild(b);
+					if (ano('ukazatelCisla')) {
+						var num = document.createElement('span');
+						num.className = 'glb-cislo';
+						num.setAttribute('aria-hidden', 'true');
+						num.textContent = String(poradi + 1);
+						li.appendChild(num);
+					}
+					seznamBodu.appendChild(li);
+				})(i);
+			}
 		}
 
 		function obnovUkazatel() {
-			var pomer = polozky.length > 1 ? index / (polozky.length - 1) : 1;
-			vypln.style.width = (pomer * 100) + '%';
-			Array.prototype.forEach.call(seznamBodu.children, function (li, i) {
+			if (box.querySelector('.glb-ukazatel').hidden) { return; }
+			var noveOkno = oknoProIndex(index);
+			if (noveOkno !== okno) { okno = noveOkno; vykresliOkno(); }
+			var r = rozsahOkna(okno);
+			var rozpeti = Math.max(1, r.do - r.od);
+			vypln.style.width = ((index - r.od) / rozpeti * 100) + '%';
+			Array.prototype.forEach.call(seznamBodu.children, function (li, poz) {
+				var i = r.od + poz;
 				li.classList.toggle('je-aktivni', i === index);
 				li.classList.toggle('je-hotovy', i < index);
 				var b = li.querySelector('.glb-bod');
@@ -186,20 +234,81 @@
 			});
 		}
 
+		/* ---------- pás náhledů ---------- */
+		function postavNahledy() {
+			if (!ano('nahledy') || polozky.length < 2) { panelNahledu.hidden = true; return; }
+			panelNahledu.hidden = false;
+			pasNahledu.innerHTML = '';
+			polozky.forEach(function (a, i) {
+				var zdroj = a.getAttribute('data-nahled');
+				var img = a.querySelector('img');
+				if (!zdroj && img) { zdroj = img.currentSrc || img.src; }
+				if (!zdroj) { zdroj = a.getAttribute('href'); }
+				var b = document.createElement('button');
+				b.type = 'button';
+				b.className = 'glb-nahled';
+				b.setAttribute('aria-label', String(i + 1));
+				var n = document.createElement('img');
+				n.src = zdroj;
+				n.alt = '';
+				n.loading = 'lazy';
+				b.appendChild(n);
+				b.addEventListener('click', function () { jdi(i); });
+				pasNahledu.appendChild(b);
+			});
+		}
+
+		/** Aktivní náhled drží třetí pozici zleva: dva dozadu, tři dopředu. */
+		function obnovNahledy() {
+			if (panelNahledu.hidden) { return; }
+			var deti = pasNahledu.children;
+			for (var i = 0; i < deti.length; i++) {
+				deti[i].classList.toggle('je-aktivni', i === index);
+				deti[i].setAttribute('aria-current', i === index ? 'true' : 'false');
+			}
+			var akt = deti[index];
+			if (!akt) { return; }
+			var krok = akt.offsetWidth + cislo('nahledMezera', 10);
+			var cil = Math.max(0, akt.offsetLeft - 2 * krok);
+			var max = pasNahledu.scrollWidth - pasNahledu.clientWidth;
+			pasNahledu.scrollLeft = Math.min(cil, Math.max(0, max));
+		}
+
 		/* ---------- zobrazení snímku ---------- */
 		function jdi(i) {
 			if (!polozky.length) { return; }
+			var predchozi = index;
 			if (ano('smycka')) {
 				index = (i + polozky.length) % polozky.length;
 			} else {
 				index = Math.max(0, Math.min(polozky.length - 1, i));
 			}
+			if (index === predchozi && foto.getAttribute('src')) { return; }
+
+			// Směr určuje, na kterou stranu snímek odjede; při skoku přes konec
+			// smyčky se řídíme skutečným pořadím, ne rozdílem indexů.
+			var vpred = index > predchozi;
+			if (ano('smycka') && Math.abs(index - predchozi) === polozky.length - 1) { vpred = !vpred; }
+			vykresli(vpred);
+		}
+
+		function vykresli(vpred) {
 			var a = polozky[index];
 			var img = a.querySelector('img');
+			var novyZdroj = a.getAttribute('href');
 
-			box.classList.add('glb-nacita');
-			foto.src = a.getAttribute('href');
-			foto.alt = img ? (img.getAttribute('alt') || '') : '';
+			var nasad = function () {
+				box.classList.remove('glb-meni-vpred', 'glb-meni-vzad');
+				box.classList.add('glb-nacita');
+				foto.src = novyZdroj;
+				foto.alt = img ? (img.getAttribute('alt') || '') : '';
+			};
+			if (bezAnimace || !foto.getAttribute('src')) {
+				nasad();
+			} else {
+				box.classList.add(vpred ? 'glb-meni-vpred' : 'glb-meni-vzad');
+				setTimeout(nasad, 180);
+			}
 
 			if (ano('nadpis')) {
 				nadpis.textContent = vyplnSablonu(a, index, polozky.length);
@@ -221,6 +330,7 @@
 			}
 
 			obnovUkazatel();
+			obnovNahledy();
 			if (ano('predlozit')) { prednacti(index + 1); prednacti(index - 1); }
 			if (ano('hash')) {
 				try { history.replaceState(null, '', '#foto-' + (index + 1)); } catch (e) {}
@@ -246,11 +356,14 @@
 			puvodniOhnisko = document.activeElement;
 			puvodniHash = location.hash;
 			nastavStyl();
-			postavUkazatel();
 			var sipky = ano('sipky') && polozky.length > 1;
 			sipkaVlevo.hidden = !sipky;
 			sipkaVpravo.hidden = !sipky;
+			// Zviditelnit PŘED stavbou ukazatele: kolik bodů se vejde, se počítá
+			// ze skutečné šířky, a skrytý prvek ji má nulovou.
 			box.hidden = false;
+			postavUkazatel();
+			postavNahledy();
 			document.documentElement.classList.add('glb-otevreno');
 			jdi(index);
 			requestAnimationFrame(function () { box.classList.add('je-otevreno'); });
@@ -263,6 +376,7 @@
 			stopAutoplay();
 			var dokonci = function () {
 				box.hidden = true;
+				box.classList.remove('glb-meni-vpred', 'glb-meni-vzad', 'glb-nacita');
 				foto.removeAttribute('src');
 				box.removeEventListener('transitionend', dokonci);
 			};
@@ -331,6 +445,18 @@
 			e.preventDefault();
 			jdi(index + (e.deltaY > 0 ? 1 : -1));
 		}, { passive: false });
+
+		/* Změna šířky okna mění, kolik bodů se do ukazatele vejde. */
+		var casovacZmeny = null;
+		window.addEventListener('resize', function () {
+			if (box.hidden) { return; }
+			clearTimeout(casovacZmeny);
+			casovacZmeny = setTimeout(function () {
+				postavUkazatel();
+				obnovUkazatel();
+				obnovNahledy();
+			}, 150);
+		});
 
 		/* dotyková gesta */
 		var zacX = 0, zacY = 0;

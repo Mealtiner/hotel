@@ -26,8 +26,8 @@ function gflb_sanitize( $vstup ) {
 	$vstup   = is_array( $vstup ) ? $vstup : array();
 
 	$prepinace = array( 'logo_zobrazit', 'nadpis_zobrazit', 'popisek_zobrazit', 'ukazatel_zobrazit',
-		'ukazatel_cisla', 'sipky_zobrazit', 'smycka', 'klavesnice', 'gesta', 'kolecko',
-		'predlozit', 'hash', 'autoplay', 'aktivni' );
+		'ukazatel_cisla', 'ukazatel_auto', 'nahledy_zobrazit', 'sipky_zobrazit', 'smycka',
+		'klavesnice', 'gesta', 'kolecko', 'predlozit', 'hash', 'autoplay', 'aktivni' );
 	$vycty = array(
 		'pozadi_typ'       => array( 'solid', 'linear', 'radial', 'conic', 'rohy' ),
 		'logo_zdroj'       => array( 'web', 'priloha', 'url' ),
@@ -41,6 +41,8 @@ function gflb_sanitize( $vstup ) {
 		'pozadi_rozostreni' => array( 0, 40 ), 'logo_vyska' => array( 10, 200 ),
 		'logo_kryti' => array( 0, 100 ), 'nadpis_velikost' => array( 8, 40 ),
 		'popisek_velikost' => array( 8, 40 ), 'ukazatel_max_bodu' => array( 2, 200 ),
+		'nahledy_vyska' => array( 28, 160 ), 'nahledy_kryti' => array( 0, 100 ),
+		'nahledy_mezera' => array( 0, 40 ),
 		'sipky_velikost' => array( 20, 120 ), 'autoplay_ms' => array( 1000, 60000 ),
 		'logo_priloha' => array( 0, PHP_INT_MAX ),
 	);

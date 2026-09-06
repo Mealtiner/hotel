@@ -2,7 +2,7 @@
   "schema_version": "2.3",
   "slug": "garry-foto-lightbox",
   "name": "GARRY – Foto lightbox",
-  "plugin_version": "1.0.0",
+  "plugin_version": "1.1.0",
   "framework_protocol": "2.4.0",
   "framework_minimum": "2.4.0",
   "icon": {

@@ -3,7 +3,7 @@
  * Plugin Name:       GARRY – Foto lightbox
  * Plugin URI:        https://www.garry.cz
  * Description:       Lightbox pro fotogalerie s nastavitelným pozadím (plná barva i přechody), logem webu, popiskem nad snímkem, doprovodnými informacemi pod ním a vodorovným ukazatelem pořadí ve stylu trackovače na trati. Shortcode, Elementor widget i Divi modul.
- * Version:           1.0.0
+ * Version:           1.1.0
  * Author:            GARRY Promotion
  * Author URI:        https://www.garry.cz
  * License:           Proprietary — Copyright © GARRY Promotion
@@ -15,7 +15,7 @@
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
-define( 'GFLB_VERSION', '1.0.0' );
+define( 'GFLB_VERSION', '1.1.0' );
 define( 'GFLB_FILE', __FILE__ );
 define( 'GFLB_DIR', plugin_dir_path( __FILE__ ) );
 define( 'GFLB_URL', plugin_dir_url( __FILE__ ) );
@@ -93,7 +93,15 @@ function gflb_defaults() {
 		'ukazatel_barva_bod'   => 'rgba(255,255,255,.55)',
 		'ukazatel_barva_aktiv' => '#FF5A50',
 		'ukazatel_barva_cislo' => 'rgba(255,255,255,.55)',
-		'ukazatel_max_bodu'    => 24,      // nad tímto počtem se body skryjí a zůstane jen čára
+		'ukazatel_max_bodu'    => 20,      // nejvíc bodů v jednom okně ukazatele
+		'ukazatel_auto'        => 1,       // spočítat počet bodů podle skutečné šířky
+
+		/* --- náhledy pod ukazatelem --- */
+		'nahledy_zobrazit' => 0,
+		'nahledy_vyska'    => 56,     // px
+		'nahledy_kryti'    => 45,     // % pro neaktivní náhled
+		'nahledy_mezera'   => 10,     // px
+		'nahledy_ramecek'  => '',     // prázdné = převezme barvu aktivního bodu
 
 		/* --- šipky --- */
 		'sipky_zobrazit' => 1,
@@ -276,6 +284,12 @@ function gflb_render_kontejner() {
 		'u-aktiv'        => (string) $n['ukazatel_barva_aktiv'],
 		'u-cislo'        => (string) $n['ukazatel_barva_cislo'],
 		'u-max'          => (int) $n['ukazatel_max_bodu'],
+		'u-auto'         => (int) ! empty( $n['ukazatel_auto'] ),
+		'nahledy'        => (int) ! empty( $n['nahledy_zobrazit'] ),
+		'nahled-vyska'   => (int) $n['nahledy_vyska'],
+		'nahled-kryti'   => (int) $n['nahledy_kryti'] / 100,
+		'nahled-mezera'  => (int) $n['nahledy_mezera'],
+		'nahled-ramecek' => (string) ( $n['nahledy_ramecek'] !== '' ? $n['nahledy_ramecek'] : $n['ukazatel_barva_aktiv'] ),
 		'sipky'          => (int) ! empty( $n['sipky_zobrazit'] ),
 		'sipky-styl'     => (string) $n['sipky_styl'],
 		'sipky-barva'    => (string) $n['sipky_barva'],
@@ -320,7 +334,7 @@ function gflb_render_kontejner() {
       <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M15 4l-8 8 8 8"/></svg>
     </button>
     <figure class="glb-scena">
-      <img class="glb-foto" src="" alt="">
+      <span class="glb-ramec"><img class="glb-foto" src="" alt=""></span>
       <figcaption class="glb-popisek"></figcaption>
     </figure>
     <button type="button" class="glb-sipka glb-sipka--vpravo" aria-label="<?php echo $t['dalsi']; ?>">
@@ -332,6 +346,9 @@ function gflb_render_kontejner() {
     <span class="glb-vypln" aria-hidden="true"></span>
     <ol class="glb-body"></ol>
   </nav>
+  <div class="glb-nahledy" hidden>
+    <div class="glb-nahledy-pas"></div>
+  </div>
 </div>
 	<?php
 }
