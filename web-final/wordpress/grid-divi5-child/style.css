@@ -1854,6 +1854,30 @@ footer .socials a:hover{ color:var(--gold) !important; border-color:var(--gold) 
 @media(max-width:640px){ .gastro-menu-filter .gal-fbtn{ width:100%; text-align:left; } .gcard-menu-link{ margin-top:18px; } }
 
 /* ============================================================================
+   KARTY GASTRO PROVOZŮ — tlačítko na jídelníček na spodní hraně
+
+   Karty v řádku jsou stejně vysoké (mřížka je natahuje), ale tlačítko plavalo
+   podle délky textu — u kratší karty skončilo o 50 px výš. Sloupec karty se
+   proto roztáhne na celou výšku a tlačítko se odsune dolů automatickým horním
+   okrajem. Text tím zůstává nahoře a tlačítka sedí v jedné lince.
+   ============================================================================ */
+.gastro .gcard{display:flex;flex-direction:column}
+.gastro .gcard>.g-body{flex:1 1 auto;display:flex;flex-direction:column}
+.gastro .g-body>.et_pb_column{flex:1 1 auto;display:flex;flex-direction:column}
+/* Poslední modul ve sloupci je tlačítko — odsune se dolů a vycentruje. */
+.gastro .g-body .et_pb_button_module_wrapper:last-child{
+  margin-top:auto;
+  display:flex;
+  justify-content:center;
+  padding-top:26px;
+}
+/* Na mobilu je karta sama o sobě jen tak vysoká, jak je obsah — tam se
+   tlačítko nikam odsouvat nemá, jinak by vznikla prázdná díra. */
+@media(max-width:640px){
+  .gastro .g-body .et_pb_button_module_wrapper:last-child{margin-top:0;padding-top:20px}
+}
+
+/* ============================================================================
    JÍDELNÍČEK PROVOZŮ — sekce generované shortcodem [grid_menu_provozy]
    Vzhled patří do child theme, obsah a jeho výběr do pluginu.
    ============================================================================ */
