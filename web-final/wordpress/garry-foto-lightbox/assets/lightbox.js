@@ -387,7 +387,13 @@
 				.then(function (r) { return r.ok ? r.text() : Promise.reject(r.status); })
 				.then(function (html) {
 					var doc = new DOMParser().parseFromString(html, 'text/html');
-					var kontejner = doc.querySelector('[data-glb-dalsi]') || doc.body;
+					// Snímky bereme JEN z kontejneru, který sám pokračování nabízí. Kdyby
+					// se hledalo v celém dokumentu, řetěz by se mohl zapíchnout do jiné
+					// galerie na téže stránce a listovalo by se mimo řadu. Když cílová
+					// stránka takový kontejner nemá, do lightboxu ji netaháme a otevřeme
+					// ji normálně.
+					var kontejner = doc.querySelector('[data-glb-dalsi]');
+					if (!kontejner) { location.assign(cil); return; }
 					var sel = d.selektory || '[data-lightbox]';
 					var nove = [];
 					Array.prototype.forEach.call(kontejner.querySelectorAll(sel), function (el) {
