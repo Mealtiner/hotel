@@ -20,21 +20,57 @@ define( 'GARRY_SEZ_IMPORT_HOOK', 'garry_sez_tydenni_import' );
 /* ============================================================================
  * Plánování
  * ============================================================================ */
+/** Periody, ze kterých jde v administraci vybírat. */
+function garry_sez_periody() {
+	return array(
+		'daily'      => array( 'popisek' => 'Každý den',      'interval' => DAY_IN_SECONDS ),
+		'twicedaily' => array( 'popisek' => 'Dvakrát denně',  'interval' => 12 * HOUR_IN_SECONDS ),
+		'weekly'     => array( 'popisek' => 'Jednou týdně',   'interval' => WEEK_IN_SECONDS ),
+		'fortnightly'=> array( 'popisek' => 'Jednou za 14 dní', 'interval' => 2 * WEEK_IN_SECONDS ),
+		'monthly'    => array( 'popisek' => 'Jednou měsíčně', 'interval' => 30 * DAY_IN_SECONDS ),
+	);
+}
+
+function garry_sez_perioda() {
+	$n = garry_sez_get();
+	$p = (string) ( $n['import_perioda'] ?? 'weekly' );
+	return array_key_exists( $p, garry_sez_periody() ) ? $p : 'weekly';
+}
+
+/**
+ * Naplánuje import na zvolenou periodu.
+ *
+ * Když už úloha běží na jiné periodě, musí se nejdřív zrušit — wp_schedule_event()
+ * existující plán nepřepíše a změna nastavení by se nikdy neprojevila.
+ */
 function garry_sez_naplanuj_import() {
-	if ( ! wp_next_scheduled( GARRY_SEZ_IMPORT_HOOK ) ) {
-		/* Start v noci na neděli — v provozu hotelu nejklidnější okno. */
-		wp_schedule_event( strtotime( 'next sunday 3:20' ), 'weekly', GARRY_SEZ_IMPORT_HOOK );
+	$perioda = garry_sez_perioda();
+	$dalsi = wp_next_scheduled( GARRY_SEZ_IMPORT_HOOK );
+
+	if ( $dalsi ) {
+		$soucasna = wp_get_schedule( GARRY_SEZ_IMPORT_HOOK );
+		if ( $soucasna === $perioda ) return;
+		garry_sez_zrus_import();
 	}
+
+	/* Vždycky ve 3:20 ráno — v provozu hotelu nejklidnější okno. U delších
+	   period začínáme nejbližší nedělí, u denní hned zítra. */
+	$start = in_array( $perioda, array( 'daily', 'twicedaily' ), true )
+		? strtotime( 'tomorrow 3:20' )
+		: strtotime( 'next sunday 3:20' );
+	wp_schedule_event( $start, $perioda, GARRY_SEZ_IMPORT_HOOK );
 }
 function garry_sez_zrus_import() {
 	$dalsi = wp_next_scheduled( GARRY_SEZ_IMPORT_HOOK );
 	if ( $dalsi ) wp_unschedule_event( $dalsi, GARRY_SEZ_IMPORT_HOOK );
 }
 
-/* WordPress sám týdenní interval nezná (má hourly/twicedaily/daily). */
+/* WordPress sám zná jen hourly/twicedaily/daily — delší intervaly doplníme. */
 add_filter( 'cron_schedules', function ( $s ) {
-	if ( ! isset( $s['weekly'] ) ) {
-		$s['weekly'] = array( 'interval' => WEEK_IN_SECONDS, 'display' => 'Jednou týdně' );
+	foreach ( garry_sez_periody() as $klic => $p ) {
+		if ( ! isset( $s[ $klic ] ) ) {
+			$s[ $klic ] = array( 'interval' => $p['interval'], 'display' => $p['popisek'] );
+		}
 	}
 	return $s;
 } );

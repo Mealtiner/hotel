@@ -3,7 +3,7 @@
  * Plugin Name:       GARRY – Sezónní nabídka a čekací list
  * Plugin URI:        https://www.garry.cz
  * Description:       Spravuje sezónní akce, štítky dostupnosti a čekací formulář s lokálním logem poptávek. Nabídku a voucherový formulář vloží shortcody grid_season_events a grid_voucher_form; původně vytvořeno pro GRID Hotel. Pro odesílání je nutné správně nastavit WordPress e-mail a případně CAPTCHA.
- * Version:           2.7.0
+ * Version:           2.7.1
  * Author:            GARRY Promotion
  * Author URI:        https://www.garry.cz
  * License:           Proprietary — Copyright © GARRY Promotion
@@ -20,7 +20,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
  * GARRY – Sezóna & čekací list v2 — data
  * ============================================================================ */
 
-define( 'GARRY_SEZ_VER', '2.7.0' );
+define( 'GARRY_SEZ_VER', '2.7.1' );
 define( 'GARRY_SEZ_OPT', 'garry_sezona' );
 define( 'GARRY_SEZ_LOG', 'garry_sezona_log' );
 /**
@@ -93,6 +93,7 @@ function garry_sez_get() {
 		   atribut shortcodu, takže se to nedalo změnit bez zásahu do stránky. */
 		'max_pripravovanych' => 5,
 		'import_aktivni'  => 1,
+		'import_perioda'  => 'weekly',
 		'import_posledni' => '',
 		'import_stav'     => '',
 		'import_rucne'    => 0,
@@ -305,6 +306,8 @@ function garry_sez_sanitize( $in ) {
 
 	$out['max_pripravovanych'] = max( 1, min( 50, (int) ( $in['max_pripravovanych'] ?? 5 ) ) );
 	$out['import_aktivni'] = empty( $in['import_aktivni'] ) ? 0 : 1;
+	$periody = function_exists( 'garry_sez_periody' ) ? array_keys( garry_sez_periody() ) : array( 'weekly' );
+	$out['import_perioda'] = in_array( $in['import_perioda'] ?? '', $periody, true ) ? $in['import_perioda'] : 'weekly';
 	/* Stav posledního běhu zapisuje import, ne formulář — kdyby se přenášel
 	   skrytým polem, přepsal by ho každé uložení nastavení. */
 	foreach ( array( 'import_posledni', 'import_stav', 'import_rucne' ) as $k ) {
@@ -445,12 +448,23 @@ function garry_sez_admin_page() {
 	      <div class="sez-panel">
 	        <h3 style="margin-top:0">Automatický import z kalendáře Automotodromu</h3>
 	        <p class="description" style="max-width:760px">
-	          Jednou týdně se načte <a href="https://www.automotodrombrno.cz/kalendar-akci/zavody/" target="_blank" rel="noopener">výpis závodů</a>
+	          Ve zvoleném intervalu se načte <a href="https://www.automotodrombrno.cz/kalendar-akci/zavody/" target="_blank" rel="noopener">výpis závodů</a>
 	          a nové termíny se sem zapíšou jako <strong>nepublikované</strong>. Zdroj neumí němčinu a angličtinu má jen
 	          na detailech akcí, takže překlady je potřeba doplnit ručně — proto se nic nezveřejní samo.
 	        </p>
 	        <p>
-	          <label><input type="checkbox" name="<?php echo $O; ?>[import_aktivni]" value="1" <?php checked( ! empty( $s['import_aktivni'] ) ); ?>> Kontrolovat kalendář jednou týdně</label>
+	          <label><input type="checkbox" name="<?php echo $O; ?>[import_aktivni]" value="1" <?php checked( ! empty( $s['import_aktivni'] ) ); ?>> Kontrolovat kalendář automaticky</label>
+	          &nbsp;
+	          <label>Jak často
+	            <select name="<?php echo $O; ?>[import_perioda]">
+	              <?php foreach ( garry_sez_periody() as $klic => $perioda ) : ?>
+	                <option value="<?php echo esc_attr( $klic ); ?>" <?php selected( garry_sez_perioda(), $klic ); ?>>
+	                  <?php echo esc_html( $perioda['popisek'] ); ?>
+	                </option>
+	              <?php endforeach; ?>
+	            </select>
+	          </label>
+	          <span class="description">Vždy ve 3:20 ráno. Změna periody se projeví po uložení.</span>
 	        </p>
 	        <p>
 	          <label>Nejvíc připravovaných akcí na webu
@@ -465,8 +479,13 @@ function garry_sez_admin_page() {
 	            Import zatím neproběhl.
 	          <?php endif; ?>
 	          <?php $dalsi = wp_next_scheduled( 'garry_sez_tydenni_import' ); ?>
-	          <?php if ( $dalsi ) : ?>
+	          <?php if ( $dalsi ) :
+	            $periody = garry_sez_periody();
+	            $bezici = wp_get_schedule( 'garry_sez_tydenni_import' ); ?>
 	            <br>Další běh: <?php echo esc_html( wp_date( 'j. n. Y H:i', $dalsi ) ); ?>
+	            <?php if ( isset( $periody[ $bezici ] ) ) : ?>
+	              (<?php echo esc_html( mb_strtolower( $periody[ $bezici ]['popisek'] ) ); ?>)
+	            <?php endif; ?>
 	          <?php endif; ?>
 	        </p>
 	        <p>
