@@ -149,7 +149,13 @@ for pid, lang in UBYT.items():
         + modul_nadpis(S["dobre-vedet"]["nadpis"][i])
         + modul_text(U.dobre_vedet_html(lang)), 5, "T5")
 
-    nova = t1 + t2 + t3 + t4 + t5 + zaver
+    t6 = sekce("galerie", "sec sec-dark carbon sec-pad",
+        modul_text(f'<span class="kicker">{S["galerie"]["kicker"][i]}</span>')
+        + modul_nadpis(S["galerie"]["nadpis"][i])
+        + modul_text(f'<p class="sec-lead">{S["galerie"]["perex"][i]}</p>')
+        + modul_text('[grid_rooms_gallery sloupce="4" mezera="10"]'), 6, "T6")
+
+    nova = t1 + t2 + t3 + t4 + t5 + t6 + zaver
     io.open(f"{SP}/ub-out-{pid}.txt", "w", encoding="utf-8").write(nova)
     print(f"  ubytování {pid} ({lang}): {puv} -> {len(nova)}, sekci={nova.count('wp:divi/section {')}, "
           f"kotev={len(re.findall(chr(34)+'name'+chr(34)+':'+chr(34)+'id'+chr(34), nova))}")

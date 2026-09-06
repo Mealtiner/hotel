@@ -136,6 +136,14 @@ SEKCE = {
                    "Hotel and room amenities",
                    "Ausstattung des Hotels und der Zimmer"),
     },
+    "galerie": {
+        "kicker": ("T6 · Fotogalerie", "T6 · Photo gallery", "T6 · Fotogalerie"),
+        "nadpis": ("Všechny pokoje ve fotkách", "Every room in pictures",
+                   "Alle Zimmer in Bildern"),
+        "perex": ("Snímky ze všech pěti kategorií pohromadě. Kliknutím se otevřou ve velkém.",
+                  "Photos from all five categories together. Click to open them large.",
+                  "Aufnahmen aus allen fünf Kategorien zusammen. Ein Klick öffnet sie groß."),
+    },
     "dobre-vedet": {
         "kicker": ("T5 · Dobré vědět", "T5 · Good to know", "T5 · Gut zu wissen"),
         "nadpis": ("Podmínky pobytu", "Terms of stay", "Aufenthaltsbedingungen"),

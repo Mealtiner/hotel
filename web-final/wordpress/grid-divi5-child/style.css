@@ -630,7 +630,15 @@ Text Domain: grid-divi5-child
      které by znemožnilo pozdější přepsání v Divi Builderu. */
   .sec .room-table.room-table,.room-table{width:100%;border-collapse:collapse;font-size:.95rem;background:rgba(255,255,255,.03);border:1px solid var(--line-c);border-radius:2px;overflow:hidden}
   .sec-light .room-table{background:rgba(20,22,25,.02)}
-  .room-table th,.room-table td{text-align:left;padding:12px 14px;border-bottom:1px solid var(--line-c)}
+  /* Pevné rozložení: bez něj si sloupce prohazují šířku podle obsahu a při
+     najetí (tučný název + nápověda) celá tabulka poskočí. Název dostane
+     necelou polovinu, aby se i „Superior s terasou" vešel s nápovědou. */
+  .sec .room-table.room-table{table-layout:fixed}
+  .room-table th,.room-table td{text-align:left;padding:12px 14px;border-bottom:1px solid var(--line-c);overflow-wrap:anywhere}
+  .room-table th:nth-child(1),.room-table td:nth-child(1){width:46%}
+  .room-table th:nth-child(2),.room-table td:nth-child(2){width:16%}
+  .room-table th:nth-child(3),.room-table td:nth-child(3){width:18%}
+  .room-table th:nth-child(4),.room-table td:nth-child(4){width:20%}
   .room-table thead th{font-family:var(--f-mono);font-size:.7rem;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
   .room-table td a{position:relative;display:inline-block;color:var(--fg);border-bottom:1px solid var(--gold)}
   .sec-light .room-table td a{border-bottom-color:var(--red)}
@@ -648,8 +656,8 @@ Text Domain: grid-divi5-child
   /* Nápověda leží mimo tok, aby v klidovém stavu podtržení končilo za názvem;
      vlastní spodní čáru má navázanou na tu pod názvem, takže po najetí vypadají
      jako jedna souvislá linka. */
-  .room-table td a::after{content:attr(data-hint);position:absolute;left:100%;bottom:-1px;padding-left:10px;font-family:var(--f-mono);font-size:.64rem;letter-spacing:.08em;text-transform:uppercase;color:var(--red);opacity:0;border-bottom:1px solid var(--gold);transition:opacity .2s;white-space:nowrap;pointer-events:none}
-  .sec-light .room-table td a::after{border-bottom-color:var(--red)}
+  .room-table td a::after{content:attr(data-hint);position:absolute;left:100%;bottom:-1px;padding-left:10px;font-family:var(--f-mono);font-size:.64rem;letter-spacing:.08em;text-transform:uppercase;color:var(--gold);opacity:0;border-bottom:1px solid var(--gold);transition:opacity .2s;white-space:nowrap;pointer-events:none}
+  .sec-light .room-table td a::after{color:var(--red);border-bottom-color:var(--red)}
   .room-table td a:hover::after{opacity:1}
   /* minmax(0,1fr) místo 1fr: holé 1fr nikdy neklesne pod min-content buňky,
      takže dlouhá německá slova roztáhla mřížku přes rodiče. Matice parametrů
@@ -702,10 +710,28 @@ Text Domain: grid-divi5-child
   @media(max-width:959px){
     /* Široká srovnávací tabulka se skládá do řádkových karet už na tabletu
        na výšku — na 768 px se šest sloupců nevejde ani se zalomením. */
+    /* Přehled pokojů se pod 960 px rozpadá do karet. Řádková podoba tady dávala
+       pět čar na jeden pokoj a čtenář v nich ztrácel, kde jeden typ končí
+       a druhý začíná. Karta má jednu hranici a uvnitř jen dvojice popisek/hodnota. */
+    .sec .room-table.room-table{table-layout:auto;min-width:0;background:none;border:none;border-radius:0}
     .room-table thead{display:none}
-    .room-table tr{display:block;padding:10px 0;border-bottom:1px solid var(--line-c)}
-    .room-table td{display:flex;justify-content:space-between;gap:16px;border:none;padding:5px 0}
-    .room-table td::before{content:attr(data-l);font-family:var(--f-mono);font-size:.68rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+    .room-table tbody{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:clamp(12px,1.8vw,18px)}
+    .room-table tbody tr{display:block;padding:clamp(16px,2vw,20px) clamp(16px,2vw,20px) clamp(12px,1.6vw,16px);border:1px solid var(--line-c);border-radius:3px;background:rgba(255,255,255,.03)}
+    .sec-light .room-table tbody tr{background:rgba(20,22,25,.02)}
+    .room-table tbody td{display:flex;justify-content:space-between;align-items:baseline;gap:14px;width:auto;border:none;padding:4px 0}
+    .room-table tbody td::before{content:attr(data-l);font-family:var(--f-mono);font-size:.66rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);flex:none}
+    /* Název pokoje je nadpis karty, ne další dvojice popisek/hodnota. */
+    .room-table tbody td:first-child{display:block;width:auto;padding:0 0 12px;margin-bottom:8px;border-bottom:1px solid var(--line-c)}
+    .room-table tbody td:first-child::before{content:none}
+    .room-table tbody td:first-child a{font-size:1.06rem;border-bottom:none}
+    /* Nápověda „zobrazit detail" míří vodorovně mimo kartu — v úzké kartě
+       nemá kam, a dotykové zařízení hover stejně nemá. */
+    .room-table tbody td a::after{display:none}
+    .room-table tbody td a:hover{font-weight:inherit}
+    .room-table tfoot{display:block;margin-top:clamp(12px,1.8vw,18px)}
+    .room-table tfoot tr{display:flex;justify-content:space-between;gap:16px}
+    .room-table tfoot td{border:none;padding:10px 2px}
+    .room-table tfoot td:empty{display:none}
     .room-table tfoot td::before{content:""}
   }
 
@@ -990,6 +1016,9 @@ Text Domain: grid-divi5-child
        už na 780 px, takže tablet na výšku dostával mobilní rozvržení. */
     .amenity-grid{grid-template-columns:minmax(0,1fr)}
     .amenity-groups{grid-template-columns:minmax(0,1fr)}
+    /* Na mobilu jedna karta pod druhou — dvě vedle sebe by měly na hodnoty
+       méně místa než na popisky. */
+    .room-table tbody{grid-template-columns:minmax(0,1fr)}
     .know-list{grid-template-columns:minmax(0,1fr)}
     .rooms,.et_pb_row.rooms{grid-template-columns:1fr !important}
     .room.feat,.rooms>.room:last-child:nth-child(odd){grid-column:span 1}

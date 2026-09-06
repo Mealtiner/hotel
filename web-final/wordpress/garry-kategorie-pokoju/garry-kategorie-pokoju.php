@@ -3,7 +3,7 @@
  * Plugin Name:       GARRY – Kategorie a srovnání
  * Plugin URI:        https://www.garry.cz
  * Description:       Spravuje vícejazyčné kategorie pokojů nebo podobných položek a zobrazuje je jako karty či srovnávací tabulku. Obsah se vkládá přes shortcody grid_rooms_cards a grid_rooms_table; původně vytvořeno pro GRID Hotel.
- * Version:           1.5.0
+ * Version:           1.6.0
  * Author:            GARRY Promotion
  * Author URI:        https://www.garry.cz
  * License:           Proprietary — Copyright © GARRY Promotion
@@ -20,7 +20,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
  * GARRY – Kategorie pokojů
  * ============================================================================ */
 
-define( 'GARRY_POK_VER', '1.5.0' );
+define( 'GARRY_POK_VER', '1.6.0' );
 define( 'GARRY_POK_OPT', 'garry_pokoje' );
 
 function garry_pok_lang() {
@@ -673,7 +673,7 @@ add_action( 'gridhotel_register_modules', function () {
 		'version'    => defined( 'GARRY_POK_VER' ) ? GARRY_POK_VER : '1.4.0',
 		'admin_slug' => 'garry-pokoje-grid',
 		'capability' => defined( 'GARRY_POK_STAFF_CAP' ) ? GARRY_POK_STAFF_CAP : 'manage_options',
-		'shortcodes' => array( 'grid_rooms_cards', 'grid_rooms_table', 'grid_rooms_compare', 'garry_room_categories' ),
+		'shortcodes' => array( 'grid_rooms_cards', 'grid_rooms_table', 'grid_rooms_compare', 'grid_rooms_gallery', 'garry_room_categories' ),
 		'features'   => array( 'room_comparison' ),
 	) );
 } );
@@ -721,6 +721,68 @@ function garry_pok_sc_compare( $atts = array() ) {
 	return garry_pokoje_compare_html( (string) $a['zvyraznit'] );
 }
 add_action( 'init', function () { add_shortcode( 'grid_rooms_compare', 'garry_pok_sc_compare' ); }, 5 );
+
+/**
+ * [grid_rooms_gallery] — fotky ze všech kategorií pokojů v jedné galerii.
+ *
+ * Snímky se berou z termmeta (náhled + galerie), tedy ze stejného místa, kde je
+ * spravuje personál — nic se tu nevypisuje natvrdo. Vykreslení přenechá pluginu
+ * GARRY – Foto lightbox, je-li k dispozici; bez něj vykreslí prostou mřížku
+ * odkazů, aby stránka fungovala i tak.
+ */
+function garry_pok_sc_gallery( $atts = array() ) {
+	$a = shortcode_atts( array(
+		'sloupce'  => 4,
+		'mezera'   => 10,
+		'na_pokoj' => 0,   // 0 = všechny fotky kategorie
+		'velikost' => 'large',
+		'nahled'   => 'medium_large',
+	), (array) $atts, 'grid_rooms_gallery' );
+
+	$ids = array();
+	foreach ( garry_pok_get()['rooms'] as $r ) {
+		if ( empty( $r['key'] ) ) continue;
+		$termy = get_terms( array( 'taxonomy' => 'grid_room_cat', 'slug' => $r['key'], 'hide_empty' => false, 'lang' => '' ) );
+		if ( is_wp_error( $termy ) || ! $termy ) continue;
+		$tid = (int) $termy[0]->term_id;
+
+		$fotky = array();
+		$nahled = get_term_meta( $tid, 'nahled', true );
+		if ( $nahled && is_numeric( $nahled ) ) $fotky[] = (int) $nahled;
+		$galerie = get_term_meta( $tid, 'galerie', true );
+		foreach ( (array) $galerie as $g ) {
+			if ( is_numeric( $g ) ) $fotky[] = (int) $g;
+			elseif ( is_array( $g ) && ! empty( $g['ID'] ) ) $fotky[] = (int) $g['ID'];
+		}
+		if ( $a['na_pokoj'] > 0 ) $fotky = array_slice( $fotky, 0, (int) $a['na_pokoj'] );
+		$ids = array_merge( $ids, $fotky );
+	}
+	$ids = array_values( array_unique( array_filter( $ids ) ) );
+	if ( ! $ids ) return '';
+
+	if ( function_exists( 'gflb_sc_galerie' ) ) {
+		return gflb_sc_galerie( array(
+			'ids'      => implode( ',', $ids ),
+			'sloupce'  => (int) $a['sloupce'],
+			'mezera'   => (int) $a['mezera'],
+			'velikost' => $a['velikost'],
+			'nahled'   => $a['nahled'],
+			'skupina'  => 'pokoje-vse',
+		) );
+	}
+
+	/* Záložní vykreslení bez lightboxu — pořád použitelná galerie s odkazy. */
+	$ven = sprintf( '<div class="rooms-gallery" style="--rg-sloupce:%d;--rg-mezera:%dpx">',
+		max( 1, (int) $a['sloupce'] ), max( 0, (int) $a['mezera'] ) );
+	foreach ( $ids as $id ) {
+		$plna = wp_get_attachment_image_url( $id, $a['velikost'] );
+		if ( ! $plna ) continue;
+		$ven .= '<a href="' . esc_url( $plna ) . '" data-lightbox="pokoje-vse">'
+			. wp_get_attachment_image( $id, $a['nahled'], false, array( 'loading' => 'lazy' ) ) . '</a>';
+	}
+	return $ven . '</div>';
+}
+add_action( 'init', function () { add_shortcode( 'grid_rooms_gallery', 'garry_pok_sc_gallery' ); }, 5 );
 
 /* Data pokoje pro šablonu detailu (dle klíče, aktuální jazyk) */
 function garry_pokoje_room( $key ) {
