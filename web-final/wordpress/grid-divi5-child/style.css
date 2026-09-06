@@ -546,13 +546,26 @@ Text Domain: grid-divi5-child
   .room{position:relative;overflow:hidden;border:1px solid var(--line-c);min-height:430px;display:flex;align-items:flex-end}
   .room img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:0;transition:transform 1s cubic-bezier(.16,1,.3,1)}
   .room:hover img{transform:scale(1.06)}
-  .room::after{content:"";position:absolute;inset:0;z-index:1;background:linear-gradient(180deg,rgba(14,15,17,.05) 25%,rgba(14,15,17,.93) 100%)}
-  .room .r-body{position:relative;z-index:2;padding:clamp(24px,3vw,38px);width:100%;color:var(--offwhite)}
-  .room .r-num{font-family:var(--f-mono);font-size:.68rem;letter-spacing:.16em;color:var(--red)}
+  /* Přechod musí unést i světlé fotky pokojů (sada od klienta, 2026-09). S původním
+     zlomem v 25 % byl kicker i řádek štítků na světlém snímku prakticky nečitelný —
+     střední zastávka drží text nad kontrastem, horní část snímku zůstává vidět. */
+  .room::after{content:"";position:absolute;inset:0;z-index:1;background:linear-gradient(180deg,rgba(14,15,17,.06) 0%,rgba(14,15,17,.22) 45%,rgba(14,15,17,.55) 100%)}
+  /* Fotky pokojů od klienta (2026-09) jsou světlé — samotný přechod přes kartu
+     nestačil, změřený kontrast textu klesal až na 1,0:1. Textový blok má proto
+     vlastní scrim, který nahoře doběhne do průhledna, aby zůstal vidět snímek. */
+  .room .r-body{position:relative;z-index:2;padding:clamp(24px,3vw,38px);width:100%;color:var(--offwhite);
+    background:linear-gradient(180deg,rgba(14,15,17,.84) 0%,rgba(14,15,17,.93) 100%)}
+  /* Náběh scrimu leží NAD textovým blokem, ne v něm — jinak první řádek (kicker)
+     u nižších karet padne do průhledné části a kontrast spadne pod 2:1. */
+  .room .r-body::before{content:"";position:absolute;left:0;right:0;bottom:100%;height:96px;
+    background:linear-gradient(180deg,rgba(14,15,17,0) 0%,rgba(14,15,17,.84) 100%);pointer-events:none}
+  /* Na tmavém povrchu se drobný červený text píše #FF5A50, ne #C20E1A —
+     viz barevná zásada webu. Tmavá varianta má na fotce kontrast pod 2:1. */
+  .room .r-num{font-family:var(--f-mono);font-size:.68rem;letter-spacing:.16em;color:#FF5A50}
   .room h3{font-size:clamp(1.6rem,2.6vw,2.3rem);margin:8px 0 6px;color:#fff}
-  .room .r-desc{font-size:.9rem;color:var(--grey);max-width:44ch;margin-bottom:14px}
-  .room .r-feat{display:flex;gap:10px;flex-wrap:wrap;font-family:var(--f-mono);font-size:.66rem;letter-spacing:.08em;color:var(--grey);text-transform:uppercase;margin:6px 0 16px}
-  .room .r-feat span{padding:4px 9px;border:1px solid rgba(255,255,255,.18);border-radius:2px}
+  .room .r-desc{font-size:.9rem;color:#D8D6D4;max-width:44ch;margin-bottom:14px}
+  .room .r-feat{display:flex;gap:10px;flex-wrap:wrap;font-family:var(--f-mono);font-size:.66rem;letter-spacing:.08em;color:var(--offwhite);text-transform:uppercase;margin:6px 0 16px}
+  .room .r-feat span{padding:4px 9px;border:1px solid rgba(255,255,255,.30);border-radius:2px}
   .room .r-foot{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px}
   .room .r-price{font-family:var(--f-mono);color:var(--offwhite);font-size:.82rem}
   .room .r-price b{color:var(--gold)}
