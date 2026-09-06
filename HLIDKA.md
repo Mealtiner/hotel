@@ -1,7 +1,9 @@
 # Hlídka — grid-hotel
 
-*Poslední kontrola 2026-09-06 12:27. Generuje `hlidka.py`, needituj ručně.*
+*Poslední kontrola 2026-09-06 13:29. Generuje `hlidka.py`, needituj ručně.*
 
-**Stav: v pořádku**
+**Stav: poznamka**
 
-Žádný nález.
+| Úroveň | Kontrola | Co |
+|---|---|---|
+| poznamka | pravidla | CLAUDE.md chybí — druhý nástroj nemá co číst |
