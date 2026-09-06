@@ -164,3 +164,33 @@
   box.addEventListener('click', function(e){ if(e.target===box || e.target.classList.contains('glb-close')) close(); });
   document.addEventListener('keydown', function(e){ if(e.key==='Escape') close(); });
 })();
+
+/* ---- Filtr karet podle typu (sekce „Okolí hotelu" na stránce O nás) ----
+   Obecný: funguje nad libovolnou dvojicí .okoli-filtr [data-filtr] + .okoli-grid
+   [data-typ]. Karty se skrývají atributem hidden, ne inline stylem — child theme
+   má pro [hidden] vlastní pravidlo a Divi tak nemá co přepsat. */
+(function(){
+  var filtry = document.querySelectorAll('.okoli-filtr');
+  if(!filtry.length) return;
+
+  filtry.forEach(function(panel){
+    var sekce = panel.closest('.sec') || document;
+    var mrizka = sekce.querySelector('.okoli-grid');
+    if(!mrizka) return;
+    var karty = mrizka.querySelectorAll('[data-typ]');
+    var tlacitka = panel.querySelectorAll('[data-filtr]');
+
+    function uplatni(typ){
+      karty.forEach(function(k){
+        k.hidden = !(typ === 'vse' || k.getAttribute('data-typ') === typ);
+      });
+      tlacitka.forEach(function(b){
+        b.setAttribute('aria-pressed', b.getAttribute('data-filtr') === typ ? 'true' : 'false');
+      });
+    }
+
+    tlacitka.forEach(function(b){
+      b.addEventListener('click', function(){ uplatni(b.getAttribute('data-filtr')); });
+    });
+  });
+})();

@@ -4,7 +4,7 @@ Theme URI: https://www.garry.cz
 Author: GARRY Promotion
 Author URI: https://www.garry.cz
 Description: Prémiová child šablona pro Divi 5 vytvořená na míru pro GRID Hotel — **** hotel a restauraci přímo v areálu Autodromu Brno u Masarykova okruhu. Designový systém „Circuit Line": vlastní barevná paleta a typografie s plnou českou diakritikou, karbonová textura tmavých sekcí, živý telemetry widget (čas + teplota trati), sekce Sezóna 2026 s čekacím listem a obsah řízený přes ACF. Navrhla a vyvinula fluidní marketingová agentura GARRY Promotion.
-Version: 3.0.4
+Version: 3.1.0
 Requires at least: 6.4
 Tested up to: 6.8
 Requires PHP: 8.0
@@ -557,6 +557,10 @@ Text Domain: grid-divi5-child
   .room .r-price{font-family:var(--f-mono);color:var(--offwhite);font-size:.82rem}
   .room .r-price b{color:var(--gold)}
   .room.feat{grid-column:span 2;min-height:380px}
+  /* Kategorií pokojů je pět, mřížka je dvousloupcová — poslední karta by jinak
+     zůstala sama v levém sloupci a řádek by působil nedokončeně. Roztáhne se
+     tedy přes obě pole, stejně jako karta .feat. */
+  .rooms>.room:last-child:nth-child(odd){grid-column:1 / -1;min-height:380px}
   .rooms-note{margin-top:22px;font-family:var(--f-mono);font-size:.72rem;letter-spacing:.06em;color:var(--muted)}
   /* Štítky se zalamují do dalšího řádku místo vodorovného posuvu. Posuv
      schovával štítky mimo obrazovku bez viditelného vodítka a v němčině
@@ -567,6 +571,35 @@ Text Domain: grid-divi5-child
   /* Jemný CTA odkaz na detailní podstránku z landing sekce */
   /* .sec-more = terciární varianta, viz systém tlačítek. */
   .sec-more{margin-top:26px}
+  /* O nás — sekce „Okolí hotelu". Vedoucí blok patří Motodromu (důvod, proč hotel
+     stojí právě tady), zbytek jsou karty s možností filtrovat podle typu místa.
+     Filtr běží v prohlížeči nad už vykreslenými kartami — seznam je krátký
+     a stránka nemá kvůli filtrování dělat další dotaz na server. */
+  .okoli-lead{display:grid;grid-template-columns:1.15fr 1fr;gap:clamp(24px,3vw,48px);align-items:start;margin:6px 0 clamp(34px,4vw,56px)}
+  .okoli-lead__text{min-width:0}
+  .okoli-lead__dist{font-family:var(--f-mono);font-size:.68rem;letter-spacing:.14em;text-transform:uppercase;color:var(--red)}
+  .okoli-lead__text h3{font-size:clamp(1.5rem,2.6vw,2.1rem);color:var(--ink,#16181B);margin:10px 0 14px}
+  .okoli-lead__text p{color:var(--muted);font-size:.95rem;line-height:1.65;margin:0 0 12px}
+  .okoli-lead__foto{margin:0;overflow:hidden;border-radius:4px}
+  .okoli-lead__foto img{display:block;width:100%;height:100%;max-height:420px;object-fit:cover}
+  .okoli-filtr{display:flex;flex-wrap:wrap;gap:10px;margin:0 0 clamp(20px,2.4vw,30px)}
+  .okoli-filtr .gh-filter span{opacity:.55;margin-left:6px;font-variant-numeric:tabular-nums}
+  .okoli-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:clamp(14px,1.8vw,22px)}
+  .okoli-card{min-width:0;padding:clamp(18px,2vw,24px);border:1px solid rgba(20,22,25,.12);border-radius:4px;background:#fff}
+  .okoli-card[hidden]{display:none}
+  .okoli-card__dist{font-family:var(--f-mono);font-size:.66rem;letter-spacing:.12em;text-transform:uppercase;color:var(--red)}
+  .okoli-card h4{font-size:1.02rem;color:var(--ink,#16181B);margin:8px 0 7px;line-height:1.3}
+  .okoli-card p{color:var(--muted);font-size:.87rem;line-height:1.55;margin:0}
+  .et_pb_text .okoli-card p,.et_pb_text .okoli-lead__text p{margin:0 0 12px}
+  .et_pb_text .okoli-card p{margin:0}
+  @media(max-width:959px){
+    .okoli-lead{grid-template-columns:1fr}
+    .okoli-lead__foto{order:-1}
+    .okoli-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+  }
+  @media(max-width:640px){
+    .okoli-grid{grid-template-columns:minmax(0,1fr)}
+  }
   /* O nás — přehledová mřížka */
   .onas-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:clamp(16px,2vw,26px)}
   .onas-card{padding:clamp(20px,2.2vw,30px);border:1px solid rgba(20,22,25,.12);border-radius:4px;background:#fff}
@@ -600,6 +633,16 @@ Text Domain: grid-divi5-child
   .et_pb_text .check-list,.et_pb_text .check-list li,
   .et_pb_text .g-list,.et_pb_text .g-list li{list-style:none !important}
   .et_pb_text .amenity-grid,.et_pb_text .check-list,.et_pb_text .g-list{padding-left:0 !important}
+  /* Vybavení hotelu po skupinách (Ubytování). Seznam z Booking.com je dlouhý,
+     proto se člení do tematických skupin — plochý výčet 60 položek se nedá číst. */
+  .amenity-groups{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:clamp(20px,2.4vw,34px);margin:26px 0 0}
+  .amenity-groups section{min-width:0}
+  .amenity-groups h3{font-family:var(--f-mono);font-size:.7rem;letter-spacing:.12em;text-transform:uppercase;color:var(--ink,#16181B);margin:0 0 10px;padding-bottom:8px;border-bottom:1px solid rgba(20,22,25,.12)}
+  .amenity-groups ul{list-style:none;margin:0;padding:0;display:grid;gap:6px}
+  .amenity-groups li{min-width:0;overflow-wrap:anywhere;position:relative;padding-left:20px;color:var(--muted);font-size:.88rem;line-height:1.45}
+  .amenity-groups li::before{content:"·";position:absolute;left:6px;color:var(--red);font-weight:700}
+  .et_pb_text .amenity-groups ul,.et_pb_text .amenity-groups li{padding-left:0 !important;list-style:none !important}
+  .et_pb_text .amenity-groups li{padding-left:20px !important}
   .know-list{display:grid;grid-template-columns:1fr 1fr;gap:14px 30px;margin:0}
   .know-list div{display:flex;flex-direction:column;gap:2px;padding-bottom:10px;border-bottom:1px solid rgba(20,22,25,.08)}
   .know-list dt{font-family:var(--f-mono);font-size:.7rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
@@ -820,6 +863,7 @@ Text Domain: grid-divi5-child
   /* --- TABLET NA ŠÍŘKU a níž (≤ 1279 px) --- */
   @media(max-width:1279px){
     .amenity-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+    .amenity-groups{grid-template-columns:repeat(2,minmax(0,1fr))}
     .entries,.et_pb_row.entries{grid-template-columns:repeat(2,1fr) !important}
     .entry:nth-child(2){border-right:none}
     .exp,.et_pb_row.exp{grid-template-columns:repeat(2,1fr) !important}
@@ -893,9 +937,10 @@ Text Domain: grid-divi5-child
        matice (T1 a T3 dva sloupce, patička dva sloupce) — dřív se skládaly
        už na 780 px, takže tablet na výšku dostával mobilní rozvržení. */
     .amenity-grid{grid-template-columns:minmax(0,1fr)}
+    .amenity-groups{grid-template-columns:minmax(0,1fr)}
     .know-list{grid-template-columns:minmax(0,1fr)}
     .rooms,.et_pb_row.rooms{grid-template-columns:1fr !important}
-    .room.feat{grid-column:span 1}
+    .room.feat,.rooms>.room:last-child:nth-child(odd){grid-column:span 1}
     .entries,.et_pb_row.entries{grid-template-columns:1fr !important}
     .entry{border-right:none;min-height:auto}
     .exp,.et_pb_row.exp{grid-template-columns:1fr !important}

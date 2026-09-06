@@ -31,7 +31,7 @@
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
-define( 'GRID_CHILD_VER', '3.0.4' );
+define( 'GRID_CHILD_VER', '3.1.0' );
 
 /* ------------------------------------------------------------------
  * 1) Styly a skripty
@@ -329,3 +329,27 @@ add_action( 'send_headers', function () {
 } );
 /* Skrýt PHP verzi v odpovědi (expose_php řeší až produkční php.ini, toto je doplňkové). */
 add_action( 'init', function () { if ( function_exists( 'header_remove' ) ) header_remove( 'X-Powered-By' ); } );
+
+/* Přesměrování starých URL kategorií pokojů (301).
+ * Kategorie se v září 2026 přejmenovaly podle Booking.com: „Superior Plus“ se stal
+ * „Superior s terasou“ a sloučené „Apartmá a Apartmá Superior“ se rozdělilo na dvě
+ * samostatné kategorie. Mapu starý→nový slug zapisuje skript při migraci dat, aby
+ * odkazy z Bookingu, Googlu a starých rezervačních e-mailů nekončily na 404. */
+add_action( 'template_redirect', function () {
+	if ( is_admin() || ! is_404() ) return;
+	$mapa = get_option( 'grid_presmerovani_pokoju', array() );
+	if ( ! is_array( $mapa ) || ! $mapa ) return;
+
+	$cesta = trim( (string) parse_url( add_query_arg( array() ), PHP_URL_PATH ), '/' );
+	$casti = explode( '/', $cesta );
+	$slug  = end( $casti );
+	if ( $slug === '' || empty( $mapa[ $slug ] ) ) return;
+
+	$novy = get_term_by( 'slug', $mapa[ $slug ], 'grid_room_cat' );
+	if ( ! $novy || is_wp_error( $novy ) ) return;
+	$url = get_term_link( $novy );
+	if ( is_wp_error( $url ) ) return;
+
+	wp_safe_redirect( $url, 301 );
+	exit;
+}, 1 );
