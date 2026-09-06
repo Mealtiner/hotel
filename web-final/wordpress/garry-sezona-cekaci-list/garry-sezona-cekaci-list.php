@@ -3,7 +3,7 @@
  * Plugin Name:       GARRY – Sezónní nabídka a čekací list
  * Plugin URI:        https://www.garry.cz
  * Description:       Spravuje sezónní akce, štítky dostupnosti a čekací formulář s lokálním logem poptávek. Nabídku a voucherový formulář vloží shortcody grid_season_events a grid_voucher_form; původně vytvořeno pro GRID Hotel. Pro odesílání je nutné správně nastavit WordPress e-mail a případně CAPTCHA.
- * Version:           2.7.1
+ * Version:           2.7.2
  * Author:            GARRY Promotion
  * Author URI:        https://www.garry.cz
  * License:           Proprietary — Copyright © GARRY Promotion
@@ -20,7 +20,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
  * GARRY – Sezóna & čekací list v2 — data
  * ============================================================================ */
 
-define( 'GARRY_SEZ_VER', '2.7.1' );
+define( 'GARRY_SEZ_VER', '2.7.2' );
 define( 'GARRY_SEZ_OPT', 'garry_sezona' );
 define( 'GARRY_SEZ_LOG', 'garry_sezona_log' );
 /**
@@ -419,6 +419,8 @@ function garry_sez_admin_page() {
 	  .sez-uplynule > summary{cursor:pointer;list-style-position:outside}
 	  .sez-uplynule > summary h3{display:inline-block;margin:0}
 	  .sez-uplynule .sez-event{opacity:.72}
+	  .sez-event.je-probehla{border-left-color:#c3c4c7}
+	  .sez-event.je-probehla .sez-znacka{background:#c3c4c7}
 	  .sez-panel{margin:16px 0 6px;padding:14px 18px;background:#fff;border:1px solid #c3c4c7;border-radius:8px}
 	  .sez-panel-stav{color:#50575e;font-size:13px}
 	</style>
@@ -502,16 +504,19 @@ function garry_sez_admin_page() {
 	      /* Vykreslení jedné akce. Pořadí polí v odeslaném formuláři musí sedět
 	         napříč oběma skupinami, proto se obě vypisují do stejné fronty. */
 	      $poradi_pole = 0;
-	      $vykresli = function ( $ev ) use ( $O, $states, &$poradi_publikovanych, &$poradi_pole, $max_zobrazenych ) {
+	      $vykresli = function ( $ev, $pripravovana = true ) use ( $O, $states, &$poradi_publikovanych, &$poradi_pole, $max_zobrazenych ) {
 	        $chybi = garry_sez_chybi( $ev );
 	        $je_nova = ! empty( $ev['nova'] );
 	        $je_publ = ! empty( $ev['publikovano'] );
+	        /* Do limitu se počítají jen připravované akce — uplynulá se na web
+	           nedostane, ať je publikovaná nebo ne, a odznak „nad limit" by u ní
+	           mátl. */
 	        $na_webu = false;
-	        if ( $je_publ ) {
+	        if ( $je_publ && $pripravovana ) {
 	          $poradi_publikovanych++;
 	          $na_webu = $poradi_publikovanych <= $max_zobrazenych;
 	        }
-	        $tridy = 'sez-event' . ( $je_nova ? ' je-nova' : '' ) . ( $je_publ ? ' je-publikovana' : ' je-skryta' ) . ( $na_webu ? ' je-na-webu' : '' );
+	        $tridy = 'sez-event' . ( $je_nova ? ' je-nova' : '' ) . ( $je_publ ? ' je-publikovana' : ' je-skryta' ) . ( $na_webu ? ' je-na-webu' : '' ) . ( $pripravovana ? '' : ' je-probehla' );
 	        $pole = function ( $klic ) use ( $chybi ) { return isset( $chybi[ $klic ] ) ? ' sez-chybi' : ''; };
 	        ?>
 	      <details class="<?php echo esc_attr( $tridy ); ?>" <?php echo $je_nova ? 'open' : ''; ?>>
@@ -525,7 +530,9 @@ function garry_sez_admin_page() {
 	          <?php if ( $chybi ) : ?>
 	            <span class="sez-odznak sez-odznak--chybi"><?php printf( 'Chybí %d %s', count( $chybi ), count( $chybi ) === 1 ? 'položka' : ( count( $chybi ) < 5 ? 'položky' : 'položek' ) ); ?></span>
 	          <?php endif; ?>
-	          <?php if ( $na_webu ) : ?>
+	          <?php if ( ! $pripravovana ) : ?>
+	            <span class="sez-odznak sez-odznak--skryta" title="Termín už proběhl, na web se nevypisuje">Proběhla</span>
+	          <?php elseif ( $na_webu ) : ?>
 	            <span class="sez-odznak sez-odznak--web" title="Zobrazuje se na webu">● Na webu</span>
 	          <?php elseif ( $je_publ ) : ?>
 	            <span class="sez-odznak sez-odznak--nad-limit" title="Publikovaná, ale nad nastaveným limitem">Publikovaná (nad limit)</span>
@@ -588,7 +595,7 @@ function garry_sez_admin_page() {
 	        <details class="sez-uplynule">
 	          <summary><h3 class="sez-skupina">Uplynulé akce <span class="description">(<?php echo count( $uplynule ); ?>)</span></h3></summary>
 	          <p class="description">Na web se nedostanou, ať jsou publikované, nebo ne. Zůstávají tu kvůli historii a pro případ, že se termín opakuje.</p>
-	          <?php foreach ( $uplynule as $ev ) { $vykresli( $ev ); $poradi_pole++; } ?>
+	          <?php foreach ( $uplynule as $ev ) { $vykresli( $ev, false ); $poradi_pole++; } ?>
 	        </details>
 	      <?php endif; ?>
 	      <p style="display:flex;gap:8px;flex-wrap:wrap"><button type="button" class="button" id="sez-ev-add">+ Přidat akci</button>
