@@ -3,7 +3,7 @@
  * Plugin Name:       GARRY – Denní menu
  * Plugin URI:        https://www.garry.cz
  * Description:       Správa jídelníčku a nápojového lístku pro víc provozů (restaurace, bar…): denní menu Po–Ne, celotýdenní nabídka, stálá nabídka, večerní menu a nápojový lístek, každý provoz nezávisle, ve 3 jazycích (CZ/EN/DE).
- * Version:           1.8.0
+ * Version:           1.9.0
  * Author:            GARRY Promotion
  * Author URI:        https://www.garry.cz
  * License:           Proprietary — Copyright © GARRY Promotion
@@ -1515,3 +1515,83 @@ add_action( 'et_builder_ready', function () {
 		// Pojistka: registrace modulu nikdy nesmí shodit web.
 	}
 } );
+
+/* ---------------------------------------------------------------------------
+ * [grid_menu_provozy] — jídelníček všech provozů pod sebou
+ *
+ * Vykreslí jednu sekci pro KAŽDÝ provoz založený v Nastavení → provozy,
+ * v jejich pořadí, a uvnitř právě ty nabídky, které má provoz zaškrtnuté.
+ * Přidání, přejmenování nebo smazání provozu se tak projeví na webu samo —
+ * ve stránce není nic natvrdo.
+ *
+ * Atributy:
+ *   provozy="slug,slug"  omezí výpis jen na uvedené provozy (výchozí: všechny)
+ *   uroven="h3"          úroveň nadpisu provozu (výchozí h3)
+ *   pripona="MENU"       co se připojí za název provozu (výchozí „MENU")
+ *
+ * Kotva každé sekce je `jidelnicek-<slug provozu>`, takže na ni jde odkázat
+ * z karet gastro provozů i odkudkoli jinde.
+ * ------------------------------------------------------------------------- */
+function garry_menu_render_provozy( $atts = array() ) {
+	$atts = shortcode_atts(
+		array( 'provozy' => '', 'uroven' => 'h3', 'pripona' => '' ),
+		$atts,
+		'grid_menu_provozy'
+	);
+
+	$vsechny = function_exists( 'garry_menu_venue_options' ) ? (array) garry_menu_venue_options() : array();
+	if ( ! $vsechny ) {
+		return current_user_can( 'manage_options' )
+			? '<!-- GARRY – Denní menu: nejsou založené žádné provozy. -->'
+			: '';
+	}
+
+	$vybrane = array_filter( array_map( 'sanitize_key', explode( ',', (string) $atts['provozy'] ) ) );
+	$uroven  = in_array( $atts['uroven'], array( 'h2', 'h3', 'h4' ), true ) ? $atts['uroven'] : 'h3';
+
+	$li = function_exists( 'garry_menu_lang_idx' ) ? garry_menu_lang_idx() : 0;
+	$pripona = '' !== $atts['pripona']
+		? $atts['pripona']
+		: array( 'MENU', 'MENU', 'MENÜ' )[ $li ];
+	$prazdno = array(
+		'Nabídku pro tento provoz právě připravujeme.',
+		'The menu for this venue is being prepared.',
+		'Die Karte für diesen Betrieb wird gerade vorbereitet.',
+	)[ $li ];
+
+	ob_start();
+	foreach ( $vsechny as $slug => $nazev ) {
+		if ( $vybrane && ! in_array( $slug, $vybrane, true ) ) continue;
+
+		$v  = garry_menu_get_venue( $slug );
+		$en = (array) ( $v['enabled'] ?? array() );
+
+		/* Jídlo (denní, týdenní, stálá, večerní) řeší garry_menu_render sám
+		 * podle týchž zaškrtnutí; nápojový lístek je samostatná nabídka. */
+		$jidlo  = ( array_filter( array( $en['denni'] ?? 0, $en['tydenni'] ?? 0, $en['stala'] ?? 0, $en['vecerni'] ?? 0 ) ) )
+			? trim( garry_menu_render( array( 'provoz' => $slug, 'typ' => 'cely' ) ) ) : '';
+		$napoje = ! empty( $en['napoje'] )
+			? trim( garry_napoje_render( array( 'provoz' => $slug ) ) ) : '';
+
+		printf(
+			'<section class="gastro-menu-panel" id="jidelnicek-%s" aria-labelledby="jidelnicek-%s-nadpis">',
+			esc_attr( $slug ),
+			esc_attr( $slug )
+		);
+		printf(
+			'<%1$s id="jidelnicek-%2$s-nadpis" class="gastro-menu-nadpis">%3$s</%1$s>',
+			esc_html( $uroven ),
+			esc_attr( $slug ),
+			esc_html( trim( $nazev . ' · ' . $pripona ) )
+		);
+
+		if ( '' === $jidlo && '' === $napoje ) {
+			echo '<p class="gastro-menu-prazdno">' . esc_html( $prazdno ) . '</p>';
+		} else {
+			echo $jidlo . $napoje; // již escapované ve vlastních render funkcích
+		}
+		echo '</section>';
+	}
+	return ob_get_clean();
+}
+add_action( 'init', function () { add_shortcode( 'grid_menu_provozy', 'garry_menu_render_provozy' ); }, 5 );

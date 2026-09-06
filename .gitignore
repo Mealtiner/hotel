@@ -33,3 +33,7 @@ web-final/wordpress/tools/d5-new/
 # QA nástroje — závislosti a výstupy měření
 web-final/wordpress/tools/qa/node_modules
 web-final/wordpress/tools/qa/out/
+
+# wp-cli.phar se nekomituje (7 MB binarka, stahne se podle potreby)
+web-final/wordpress/tools/wp-cli.phar
+STAV.md

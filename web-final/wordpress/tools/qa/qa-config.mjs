@@ -84,8 +84,11 @@ export const SAFE = {
   1280: { left: 290, right: 1020, rightNoRail: 1228 },
   1024: { left: 284, right: 764,  rightNoRail: 983  },
   960:  { left: 283, right: 700,  rightNoRail: 922  },
-  768:  { left: 245, right: 737,  rightNoRail: 737  },
-  641:  { left: 244, right: 615,  rightNoRail: 615  },
+  /* 641–959 px: HUD je rozbalený, ale šířku nerezervuje (rozhodnutí klienta,
+     září 2026) — obsah proto začíná na bezpečném insetu, ne za HUD. */
+  959:  { left: 32,  right: 927,  rightNoRail: 927  },
+  768:  { left: 31,  right: 737,  rightNoRail: 737  },
+  641:  { left: 26,  right: 615,  rightNoRail: 615  },
   640:  { left: 20,  right: 620,  rightNoRail: 620  },
   390:  { left: 20,  right: 370,  rightNoRail: 370  },
   320:  { left: 20,  right: 300,  rightNoRail: 300  },

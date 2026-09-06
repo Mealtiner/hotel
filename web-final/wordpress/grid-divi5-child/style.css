@@ -265,12 +265,15 @@ Text Domain: grid-divi5-child
      Pravý rail je jediná fixed navigace; obsah končí 45 px před jeho osou.
 
        režim            HUD    obsah začíná   obsah končí
-       ≥ 960 px         224px  hud+40         osa railu − 45  (= 100vw − 260)
-       641–959 px       190px  hud+40         100vw − clamp(24,4vw,32)
-       ≤ 640 px         sbalen 20px           100vw − 20
+       ≥ 960 px         224px, rezervuje   hud+40    osa railu − 45 (= 100vw − 260)
+       641–959 px       190px, NEREZERVUJE clamp(24,4vw,32)   100vw − clamp(24,4vw,32)
+       ≤ 640 px         sbalený            20px               100vw − 20
 
-     Kontrolní body: 1600 → 290..1340 · 1024 → 284..764 · 768 → 245..737
-                     641 → 244..615  ·  390 → 20..370
+     Na tabletu na výšku je HUD rozbalený, ale šířku nerezervuje — plave nad
+     obsahem v dolním rohu.
+
+     Kontrolní body: 1600 → 290..1340 · 1024 → 284..764 · 768 → 31..737
+                     641 → 26..615   ·  390 → 20..370
      --------------------------------------------------------------------- */
   :root{
     /* Jediné postranní odsazení obsahu. Na mobilu je pevných 20 px (závazný
@@ -322,11 +325,19 @@ Text Domain: grid-divi5-child
      jednotlivých sekcích jsou zakázané (GRID-RESPONSIVE-10 §Implementační
      zásahy bod 1).
      ============================================================================ */
-  /* 641–959 px: HUD je užší (190 px) a pravý rail je skrytý, takže vpravo
-     stačí bezpečný inset, ne rezerva na lištu. */
+  /* 641–959 px: HUD zůstává rozbalený, ale NEREZERVUJE šířku (rozhodnutí
+     klienta, září 2026). Na tabletu na výšku by koridor 245 px ukrojil
+     z 768px displeje třetinu obsahu, což je nepřiměřené panelu, který leží
+     v dolním rohu. Obsah proto začíná na bezpečném insetu stejně jako končí
+     vpravo. Pravý rail je tu skrytý, takže vpravo stačí inset, ne rezerva. */
   @media(max-width:959px){
     :root{
       --hud-width: 190px;
+      /* Postranní odsazení musí být v tomhle pásmu jedna hodnota pro všechno.
+         Kdyby si .wrap bral --gutter (clamp 20,4vw,52) a mřížky --content-left
+         (clamp 24,4vw,32), rozešly by se na 959 px o 6 px. */
+      --gutter: clamp(24px,4vw,32px);
+      --content-left: clamp(24px,4vw,32px);
       --content-right-inset: clamp(24px,4vw,32px);
     }
   }
@@ -1841,3 +1852,12 @@ footer .socials a:hover{ color:var(--gold) !important; border-color:var(--gold) 
 .gastro-menu-panel:first-of-type{ border-top:0; padding-top:0; }
 .gastro-menu-panel[hidden]{ display:none!important; }
 @media(max-width:640px){ .gastro-menu-filter .gal-fbtn{ width:100%; text-align:left; } .gcard-menu-link{ margin-top:18px; } }
+
+/* ============================================================================
+   JÍDELNÍČEK PROVOZŮ — sekce generované shortcodem [grid_menu_provozy]
+   Vzhled patří do child theme, obsah a jeho výběr do pluginu.
+   ============================================================================ */
+.gastro-menu-panel{margin:0 0 clamp(48px,7vh,86px);scroll-margin-top:calc(var(--gh-header-h,86px) + 16px)}
+.gastro-menu-panel:last-child{margin-bottom:0}
+.gastro-menu-nadpis{margin:0 0 22px;padding-bottom:14px;border-bottom:1px solid var(--line-c)}
+.gastro-menu-prazdno{color:var(--muted);font-family:var(--f-mono);font-size:.86rem;margin:0}

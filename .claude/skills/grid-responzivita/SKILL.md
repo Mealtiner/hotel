@@ -23,7 +23,7 @@ se ta odlišnost dá popsat jako záměr designu, ne jako kompenzace chyby jinde
 |---|---|---|---|---|
 | Desktop | ≥ 1280 px | 1600 × 1000 | viditelná | 224 px |
 | Tablet na šířku | 960–1279 px | 1024 × 768 | viditelná | 224 px |
-| Tablet na výšku | 641–959 px | 768 × 1024 | skrytá | 190 px |
+| Tablet na výšku | 641–959 px | 768 × 1024 | skrytá | 190 px, nerezervuje šířku |
 | Mobil | ≤ 640 px | 390 × 844 | skrytá | sbalený, bez rezervace šířky |
 
 Hranice 960, 641 a 1280 jsou atomické: při 959 px navigace nesmí být vidět,
@@ -53,9 +53,11 @@ její osou, a to všude, kde se navigace **skutečně vykreslí**.
 --rail-axis: calc(100vw - 215px);
 --content-right: calc(var(--rail-axis) - 45px);   /* = 100vw − 260 */
 
-/* 641–959 px  — rail je skrytý, hranice vpravo platí dál */
+/* 641–959 px — HUD je rozbalený, ale NEREZERVUJE šířku (rozhodnutí klienta,
+   září 2026): koridor 245 px by na 768px displeji ukrojil třetinu obsahu.
+   HUD plave nad obsahem v dolním rohu. Rail je tu skrytý. */
 --hud-width: 190px;
---content-left: calc(var(--hud-left) + var(--hud-width) + 40px);
+--content-left: clamp(24px, 4vw, 32px);
 --content-right: calc(100vw - clamp(24px, 4vw, 32px));
 
 /* ≤ 640 px — HUD je ve sbaleném režimu a nerezervuje žádnou šířku */
@@ -73,8 +75,9 @@ Kontrolní body (tolerance ±2 px, ověřuje `tools/qa`):
 | 1280 | 224 | 290 | 1020 | 730 |
 | 1024 | 224 | 284 | 764 | 480 |
 | 960 | 224 | 283 | 700 | 417 |
-| 768 | 190 | 245 | 737 | 492 |
-| 641 | 190 | 244 | 615 | 371 |
+| 959 | 190 | 38 | 927 | 889 |
+| 768 | 190 | 31 | 737 | 706 |
+| 641 | 190 | 26 | 615 | 589 |
 | 390 | sbalený | 20 | 370 | 350 |
 
 Na stránce **bez** sekční navigace platí vpravo jen bezpečný inset, ne
