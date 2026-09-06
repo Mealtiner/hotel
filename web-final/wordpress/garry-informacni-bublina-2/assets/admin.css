@@ -1,0 +1,46 @@
+/* Administrace pluginu GARRY – Informační bublina 2. */
+.gbub-sloupce { display: grid; grid-template-columns: minmax(0, 1fr) 340px; gap: 30px; align-items: start; }
+@media (max-width: 1200px) { .gbub-sloupce { grid-template-columns: minmax(0, 1fr); } }
+.gbub-wrap .form-table th { width: 190px; }
+.gbub-wrap .gbub-vedle { display: inline-flex; align-items: center; gap: 8px; margin: 0 18px 8px 0; font-size: 13px; color: #50575e; }
+
+/* ---------- náhled ---------- */
+.gbub-nahled-sloupec { position: sticky; top: 40px; }
+.gbub-nahled { display: grid; place-items: center; padding: 26px; border: 1px solid #c3c4c7; border-radius: 6px; background: #f2f2f2; }
+.gbub-nahled-ram { position: relative; display: flex; width: 100%; overflow: hidden; border: 1px solid; }
+.gbub-nahled[data-sablona="ctverec"] .gbub-nahled-ram { aspect-ratio: 1 / 1; }
+.gbub-nahled[data-smer="sloupec"] .gbub-nahled-ram { flex-direction: column; }
+.gbub-nahled[data-smer="sloupec-obraceny"] .gbub-nahled-ram { flex-direction: column-reverse; }
+.gbub-nahled[data-smer="radek"] .gbub-nahled-ram { flex-direction: row; }
+.gbub-nahled[data-smer="radek-obracene"] .gbub-nahled-ram { flex-direction: row-reverse; }
+.gbub-nahled-foto { flex: none; display: grid; place-items: center; min-height: 90px; background: rgba(255,255,255,.08); border: 1px dashed rgba(255,255,255,.25); color: rgba(255,255,255,.5); font: 600 10px/1 system-ui, sans-serif; letter-spacing: .18em; }
+.gbub-nahled[data-smer="sloupec"] .gbub-nahled-foto,
+.gbub-nahled[data-smer="sloupec-obraceny"] .gbub-nahled-foto { aspect-ratio: 16 / 10; width: 100%; }
+.gbub-nahled-text { flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; gap: 8px; justify-content: center; }
+.gbub-nahled-nadpis { margin: 0; font-size: 16px; line-height: 1.2; font-weight: 700; }
+.gbub-nahled-telo { margin: 0; font-size: 12px; line-height: 1.5; }
+.gbub-nahled-krizek { position: absolute; top: 6px; right: 9px; font-size: 16px; line-height: 1; }
+
+/* ---------- obsah stránek ---------- */
+.gbub-stranka { margin: 0 0 10px; padding: 0; border: 1px solid #c3c4c7; border-radius: 5px; background: #fff; }
+.gbub-stranka > summary { display: flex; align-items: center; gap: 10px; padding: 12px 16px; cursor: pointer; font-size: 14px; }
+.gbub-stranka .gbub-stav { flex: none; width: 9px; height: 9px; border-radius: 50%; background: #c3c4c7; }
+.gbub-stranka.je-zapnuta .gbub-stav { background: #68C020; }
+.gbub-stranka .gbub-mutace { margin-left: auto; font-size: 11px; letter-spacing: .06em; color: #787c82; }
+.gbub-stranka .gbub-mutace--sama { color: #b32d2e; }
+.gbub-radek { padding: 4px 16px 18px; border-top: 1px solid #f0f0f1; }
+.gbub-radek > * { margin-top: 14px; }
+.gbub-zapnout { display: block; font-weight: 600; }
+.gbub-sablona { display: block; }
+.gbub-sablona select { margin-left: 8px; min-width: 320px; }
+.gbub-foto.je-skryta { display: none; }
+.gbub-foto .gbub-popisek { display: block; font-weight: 600; margin-bottom: 6px; }
+.gbub-nahled-obrazku img { max-width: 220px; height: auto; margin-top: 8px; border: 1px solid #c3c4c7; }
+.gbub-jazyky { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
+@media (max-width: 1100px) { .gbub-jazyky { grid-template-columns: minmax(0, 1fr); } }
+.gbub-jazyk { padding: 12px 14px; background: #f6f7f7; border: 1px solid #e0e0e0; border-radius: 4px; }
+.gbub-jazyk h4 { margin: 0 0 8px; font-size: 12px; letter-spacing: .1em; text-transform: uppercase; color: #50575e; }
+.gbub-jazyk label { display: block; margin-bottom: 10px; font-size: 12px; color: #50575e; }
+.gbub-jazyk input[type="text"], .gbub-jazyk textarea { width: 100%; margin-top: 3px; }
+.gbub-odkaz { display: block; }
+.gbub-odkaz input { width: 100%; max-width: 560px; margin-top: 3px; }

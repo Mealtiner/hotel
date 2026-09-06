@@ -1,0 +1,39 @@
+{
+  "schema_version": "2.3",
+  "slug": "garry-informacni-bublina-2",
+  "name": "GARRY – Informační bublina 2",
+  "plugin_version": "2.0.0",
+  "framework_protocol": "2.4.0",
+  "framework_minimum": "2.4.0",
+  "icon": { "type": "dashicon", "value": "dashicons-format-status" },
+  "surfaces": ["admin-page", "frontend-render"],
+  "admin": {
+    "capability": "manage_options",
+    "local_menu_slug": "garry-informacni-bublina-2",
+    "staff_capability": "garry_grid_manage_informacni_bublina",
+    "staff_menu_slug": "garry-informacni-bublina-obsah"
+  },
+  "dependencies": { "required": [], "optional": ["polylang"] },
+  "data": {
+    "stores_personal_data": false,
+    "settings_option_prefix": "garry_bublina2_",
+    "log_retention_days": 90,
+    "uninstall_behavior": "delete-on-uninstall"
+  },
+  "external_origins": [],
+  "documentation": { "local_path": "README.md" },
+  "security_profile": {
+    "admin_assets_scope": "own-pages-only",
+    "inline_assets": { "css": false, "js": false },
+    "public_surfaces": [],
+    "editor_custom_css": false,
+    "performance_budget": {
+      "max_public_items": 1,
+      "bounded": true,
+      "note": "jedna bublina na stránku, obsah z jedné volby; zavření si pamatuje prohlížeč, na server se nic nezapisuje"
+    },
+    "multisite_tested": "unsupported",
+    "personal_data": { "stores_personal_data": false },
+    "external_origins_verified": []
+  }
+}

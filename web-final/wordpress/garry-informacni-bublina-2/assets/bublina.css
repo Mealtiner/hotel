@@ -1,0 +1,192 @@
+/**
+ * GARRY – Informační bublina 2: neutrální funkční CSS.
+ *
+ * Barvy a rozměry přicházejí z CSS custom properties, které nastaví JS podle
+ * administrace. Žádné barvy konkrétního webu natvrdo — motiv smí vzhled
+ * přestylovat přes stejné .gbub-* třídy.
+ */
+
+.garry-bublina {
+	position: fixed;
+	inset: 0;
+	z-index: 99980;
+	display: flex;
+	pointer-events: none;
+	opacity: 0;
+	transition: opacity .32s ease;
+}
+.garry-bublina[hidden] { display: none; }
+.garry-bublina.je-videt { opacity: 1; }
+
+/* Administrační lišta WordPressu nesmí bublinu překrývat. */
+body.admin-bar .garry-bublina { top: 32px; }
+@media screen and (max-width: 782px) {
+	body.admin-bar .garry-bublina { top: 46px; }
+}
+
+.garry-bublina .gbub-prekryv {
+	position: absolute;
+	inset: 0;
+	background: var(--gbub-prekryv, rgba(8, 9, 11, .55));
+	pointer-events: auto;
+}
+
+/* ---------- rám ---------- */
+.garry-bublina .gbub-ram {
+	position: relative;
+	pointer-events: auto;
+	display: flex;
+	overflow: hidden;
+	width: var(--gbub-sirka, clamp(320px, 34vw, 560px));
+	max-width: calc(100vw - 2 * var(--gbub-odstup, 26px));
+	max-height: calc(100vh - 2 * var(--gbub-odstup, 26px));
+	margin: auto;
+	background: var(--gbub-pozadi, #16181B);
+	border: 1px solid var(--gbub-ramecek, rgba(255, 255, 255, .12));
+	border-radius: var(--gbub-zaobleni, 6px);
+	box-shadow: 0 26px 70px var(--gbub-stin, rgba(0, 0, 0, .45));
+	transition: transform .38s cubic-bezier(.16, 1, .3, 1);
+}
+
+/* ---------- umístění ---------- */
+.garry-bublina[data-pozice="stred"] { align-items: center; justify-content: center; }
+.garry-bublina[data-pozice="vpravo-dole"]   { align-items: flex-end;   justify-content: flex-end; }
+.garry-bublina[data-pozice="vlevo-dole"]    { align-items: flex-end;   justify-content: flex-start; }
+.garry-bublina[data-pozice="vpravo-nahore"] { align-items: flex-start; justify-content: flex-end; }
+.garry-bublina[data-pozice="vlevo-nahore"]  { align-items: flex-start; justify-content: flex-start; }
+.garry-bublina:not([data-pozice="stred"]) .gbub-ram { margin: var(--gbub-odstup, 26px); }
+
+/* ---------- animace ---------- */
+.garry-bublina[data-animace="zdola"] .gbub-ram      { transform: translateY(26px); }
+.garry-bublina[data-animace="zvetseni"] .gbub-ram   { transform: scale(.94); }
+.garry-bublina.je-videt .gbub-ram { transform: none; }
+
+/* ---------- pět šablon ----------
+   Směr určuje pořadí fotky a textu; poměr ploch je společný pro všechny
+   varianty s fotkou, aby web nevypadal pokaždé jinak. */
+.garry-bublina[data-smer="sloupec"]          .gbub-ram { flex-direction: column; }
+.garry-bublina[data-smer="sloupec-obraceny"] .gbub-ram { flex-direction: column-reverse; }
+.garry-bublina[data-smer="radek"]            .gbub-ram { flex-direction: row; }
+.garry-bublina[data-smer="radek-obracene"]   .gbub-ram { flex-direction: row-reverse; }
+
+/* Čtverec bez fotky drží poměr 1:1, pokud mu na to obsah dá prostor. */
+.garry-bublina[data-sablona="ctverec"] .gbub-ram { aspect-ratio: 1 / 1; }
+.garry-bublina[data-sablona="ctverec"] .gbub-telo { justify-content: center; }
+
+.garry-bublina .gbub-foto {
+	flex: 0 0 var(--gbub-podil, 46%);
+	min-width: 0;
+	min-height: 0;
+	overflow: hidden;
+	background: rgba(0, 0, 0, .2);
+}
+/* Fotka se přizpůsobuje rámu, ne rám fotce — object-fit: cover ořízne přebytek
+   a nikdy nedeformuje poměr stran. */
+.garry-bublina .gbub-foto img {
+	display: block;
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
+	object-position: center;
+}
+/* U šířkových šablon vyplní fotka celou výšku, u výškových dostane vlastní pás. */
+.garry-bublina[data-smer="radek"] .gbub-foto,
+.garry-bublina[data-smer="radek-obracene"] .gbub-foto { height: auto; align-self: stretch; }
+.garry-bublina[data-smer="sloupec"] .gbub-foto,
+.garry-bublina[data-smer="sloupec-obraceny"] .gbub-foto { aspect-ratio: 16 / 10; flex: none; }
+
+/* ---------- text ---------- */
+.garry-bublina .gbub-telo {
+	flex: 1 1 auto;
+	min-width: 0;
+	min-height: 0;
+	overflow-y: auto;
+	display: flex;
+	flex-direction: column;
+	gap: 12px;
+	padding: var(--gbub-odsazeni, 28px);
+}
+.garry-bublina .gbub-nadpis {
+	margin: 0;
+	font-size: var(--gbub-nadpis-velikost, clamp(20px, 1.8vw, 28px));
+	line-height: 1.2;
+	color: var(--gbub-nadpis, #fff);
+}
+.garry-bublina .gbub-text {
+	color: var(--gbub-text, #D8D6D4);
+	font-size: var(--gbub-text-velikost, clamp(14px, 1vw, 16px));
+	line-height: 1.6;
+}
+.garry-bublina .gbub-text p { margin: 0 0 .7em; }
+.garry-bublina .gbub-text p:last-child { margin-bottom: 0; }
+.garry-bublina .gbub-text a { color: inherit; }
+
+.garry-bublina .gbub-tlacitko {
+	align-self: flex-start;
+	margin-top: 6px;
+	padding: 11px 20px;
+	border: 1px solid currentColor;
+	border-radius: 2px;
+	font-size: .78rem;
+	letter-spacing: .1em;
+	text-transform: uppercase;
+	text-decoration: none;
+	color: var(--gbub-nadpis, #fff);
+	transition: color .2s, border-color .2s;
+}
+.garry-bublina .gbub-tlacitko:hover,
+.garry-bublina .gbub-tlacitko:focus-visible { color: var(--gbub-krizek-hover, #FF5A50); }
+
+/* ---------- zavření ---------- */
+.garry-bublina .gbub-zavrit {
+	position: absolute;
+	top: 10px;
+	right: 10px;
+	z-index: 2;
+	width: 34px;
+	height: 34px;
+	display: grid;
+	place-items: center;
+	padding: 0;
+	background: none;
+	border: none;
+	cursor: pointer;
+	color: var(--gbub-krizek, #F4F2F0);
+	transition: color .2s;
+}
+.garry-bublina .gbub-zavrit:hover,
+.garry-bublina .gbub-zavrit:focus-visible { color: var(--gbub-krizek-hover, #FF5A50); }
+.garry-bublina .gbub-zavrit svg { width: 17px; height: 17px; fill: none; stroke: currentColor; stroke-width: 1.7; }
+/* Na fotce nahoře potřebuje křížek vlastní podklad, jinak zmizí ve světlém snímku. */
+.garry-bublina[data-smer="sloupec"]:not([data-sablona="ctverec"]) .gbub-zavrit,
+.garry-bublina[data-smer="radek"] .gbub-zavrit {
+	background: rgba(0, 0, 0, .35);
+	border-radius: 50%;
+}
+
+/* ---------- mobil ----------
+   Šířkové šablony se překlápějí do výškových: vedle sebe by na úzké obrazovce
+   zbylo na text i fotku příliš málo místa. */
+@media (max-width: 640px) {
+	.garry-bublina .gbub-ram {
+		width: var(--gbub-sirka-mobil, min(92vw, 430px));
+		max-width: calc(100vw - 2 * var(--gbub-odstup-mobil, 14px));
+		max-height: calc(100vh - 2 * var(--gbub-odstup-mobil, 14px));
+	}
+	.garry-bublina:not([data-pozice="stred"]) .gbub-ram { margin: var(--gbub-odstup-mobil, 14px); }
+	.garry-bublina[data-sablona-mobil="foto-dole"] .gbub-ram { flex-direction: column-reverse; }
+	.garry-bublina[data-sablona-mobil="foto-nahore"] .gbub-ram { flex-direction: column; }
+	.garry-bublina[data-sablona-mobil="foto-dole"] .gbub-foto,
+	.garry-bublina[data-sablona-mobil="foto-nahore"] .gbub-foto { aspect-ratio: 16 / 10; flex: none; height: auto; align-self: auto; }
+	.garry-bublina .gbub-nadpis { font-size: var(--gbub-nadpis-velikost-mobil, 19px); }
+	.garry-bublina .gbub-text { font-size: var(--gbub-text-velikost-mobil, 14px); }
+	.garry-bublina[data-sablona="ctverec"] .gbub-ram { aspect-ratio: auto; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.garry-bublina,
+	.garry-bublina .gbub-ram,
+	.garry-bublina .gbub-tlacitko,
+	.garry-bublina .gbub-zavrit { transition: none !important; }
+	.garry-bublina .gbub-ram { transform: none !important; }
+}
