@@ -103,6 +103,7 @@ export const PAGES = [
   p('domov',        10, '/',                              '/en/home-en/',                                   '/de/startseite/'),
   p('o-nas',        11, '/o-nas/',                        '/en/about-the-hotel/',                           '/de/ueber-uns/'),
   p('ubytovani',    12, '/ubytovani/',                    '/en/accommodation/',                             '/de/unterkunft/'),
+  p('masarykuv-okruh',    18, '/masarykuv-okruh/', '/en/masaryk-circuit/', '/de/masaryk-ring/'),
   p('pokoj-standard',      13, '/kategorie-pokoje/standard/',      '/en/kategorie-pokoje/standard-en/',      '/de/kategorie-pokoje/standard-de/'),
   p('pokoj-superior',      14, '/kategorie-pokoje/superior/',      '/en/kategorie-pokoje/superior-en/',      '/de/kategorie-pokoje/superior-de/'),
   p('pokoj-superior-terasa', 15, '/kategorie-pokoje/superior-s-terasou/', '/en/kategorie-pokoje/superior-s-terasou-en/', '/de/kategorie-pokoje/superior-s-terasou-de/'),

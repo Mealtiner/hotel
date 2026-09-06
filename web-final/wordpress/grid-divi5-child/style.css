@@ -624,6 +624,49 @@ Text Domain: grid-divi5-child
   /* Jemný CTA odkaz na detailní podstránku z landing sekce */
   /* .sec-more = terciární varianta, viz systém tlačítek. */
   .sec-more{margin-top:26px}
+  /* ===== MASARYKŮV OKRUH ===== */
+  /* Úvod: text vlevo, obrys trati vpravo. Obrys je SVG s jedinou čárou, takže
+     snese libovolnou velikost bez ztráty ostrosti. */
+  .okruh-uvod{display:grid;grid-template-columns:1.1fr .9fr;gap:clamp(28px,4vw,60px);align-items:center}
+  .okruh-uvod__text{min-width:0}
+  .okruh-obrys{margin:0}
+  .okruh-obrys img{width:100%;height:auto;display:block}
+
+  /* Dráha v číslech: dvojice popisek/hodnota vedle plánku s čísly zatáček. */
+  .okruh-draha{display:grid;grid-template-columns:1fr 1.15fr;gap:clamp(28px,4vw,54px);align-items:start;margin-top:clamp(24px,3vw,40px)}
+  .okruh-cisla{display:grid;grid-template-columns:1fr;gap:0;margin:0}
+  .okruh-cisla div{display:flex;justify-content:space-between;align-items:baseline;gap:18px;padding:11px 0;border-bottom:1px solid var(--line-c)}
+  .okruh-cisla dt{font-family:var(--f-mono);font-size:.7rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+  .okruh-cisla dd{margin:0;color:var(--fg);font-size:.98rem;font-variant-numeric:tabular-nums;text-align:right}
+  .okruh-mapa{margin:0}
+  .okruh-mapa img{width:100%;height:auto;display:block}
+
+  /* Historie: svislá osa s letopočty. Číslo roku nese orientaci, proto je
+     v brandové barvě a monospace jako ostatní číselné údaje na webu. */
+  .okruh-milniky{list-style:none;margin:clamp(24px,3vw,40px) 0 0;padding:0;display:grid;gap:0}
+  .okruh-milniky li{position:relative;padding:0 0 26px 30px;border-left:1px solid var(--line-c)}
+  .okruh-milniky li:last-child{padding-bottom:0}
+  .okruh-milniky li::before{content:"";position:absolute;left:-5px;top:6px;width:9px;height:9px;border-radius:50%;background:var(--red)}
+  .sec-dark .okruh-milniky li::before{background:#FF5A50}
+  .okruh-milniky .ok-rok{display:block;font-family:var(--f-mono);font-size:.72rem;letter-spacing:.14em;color:var(--red)}
+  .sec-dark .okruh-milniky .ok-rok{color:#FF5A50}
+  .okruh-milniky h3{font-size:1.15rem;margin:6px 0 6px;color:var(--fg)}
+  .okruh-milniky p{margin:0;color:var(--muted);font-size:.92rem;line-height:1.6;max-width:74ch}
+
+  /* Vítězové: hustý sloupcový výpis, čte se jako listina. */
+  .okruh-vitezove{list-style:none;margin:clamp(20px,2.4vw,32px) 0 0;padding:0;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0 clamp(24px,4vw,60px)}
+  .okruh-vitezove li{display:flex;justify-content:space-between;align-items:baseline;gap:16px;padding:9px 0;border-bottom:1px solid var(--line-c)}
+  .okruh-vitezove .ok-rok{font-family:var(--f-mono);font-size:.72rem;letter-spacing:.1em;color:var(--muted);font-variant-numeric:tabular-nums}
+  .okruh-vitezove li span:last-child{color:var(--fg);font-size:.95rem}
+
+  .okruh-zdroje{margin-top:clamp(24px,3vw,36px);font-family:var(--f-mono);font-size:.72rem;line-height:1.6;letter-spacing:.04em;color:var(--muted);max-width:80ch}
+
+  @media(max-width:959px){
+    .okruh-uvod,.okruh-draha{grid-template-columns:1fr}
+    .okruh-obrys{order:-1}
+    .okruh-vitezove{grid-template-columns:1fr}
+  }
+
   /* O nás — sekce „Okolí hotelu". Vedoucí blok patří Motodromu (důvod, proč hotel
      stojí právě tady), zbytek jsou karty s možností filtrovat podle typu místa.
      Filtr běží v prohlížeči nad už vykreslenými kartami — seznam je krátký
