@@ -2,7 +2,7 @@
   "schema_version": "2.3",
   "slug": "gridhotel-components",
   "name": "GARRY – GRID Components",
-  "plugin_version": "1.0.4",
+  "plugin_version": "1.0.5",
   "framework_protocol": "2.4.0",
   "framework_minimum": "2.4.0",
   "icon": {
