@@ -134,7 +134,7 @@ $hero_img = ! empty( $imgs ) ? $imgs[0] : '';
   <div class="wrap">
     <span class="kicker"><?php echo esc_html( $t( 'galerie' ) ); ?></span>
     <h2 style="font-size:clamp(2rem,4vw,3.4rem);margin:14px 0 24px"><?php echo esc_html( $nazev . $t( 'gal_suf' ) ); ?></h2>
-    <div class="roomgallery">
+    <div class="roomgallery" data-glb-nazev="<?php echo esc_attr( $nazev ); ?>">
       <?php foreach ( $imgs as $u ) : ?>
       <a href="<?php echo esc_url( $u ); ?>" class="rg-item" data-lightbox="room"><img src="<?php echo esc_url( $u ); ?>" alt="<?php echo esc_attr( $nazev ); ?>" loading="lazy"></a>
       <?php endforeach; ?>

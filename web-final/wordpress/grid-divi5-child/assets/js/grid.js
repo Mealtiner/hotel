@@ -150,20 +150,10 @@
 
 })();
 
-/* ---- Jednoduchý lightbox pro galerii detailu pokoje ---- */
-(function(){
-  var links = document.querySelectorAll('[data-lightbox]');
-  if(!links.length) return;
-  var box = document.createElement('div'); box.className='grid-lightbox';
-  box.innerHTML = '<button class="glb-close" aria-label="Zavřít">&times;</button><img alt="">';
-  document.body.appendChild(box);
-  var img = box.querySelector('img');
-  function open(src){ img.src=src; box.classList.add('open'); }
-  function close(){ box.classList.remove('open'); img.src=''; }
-  links.forEach(function(a){ a.addEventListener('click', function(e){ e.preventDefault(); open(a.getAttribute('href')); }); });
-  box.addEventListener('click', function(e){ if(e.target===box || e.target.classList.contains('glb-close')) close(); });
-  document.addEventListener('keydown', function(e){ if(e.key==='Escape') close(); });
-})();
+/* Lightbox galerie přešel do pluginu GARRY – Foto lightbox (2026-09-06).
+   Původní zdejší implementace poslouchala na stejných odkazech [data-lightbox]
+   a s pluginem by se otevíraly dva lightboxy přes sebe. Vzhled se nastavuje
+   v GARRY nastavení → Foto lightbox, ne tady. */
 
 /* ---- Filtr karet podle typu (sekce „Okolí hotelu" na stránce O nás) ----
    Obecný: funguje nad libovolnou dvojicí .okoli-filtr [data-filtr] + .okoli-grid

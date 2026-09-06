@@ -1,0 +1,46 @@
+/* Administrace pluginu GARRY – Foto lightbox. */
+.gflb-sloupce { display: grid; grid-template-columns: minmax(0, 1fr) 340px; gap: 30px; align-items: start; }
+@media (max-width: 1200px) { .gflb-sloupce { grid-template-columns: minmax(0, 1fr); } }
+
+.gflb-wrap .form-table th { width: 190px; }
+.gflb-wrap .gflb-roh { display: inline-flex; align-items: center; gap: 8px; margin: 0 18px 8px 0; font-size: 13px; color: #50575e; }
+.gflb-wrap .wp-picker-container { vertical-align: middle; }
+
+/* Náhled drží poměr lightboxu, aby bylo vidět rozložení, ne jen barvy. */
+.gflb-nahled-sloupec { position: sticky; top: 40px; }
+.gflb-nahled {
+	position: relative;
+	display: flex;
+	flex-direction: column;
+	aspect-ratio: 16 / 11;
+	border: 1px solid #c3c4c7;
+	border-radius: 6px;
+	overflow: hidden;
+}
+.gflb-nahled-pozadi { position: absolute; inset: 0; z-index: 0; }
+.gflb-nahled > *:not(.gflb-nahled-pozadi) { position: relative; z-index: 1; }
+.gflb-nahled-logo { position: absolute; z-index: 2; width: auto; max-width: 40%; object-fit: contain; }
+.gflb-nahled[data-pozice-loga="vlevo-nahore"]  .gflb-nahled-logo { top: 10px; left: 12px; }
+.gflb-nahled[data-pozice-loga="vpravo-nahore"] .gflb-nahled-logo { top: 10px; right: 12px; }
+.gflb-nahled[data-pozice-loga="vlevo-dole"]    .gflb-nahled-logo { bottom: 10px; left: 12px; }
+.gflb-nahled[data-pozice-loga="vpravo-dole"]   .gflb-nahled-logo { bottom: 10px; right: 12px; }
+.gflb-nahled-nadpis { margin: 14px 14px 0; letter-spacing: .1em; text-transform: uppercase; line-height: 1.3; }
+.gflb-nahled-scena {
+	flex: 1 1 auto;
+	margin: 10px 34px;
+	display: grid;
+	place-items: center;
+	background: rgba(255, 255, 255, .08);
+	border: 1px dashed rgba(255, 255, 255, .3);
+	color: rgba(255, 255, 255, .45);
+	font: 600 11px/1 system-ui, sans-serif;
+	letter-spacing: .18em;
+}
+.gflb-nahled-popisek { margin: 0 20px 10px; text-align: center; }
+.gflb-nahled-ukazatel { position: relative; margin: 0 26px 16px; }
+.gflb-nahled-cara, .gflb-nahled-vypln { position: absolute; left: 0; top: 4px; height: 2px; border-radius: 2px; }
+.gflb-nahled-cara { right: 0; }
+.gflb-nahled-ukazatel ol { position: relative; display: flex; justify-content: space-between; list-style: none; margin: 0; padding: 0; }
+.gflb-nahled-ukazatel li { display: flex; flex-direction: column; align-items: center; gap: 5px; }
+.gflb-nahled-bod { width: 10px; height: 10px; border-radius: 50%; border: 2px solid; }
+.gflb-nahled-cislo { font-size: 10px; font-variant-numeric: tabular-nums; }

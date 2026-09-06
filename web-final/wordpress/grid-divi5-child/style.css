@@ -1455,10 +1455,6 @@ body.has-section-nav .exp{ padding-right: max(0px, var(--rail-pad)); }          
 @media(max-width:959px){.roomgallery{grid-template-columns:repeat(2,1fr)}}
 @media(max-width:640px){.roomgallery{grid-template-columns:1fr}}
 /* lightbox */
-.grid-lightbox{position:fixed;inset:0;z-index:9999;background:rgba(8,9,11,.93);display:none;align-items:center;justify-content:center;padding:30px}
-.grid-lightbox.open{display:flex}
-.grid-lightbox img{max-width:92vw;max-height:88vh;object-fit:contain;box-shadow:0 24px 70px rgba(0,0,0,.6)}
-.grid-lightbox .glb-close{position:absolute;top:18px;right:26px;color:#fff;font-size:2.2rem;line-height:1;background:none;border:none;cursor:pointer}
 
 /* ============================================================
    T3 POKOJE — 4 styly karet na výběr (jedna metoda na typ)

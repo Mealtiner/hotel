@@ -1,0 +1,62 @@
+{
+  "schema_version": "2.3",
+  "slug": "garry-foto-lightbox",
+  "name": "GARRY – Foto lightbox",
+  "plugin_version": "1.0.0",
+  "framework_protocol": "2.4.0",
+  "framework_minimum": "2.4.0",
+  "icon": {
+    "type": "dashicon",
+    "value": "dashicons-format-image"
+  },
+  "surfaces": [
+    "admin-page",
+    "frontend-render",
+    "shortcode",
+    "elementor-widget",
+    "divi-module"
+  ],
+  "admin": {
+    "capability": "manage_options",
+    "local_menu_slug": "garry-foto-lightbox"
+  },
+  "dependencies": {
+    "required": [],
+    "optional": [
+      "elementor",
+      "divi"
+    ]
+  },
+  "data": {
+    "stores_personal_data": false,
+    "settings_option_prefix": "garry_foto_lightbox",
+    "log_retention_days": 90,
+    "uninstall_behavior": "delete-on-uninstall"
+  },
+  "external_origins": [],
+  "documentation": {
+    "local_path": "README.md"
+  },
+  "security_profile": {
+    "admin_assets_scope": "own-pages-only",
+    "inline_assets": {
+      "css": false,
+      "js": false
+    },
+    "public_surfaces": [
+      "garry_lightbox",
+      "garry_lightbox_galerie"
+    ],
+    "editor_custom_css": false,
+    "performance_budget": {
+      "max_public_items": null,
+      "bounded": true,
+      "note": "jeden kontejner na stránku; seznam snímků se sbírá z už vykresleného DOM, žádný dotaz do databáze na frontendu"
+    },
+    "multisite_tested": "unsupported",
+    "personal_data": {
+      "stores_personal_data": false
+    },
+    "external_origins_verified": []
+  }
+}

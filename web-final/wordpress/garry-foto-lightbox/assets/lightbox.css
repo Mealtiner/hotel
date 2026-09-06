@@ -1,0 +1,258 @@
+/**
+ * GARRY – Foto lightbox: neutrální funkční CSS.
+ *
+ * Všechny barvy, rozměry a pozadí přicházejí z CSS custom properties, které
+ * nastaví JS podle administrace. Žádné barvy konkrétního webu natvrdo — theme
+ * i tak může vzhled přestylovat přes stejné .glb-* třídy.
+ */
+
+html.glb-otevreno { overflow: hidden; }
+
+.garry-lightbox {
+	position: fixed;
+	inset: 0;
+	z-index: 99990;
+	display: flex;
+	flex-direction: column;
+	opacity: 0;
+	transition: opacity .28s ease;
+}
+.garry-lightbox.je-otevreno { opacity: 1; }
+.garry-lightbox[hidden] { display: none; }
+
+.garry-lightbox .glb-pozadi {
+	position: absolute;
+	inset: 0;
+	z-index: 0;
+	background: var(--glb-pozadi, #000);
+	opacity: var(--glb-kryti, .96);
+}
+/* Rozostření se aplikuje jen když je opravdu nastavené — backdrop-filter je
+   drahý a na slabších zařízeních zbytečně sráží plynulost otevírání. */
+.garry-lightbox[style*="--glb-rozostreni"] .glb-pozadi {
+	backdrop-filter: blur(var(--glb-rozostreni, 0px));
+	-webkit-backdrop-filter: blur(var(--glb-rozostreni, 0px));
+}
+
+/* ---------- logo ---------- */
+.garry-lightbox .glb-logo {
+	position: absolute;
+	z-index: 3;
+	height: var(--glb-logo-vyska, 44px);
+	width: auto;
+	opacity: var(--glb-logo-kryti, 1);
+	pointer-events: none;
+}
+.garry-lightbox[data-pozice-loga="vlevo-nahore"]  .glb-logo { top: 22px; left: 26px; }
+.garry-lightbox[data-pozice-loga="vpravo-nahore"] .glb-logo { top: 22px; right: 78px; }
+.garry-lightbox[data-pozice-loga="vlevo-dole"]    .glb-logo { bottom: 22px; left: 26px; }
+.garry-lightbox[data-pozice-loga="vpravo-dole"]   .glb-logo { bottom: 22px; right: 26px; }
+
+/* ---------- zavření ---------- */
+.garry-lightbox .glb-zavrit {
+	position: absolute;
+	top: 18px;
+	right: 22px;
+	z-index: 4;
+	width: 42px;
+	height: 42px;
+	display: grid;
+	place-items: center;
+	padding: 0;
+	background: none;
+	border: none;
+	cursor: pointer;
+	color: var(--glb-zavrit-barva, #fff);
+	transition: color .2s, transform .2s;
+}
+.garry-lightbox .glb-zavrit:hover,
+.garry-lightbox .glb-zavrit:focus-visible { color: var(--glb-zavrit-hover, #ff5a50); }
+.garry-lightbox .glb-zavrit svg { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 1.6; }
+
+/* ---------- popisek nad snímkem ---------- */
+.garry-lightbox .glb-nadpis {
+	position: relative;
+	z-index: 3;
+	margin: 0;
+	padding: 26px 78px 0;
+	font-size: var(--glb-nadpis-velikost, 13px);
+	line-height: 1.4;
+	letter-spacing: .12em;
+	text-transform: uppercase;
+	text-align: var(--glb-nadpis-zarovnani, center);
+	color: var(--glb-nadpis-barva, #fff);
+}
+.garry-lightbox .glb-nadpis[hidden] { display: none; }
+
+/* ---------- snímek a šipky ---------- */
+.garry-lightbox .glb-telo {
+	position: relative;
+	z-index: 2;
+	flex: 1 1 auto;
+	min-height: 0;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: clamp(8px, 2vw, 26px);
+	padding: 18px clamp(10px, 3vw, 34px);
+}
+.garry-lightbox .glb-scena {
+	margin: 0;
+	min-width: 0;
+	max-width: 100%;
+	height: 100%;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	gap: 14px;
+}
+.garry-lightbox .glb-foto {
+	display: block;
+	max-width: 100%;
+	max-height: 100%;
+	min-height: 0;
+	object-fit: contain;
+	box-shadow: 0 24px 70px rgba(0, 0, 0, .55);
+	transition: opacity .2s;
+}
+.garry-lightbox.glb-nacita .glb-foto { opacity: .35; }
+.garry-lightbox .glb-popisek {
+	flex: none;
+	max-width: 74ch;
+	text-align: center;
+	font-size: var(--glb-popisek-velikost, 14px);
+	line-height: 1.5;
+	color: var(--glb-popisek-barva, #bbb);
+}
+.garry-lightbox .glb-popisek[hidden] { display: none; }
+
+.garry-lightbox .glb-sipka {
+	flex: none;
+	width: var(--glb-sipka-velikost, 44px);
+	height: var(--glb-sipka-velikost, 44px);
+	display: grid;
+	place-items: center;
+	padding: 0;
+	background: none;
+	border: none;
+	cursor: pointer;
+	color: var(--glb-sipka-barva, #fff);
+	transition: color .2s, border-color .2s, transform .2s, opacity .2s;
+}
+.garry-lightbox .glb-sipka svg { width: 46%; height: 46%; fill: none; stroke: currentColor; stroke-width: 1.6; }
+.garry-lightbox .glb-sipka:hover,
+.garry-lightbox .glb-sipka:focus-visible { color: var(--glb-sipka-hover, #ff5a50); }
+.garry-lightbox .glb-sipka[disabled] { opacity: .25; cursor: default; }
+.garry-lightbox .glb-sipka[hidden] { display: none; }
+.garry-lightbox[data-styl-sipek="kruh"] .glb-sipka {
+	border: 1px solid currentColor;
+	border-radius: 50%;
+}
+.garry-lightbox[data-styl-sipek="ctverec"] .glb-sipka {
+	border: 1px solid currentColor;
+	border-radius: 2px;
+}
+
+/* ---------- ukazatel pořadí (vodorovný trackovač) ----------
+   Stejná skladba jako u svislé sekční navigace: čára, vyplněná část podle
+   postupu a body nad ní. Vodorovně, aby se vešel pod snímek. */
+.garry-lightbox .glb-ukazatel {
+	position: relative;
+	z-index: 3;
+	flex: none;
+	margin: 0 auto;
+	padding: 0 clamp(16px, 5vw, 70px) 26px;
+	width: min(880px, 92vw);
+}
+.garry-lightbox .glb-ukazatel[hidden] { display: none; }
+.garry-lightbox .glb-cara,
+.garry-lightbox .glb-vypln {
+	position: absolute;
+	left: clamp(16px, 5vw, 70px);
+	top: 5px;
+	height: 2px;
+	border-radius: 2px;
+}
+.garry-lightbox .glb-cara { right: clamp(16px, 5vw, 70px); background: var(--glb-u-cara, rgba(255,255,255,.28)); }
+.garry-lightbox .glb-vypln {
+	width: 0;
+	max-width: calc(100% - 2 * clamp(16px, 5vw, 70px));
+	background: var(--glb-u-vypln, #c20e1a);
+	transition: width .25s ease;
+}
+.garry-lightbox .glb-body {
+	position: relative;
+	display: flex;
+	justify-content: space-between;
+	align-items: flex-start;
+	list-style: none;
+	margin: 0;
+	padding: 0;
+}
+.garry-lightbox.glb-bez-bodu .glb-body { display: none; }
+.garry-lightbox .glb-body li {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 7px;
+	min-width: 0;
+}
+.garry-lightbox .glb-bod {
+	width: 12px;
+	height: 12px;
+	padding: 0;
+	border-radius: 50%;
+	border: 2px solid var(--glb-u-bod, rgba(255,255,255,.55));
+	background: transparent;
+	cursor: pointer;
+	transition: background .2s, border-color .2s, transform .2s;
+}
+.garry-lightbox .glb-body li.je-hotovy .glb-bod {
+	border-color: var(--glb-u-vypln, #c20e1a);
+	background: var(--glb-u-vypln, #c20e1a);
+}
+.garry-lightbox .glb-body li.je-aktivni .glb-bod {
+	border-color: var(--glb-u-aktiv, #ff5a50);
+	background: var(--glb-u-aktiv, #ff5a50);
+	transform: scale(1.25);
+}
+.garry-lightbox .glb-cislo {
+	font-size: 11px;
+	letter-spacing: .08em;
+	font-variant-numeric: tabular-nums;
+	color: var(--glb-u-cislo, rgba(255,255,255,.55));
+	transition: color .2s;
+}
+.garry-lightbox .glb-body li.je-aktivni .glb-cislo { color: var(--glb-u-aktiv, #ff5a50); }
+
+/* ---------- mřížka náhledů shortcodu ---------- */
+.glb-galerie {
+	display: grid;
+	grid-template-columns: repeat(var(--glb-sloupce, 3), minmax(0, 1fr));
+	gap: var(--glb-mezera, 12px);
+}
+.glb-galerie .glb-dlazdice { display: block; overflow: hidden; line-height: 0; }
+.glb-galerie .glb-dlazdice img { width: 100%; height: 100%; object-fit: cover; transition: transform .6s cubic-bezier(.16,1,.3,1); }
+.glb-galerie .glb-dlazdice:hover img { transform: scale(1.05); }
+
+/* ---------- menší obrazovky ---------- */
+@media (max-width: 782px) {
+	.garry-lightbox .glb-nadpis { padding: 20px 62px 0; letter-spacing: .08em; }
+	.garry-lightbox .glb-telo { gap: 4px; padding: 14px 6px; }
+	.garry-lightbox .glb-sipka { width: 36px; height: 36px; }
+	.garry-lightbox .glb-ukazatel { padding-bottom: 18px; }
+	.garry-lightbox .glb-cislo { font-size: 10px; }
+	/* Na úzké obrazovce se čísla u delších galerií slijí — zůstanou jen body. */
+	.garry-lightbox .glb-body li:not(.je-aktivni) .glb-cislo { display: none; }
+}
+
+/* Uživatel, který si vypnul animace, nemá dostat ani plynulé přechody lightboxu. */
+@media (prefers-reduced-motion: reduce) {
+	.garry-lightbox,
+	.garry-lightbox .glb-vypln,
+	.garry-lightbox .glb-bod,
+	.garry-lightbox .glb-foto,
+	.glb-galerie .glb-dlazdice img { transition: none !important; }
+	.glb-galerie .glb-dlazdice:hover img { transform: none !important; }
+}
