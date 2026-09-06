@@ -44,15 +44,21 @@ def modul_nadpis(text, uroven="h2"):
         "builderVersion": "5.9.0"})
 
 
-def sekce(kotva, trida, obsah, poradi, znacka=None):
+def sekce(kotva, trida, obsah, poradi, znacka=None, odsazeni_shora=None):
     """Divi sekce s kotvou a třídou, uvnitř jeden řádek s jedním sloupcem.
 
     znacka = velké „T1"…„T5" v levém vyhrazeném pruhu. Je to samostatný textový
     modul PŘED řádkem sekce, stejně jako na titulní straně — .sec-tag je
     absolutně pozicovaný vůči sekci, uvnitř řádku by se přišpendlil špatně."""
-    hlavicka = divi("section", {
-        "module": {"decoration": {"attributes": atr(("class", trida), ("id", kotva))}},
-        "builderVersion": "5.9.0"}, samostatny=False)
+    modul = {"decoration": {"attributes": atr(("class", trida), ("id", kotva))}}
+    if odsazeni_shora:
+        # První sekce podstránky má na celém webu odsazení clamp(120px,16vh,180px);
+        # samotná třída .sec-pad dává jen clamp(80px,12vh,150px) a sekce pak sedí
+        # těsně pod fixní hlavičkou.
+        modul["decoration"]["spacing"] = {"desktop": {"value": {"padding": {
+            "top": odsazeni_shora, "right": "", "bottom": "", "left": "",
+            "syncVertical": "off", "syncHorizontal": "off"}}}}
+    hlavicka = divi("section", {"module": modul, "builderVersion": "5.9.0"}, samostatny=False)
     radek = divi("row", {
         "module": {
             "advanced": {"columnStructure": {"desktop": {"value": "4_4"}},
@@ -120,7 +126,7 @@ for pid, lang in UBYT.items():
         + modul_text(U.INTRO[i])
         + modul_text('<div class="amenity-uvod">' + V.top_html(lang) + '</div>')
         + modul_text('[grid_rooms_cards vse="1"]')
-        + modul_text(U.chips_html(lang)), 1, "T1")
+        + modul_text(U.chips_html(lang)), 1, "T1", "clamp(120px,16vh,180px)")
 
     t2 = sekce("prehled-pokoju", "sec sec-dark carbon sec-pad",
         modul_text(f'<span class="kicker">{S["prehled-pokoju"]["kicker"][i]}</span>')

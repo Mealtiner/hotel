@@ -622,14 +622,22 @@ Text Domain: grid-divi5-child
   @media(max-width:959px){.onas-grid{grid-template-columns:1fr 1fr}}
   @media(max-width:640px){.onas-grid{grid-template-columns:1fr}}
   /* Ubytování — přehled pokojů, vybavení, dobré vědět */
-  .room-table{width:100%;border-collapse:collapse;font-size:.95rem}
+  /* Přehledová tabulka pokojů drží stejnou paletu jako karty na titulní straně:
+     výplň jako .exp-item po najetí, rámeček jako .exp-item, podtržení názvu
+     zlatou (barva odkazů na tmavém povrchu) a řádek pod myší jako .ev-row. */
+  /* Divi stylizuje tabulky v obsahu pravidlem .entry-content table:not(.variations)
+     (rámeček #eee) o specificitě 0,2,1. Zdvojená třída ji přebije bez !important,
+     které by znemožnilo pozdější přepsání v Divi Builderu. */
+  .sec .room-table.room-table,.room-table{width:100%;border-collapse:collapse;font-size:.95rem;background:rgba(255,255,255,.03);border:1px solid var(--line-c);border-radius:2px;overflow:hidden}
+  .sec-light .room-table{background:rgba(20,22,25,.02)}
   .room-table th,.room-table td{text-align:left;padding:12px 14px;border-bottom:1px solid var(--line-c)}
   .room-table thead th{font-family:var(--f-mono);font-size:.7rem;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
-  .room-table td a{color:var(--fg);border-bottom:1px solid var(--red)}
+  .room-table td a{position:relative;display:inline-block;color:var(--fg);border-bottom:1px solid var(--gold)}
+  .sec-light .room-table td a{border-bottom-color:var(--red)}
   .room-table tfoot td{font-weight:700;color:var(--fg);border-top:2px solid var(--fg)}
   /* hover řádku + zvýraznění názvu s nápovědou (text z data-hint — lokalizovaný) */
   .room-table tbody tr{transition:background .2s}
-  .room-table tbody tr:hover{background:var(--zvyrazneni-radku,rgba(194,14,26,.07))}
+  .room-table tbody tr:hover{background:rgba(194,14,26,.06)}
   /* Stejná červená jako zvýrazněný sloupec na detailu pokoje. Na tmavém
      povrchu je 7% červená proti tmavému podkladu prakticky neviditelná,
      proto se tam sytost zvedá. */
@@ -637,7 +645,11 @@ Text Domain: grid-divi5-child
   .sec-light{--zvyrazneni-radku:rgba(194,14,26,.07)}
   .room-table td a{transition:font-weight .1s}
   .room-table td a:hover{font-weight:700}
-  .room-table td a::after{content:attr(data-hint);font-family:var(--f-mono);font-size:.64rem;letter-spacing:.08em;text-transform:uppercase;color:var(--red);opacity:0;margin-left:10px;transition:opacity .2s;white-space:nowrap}
+  /* Nápověda leží mimo tok, aby v klidovém stavu podtržení končilo za názvem;
+     vlastní spodní čáru má navázanou na tu pod názvem, takže po najetí vypadají
+     jako jedna souvislá linka. */
+  .room-table td a::after{content:attr(data-hint);position:absolute;left:100%;bottom:-1px;padding-left:10px;font-family:var(--f-mono);font-size:.64rem;letter-spacing:.08em;text-transform:uppercase;color:var(--red);opacity:0;border-bottom:1px solid var(--gold);transition:opacity .2s;white-space:nowrap;pointer-events:none}
+  .sec-light .room-table td a::after{border-bottom-color:var(--red)}
   .room-table td a:hover::after{opacity:1}
   /* minmax(0,1fr) místo 1fr: holé 1fr nikdy neklesne pod min-content buňky,
      takže dlouhá německá slova roztáhla mřížku přes rodiče. Matice parametrů
