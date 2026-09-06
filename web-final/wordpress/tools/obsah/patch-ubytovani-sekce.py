@@ -44,8 +44,12 @@ def modul_nadpis(text, uroven="h2"):
         "builderVersion": "5.9.0"})
 
 
-def sekce(kotva, trida, obsah, poradi):
-    """Divi sekce s kotvou a třídou, uvnitř jeden řádek s jedním sloupcem."""
+def sekce(kotva, trida, obsah, poradi, znacka=None):
+    """Divi sekce s kotvou a třídou, uvnitř jeden řádek s jedním sloupcem.
+
+    znacka = velké „T1"…„T5" v levém vyhrazeném pruhu. Je to samostatný textový
+    modul PŘED řádkem sekce, stejně jako na titulní straně — .sec-tag je
+    absolutně pozicovaný vůči sekci, uvnitř řádku by se přišpendlil špatně."""
     hlavicka = divi("section", {
         "module": {"decoration": {"attributes": atr(("class", trida), ("id", kotva))}},
         "builderVersion": "5.9.0"}, samostatny=False)
@@ -62,7 +66,8 @@ def sekce(kotva, trida, obsah, poradi):
         "module": {"advanced": {"type": {"desktop": {"value": "4_4"}}},
                    "decoration": {"sizing": {"desktop": {"value": {"flexType": "24_24"}}}}},
         "builderVersion": "5.9.0"}, samostatny=False)
-    return (hlavicka + radek + sloupec + obsah
+    tag = modul_text(f'<span class="sec-tag">{znacka}</span>') if znacka else ""
+    return (hlavicka + tag + radek + sloupec + obsah
             + "<!-- /wp:divi/column --><!-- /wp:divi/row --><!-- /wp:divi/section -->")
 
 
@@ -115,28 +120,28 @@ for pid, lang in UBYT.items():
         + modul_text(U.INTRO[i])
         + modul_text('<div class="amenity-uvod">' + V.top_html(lang) + '</div>')
         + modul_text('[grid_rooms_cards vse="1"]')
-        + modul_text(U.chips_html(lang)), 1)
+        + modul_text(U.chips_html(lang)), 1, "T1")
 
     t2 = sekce("prehled-pokoju", "sec sec-dark carbon sec-pad",
         modul_text(f'<span class="kicker">{S["prehled-pokoju"]["kicker"][i]}</span>')
         + modul_nadpis(S["prehled-pokoju"]["nadpis"][i])
-        + modul_text("[grid_rooms_table]"), 2)
+        + modul_text("[grid_rooms_table]"), 2, "T2")
 
     t3 = sekce("srovnani-pokoju", "sec sec-light sec-pad",
         modul_text(f'<span class="kicker">{S["srovnani-pokoju"]["kicker"][i]}</span>')
         + modul_nadpis(S["srovnani-pokoju"]["nadpis"][i])
         + modul_text(f'<p class="sec-lead">{S["srovnani-pokoju"]["perex"][i]}</p>')
-        + modul_text("[grid_rooms_compare]"), 3)
+        + modul_text("[grid_rooms_compare]"), 3, "T3")
 
     t4 = sekce("vybaveni", "sec sec-dark carbon sec-pad",
         modul_text(f'<span class="kicker">{S["vybaveni"]["kicker"][i]}</span>')
         + modul_nadpis(S["vybaveni"]["nadpis"][i])
-        + modul_text(V.skupiny_html(lang)), 4)
+        + modul_text(V.skupiny_html(lang)), 4, "T4")
 
     t5 = sekce("dobre-vedet", "sec sec-light sec-pad",
         modul_text(f'<span class="kicker">{S["dobre-vedet"]["kicker"][i]}</span>')
         + modul_nadpis(S["dobre-vedet"]["nadpis"][i])
-        + modul_text(U.dobre_vedet_html(lang)), 5)
+        + modul_text(U.dobre_vedet_html(lang)), 5, "T5")
 
     nova = t1 + t2 + t3 + t4 + t5 + zaver
     io.open(f"{SP}/ub-out-{pid}.txt", "w", encoding="utf-8").write(nova)

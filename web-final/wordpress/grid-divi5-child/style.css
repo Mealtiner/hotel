@@ -623,13 +623,18 @@ Text Domain: grid-divi5-child
   @media(max-width:640px){.onas-grid{grid-template-columns:1fr}}
   /* Ubytování — přehled pokojů, vybavení, dobré vědět */
   .room-table{width:100%;border-collapse:collapse;font-size:.95rem}
-  .room-table th,.room-table td{text-align:left;padding:12px 14px;border-bottom:1px solid rgba(20,22,25,.1)}
+  .room-table th,.room-table td{text-align:left;padding:12px 14px;border-bottom:1px solid var(--line-c)}
   .room-table thead th{font-family:var(--f-mono);font-size:.7rem;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
-  .room-table td a{color:var(--ink,#16181B);border-bottom:1px solid var(--red)}
-  .room-table tfoot td{font-weight:700;color:var(--ink,#16181B);border-top:2px solid rgba(20,22,25,.2)}
+  .room-table td a{color:var(--fg);border-bottom:1px solid var(--red)}
+  .room-table tfoot td{font-weight:700;color:var(--fg);border-top:2px solid var(--fg)}
   /* hover řádku + zvýraznění názvu s nápovědou (text z data-hint — lokalizovaný) */
   .room-table tbody tr{transition:background .2s}
-  .room-table tbody tr:hover{background:rgba(194,14,26,.06)}
+  .room-table tbody tr:hover{background:var(--zvyrazneni-radku,rgba(194,14,26,.07))}
+  /* Stejná červená jako zvýrazněný sloupec na detailu pokoje. Na tmavém
+     povrchu je 7% červená proti tmavému podkladu prakticky neviditelná,
+     proto se tam sytost zvedá. */
+  .sec-dark{--zvyrazneni-radku:rgba(255,90,80,.14)}
+  .sec-light{--zvyrazneni-radku:rgba(194,14,26,.07)}
   .room-table td a{transition:font-weight .1s}
   .room-table td a:hover{font-weight:700}
   .room-table td a::after{content:attr(data-hint);font-family:var(--f-mono);font-size:.64rem;letter-spacing:.08em;text-transform:uppercase;color:var(--red);opacity:0;margin-left:10px;transition:opacity .2s;white-space:nowrap}
@@ -650,7 +655,11 @@ Text Domain: grid-divi5-child
      proto se člení do tematických skupin — plochý výčet 60 položek se nedá číst. */
   .amenity-groups{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:clamp(20px,2.4vw,34px);margin:26px 0 0}
   .amenity-groups section{min-width:0}
-  .amenity-groups h3{font-family:var(--f-mono);font-size:.7rem;letter-spacing:.12em;text-transform:uppercase;color:var(--fg);margin:0 0 10px;padding-bottom:8px;border-bottom:1px solid var(--line-c)}
+  .amenity-groups h3{display:flex;align-items:center;gap:9px;font-family:var(--f-mono);font-size:.7rem;letter-spacing:.12em;text-transform:uppercase;color:var(--fg);margin:0 0 10px;padding-bottom:8px;border-bottom:1px solid var(--line-c)}
+  /* Piktogram skupiny — stejná role jako na Bookingu: zrychluje orientaci
+     v dlouhém výčtu. Nese ho ikona, ne text, proto aria-hidden. */
+  .amenity-groups .ag-ikona{flex:none;width:18px;height:18px;fill:none;stroke:var(--red);stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}
+  .sec-dark .amenity-groups .ag-ikona{stroke:#FF5A50}
   .amenity-groups ul{list-style:none;margin:0;padding:0;display:grid;gap:6px}
   .amenity-groups li{min-width:0;overflow-wrap:anywhere;position:relative;padding-left:20px;color:var(--muted);font-size:.88rem;line-height:1.45}
   .amenity-groups li::before{content:"·";position:absolute;left:6px;color:var(--red);font-weight:700}
@@ -682,7 +691,7 @@ Text Domain: grid-divi5-child
     /* Široká srovnávací tabulka se skládá do řádkových karet už na tabletu
        na výšku — na 768 px se šest sloupců nevejde ani se zalomením. */
     .room-table thead{display:none}
-    .room-table tr{display:block;padding:10px 0;border-bottom:1px solid rgba(20,22,25,.12)}
+    .room-table tr{display:block;padding:10px 0;border-bottom:1px solid var(--line-c)}
     .room-table td{display:flex;justify-content:space-between;gap:16px;border:none;padding:5px 0}
     .room-table td::before{content:attr(data-l);font-family:var(--f-mono);font-size:.68rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
     .room-table tfoot td::before{content:""}
@@ -1464,6 +1473,11 @@ body.has-section-nav .exp{ padding-right: max(0px, var(--rail-pad)); }          
 .rd-table thead th{font-family:var(--f-head);text-transform:uppercase;font-size:1.02rem;color:var(--fg);border-bottom:2px solid var(--ink)}
 .rd-table td:first-child,.rd-table th:first-child{text-align:left;color:var(--fg);font-weight:600}
 .rd-table .is-current{background:rgba(194,14,26,.07)}
+/* Řádek pod myší se zvýrazní stejně jako aktuální sloupec — u sedmnácti
+   řádků a šesti sloupců je bez vodítka snadné ztratit řádek očima. */
+.rd-table tbody tr{transition:background .18s}
+.rd-table tbody tr:hover td{background:var(--zvyrazneni-radku,rgba(194,14,26,.07))}
+.rd-table tbody tr:hover td.is-current{background:rgba(194,14,26,.14)}
 .rd-table thead th.is-current{color:var(--red)}
 /* galerie */
 .roomgallery{display:grid;grid-template-columns:repeat(3,1fr);gap:clamp(10px,1.4vw,18px)}
