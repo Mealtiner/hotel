@@ -35,6 +35,32 @@ function gridc_gastro_rows_from_core( array $defaults ) {
 	return $rows;
 }
 
+/**
+ * [grid_gastro_foto provoz="hotelova-restaurace" foto="restaurace-paddock.jpg"]
+ *
+ * Fotka provozu na kartě v sekci T5. Bere se z náhledového obrázku CPT „Gastro
+ * provoz" — personál ji tedy mění v administraci u provozu, ne v layoutu stránky.
+ * Když náhledový obrázek není nastavený, použije se záložní soubor z motivu.
+ */
+function gridc_sc_gastro_foto( $atts = array() ) {
+	$a = shortcode_atts( array( 'provoz' => '', 'id' => 0, 'foto' => '', 'alt' => '' ), $atts );
+
+	$id = (int) $a['id'];
+	if ( ! $id && $a['provoz'] ) {
+		$p = get_page_by_path( sanitize_title( $a['provoz'] ), OBJECT, 'grid_gastro' );
+		if ( $p ) $id = (int) $p->ID;
+	}
+
+	$src = $id ? get_the_post_thumbnail_url( $id, 'large' ) : '';
+	if ( ! $src ) $src = gridc_fallback_image( $a['foto'] ? $a['foto'] : 'restaurace-paddock.jpg' );
+
+	$alt = $a['alt'] ? $a['alt'] : ( $id ? get_the_title( $id ) : '' );
+
+	return '<div class="g-img"><img src="' . esc_url( $src ) . '" alt="' . esc_attr( $alt )
+		. '" loading="lazy"></div>';
+}
+gridc_register_shortcode( 'grid_gastro_foto', 'gridc_sc_gastro_foto' );
+
 /** Identifikátor panelu jídelníčku podle provozu. */
 function gridc_gastro_menu_slot( $item ) {
 	$title = mb_strtolower( (string) gridc_row_val( $item, 'title' ) );

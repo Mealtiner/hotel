@@ -10,7 +10,7 @@ SVG = "/wp-content/themes/grid-divi5-child/assets/foto/"
 
 def divi(nazev, atributy, samostatny=True):
     j = json.dumps(atributy, ensure_ascii=False, separators=(",", ":"))
-    j = j.replace("<", "\\u003c").replace(">", "\\u003e")
+    j = j.replace("<", "\\u003c").replace(">", "\\u003e").replace('\\"', "\\u0022").replace("&", "\\u0026")
     return f"<!-- wp:divi/{nazev} {j} {'/' if samostatny else ''}-->"
 
 
@@ -30,6 +30,29 @@ def nadpis(t, uroven="h2"):
         "title": {"innerContent": {"desktop": {"value": t}},
                   "decoration": {"font": {"font": {"desktop": {"value": {"headingLevel": uroven}}}}}},
         "builderVersion": "5.9.0"})
+
+
+def tlacitko(popis, url, trida="btn"):
+    return divi("button", {
+        "button": {"innerContent": {"desktop": {"value": {"text": popis, "linkUrl": url}}}},
+        "module": {"decoration": {"attributes": atr(("class", trida))}},
+        "builderVersion": "5.9.0"})
+
+
+def radek_tlacitek(polozky):
+    """Vnorený řádek .fc-actions — každé tlačítko ve vlastním sloupci."""
+    r = divi("row", {"module": {
+        "advanced": {"columnStructure": {"desktop": {"value": "1_3,1_3,1_3"}},
+                     "flexColumnStructure": {"desktop": {"value": "equal-columns_3"}}},
+        "decoration": {"layout": {"desktop": {"value": {"flexWrap": "nowrap", "justifyContent": "center"}}},
+                       "attributes": atr(("class", "fc-actions"))}},
+        "builderVersion": "5.9.0"}, False)
+    for popis, url, trida in polozky:
+        r += divi("column", {"module": {"advanced": {"type": {"desktop": {"value": "1_3"}}},
+                                        "decoration": {"sizing": {"desktop": {"value": {"flexType": "24_24"}}}}},
+                             "builderVersion": "5.9.0"}, False)
+        r += tlacitko(popis, url, trida) + "<!-- /wp:divi/column -->"
+    return r + "<!-- /wp:divi/row -->"
 
 
 def sekce(kotva, trida, obsah, znacka=None, odsazeni=None):
@@ -106,7 +129,16 @@ def obsah_stranky(l):
         + text("".join(O.T5["text"][i]))
         + text(f'<p class="okruh-zdroje">{O.ZDROJE[i]}</p>'), "T5")
 
-    return t1 + t2 + t3 + t4 + t5
+    lnk = O.LINKY[l]
+    tl = [(popis, lnk[klic], "btn" if n == 0 else "btn btn-ghost")
+          for n, (popis, klic) in enumerate(O.T6["tlacitka"][i])]
+    t6 = sekce("rezervace", "sec sec-dark final",
+        text(f'<span class="kicker" style="justify-content:center;display:inline-flex">{O.T6["kicker"][i]}</span>')
+        + nadpis(O.T6["nadpis"][i])
+        + text(f'<p>{O.T6["perex"][i]}</p>')
+        + radek_tlacitek(tl))
+
+    return t1 + t2 + t3 + t4 + t5 + t6
 
 
 for lang in ("cz", "en", "de"):

@@ -58,19 +58,19 @@ function menu_provozy( $lang ) {
 function menu_struktura( $lang ) {
 	$p = array( 'cs' => '', 'en' => '/en', 'de' => '/de' )[ $lang ];
 	$T = array(
-		'cs' => array( 'grid'=>'GRID', 'pribeh'=>'Příběh hotelu', 'proc'=>'Proč GRID', 'okoli'=>'Okolí hotelu',
+		'cs' => array( 'grid'=>'GRID', 'pribeh'=>'Příběh hotelu', 'proc'=>'Proč GRID', 'okruh'=>'Masarykův okruh', 'okoli'=>'Okolí hotelu',
 			'pokoje'=>'Pokoje', 'prehled'=>'Přehled ubytování', 'srovnani'=>'Srovnání pokojů',
 			'zazitky'=>'Zážitky', 'vse_zazitky'=>'Všechny zážitky', 'poukazy'=>'Dárkové poukazy',
 			'gastro'=>'Gastronomie', 'gastro_vse'=>'GRID Gastronomie',
 			'sezona'=>'Sezóna', 'akce'=>'Nadcházející akce', 'cekaci'=>'Rezervace & čekací list',
 			'firemni'=>'Firemní akce & svatby', 'nabidka'=>'Nabídka hotelu', 'kontakt'=>'Kontakt' ),
-		'en' => array( 'grid'=>'GRID', 'pribeh'=>'Our story', 'proc'=>'Why GRID', 'okoli'=>'The area',
+		'en' => array( 'grid'=>'GRID', 'pribeh'=>'Our story', 'proc'=>'Why GRID', 'okruh'=>'The Masaryk Circuit', 'okoli'=>'The area',
 			'pokoje'=>'Rooms', 'prehled'=>'Accommodation overview', 'srovnani'=>'Room comparison',
 			'zazitky'=>'Experiences', 'vse_zazitky'=>'All experiences', 'poukazy'=>'Gift vouchers',
 			'gastro'=>'Dining', 'gastro_vse'=>'GRID Dining',
 			'sezona'=>'Season', 'akce'=>'Upcoming events', 'cekaci'=>'Booking & waiting list',
 			'firemni'=>'Corporate events & weddings', 'nabidka'=>'What we offer', 'kontakt'=>'Contact' ),
-		'de' => array( 'grid'=>'GRID', 'pribeh'=>'Unsere Geschichte', 'proc'=>'Warum GRID', 'okoli'=>'Die Umgebung',
+		'de' => array( 'grid'=>'GRID', 'pribeh'=>'Unsere Geschichte', 'proc'=>'Warum GRID', 'okruh'=>'Der Masaryk-Ring', 'okoli'=>'Die Umgebung',
 			'pokoje'=>'Zimmer', 'prehled'=>'Übersicht der Unterkunft', 'srovnani'=>'Zimmervergleich',
 			'zazitky'=>'Erlebnisse', 'vse_zazitky'=>'Alle Erlebnisse', 'poukazy'=>'Geschenkgutscheine',
 			'gastro'=>'Gastronomie', 'gastro_vse'=>'GRID Gastronomie',
@@ -78,6 +78,7 @@ function menu_struktura( $lang ) {
 			'firemni'=>'Firmenevents & Hochzeiten', 'nabidka'=>'Unser Angebot', 'kontakt'=>'Kontakt' ),
 	)[ $lang ];
 
+	$okruh  = menu_url( $lang === 'cs' ? 'masarykuv-okruh' : ( $lang === 'en' ? 'masaryk-circuit' : 'masaryk-ring' ), $lang );
 	$onas   = menu_url( $lang === 'cs' ? 'o-nas' : ( $lang === 'en' ? 'about-the-hotel' : 'ueber-uns' ), $lang );
 	$ubyt   = menu_url( $lang === 'cs' ? 'ubytovani' : ( $lang === 'en' ? 'accommodation' : 'unterkunft' ), $lang );
 	$zaz    = menu_url( $lang === 'cs' ? 'zazitky' : ( $lang === 'en' ? 'experiences' : 'erlebnisse' ), $lang );
@@ -90,6 +91,7 @@ function menu_struktura( $lang ) {
 		array( 'title' => $T['grid'], 'url' => $p . '/#pribeh', 'deti' => array(
 			array( 'title' => $T['pribeh'], 'url' => $onas ),
 			array( 'title' => $T['proc'],   'url' => $onas . '#proc-grid' ),
+			array( 'title' => $T['okruh'],  'url' => $okruh ),
 			array( 'title' => $T['okoli'],  'url' => $onas . '#okoli' ),
 		) ),
 		array( 'title' => $T['pokoje'], 'url' => $p . '/#pokoje', 'deti' => array_merge( array(

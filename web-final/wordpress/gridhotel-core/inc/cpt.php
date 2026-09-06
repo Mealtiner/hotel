@@ -207,3 +207,39 @@ foreach ( array('grid_room','grid_experience','grid_event','grid_gastro','grid_t
 		if ( $col === 'menu_order' ) echo (int) get_post_field( 'menu_order', $post_id );
 	}, 10, 2 );
 }
+
+/* ------------------------------------------------------------------
+ * Náhledový obrázek u GRID typů: srozumitelný název, pevné místo v pravém
+ * sloupci a náhled ve výpisu. Fotka provozu / pokoje se tak dá vyměnit přímo
+ * u záznamu — layout stránky (Divi) se kvůli fotce nemusí otevírat.
+ * ------------------------------------------------------------------ */
+add_action( 'add_meta_boxes', function ( $post_type ) {
+	$popisky = array(
+		'grid_gastro' => array( 'Fotka provozu', 'Zobrazí se na kartě provozu v sekci Gastronomie.' ),
+		'grid_room'   => array( 'Fotka pokoje', 'Zobrazí se u kategorie pokoje.' ),
+	);
+	if ( ! isset( $popisky[ $post_type ] ) || ! post_type_supports( $post_type, 'thumbnail' ) ) return;
+
+	remove_meta_box( 'postimagediv', $post_type, 'side' );
+	add_meta_box( 'postimagediv', $popisky[ $post_type ][0], function ( $post ) use ( $popisky, $post_type ) {
+		echo '<p style="margin:0 0 8px;color:#646970">' . esc_html( $popisky[ $post_type ][1] ) . '</p>';
+		post_thumbnail_meta_box( $post );
+	}, $post_type, 'side', 'high' );
+}, 20 );
+
+/* Sloupec s náhledem ve výpisu — hned je vidět, kde fotka chybí. */
+foreach ( array( 'grid_gastro', 'grid_room' ) as $pt ) {
+	add_filter( "manage_{$pt}_posts_columns", function ( $cols ) {
+		return array_slice( $cols, 0, 1, true )
+			+ array( 'grid_thumb' => 'Fotka' )
+			+ array_slice( $cols, 1, null, true );
+	} );
+	add_action( "manage_{$pt}_posts_custom_column", function ( $col, $post_id ) {
+		if ( 'grid_thumb' !== $col ) return;
+		if ( has_post_thumbnail( $post_id ) ) {
+			echo get_the_post_thumbnail( $post_id, array( 60, 40 ), array( 'style' => 'object-fit:cover;border-radius:2px' ) );
+		} else {
+			echo '<span style="color:#b32d2e">chybí</span>';
+		}
+	}, 10, 2 );
+}

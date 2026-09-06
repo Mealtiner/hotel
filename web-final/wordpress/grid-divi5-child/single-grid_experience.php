@@ -98,7 +98,31 @@ while ( have_posts() ) : the_post();
 	<?php endif; ?>
 
 	<?php
-	$others = new WP_Query( array( 'post_type' => 'grid_experience', 'posts_per_page' => 3, 'post__not_in' => array( $id ), 'orderby' => 'menu_order title', 'order' => 'ASC', 'post_status' => 'publish' ) );
+	/* Nabízíme jen zážitky, které mají zapnutý výpis v přehledu — skryté (např.
+	   dočasně mimo provoz) se nemají objevit ani v doporučení pod detailem.
+	   Chybějící hodnota = zážitek vznikl před zavedením přepínače, ten zůstává. */
+	$others = new WP_Query( array(
+		'post_type'      => 'grid_experience',
+		'posts_per_page' => 3,
+		'post__not_in'   => array( $id ),
+		'orderby'        => 'menu_order title',
+		'order'          => 'ASC',
+		'post_status'    => 'publish',
+		'meta_query'     => array(
+			'relation' => 'AND',
+			array(
+				'relation' => 'OR',
+				array( 'key' => 'v_prehledu', 'compare' => 'NOT EXISTS' ),
+				array( 'key' => 'v_prehledu', 'value' => '0', 'compare' => '!=' ),
+			),
+			/* karta poukazů není zážitek — mezi doporučení nepatří */
+			array(
+				'relation' => 'OR',
+				array( 'key' => 'poukaz', 'compare' => 'NOT EXISTS' ),
+				array( 'key' => 'poukaz', 'value' => '1', 'compare' => '!=' ),
+			),
+		),
+	) );
 	if ( $others->have_posts() ) : ?>
 	<section class="sec sec-dark carbon sec-pad">
 	  <div class="wrap">

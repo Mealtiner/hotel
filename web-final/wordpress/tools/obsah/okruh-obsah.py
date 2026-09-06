@@ -194,3 +194,28 @@ ZDROJE = (
     "Quellen: die offiziellen Websites der Rennstrecke und des Grand-Prix-Veranstalters. Angaben können sich "
     "ändern — für Programm, Tickets und Besucherinformationen gelten die offiziellen Seiten.",
 )
+
+# ---------------------------------------------------------------- T6 rezervace (CTA)
+LINKY = {
+    "cz": {"rezervace": "/rezervace/", "pokoje": "/ubytovani/", "kontakt": "/kontakt/"},
+    "en": {"rezervace": "/en/reservation/", "pokoje": "/en/accommodation/", "kontakt": "/en/contact/"},
+    "de": {"rezervace": "/de/reservierung/", "pokoje": "/de/unterkunft/", "kontakt": "/de/kontakt-de/"},
+}
+
+T6 = {
+    "kicker": ("T6 \u00b7 Rezervace", "T6 \u00b7 Booking", "T6 \u00b7 Buchung"),
+    "nadpis": ("Sp\u011bte uvnit\u0159<br>Masarykova okruhu.",
+               "Sleep inside<br>the Masaryk Circuit.",
+               "\u00dcbernachten Sie<br>im Masaryk-Ring."),
+    "perex": ("Pokoje s v\u00fdhledem na tra\u0165, paddock pár kroků od recepce a parkování zdarma "
+              "v areálu. Rezervujte pobyt na termín, kdy se na okruhu něco děje — nebo právě naopak.",
+              "Rooms overlooking the track, the paddock a short walk from reception and free parking "
+              "inside the complex. Book your stay for a race weekend — or for the quiet in between.",
+              "Zimmer mit Blick auf die Strecke, das Paddock wenige Schritte von der Rezeption und "
+              "kostenlose Parkplätze auf dem Gelände. Buchen Sie zum Rennwochenende — oder gerade dazwischen."),
+    "tlacitka": (
+      (("Rezervovat pobyt", "rezervace"), ("Prohl\u00e9dnout pokoje", "pokoje"), ("Kontaktovat recepci", "kontakt")),
+      (("Book your stay", "rezervace"), ("See the rooms", "pokoje"), ("Contact reception", "kontakt")),
+      (("Aufenthalt buchen", "rezervace"), ("Zimmer ansehen", "pokoje"), ("Rezeption kontaktieren", "kontakt")),
+    ),
+}

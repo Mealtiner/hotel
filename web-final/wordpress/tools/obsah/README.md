@@ -37,6 +37,53 @@ a zároveň opraví počet kategorií v nadpisu.
 světlou sekci `#okoli` a vloží ji mezi časosběr a rezervaci na stránkách
 261 / 400 / 401.
 
+## Masarykův okruh — sekce T6 (rezervace)
+
+`okruh-obsah.py` drží texty stránky, `okruh-build.py` z nich skládá Divi bloky.
+Sekce T6 je závěrečná CTA (`sec sec-dark final`, kotva `#rezervace`) s odkazy
+na rezervaci, pokoje a kontakt podle jazyka (`LINKY` v `okruh-obsah.py`).
+Výstup jde přes `wp post update 1018|1019|1020 okruh-<lang>.txt`.
+
+`patch-home-okruh.py` přidá na titulní stránce (sekce T2 · Příběh místa)
+druhé tlačítko „Masarykův okruh" vedle „Celý příběh hotelu".
+
+## Zážitek MotoGP (prime karta)
+
+`motogp-obsah.py` = texty CZ/EN/DE (perex, parametry, dlouhý popis s mapou
+okruhu a odkazy na vstupenky), `motogp-build.py` je vyexportuje do JSON a
+`motogp-vytvorit.php` z nich založí/aktualizuje CPT zážitky ve třech jazycích
+(pole `prime` = zvýrazněná karta). `motogp-karta.py` vloží prime kartu na
+první místo do mřížky `.exp` v sekci T4 (stránky 99/378/379 a 337/382/383).
+
+## Fotky gastro provozů
+
+`gastro-foto-dynamicky.py` nahradí natvrdo vložený Divi obrázek na kartách
+v sekci T5 shortcodem `[grid_gastro_foto provoz="…" foto="…"]`. Fotka se pak
+bere z náhledového obrázku CPT „Gastro provoz"; když chybí, použije se
+původní soubor z motivu.
+
+## Zážitky u okruhu (obsah + copy)
+
+`zazitky-obsah.py` drží texty devíti zážitků ve třech jazycích (perex, parametry,
+plný popis se sekcemi a odkazy na zdroje). `zazitky-build.py` je vyexportuje do
+`zazitky.json`, `zazitky-vytvorit.php` z nich založí nebo aktualizuje CPT záznamy,
+propojí je v Polylangu a nastaví přepínače „Zobrazit na homepage" a „Zobrazit na
+stránce přehledu zážitků". Prime zážitek MotoGP má vlastní soubor `motogp-obsah.py`.
+
+Fakta pocházejí z automotodrombrno.cz (jízdy veřejnosti, motokáry, motoškoly,
+minibiková akademie, jízdy v supersportu) a polygonbrno.cz (škola smyku, drift,
+gangster kurz, odpočet bodů, poukazy).
+
+Popis detailu se skládá do matice dvou sloupců (`.rd-mrizka` / `.rd-blok`),
+na úzkém displeji jde do jednoho sloupce. Karta „Dárkové poukazy“ není zážitek —
+má v administraci zapnuté pole „Karta dárkových poukazů“, takže místo čísla
+ukazuje `voucher`, nevede na detail ani na web pořadatele, ale na kotvu
+`#poukazy` na stránce Zážitky, a v mřížce stojí vždy poslední.
+
+`zazitky-karty-dynamicky.py` nahradí natvrdo vypsané karty v sekci T4 shortcodem
+`[grid_zazitky_karty misto="homepage|prehled"]` — výpis se pak řídí výhradně
+přepínači u zážitku v administraci (stránky 99/378/379 a 337/382/383).
+
 ## Spuštění
 
 ```sh

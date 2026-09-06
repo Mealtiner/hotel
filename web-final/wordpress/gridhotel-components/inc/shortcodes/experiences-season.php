@@ -23,10 +23,13 @@ function gridc_sc_zazitky() {
 		if ( ! empty( $all ) ) {
 			$featured = array_values( array_filter( $all, fn( $e ) => ! empty( $e['featured'] ) ) );
 			$source   = ! empty( $featured ) ? $featured : $all;
-			$source   = array_slice( $source, 0, 6 );
+			/* prime zážitek (MotoGP) jde přes celou šířku, pod ním zůstává mřížka 3×2 */
+			$source   = array_slice( $source, 0, count( array_filter( $source, fn( $e ) => ! empty( $e['prime'] ) ) ) ? 7 : 6 );
 			$items    = array();
 			foreach ( $source as $e ) {
-				$items[] = array( 'num' => $e['number'], 'title' => $e['title'], 'text' => $e['text'], 'cta' => $e['cta'], 'url' => $e['link'] ?: $e['url'] );
+				$items[] = array( 'num' => $e['number'], 'title' => $e['title'], 'text' => $e['text'],
+					'cta' => $e['cta'], 'url' => $e['link'] ?: $e['url'],
+					'prime' => ! empty( $e['prime'] ), 'extern' => $e['link'] );
 			}
 		}
 	}
@@ -40,7 +43,8 @@ function gridc_sc_zazitky() {
 	      $u   = gridc_row_val( $it, 'url' );
 	      $tag = $u ? 'a' : 'div';
 	      ?>
-	    <<?php echo esc_html( $tag ); ?> class="exp-item"<?php if ( $u ) { echo ' href="' . esc_url( $u ) . '"'; } ?>><span class="x-num"><?php echo esc_html( gridc_row_val( $it, 'num' ) ); ?></span><h3><?php echo wp_kses_post( gridc_row_val( $it, 'title' ) ); ?></h3><p><?php echo esc_html( gridc_row_val( $it, 'text' ) ); ?></p><span class="x-link"><?php echo esc_html( gridc_row_val( $it, 'cta' ) ); ?></span></<?php echo esc_html( $tag ); ?>>
+	    <?php $prime = ! empty( $it['prime'] ); ?>
+	    <<?php echo esc_html( $tag ); ?> class="exp-item<?php echo $prime ? ' exp-item--prime' : ''; ?>"<?php if ( $u ) { echo ' href="' . esc_url( $u ) . '"'; } ?>><span class="x-num"><?php echo esc_html( gridc_row_val( $it, 'num' ) ); ?></span><?php if ( $prime ) : ?><span class="x-prime">Prime</span><?php endif; ?><h3><?php echo wp_kses_post( gridc_row_val( $it, 'title' ) ); ?></h3><p><?php echo esc_html( gridc_row_val( $it, 'text' ) ); ?></p><span class="x-link"><?php echo esc_html( gridc_row_val( $it, 'cta' ) ); ?></span></<?php echo esc_html( $tag ); ?>>
 	    <?php endforeach; ?>
 	  </div>
 	  <?php $zmore = gridc_section_more( array( 'zazitky-u-okruhu', 'zazitky', 'aktivity' ), 'Všechny zážitky a poukazy' ); if ( $zmore ) { echo '<div class="wrap" style="margin-top:30px">' . $zmore . '</div>'; } ?>
@@ -135,3 +139,86 @@ function gridc_render_voucher_fallback() {
 	$email = gridhotel_get_option( 'email', 'reservations@gridhotel.cz' );
 	return '<p class="description" style="color:var(--muted)">Objednávku dárkového poukazu vyřídíme rádi e-mailem: <a href="mailto:' . esc_attr( $email ) . '">' . esc_html( $email ) . '</a>.</p>';
 }
+
+/**
+ * [grid_zazitky_karty misto="homepage|prehled" limit="0"]
+ *
+ * Mřížka karet zážitků. Které karty se vypíšou, se řídí výhradně přepínači
+ * u zážitku v administraci — „Zobrazit na homepage" pro titulní stránku
+ * a „Zobrazit na stránce přehledu zážitků" pro /zazitky/. Prime zážitek jde
+ * vždy první a přes celou šířku mřížky.
+ */
+function gridc_sc_zazitky_karty( $atts = array() ) {
+	$a = shortcode_atts( array( 'misto' => 'prehled', 'limit' => 0 ), $atts );
+	$homepage = ( 'homepage' === $a['misto'] );
+
+	if ( ! function_exists( 'gridhotel_get_experiences' ) ) {
+		return '';
+	}
+	$lang  = function_exists( 'pll_current_language' ) ? ( pll_current_language() ?: null ) : null;
+	$vsechny = gridhotel_get_experiences( array( 'limit' => -1, 'locale' => $lang ) );
+
+	$karty = array();
+	foreach ( $vsechny as $e ) {
+		$zobrazit = $homepage ? ! empty( $e['featured'] ) : ! empty( $e['v_prehledu'] );
+		if ( ! $zobrazit ) {
+			continue;
+		}
+		$karty[] = $e;
+	}
+	/* prime zážitek nahoru, zbytek zůstává v pořadí podle „Pořadí" */
+	usort( $karty, function ( $x, $y ) {
+		$vaha = function ( $e ) { return ! empty( $e['prime'] ) ? -1 : ( ! empty( $e['poukaz'] ) ? 1 : 0 ); };
+		return $vaha( $x ) - $vaha( $y );
+	} );
+	if ( (int) $a['limit'] > 0 ) {
+		$karty = array_slice( $karty, 0, (int) $a['limit'] );
+	}
+	if ( empty( $karty ) ) {
+		return '';
+	}
+
+	$T = array(
+		'detail'   => array( 'Detail zážitku', 'Experience detail', 'Erlebnis im Detail' ),
+		'partner'  => array( 'Web pořadatele', "Organiser's website", 'Website des Veranstalters' ),
+		'moznosti' => array( 'Zobrazit možnosti', 'See the options', 'Möglichkeiten ansehen' ),
+	);
+	$li = 'en' === $lang ? 1 : ( 'de' === $lang ? 2 : 0 );
+	/* Karta poukazů nevede na detail, ale na sekci poukazů na stránce Zážitky —
+	   v jazykové mutaci návštěvníka (gridc_detail_url() překlad neřeší). */
+	$zaz = get_page_by_path( 'zazitky' );
+	if ( $zaz && $lang && function_exists( 'pll_get_post' ) ) {
+		$tr = pll_get_post( $zaz->ID, $lang );
+		if ( $tr ) { $zaz = get_post( $tr ); }
+	}
+	$poukazy_url = ( $zaz ? get_permalink( $zaz ) : home_url( '/zazitky/' ) ) . '#poukazy';
+
+	ob_start(); ?>
+	<div class="exp reveal in">
+	  <?php foreach ( $karty as $e ) :
+	    $prime  = ! empty( $e['prime'] );
+	    $poukaz = ! empty( $e['poukaz'] );
+	    $url    = $poukaz ? $poukazy_url : $e['url'];
+	    $ext    = $poukaz ? '' : $e['link'];
+	    $trida  = 'exp-item' . ( $prime ? ' exp-item--prime' : '' ) . ( $poukaz ? ' exp-item--voucher' : '' );
+	    ?>
+	  <div class="<?php echo esc_attr( $trida ); ?>">
+	    <a class="entry-link" href="<?php echo esc_url( $url ); ?>" aria-label="<?php echo esc_attr( $e['title'] ); ?>"></a>
+	    <p class="x-meta"><span class="x-num"><?php echo esc_html( $poukaz ? 'voucher' : $e['number'] ); ?></span><?php if ( $prime ) : ?><span class="x-prime">Prime</span><?php endif; ?></p>
+	    <h3><?php echo wp_kses_post( $e['title'] ); ?></h3>
+	    <p><?php echo esc_html( $e['text'] ); ?></p>
+	    <div class="exp-links">
+	      <?php if ( $poukaz ) : ?>
+	      <a class="sec-more" href="<?php echo esc_url( $url ); ?>"><?php echo esc_html( $T['moznosti'][ $li ] ); ?> <span aria-hidden="true">&rarr;</span></a>
+	      <?php else : ?>
+	      <a class="sec-more" href="<?php echo esc_url( $url ); ?>"><?php echo esc_html( $T['detail'][ $li ] ); ?> <span aria-hidden="true">&rarr;</span></a>
+	      <?php if ( $ext ) : ?><a class="sec-more" href="<?php echo esc_url( $ext ); ?>" target="_blank" rel="noopener"><?php echo esc_html( $T['partner'][ $li ] ); ?> <span aria-hidden="true">&nearr;</span></a><?php endif; ?>
+	      <?php endif; ?>
+	    </div>
+	  </div>
+	  <?php endforeach; ?>
+	</div>
+	<?php
+	return ob_get_clean();
+}
+gridc_register_shortcode( 'grid_zazitky_karty', 'gridc_sc_zazitky_karty' );

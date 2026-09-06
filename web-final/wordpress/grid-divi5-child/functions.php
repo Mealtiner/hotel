@@ -31,7 +31,7 @@
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
-define( 'GRID_CHILD_VER', '3.1.0' );
+define( 'GRID_CHILD_VER', '3.2.4' );
 
 /* ------------------------------------------------------------------
  * 1) Styly a skripty

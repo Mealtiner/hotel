@@ -130,6 +130,13 @@ function gridhotel_get_experiences( array $args = array() ) {
 			'id'          => $post->ID,
 			'title'       => get_the_title( $post ),
 			'featured'    => (bool) gridcore_get_field_safe( 'doporuceno', $post->ID, false ),
+			'prime'       => (bool) gridcore_get_field_safe( 'prime', $post->ID, false ),
+			'poukaz'      => (bool) get_post_meta( $post->ID, 'poukaz', true ),
+			/* prázdná hodnota = zážitek vznikl před zavedením pole → v přehledu zůstává.
+			   Čte se přímo z meta: gridcore_get_field_safe() by u vypnutého
+			   přepínače (false) vrátil fallback, tedy opak zadaného. */
+			'v_prehledu'  => ( '' === get_post_meta( $post->ID, 'v_prehledu', true ) )
+				? true : (bool) get_post_meta( $post->ID, 'v_prehledu', true ),
 			'number'      => (string) gridcore_get_field_safe( 'num', $post->ID, '' ),
 			'text'        => (string) gridcore_get_field_safe( 'text', $post->ID, '' ),
 			'cta'         => (string) gridcore_get_field_safe( 'cta', $post->ID, '' ),
