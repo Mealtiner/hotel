@@ -122,7 +122,9 @@ for pid, lang in UBYT.items():
 
     t1 = sekce("pokoje", "sec sec-light sec-pad",
         modul_text(f'<span class="kicker">{S["pokoje"]["kicker"][i]}</span>')
-        + modul_nadpis(S["pokoje"]["nadpis"][i])
+        # Nadpis první sekce je nadpisem celé stránky, tedy H1. Stránka bez H1
+        # je SEO chyba a v osnově začíná až na druhé úrovni.
+        + modul_nadpis(S["pokoje"]["nadpis"][i], "h1")
         + modul_text(U.INTRO[i])
         + modul_text('<div class="amenity-uvod">' + V.top_html(lang) + '</div>')
         + modul_text('[grid_rooms_cards vse="1"]')

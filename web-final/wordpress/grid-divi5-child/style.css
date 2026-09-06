@@ -384,6 +384,12 @@ Text Domain: grid-divi5-child
      velikost. Na živém webu mají VŠECHNY sekce stejnou hodnotu (ověřeno
      přímo v jeho HTML), takže jde o jedno obecné pravidlo, ne
      patchování sekci po sekci. */
+  /* Nadpis stránky musí být největší. Divi má holé h1{font-size:30px} a child
+     theme dlouho stylovalo jen h2 — když se kvůli SEO doplňovaly H1 na landing
+     stránky, spadly na Diviho 30 px a byly menší než H2 pod nimi. Stránky
+     s vlastní inline velikostí (titulní hero, detail pokoje) si ji ponechají,
+     inline styl je silnější. */
+  .sec h1{font-size:clamp(2.4rem,5vw,4.4rem) !important;line-height:.95}
   .sec h2{font-size:clamp(2rem,4vw,3.6rem) !important}
   .sec-pad{padding:clamp(80px,12vh,150px) 0}
   .sec-tag{position:absolute;top:clamp(40px,7vh,80px);left:var(--gutter);font-family:var(--f-head);font-size:clamp(3rem,9vw,7rem);font-weight:800;color:transparent;-webkit-text-stroke:1px var(--stroke);line-height:.8;z-index:0;pointer-events:none}
@@ -411,7 +417,10 @@ Text Domain: grid-divi5-child
   .hero-track svg{width:100%;height:100%}
   .hero-content{position:relative;z-index:3;width:100%;max-width:var(--maxw);margin:0 auto;padding:clamp(180px,24vh,260px) var(--gutter) clamp(150px,20vh,200px)}
   .hero-content .kicker{margin-bottom:22px}
-  .hero h1{font-size:clamp(3rem,9vw,8.5rem);font-weight:800;max-width:15ch;letter-spacing:0;color:#fff}
+  /* Hero na titulní straně je záměrně největší nadpis webu; obecné .sec h1 níž
+     používá !important (kvůli Diviho holému h1{30px}), takže hero potřebuje
+     !important taky, jinak by ho obecné pravidlo srazilo na velikost podstránky. */
+  .hero h1{font-size:clamp(3rem,9vw,8.5rem) !important;font-weight:800;max-width:15ch;letter-spacing:0;color:#fff}
   .hero h1 em{font-style:normal;color:var(--red)}
   .hero-sub{margin-top:22px;max-width:52ch;color:var(--grey);font-size:clamp(1rem,1.5vw,1.18rem)}
   .hero-actions{margin-top:34px;display:flex;gap:14px;flex-wrap:wrap}
@@ -1884,7 +1893,11 @@ body.has-section-nav .exp{ padding-right: max(0px, var(--rail-pad)); }          
 /* ===== KONTAKTNÍ STRÁNKA ===== */
 .kontakt-grid{display:grid;grid-template-columns:1fr 1fr;gap:clamp(24px,4vw,54px);margin-top:30px;align-items:start}
 .k-info{display:grid;grid-template-columns:1fr 1fr;gap:22px 30px}
-.k-block h3{font-size:1.15rem;margin-bottom:6px}
+/* Nadpisy kontaktních bloků byly původně H3; kvůli správné osnově stránky
+   (H1 → H2) jsou dnes H2, vzhled ale zůstává stejný jako u karty. Bez tohohle
+   by je chytlo obecné .sec h2 a „Adresa" by byla stejně velká jako nadpis sekce. */
+.k-block h2,.k-block h3{font-size:1.15rem;margin-bottom:6px}
+.sec .k-block h2{font-size:1.15rem !important}
 .k-block p{color:var(--muted);font-size:.95rem;line-height:1.7}
 .k-block a{color:var(--red)}
 .k-block a:hover{color:var(--red-bright)}
