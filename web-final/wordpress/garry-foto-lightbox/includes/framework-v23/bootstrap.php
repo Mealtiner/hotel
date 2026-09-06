@@ -30,7 +30,7 @@ function bootstrap( $plugin_file, $own_callback = null, $own_tab_label = 'Nastav
 	$descriptor = array(
 		'slug'               => 'garry-foto-lightbox',
 		'name'               => 'GARRY – Foto lightbox',
-		'plugin_version'     => '1.1.0',
+		'plugin_version'     => '1.2.0',
 		'framework_protocol' => Protocol::VERSION,
 		'framework_major'    => Protocol::MAJOR,
 		'framework_minimum'  => '2.4.0',
@@ -41,6 +41,7 @@ function bootstrap( $plugin_file, $own_callback = null, $own_tab_label = 'Nastav
 		'manifest_path'      => plugin_dir_path( $plugin_file ) . 'garry-plugin-manifest.json',
 		'doc' => '<p>Lightbox se na frontendu aktivuje sám nad odkazy na obrázky ve vybraných kontejnerech (galerie WordPressu, galerie GARRY, vlastní selektory). Shortcode <code>[garry_lightbox]</code> slouží k přenastavení jedné stránky, <code>[garry_lightbox_galerie]</code> vykreslí vlastní mřížku náhledů. Nastavení je zde v GARRY nastavení (administrátor).</p>',
 		'changelog' => array(
+			array( 'version' => '1.2.0', 'date' => '2026-09-06', 'notes' => 'Nový přechod na další galerii v pravém dolním rohu: lightbox se nezavře, načte snímky cílové galerie a přepíše adresu; stránka pod ním se doopravdy načte až při zavření. Cíl si říká stránka atributem data-glb-dalsi. Nová tabulka „Stránky s lightboxem“ v nastavení — plní se sama podle toho, kde se lightbox vykreslil, a u každé stránky jde zapnout či vypnout jednotlivé funkce.' ),
 			array( 'version' => '1.1.0', 'date' => '2026-09-06', 'notes' => 'Snímek má vyhrazenou pevnou plochu (rám se nepřizpůsobuje poměru stran, při listování nic neposkakuje), odsazení kolem snímku zvětšeno, listování má decentní přechod místo tvrdého přepnutí a lightbox se odsazuje pod administrační lištu WordPressu. Ukazatel pořadí se u delších sérií stránkuje po oknech se sdíleným krajním bodem místo zmenšování bodů; počet se dá spočítat automaticky podle šířky. Nový volitelný pás náhledů celé série, který drží aktivní snímek na třetí pozici zleva.' ),
 			array( 'version' => '1.0.0', 'date' => '2026-09-06', 'notes' => 'První verze. Lightbox s nastavitelným pozadím (plná barva, lineární/radiální/kónický přechod, čtyři rohy), logem webu, popiskem nad snímkem s tokeny, doprovodnými informacemi pod snímkem, vodorovným ukazatelem pořadí ve stylu trackovače na trati a nastavitelnými šipkami. Shortcody, Elementor widget a Divi 4 modul (na Divi 5 zůstává shortcode).' ),
 		),

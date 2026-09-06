@@ -8,4 +8,5 @@ if ( ! current_user_can( 'activate_plugins' ) ) exit;
 
 delete_option( 'garry_foto_lightbox' );
 delete_option( 'garry_foto_lightbox_log' );
+delete_option( 'garry_foto_lightbox_stranky' );
 delete_transient( 'gflb_cache' );

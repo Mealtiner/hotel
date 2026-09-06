@@ -73,7 +73,22 @@ if ( $room && function_exists( 'garry_pok_labels_map' ) ) {
 if ( ! $chips ) $chips = array_filter( array_map( 'trim', explode( '|', (string) grid_term_field( $base_term->term_id, 'stitky', '' ) ) ) );
 
 $rez = function_exists( 'grid_rezervace_url' ) ? grid_rezervace_url() : home_url( '/#booking' );
-$home_pokoje = function_exists( 'pll_home_url' ) ? pll_home_url( $lang ) . '#pokoje' : home_url( '/#pokoje' );
+/* Zpět z detailu se patří na stránku Ubytování, ne na kotvu #pokoje na titulní
+   straně — přehled všech kategorií i srovnávací tabulka jsou tam, ne na homepage.
+   Polylang verzi hledáme přes překlad české stránky; když stránka neexistuje,
+   zůstává původní kotva jako záchrana. */
+$home_pokoje = home_url( '/#pokoje' );
+if ( function_exists( 'pll_home_url' ) ) { $home_pokoje = pll_home_url( $lang ) . '#pokoje'; }
+$ubytovani = get_page_by_path( 'ubytovani' );
+if ( $ubytovani ) {
+	$cil = $ubytovani->ID;
+	if ( $lang !== 'cs' && function_exists( 'pll_get_post' ) ) {
+		$preklad = pll_get_post( $ubytovani->ID, $lang );
+		if ( $preklad ) { $cil = $preklad; }
+	}
+	$odkaz = get_permalink( $cil );
+	if ( $odkaz ) { $home_pokoje = $odkaz; }
+}
 
 /* obrázky: náhled + galerie ze ZÁKLADNÍHO termu */
 $imgs = array();
@@ -134,7 +149,25 @@ $hero_img = ! empty( $imgs ) ? $imgs[0] : '';
   <div class="wrap">
     <span class="kicker"><?php echo esc_html( $t( 'galerie' ) ); ?></span>
     <h2 style="font-size:clamp(2rem,4vw,3.4rem);margin:14px 0 24px"><?php echo esc_html( $nazev . $t( 'gal_suf' ) ); ?></h2>
-    <div class="roomgallery" data-glb-nazev="<?php echo esc_attr( $nazev ); ?>">
+    <?php
+    /* Odkaz na galerii následující kategorie — lightbox z něj udělá tlačítko
+       „další typ pokoje" a přepne se na ni bez zavření. Pořadí bereme z pluginu,
+       protože tam ho spravuje personál; za poslední kategorií se vracíme na první. */
+    $dalsi_url = ''; $dalsi_nazev = '';
+    if ( function_exists( 'garry_pok_get' ) && function_exists( 'garry_pok_term_url' ) ) {
+        $klice = array();
+        foreach ( garry_pok_get()['rooms'] as $r ) { if ( ! empty( $r['key'] ) ) $klice[] = $r; }
+        $poz = -1;
+        foreach ( $klice as $idx => $r ) { if ( $r['key'] === $key ) { $poz = $idx; break; } }
+        if ( $poz > -1 && count( $klice ) > 1 ) {
+            $d = $klice[ ( $poz + 1 ) % count( $klice ) ];
+            $dalsi_url = garry_pok_term_url( $d['key'] );
+            $dalsi_nazev = ( $suf !== 'cz' && ! empty( $d[ 'nazev_' . $suf ] ) ) ? $d[ 'nazev_' . $suf ] : $d['nazev_cz'];
+        }
+    }
+    ?>
+    <div class="roomgallery" data-glb-nazev="<?php echo esc_attr( $nazev ); ?>"<?php
+      if ( $dalsi_url ) printf( ' data-glb-dalsi="%s" data-glb-dalsi-nazev="%s"', esc_url( $dalsi_url ), esc_attr( $dalsi_nazev ) ); ?>>
       <?php foreach ( $imgs as $u ) : ?>
       <a href="<?php echo esc_url( $u ); ?>" class="rg-item" data-lightbox="room"><img src="<?php echo esc_url( $u ); ?>" alt="<?php echo esc_attr( $nazev ); ?>" loading="lazy"></a>
       <?php endforeach; ?>

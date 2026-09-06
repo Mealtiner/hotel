@@ -341,3 +341,43 @@ body.admin-bar .garry-lightbox { --glb-odsazeni-shora: 32px; }
 	.garry-lightbox .glb-nahledy-pas { scroll-behavior: auto; }
 	.garry-lightbox .glb-nahled { transition: none !important; }
 }
+
+/* ---------- pokračování na další galerii ---------- */
+.garry-lightbox .glb-dalsi {
+	position: absolute;
+	right: clamp(16px, 3vw, 34px);
+	bottom: clamp(16px, 3vh, 30px);
+	z-index: 4;
+	display: inline-flex;
+	align-items: center;
+	gap: 9px;
+	padding: 9px 4px 9px 0;
+	font-family: inherit;
+	font-size: .74rem;
+	letter-spacing: .12em;
+	text-transform: uppercase;
+	text-decoration: none;
+	color: var(--glb-dalsi-barva, #fff);
+	border-bottom: 1px solid currentColor;
+	transition: color .2s, gap .2s, opacity .2s;
+}
+.garry-lightbox .glb-dalsi[hidden] { display: none; }
+.garry-lightbox .glb-dalsi svg { width: 15px; height: 15px; fill: none; stroke: currentColor; stroke-width: 1.8; }
+.garry-lightbox .glb-dalsi:hover,
+.garry-lightbox .glb-dalsi:focus-visible { color: var(--glb-dalsi-hover, #ff5a50); gap: 14px; }
+.garry-lightbox.glb-nacita-galerii .glb-dalsi { opacity: .4; pointer-events: none; }
+
+/* Na úzké obrazovce by tlačítko leželo na náhledech — patří pod ně. */
+@media (max-width: 782px) {
+	.garry-lightbox .glb-dalsi {
+		position: static;
+		align-self: center;
+		margin: 0 auto clamp(14px, 2.5vh, 22px);
+		font-size: .7rem;
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.garry-lightbox .glb-dalsi { transition: none !important; }
+	.garry-lightbox .glb-dalsi:hover { gap: 9px; }
+}

@@ -201,6 +201,27 @@ function gflb_admin_page() {
 				</td></tr>
 			</table>
 
+			<h2 class="title">Další galerie</h2>
+			<table class="form-table" role="presentation">
+				<tr><th scope="row">Zobrazit</th><td>
+					<?php gflb_pole_prepinac( $n, 'dalsi_zobrazit', 'Nabídnout v pravém dolním rohu přechod na další galerii' ); ?>
+					<p class="description">
+						Vykreslí se jen tam, kde stránka nabídne cíl atributem <code>data-glb-dalsi</code>
+						na kontejneru galerie (u GRID Hotelu to dělá šablona detailu kategorie pokoje).
+						Lightbox se nezavře — načte snímky další galerie a přepíše adresu; stránka pod ním
+						se doopravdy načte až při zavření.
+					</p>
+				</td></tr>
+				<tr><th scope="row">Popisek</th><td>
+					<?php gflb_pole_text( $n, 'dalsi_popisek', '', 'text' ); ?>
+					<p class="description">Značka <code>{nazev}</code> se nahradí názvem další galerie.</p>
+				</td></tr>
+				<tr><th scope="row">Barvy</th><td>
+					<label class="gflb-roh">základní <?php gflb_pole_barva( $n, 'dalsi_barva' ); ?></label>
+					<label class="gflb-roh">při najetí <?php gflb_pole_barva( $n, 'dalsi_hover' ); ?></label>
+				</td></tr>
+			</table>
+
 			<h2 class="title">Chování</h2>
 			<table class="form-table" role="presentation">
 				<tr><th scope="row">Zapnuto</th><td><?php gflb_pole_prepinac( $n, 'aktivni', 'Lightbox je na webu aktivní' ); ?></td></tr>
@@ -221,6 +242,66 @@ function gflb_admin_page() {
 					<p><?php gflb_pole_text( $n, 'autoplay_ms', 'Prodleva v milisekundách.', 'number', 'min="1000" max="60000" step="500"' ); ?></p>
 				</td></tr>
 			</table>
+
+			<h2 class="title">Stránky s lightboxem</h2>
+			<?php
+			$stranky = gflb_stranky();
+			$funkce  = gflb_prepinatelne();
+			if ( ! $stranky ) : ?>
+				<p class="description" style="max-width:840px">
+					Zatím prázdné. Seznam se plní sám: jakmile se lightbox na nějaké stránce
+					poprvé vykreslí, objeví se tady řádek. Pak u něj jde vypnout, co na té
+					stránce nechcete — třeba náhledy u velké fotogalerie nebo přechod na
+					další galerii mimo detaily pokojů.
+				</p>
+			<?php else :
+				uasort( $stranky, function ( $a, $b ) {
+					return strcasecmp( (string) ( $a['nazev'] ?? '' ), (string) ( $b['nazev'] ?? '' ) );
+				} ); ?>
+				<input type="hidden" name="<?php echo esc_attr( GFLB_STRANKY ); ?>[__odeslano]" value="1">
+				<p class="description" style="max-width:840px">
+					Bez zaškrtnutého <strong>vlastního nastavení</strong> se stránka řídí globálním
+					nastavením výše. Zaškrtnutím se pro ni uplatní přesně to, co je v jejím řádku.
+				</p>
+				<div style="overflow-x:auto">
+				<table class="widefat striped gflb-stranky">
+					<thead><tr>
+						<th>Stránka</th>
+						<th style="text-align:center">Vlastní<br>nastavení</th>
+						<?php foreach ( $funkce as $popisek ) : ?>
+							<th style="text-align:center"><?php echo esc_html( $popisek ); ?></th>
+						<?php endforeach; ?>
+					</tr></thead>
+					<tbody>
+					<?php foreach ( $stranky as $klic => $radek ) :
+						$vlastni = false;
+						foreach ( array_keys( $funkce ) as $f ) { if ( array_key_exists( $f, $radek ) ) { $vlastni = true; break; } }
+						$pole = GFLB_STRANKY . '[' . $klic . ']'; ?>
+						<tr>
+							<td>
+								<?php if ( ! empty( $radek['url'] ) ) : ?>
+									<a href="<?php echo esc_url( $radek['url'] ); ?>" target="_blank" rel="noopener"><?php echo esc_html( $radek['nazev'] ?: $klic ); ?></a>
+								<?php else : ?>
+									<?php echo esc_html( $radek['nazev'] ?: $klic ); ?>
+								<?php endif; ?>
+								<br><span class="description"><?php echo esc_html( $klic ); ?></span>
+							</td>
+							<td style="text-align:center">
+								<input type="checkbox" class="gflb-vlastni" name="<?php echo esc_attr( $pole ); ?>[__vlastni]" value="1" <?php checked( $vlastni ); ?>>
+							</td>
+							<?php foreach ( array_keys( $funkce ) as $f ) :
+								$zapnuto = array_key_exists( $f, $radek ) ? ! empty( $radek[ $f ] ) : ! empty( $n[ $f ] ); ?>
+								<td style="text-align:center">
+									<input type="checkbox" name="<?php echo esc_attr( $pole . '[' . $f . ']' ); ?>" value="1"
+										<?php checked( $zapnuto ); ?> <?php disabled( ! $vlastni ); ?>>
+								</td>
+							<?php endforeach; ?>
+						</tr>
+					<?php endforeach; ?>
+					</tbody>
+				</table>
+				</div>
+			<?php endif; ?>
 
 			<?php submit_button(); ?>
 			</div>

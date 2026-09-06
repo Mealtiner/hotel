@@ -11,10 +11,51 @@ add_action( 'admin_init', function () {
 		'sanitize_callback' => 'gflb_sanitize',
 		'default'           => gflb_defaults(),
 	) );
+	register_setting( 'gflb_group', GFLB_STRANKY, array(
+		'type'              => 'array',
+		'sanitize_callback' => 'gflb_sanitize_stranky',
+		'default'           => array(),
+	) );
 } );
 
-/** Formulář vidí jen ten, kdo smí měnit nastavení webu. */
 add_filter( 'option_page_capability_gflb_group', function () { return 'manage_options'; } );
+
+/**
+ * Sanitizace tabulky stránek.
+ *
+ * Klíče i názvy pocházejí ze zápisu na frontendu, ne z formuláře — z odeslaných
+ * dat proto bereme jen zaškrtávátka, a jen pro klíče, které v uložené tabulce
+ * opravdu jsou. Formulář tak nemůže do seznamu přidat cizí položku.
+ */
+function gflb_sanitize_stranky( $vstup ) {
+	$ulozene = gflb_stranky();
+	$vstup   = is_array( $vstup ) ? $vstup : array();
+	$ven     = array();
+	foreach ( $ulozene as $klic => $radek ) {
+		$novy = array(
+			'nazev'  => sanitize_text_field( (string) ( $radek['nazev'] ?? '' ) ),
+			'url'    => esc_url_raw( (string) ( $radek['url'] ?? '' ) ),
+			'videno' => (int) ( $radek['videno'] ?? 0 ),
+		);
+		// Řádek se objeví v odeslaných datech jen tehdy, když byl formulář
+		// opravdu vykreslený — jinak by uložení smazalo dosud neviděné stránky.
+		if ( isset( $vstup['__odeslano'] ) && $vstup['__odeslano'] === '1' ) {
+			foreach ( array_keys( gflb_prepinatelne() ) as $funkce ) {
+				$novy[ $funkce ] = ! empty( $vstup[ $klic ][ $funkce ] ) ? 1 : 0;
+			}
+			if ( empty( $vstup[ $klic ]['__vlastni'] ) ) {
+				// Bez zapnutého vlastního nastavení se řádek chová podle globálu.
+				foreach ( array_keys( gflb_prepinatelne() ) as $funkce ) unset( $novy[ $funkce ] );
+			}
+		} else {
+			foreach ( array_keys( gflb_prepinatelne() ) as $funkce ) {
+				if ( array_key_exists( $funkce, $radek ) ) $novy[ $funkce ] = (int) $radek[ $funkce ];
+			}
+		}
+		$ven[ $klic ] = $novy;
+	}
+	return $ven;
+}
 
 /**
  * Sanitizace. Whitelist klíčů z gflb_defaults() — cokoli navíc se zahodí,
@@ -26,8 +67,8 @@ function gflb_sanitize( $vstup ) {
 	$vstup   = is_array( $vstup ) ? $vstup : array();
 
 	$prepinace = array( 'logo_zobrazit', 'nadpis_zobrazit', 'popisek_zobrazit', 'ukazatel_zobrazit',
-		'ukazatel_cisla', 'ukazatel_auto', 'nahledy_zobrazit', 'sipky_zobrazit', 'smycka',
-		'klavesnice', 'gesta', 'kolecko', 'predlozit', 'hash', 'autoplay', 'aktivni' );
+		'ukazatel_cisla', 'ukazatel_auto', 'nahledy_zobrazit', 'sipky_zobrazit', 'dalsi_zobrazit',
+		'smycka', 'klavesnice', 'gesta', 'kolecko', 'predlozit', 'hash', 'autoplay', 'aktivni' );
 	$vycty = array(
 		'pozadi_typ'       => array( 'solid', 'linear', 'radial', 'conic', 'rohy' ),
 		'logo_zdroj'       => array( 'web', 'priloha', 'url' ),

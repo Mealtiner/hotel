@@ -3,7 +3,7 @@
  * Plugin Name:       GARRY – Foto lightbox
  * Plugin URI:        https://www.garry.cz
  * Description:       Lightbox pro fotogalerie s nastavitelným pozadím (plná barva i přechody), logem webu, popiskem nad snímkem, doprovodnými informacemi pod ním a vodorovným ukazatelem pořadí ve stylu trackovače na trati. Shortcode, Elementor widget i Divi modul.
- * Version:           1.1.0
+ * Version:           1.2.0
  * Author:            GARRY Promotion
  * Author URI:        https://www.garry.cz
  * License:           Proprietary — Copyright © GARRY Promotion
@@ -15,11 +15,13 @@
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
-define( 'GFLB_VERSION', '1.1.0' );
+define( 'GFLB_VERSION', '1.2.0' );
 define( 'GFLB_FILE', __FILE__ );
 define( 'GFLB_DIR', plugin_dir_path( __FILE__ ) );
 define( 'GFLB_URL', plugin_dir_url( __FILE__ ) );
 define( 'GFLB_OPTION', 'garry_foto_lightbox' );
+define( 'GFLB_STRANKY', 'garry_foto_lightbox_stranky' );
+define( 'GFLB_STRANKY_MAX', 300 );
 
 /* ============================================================================
  * Administrace
@@ -113,6 +115,12 @@ function gflb_defaults() {
 		/* --- zavírání --- */
 		'zavrit_barva' => '#F4F2F0',
 		'zavrit_hover' => '#FF5A50',
+
+		/* --- pokračování na další galerii --- */
+		'dalsi_zobrazit' => 0,
+		'dalsi_popisek'  => 'Ukázat další typ pokoje',
+		'dalsi_barva'    => '#F4F2F0',
+		'dalsi_hover'    => '#FF5A50',
 
 		/* --- chování --- */
 		'selektory'    => ".roomgallery a, .wp-block-gallery a, .gallery a, [data-lightbox]",
@@ -229,10 +237,91 @@ function gflb_je_aktivni() {
 	return ! empty( $n['aktivni'] );
 }
 
-/** Nastavení pro aktuální stránku = globální nastavení + případný přepis shortcodem. */
+/**
+ * Nastavení pro aktuální stránku.
+ *
+ * Skládá se ve třech vrstvách: globální nastavení → řádek pro tuhle stránku
+ * z tabulky v administraci → přepis shortcodem nebo widgetem. Poslední vrstva
+ * vždy vyhrává, takže konkrétní vložení přebije obecné pravidlo.
+ */
 function gflb_nastaveni_stranky() {
-	$prepis = gflb_prepis();
-	return array_merge( gflb_get(), $prepis );
+	$n = gflb_get();
+	$radek = gflb_radek_stranky( gflb_klic_stranky() );
+	if ( $radek ) {
+		foreach ( gflb_prepinatelne() as $klic ) {
+			if ( array_key_exists( $klic, $radek ) ) $n[ $klic ] = (int) $radek[ $klic ];
+		}
+	}
+	return array_merge( $n, gflb_prepis() );
+}
+
+/** Které funkce jde zapnout a vypnout pro jednotlivou stránku. */
+function gflb_prepinatelne() {
+	return array(
+		'aktivni'          => 'Lightbox',
+		'logo_zobrazit'    => 'Logo',
+		'nadpis_zobrazit'  => 'Text nad snímkem',
+		'popisek_zobrazit' => 'Informace pod snímkem',
+		'ukazatel_zobrazit' => 'Ukazatel pořadí',
+		'nahledy_zobrazit' => 'Náhledy',
+		'sipky_zobrazit'   => 'Šipky',
+		'dalsi_zobrazit'   => 'Další galerie',
+	);
+}
+
+/**
+ * Klíč aktuálně zobrazeného objektu. Bere dotazovaný objekt, ne adresu —
+ * adresa se liší jazykem, stránkováním i parametry, kdežto objekt je jeden.
+ */
+function gflb_klic_stranky() {
+	if ( is_admin() ) return '';
+	$o = get_queried_object();
+	if ( $o instanceof WP_Post ) return 'post-' . $o->ID;
+	if ( $o instanceof WP_Term ) return 'term-' . $o->term_id;
+	if ( $o instanceof WP_Post_Type ) return 'posttype-' . $o->name;
+	if ( is_home() ) return 'home';
+	if ( is_search() ) return 'search';
+	return '';
+}
+
+function gflb_stranky() {
+	$v = get_option( GFLB_STRANKY, array() );
+	return is_array( $v ) ? $v : array();
+}
+
+function gflb_radek_stranky( $klic ) {
+	if ( $klic === '' ) return null;
+	$vse = gflb_stranky();
+	return $vse[ $klic ] ?? null;
+}
+
+/**
+ * Zapíše, že se lightbox na téhle stránce objevil — z toho se v administraci
+ * skládá tabulka „kde je lightbox nasazený". Zápis proběhne jen při prvním
+ * výskytu, ne při každém načtení stránky, a seznam je shora omezený.
+ */
+function gflb_zaznamenej_stranku() {
+	$klic = gflb_klic_stranky();
+	if ( $klic === '' ) return;
+	$vse = gflb_stranky();
+	if ( isset( $vse[ $klic ] ) ) return;
+	if ( count( $vse ) >= GFLB_STRANKY_MAX ) return;
+
+	$o = get_queried_object();
+	$nazev = '';
+	$url   = '';
+	if ( $o instanceof WP_Post ) {
+		$nazev = get_the_title( $o );
+		$url   = (string) get_permalink( $o );
+	} elseif ( $o instanceof WP_Term ) {
+		$nazev = $o->name;
+		$odkaz = get_term_link( $o );
+		$url   = is_wp_error( $odkaz ) ? '' : (string) $odkaz;
+	} else {
+		$nazev = $klic;
+	}
+	$vse[ $klic ] = array( 'nazev' => $nazev, 'url' => $url, 'videno' => time() );
+	update_option( GFLB_STRANKY, $vse, false );
 }
 
 /* Priorita 5, tedy PŘED wp_print_footer_scripts (priorita 20) — jinak by se
@@ -253,6 +342,7 @@ function gflb_render_kontejner() {
 	$vykresleno = true;
 
 	$n = gflb_nastaveni_stranky();
+	gflb_zaznamenej_stranku();
 	if ( ! wp_style_is( 'garry-foto-lightbox', 'enqueued' ) ) wp_enqueue_style( 'garry-foto-lightbox' );
 	if ( ! wp_script_is( 'garry-foto-lightbox', 'enqueued' ) ) wp_enqueue_script( 'garry-foto-lightbox' );
 
@@ -305,6 +395,10 @@ function gflb_render_kontejner() {
 		'hash'           => (int) ! empty( $n['hash'] ),
 		'autoplay'       => (int) ! empty( $n['autoplay'] ),
 		'autoplay-ms'    => max( 1000, (int) $n['autoplay_ms'] ),
+		'dalsi'          => (int) ! empty( $n['dalsi_zobrazit'] ),
+		'dalsi-popisek'  => (string) $n['dalsi_popisek'],
+		'dalsi-barva'    => (string) $n['dalsi_barva'],
+		'dalsi-hover'    => (string) $n['dalsi_hover'],
 	);
 
 	$atributy = '';
@@ -349,6 +443,10 @@ function gflb_render_kontejner() {
   <div class="glb-nahledy" hidden>
     <div class="glb-nahledy-pas"></div>
   </div>
+  <a class="glb-dalsi" href="#" hidden>
+    <span class="glb-dalsi-text"></span>
+    <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M9 4l8 8-8 8"/></svg>
+  </a>
 </div>
 	<?php
 }

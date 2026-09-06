@@ -39,6 +39,7 @@
 		var tlacitkoZavrit = box.querySelector('.glb-zavrit');
 		var panelNahledu = box.querySelector('.glb-nahledy');
 		var pasNahledu = box.querySelector('.glb-nahledy-pas');
+		var odkazDalsi = box.querySelector('.glb-dalsi');
 
 		var polozky = [];      // aktuální skupina snímků
 		var index = 0;
@@ -48,6 +49,9 @@
 		var okno = 0;            // index okna bodů ukazatele
 		var naOkno = 20;         // kolik bodů se do jednoho okna vejde
 		var bezAnimace = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+		var zdrojovyPrvek = null;   // kontejner galerie, ze které se právě listuje
+		var puvodniUrl = location.href;
+		var prepnutoNaJinou = false;
 
 		/* ---------- nastavení do CSS proměnných ---------- */
 		function nastavStyl() {
@@ -76,6 +80,8 @@
 			s.setProperty('--glb-nahled-kryti', String(cislo('nahledKryti', 0.45)));
 			s.setProperty('--glb-nahled-mezera', cislo('nahledMezera', 10) + 'px');
 			s.setProperty('--glb-nahled-ramecek', d.nahledRamecek || d.uAktiv || '#ff5a50');
+			s.setProperty('--glb-dalsi-barva', d.dalsiBarva || '#fff');
+			s.setProperty('--glb-dalsi-hover', d.dalsiHover || '#ff5a50');
 			box.setAttribute('data-styl-sipek', d.sipkyStyl || 'kruh');
 			box.setAttribute('data-pozice-loga', d.logoPozice || 'vlevo-nahore');
 			if (logo && !ano('logo') && !d.logo) { logo.hidden = true; }
@@ -94,6 +100,9 @@
 		function sourozenci(a) {
 			var sel = d.selektory || '[data-lightbox]';
 			var skupina = skupinaOdkazu(a);
+			zdrojovyPrvek = typeof skupina === 'string'
+				? a.closest('[data-glb-dalsi]')
+				: (skupina.closest ? (skupina.closest('[data-glb-dalsi]') || skupina) : skupina);
 			var vsechny;
 			if (typeof skupina === 'string') {
 				var jmeno = skupina.slice(6);
@@ -349,6 +358,63 @@
 		foto.addEventListener('load', function () { box.classList.remove('glb-nacita'); });
 		foto.addEventListener('error', function () { box.classList.remove('glb-nacita'); });
 
+		/* ---------- pokračování na další galerii ----------
+		   Načte cílovou stránku, vytáhne z ní odkazy galerie a vymění je v otevřeném
+		   lightboxu. Adresa se přepíše hned (pushState), takže sdílený odkaz i tlačítko
+		   zpět už míří na novou kategorii; samotná stránka pod lightboxem se načte
+		   až při zavření — výměna celého DOMu za běhu by rozvázala skripty motivu. */
+
+		function nastavDalsi() {
+			if (!odkazDalsi) { return; }
+			var zdroj = zdrojovyPrvek && zdrojovyPrvek.getAttribute
+				? zdrojovyPrvek.getAttribute('data-glb-dalsi') : null;
+			if (!ano('dalsi') || !zdroj) { odkazDalsi.hidden = true; return; }
+			var nazev = zdrojovyPrvek.getAttribute('data-glb-dalsi-nazev') || '';
+			var sablona = d.dalsiPopisek || '';
+			odkazDalsi.hidden = false;
+			odkazDalsi.href = zdroj;
+			odkazDalsi.querySelector('.glb-dalsi-text').textContent =
+				sablona.indexOf('{nazev}') > -1 ? sablona.replace(/\{nazev\}/g, nazev) : sablona;
+		}
+
+		function naDalsi(e) {
+			e.preventDefault();
+			var cil = odkazDalsi.getAttribute('href');
+			if (!cil || box.classList.contains('glb-nacita-galerii')) { return; }
+			box.classList.add('glb-nacita-galerii');
+
+			fetch(cil, { credentials: 'same-origin' })
+				.then(function (r) { return r.ok ? r.text() : Promise.reject(r.status); })
+				.then(function (html) {
+					var doc = new DOMParser().parseFromString(html, 'text/html');
+					var kontejner = doc.querySelector('[data-glb-dalsi]') || doc.body;
+					var sel = d.selektory || '[data-lightbox]';
+					var nove = [];
+					Array.prototype.forEach.call(kontejner.querySelectorAll(sel), function (el) {
+						if (el.tagName === 'A' && el.getAttribute('href')) { nove.push(el); }
+					});
+					if (!nove.length) { location.assign(cil); return; }
+
+					polozky = nove;
+					zdrojovyPrvek = kontejner;
+					index = 0;
+					prepnutoNaJinou = true;
+					foto.removeAttribute('src');   // ať se nová série nepokouší animovat ze staré
+					postavUkazatel();
+					postavNahledy();
+					nastavDalsi();
+					vykresli(true);
+					try {
+						document.title = doc.title || document.title;
+						history.pushState({ glb: true }, '', cil);
+					} catch (err) {}
+				})
+				.catch(function () { location.assign(cil); })
+				.then(function () { box.classList.remove('glb-nacita-galerii'); });
+		}
+
+		if (odkazDalsi) { odkazDalsi.addEventListener('click', naDalsi); }
+
 		/* ---------- otevření a zavření ---------- */
 		function otevri(a) {
 			polozky = sourozenci(a);
@@ -364,6 +430,7 @@
 			box.hidden = false;
 			postavUkazatel();
 			postavNahledy();
+			nastavDalsi();
 			document.documentElement.classList.add('glb-otevreno');
 			jdi(index);
 			requestAnimationFrame(function () { box.classList.add('je-otevreno'); });
@@ -387,6 +454,13 @@
 				try { history.replaceState(null, '', puvodniHash || location.pathname + location.search); } catch (e) {}
 			}
 			if (puvodniOhnisko && puvodniOhnisko.focus) { puvodniOhnisko.focus(); }
+
+			// Lightbox mezitím přeskočil na jinou galerii — pod ním je pořád stará
+			// stránka, takže ji při zavření doopravdy načteme. Uživatel tak skončí
+			// na detailu, který právě prohlížel.
+			if (prepnutoNaJinou && location.href !== puvodniUrl) {
+				location.assign(location.href);
+			}
 		}
 
 		/* ---------- automatické přehrávání ---------- */
