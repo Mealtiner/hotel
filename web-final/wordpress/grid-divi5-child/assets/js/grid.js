@@ -184,3 +184,34 @@
     });
   });
 })();
+
+/* ---- Rozbalování podmenu v mobilním menu ----
+   Na desktopu se podmenu otevírá hoverem přes CSS; na dotykovém zařízení
+   hover není, takže ho otevírá tlačítko vedle odkazu. Odkaz samotný zůstává
+   proklikatelný na rodičovskou sekci. */
+(function () {
+  var menu = document.getElementById('mobileMenu');
+  if (!menu) return;
+
+  menu.addEventListener('click', function (e) {
+    var tlacitko = e.target.closest('.ma-toggle');
+    if (!tlacitko || !menu.contains(tlacitko)) return;
+    e.preventDefault();
+    var polozka = tlacitko.closest('.ma-item');
+    if (!polozka) return;
+    var otevreno = polozka.classList.toggle('je-otevrena');
+    tlacitko.setAttribute('aria-expanded', otevreno ? 'true' : 'false');
+  });
+
+  /* Po zavření celého menu sbalit i podmenu, ať se příště neotevře rozevřené. */
+  var zavri = document.getElementById('mmClose');
+  if (zavri) {
+    zavri.addEventListener('click', function () {
+      menu.querySelectorAll('.ma-item.je-otevrena').forEach(function (p) {
+        p.classList.remove('je-otevrena');
+        var t = p.querySelector('.ma-toggle');
+        if (t) t.setAttribute('aria-expanded', 'false');
+      });
+    });
+  }
+})();

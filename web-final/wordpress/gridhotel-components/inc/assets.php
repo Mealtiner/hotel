@@ -32,6 +32,14 @@ add_action( 'wp_footer', function () {
 			$needs_menu = true;
 		}
 	}
+	/* Hlavička s mobilním menu je v šabloně Theme Builderu, ne v obsahu stránky,
+	   takže ji has_shortcode() nikdy nenajde. Token v ní navíc rozbaluje až
+	   výstupní buffer PO wp_footer, takže ani příznak z rendereru sem nedorazí
+	   včas. Na frontendu je hlavička vždycky, proto skript zařazujeme natvrdo —
+	   je to pár kilobajtů a bez něj hamburger nefunguje. */
+	if ( ! is_admin() ) {
+		$needs_menu = true;
+	}
 	if ( is_singular() && ! $needs_gallery ) {
 		global $post;
 		if ( $post && has_shortcode( (string) $post->post_content, 'grid_galerie' ) ) {
@@ -54,6 +62,30 @@ add_action( 'wp_footer', function () {
 		'mobileMenu' => $needs_menu,
 		'gallery'    => $needs_gallery,
 		'gastroMenu' => $needs_gastro,
+	) );
+}, 20 );
+
+/**
+ * Skript pro mobilní menu se musí zařadit ve `wp_enqueue_scripts`, ne až
+ * v `wp_footer`. WordPress tiskne patičkové skripty rovněž na `wp_footer`
+ * s prioritou 20 — enqueue přidaný později se do stránky vůbec nedostane
+ * a hamburger pak nemá obsluhu. Hlavička s menu je na frontendu vždycky,
+ * takže tady žádnou podmínku nepotřebujeme; samotný skript si přítomnost
+ * prvků hlídá sám.
+ */
+add_action( 'wp_enqueue_scripts', function () {
+	if ( is_admin() ) return;
+	wp_enqueue_script(
+		'gridhotel-components',
+		trailingslashit( GRIDHOTEL_COMPONENTS_URL ) . 'assets/components.js',
+		array(),
+		GRIDHOTEL_COMPONENTS_VER,
+		true
+	);
+	wp_localize_script( 'gridhotel-components', 'gridComponentsConfig', array(
+		'mobileMenu' => true,
+		'gallery'    => true,
+		'gastroMenu' => true,
 	) );
 }, 20 );
 

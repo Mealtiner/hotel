@@ -53,11 +53,16 @@ function garry_sez_naplanuj_import() {
 		garry_sez_zrus_import();
 	}
 
-	/* Vždycky ve 3:20 ráno — v provozu hotelu nejklidnější okno. U delších
-	   period začínáme nejbližší nedělí, u denní hned zítra. */
-	$start = in_array( $perioda, array( 'daily', 'twicedaily' ), true )
-		? strtotime( 'tomorrow 3:20' )
-		: strtotime( 'next sunday 3:20' );
+	/* Vždycky ve 3:20 ráno MÍSTNÍHO času — v provozu hotelu nejklidnější okno.
+	   PHP běží pod WordPressem v UTC, takže strtotime() by naplánoval 3:20 UTC,
+	   tedy 5:20 v Praze. Čas proto skládáme ve zvoleném pásmu webu. */
+	$kdy = in_array( $perioda, array( 'daily', 'twicedaily' ), true ) ? 'tomorrow' : 'next sunday';
+	try {
+		$start = new DateTime( $kdy . ' 03:20', wp_timezone() );
+		$start = $start->getTimestamp();
+	} catch ( Exception $e ) {
+		$start = time() + HOUR_IN_SECONDS;
+	}
 	wp_schedule_event( $start, $perioda, GARRY_SEZ_IMPORT_HOOK );
 }
 function garry_sez_zrus_import() {

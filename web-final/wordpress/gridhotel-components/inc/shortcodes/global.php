@@ -7,14 +7,15 @@
 if ( ! defined( 'ABSPATH' ) ) exit;
 
 /**
- * [grid_menu_hlavni] — WP nav menu 'grid-hlavni', Polylang-aware.
+ * [grid_menu_hlavni] — WP nav menu 'grid-hlavni', Polylang-aware, dvě úrovně.
  *
- * Musí vracet PLOCHÉ <a> tagy vedle sebe, ne wp_nav_menu()'s <ul><li>
- * strukturu (tu wp_nav_menu() vždy obalí, container=>false odstraní jen
- * vnější <div>/<nav>, ne <ul><li> samotné) — .topnav nav{display:flex} v
- * style.css čeká přímé <a> potomky uvnitř <nav>, jinak menu spadne pod
- * sebe (na <ul> ani <li> žádné flex pravidlo necílí). Stejný formát jako
- * theme fallback grid_render_hlavni_menu() v functions.php.
+ * Menu žije výhradně ve WordPressu (Vzhled → Menu), tady se jen vykresluje.
+ * Struktura je plochá řada <a> pro položky bez podmenu a <div class="ma-item">
+ * pro položky s podmenu — .topnav nav{display:flex} počítá s přímými potomky,
+ * takže obal musí být flex položka, ne <ul><li>.
+ *
+ * Na mobilu je odkaz a rozbalovadlo zvlášť: text vede na cíl, tlačítko vedle
+ * otevře podmenu. Kdyby to byl jeden prvek, nešlo by se na rodiče proklikat.
  */
 function gridc_render_hlavni_menu( $atts = array() ) {
 	$locations = get_nav_menu_locations();
@@ -23,9 +24,46 @@ function gridc_render_hlavni_menu( $atts = array() ) {
 	if ( ! $items ) {
 		return '';
 	}
+
+	$deti = array();
+	foreach ( $items as $it ) {
+		$rodic = (int) $it->menu_item_parent;
+		if ( $rodic ) {
+			$deti[ $rodic ][] = $it;
+		}
+	}
+
+	$rozbalit = array( 'cs' => 'Rozbalit podmenu', 'en' => 'Expand submenu', 'de' => 'Untermenü öffnen' );
+	$jazyk    = function_exists( 'gridc_lang' ) ? gridc_lang() : 'cs';
+	$popisek  = $rozbalit[ $jazyk ] ?? $rozbalit['cs'];
+
+	/* Hlavička s mobilním menu se vykresluje ze šablony Theme Builderu, ne
+	   z obsahu stránky — has_shortcode() na post_content ji nikdy nenajde
+	   a components.js se pak vůbec nenačetl, takže hamburger nic nedělal.
+	   Příznak nastavíme přímo z rendereru menu, který v hlavičce vždy je. */
+	$GLOBALS['gridc_needs_mobile_menu'] = true;
+
 	$out = array();
 	foreach ( $items as $it ) {
-		$out[] = '<a href="' . esc_url( $it->url ) . '">' . esc_html( $it->title ) . '</a>';
+		if ( (int) $it->menu_item_parent ) {
+			continue; // podpoložky se vykreslují u svého rodiče
+		}
+		$moje = $deti[ (int) $it->ID ] ?? array();
+		if ( ! $moje ) {
+			$out[] = '<a href="' . esc_url( $it->url ) . '">' . esc_html( $it->title ) . '</a>';
+			continue;
+		}
+		$pod = '';
+		foreach ( $moje as $d ) {
+			$pod .= '<a href="' . esc_url( $d->url ) . '">' . esc_html( $d->title ) . '</a>';
+		}
+		$out[] = '<div class="ma-item">'
+			. '<a class="ma-link" href="' . esc_url( $it->url ) . '">' . esc_html( $it->title ) . '</a>'
+			. '<button type="button" class="ma-toggle" aria-expanded="false" aria-label="' . esc_attr( $popisek ) . '">'
+			. '<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M6 9l6 6 6-6"/></svg>'
+			. '</button>'
+			. '<div class="ma-sub">' . $pod . '</div>'
+			. '</div>';
 	}
 	return implode( ' ', $out );
 }

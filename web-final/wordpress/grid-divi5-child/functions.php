@@ -179,14 +179,47 @@ add_filter( 'fluentform/load_default_public_style', '__return_true' );
 add_action( 'after_setup_theme', function () {
 	register_nav_menus( array( 'grid-hlavni' => 'Hlavní menu (horní lišta)' ) );
 } );
-function grid_render_hlavni_menu() {
-	$locations = get_nav_menu_locations(); // Polylang vrací menu pro aktuální jazyk
+function grid_render_hlavni_menu( $atts = array() ) {
+	$locations = get_nav_menu_locations();
 	$menu_id   = $locations['grid-hlavni'] ?? 0;
 	$items     = $menu_id ? wp_get_nav_menu_items( $menu_id ) : array();
-	if ( ! $items ) return '';
+	if ( ! $items ) {
+		return '';
+	}
+
+	$deti = array();
+	foreach ( $items as $it ) {
+		$rodic = (int) $it->menu_item_parent;
+		if ( $rodic ) {
+			$deti[ $rodic ][] = $it;
+		}
+	}
+
+	$rozbalit = array( 'cs' => 'Rozbalit podmenu', 'en' => 'Expand submenu', 'de' => 'Untermenü öffnen' );
+	$jazyk    = function_exists( 'grid_lang' ) ? grid_lang() : 'cs';
+	$popisek  = $rozbalit[ $jazyk ] ?? $rozbalit['cs'];
+
 	$out = array();
 	foreach ( $items as $it ) {
-		$out[] = '<a href="' . esc_url( $it->url ) . '">' . esc_html( $it->title ) . '</a>';
+		if ( (int) $it->menu_item_parent ) {
+			continue; // podpoložky se vykreslují u svého rodiče
+		}
+		$moje = $deti[ (int) $it->ID ] ?? array();
+		if ( ! $moje ) {
+			$out[] = '<a href="' . esc_url( $it->url ) . '">' . esc_html( $it->title ) . '</a>';
+			continue;
+		}
+		$pod = '';
+		foreach ( $moje as $d ) {
+			$pod .= '<a href="' . esc_url( $d->url ) . '">' . esc_html( $d->title ) . '</a>';
+		}
+		$out[] = '<div class="ma-item">'
+			. '<a class="ma-link" href="' . esc_url( $it->url ) . '">' . esc_html( $it->title ) . '</a>'
+			. '<button type="button" class="ma-toggle" aria-expanded="false" aria-label="' . esc_attr( $popisek ) . '">'
+			. '<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M6 9l6 6 6-6"/></svg>'
+			. '</button>'
+			. '<div class="ma-sub">' . $pod . '</div>'
+			. '</div>';
 	}
 	return implode( ' ', $out );
 }
