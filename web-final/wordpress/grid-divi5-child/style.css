@@ -705,6 +705,15 @@ Text Domain: grid-divi5-child
      u které se to zrovna řešilo. */
   .sec[id]{scroll-margin-top:calc(var(--gh-header-h,86px) + 12px)}
 
+  /* Úvodní sekce stránky Firemní akce & svatby je full-bleed split: fotka
+     v levém sloupci má sahat až k horní hraně, takže odsadit celou sekci
+     nejde — posunul by se i obraz a nad ním by zbyl světlý pruh. Odsazení
+     proto dostane textový sloupec, a jen dokud jsou sloupce vedle sebe;
+     po zalomení pod 960 px je text až pod fotkou a s hlavičkou nekoliduje. */
+  @media(min-width:960px){
+    .sec-split-uvod .split > .et_pb_column:last-child{padding-top:clamp(120px,16vh,180px)}
+  }
+
   /* Přehled vybavení hotelu nad kartami pokojů (Ubytování, sekce T1). */
   .amenity-uvod{margin:0 0 clamp(30px,3.5vw,46px)}
   @media(max-width:959px){
