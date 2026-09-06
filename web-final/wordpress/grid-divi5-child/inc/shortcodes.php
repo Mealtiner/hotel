@@ -361,7 +361,7 @@ function grid_sc_header() {
 		array( 'label' => 'Pokoje', 'url' => '#pokoje' ),
 		array( 'label' => 'Zážitky', 'url' => '#zazitky' ),
 		array( 'label' => 'Gastronomie', 'url' => '#restaurace' ),
-		array( 'label' => 'Sezóna 2026', 'url' => '#sezona' ),
+		array( 'label' => 'Sezóna', 'url' => '#sezona' ),
 		array( 'label' => 'Firemní akce & svatby', 'url' => '#firemni' ),
 		array( 'label' => 'Kontakt', 'url' => '#kontakt' ),
 	) );
@@ -517,7 +517,7 @@ if ( ! shortcode_exists( 'grid_booking' ) ) { add_shortcode( 'grid_booking', 'gr
  * ============================================================ */
 function grid_sc_vstupy() {
 	$items = grid_rows( 'vstupy', array(
-		array( 'num'=>'01 / ZÁVODY','title'=>'Race víkend','text'=>'Spi metr od trati a vstávej do zvuku motorů. Pobyty na velké akce sezóny 2026 a čekací list.','cta'=>'Sezóna 2026 →','url'=>'#sezona' ),
+		array( 'num'=>'01 / ZÁVODY','title'=>'Race víkend','text'=>'Spi metr od trati a vstávej do zvuku motorů. Pobyty na velké akce sezóny a čekací list.','cta'=>'Sezóna →','url'=>'#sezona' ),
 		array( 'num'=>'02 / FIRMY &amp; SVATBY','title'=>'Akce na míru','text'=>'Firemní večírky, konference, oslavy i svatební hostiny s adrenalinem a cateringem na dosah.','cta'=>'Poptat akci →','url'=>'#firemni' ),
 		array( 'num'=>'03 / ZÁŽITEK','title'=>'Motorsport zážitek','text'=>'Simulátor Masarykova okruhu, motokáry, pitbike i škola bezpečné jízdy. Dárkové poukazy skladem.','cta'=>'Vybrat zážitek →','url'=>'#zazitky' ),
 		array( 'num'=>'04 / POBYT','title'=>'Klidný pobyt u Brna','text'=>'Komfort **** hotelu, výhled na trať a lesy, snadné parkování. Ideální základna pro výlety.','cta'=>'Prohlédnout pokoje →','url'=>'#pokoje' ),
@@ -813,7 +813,7 @@ function grid_menu_tydne() {
 }
 
 /* ============================================================
- * T6 SEZÓNA 2026 / ČEKACÍ LIST (dark carbon) — repeater akcí
+ * T6 SEZÓNA / ČEKACÍ LIST (dark carbon) — repeater akcí
  * ============================================================ */
 function grid_sc_season() {
 	ob_start();
@@ -821,16 +821,16 @@ function grid_sc_season() {
 	<section id="sezona" class="sec sec-dark carbon sec-pad">
 	  <span class="sec-tag">T6</span>
 	  <div class="wrap">
-	    <div class="reveal" style="margin-bottom:46px"><span class="kicker">T6 · Sezóna 2026 · Čekací list</span><h2 style="font-size:clamp(2rem,4vw,3.6rem);margin-top:16px">Velké akce se plní rychle. Buďte na roštu první.</h2><p style="max-width:62ch;margin-top:14px;color:var(--muted)">O závodních víkendech je hotel uprostřed okruhu nejžádanějším místem v Brně. Vyberte akci, zkontrolujte dostupnost pokojů a rezervujte — nebo se zapište na čekací list. Jakmile se uvolní místnost pro vámi vybraný termín, ozveme se jako prvním.</p></div>
+	    <div class="reveal" style="margin-bottom:46px"><span class="kicker">T6 · Sezóna · Čekací list</span><h2 style="font-size:clamp(2rem,4vw,3.6rem);margin-top:16px">Velké akce se plní rychle. Buďte na roštu první.</h2><p style="max-width:62ch;margin-top:14px;color:var(--muted)">O závodních víkendech je hotel uprostřed okruhu nejžádanějším místem v Brně. Vyberte akci, zkontrolujte dostupnost pokojů a rezervujte — nebo se zapište na čekací list. Jakmile se uvolní místnost pro vámi vybraný termín, ozveme se jako prvním.</p></div>
 	    [grid_season_events limit="5"]
-	    <?php echo grid_section_more( array( 'sezona-2026', 'sezona' ), 'Celý program sezóny 2026' ); ?>
+	    <?php echo grid_section_more( array( 'sezona-2026', 'sezona' ), 'Celý program sezóny' ); ?>
 	  </div>
 	</section>
 	<?php else : ?>
 	<section id="sezona" class="sec sec-light sec-pad">
 	  <span class="sec-tag">T6</span>
 	  <div class="wrap">
-	    <div class="reveal" style="margin-bottom:46px"><span class="kicker">T6 · Sezóna 2026 · Čekací list</span><h2 style="font-size:clamp(2rem,4vw,3.6rem);margin-top:16px">Velké akce se plní rychle. Buďte na roštu první.</h2><p style="max-width:62ch;margin-top:14px;color:var(--muted)">O závodních víkendech je hotel uprostřed okruhu nejžádanějším místem v Brně. Vyberte akci a přečtěte si detail — rezervace a čekací list jsou hned pod kartami.</p></div>
+	    <div class="reveal" style="margin-bottom:46px"><span class="kicker">T6 · Sezóna · Čekací list</span><h2 style="font-size:clamp(2rem,4vw,3.6rem);margin-top:16px">Velké akce se plní rychle. Buďte na roštu první.</h2><p style="max-width:62ch;margin-top:14px;color:var(--muted)">O závodních víkendech je hotel uprostřed okruhu nejžádanějším místem v Brně. Vyberte akci a přečtěte si detail — rezervace a čekací list jsou hned pod kartami.</p></div>
 	    [grid_season_events limit="0" rezim="karty"]
 	  </div>
 	</section>
@@ -1011,9 +1011,9 @@ function grid_sc_footer() {
 	        [grid_paticka_kontakt]
 	        [grid_socials]
 	      </div>
-	      <div class="foot-col"><h4>Hotel</h4><ul><li><a href="<?php echo esc_url( grid_link_pref( array('o-nas'), '#pribeh' ) ); ?>">O hotelu</a></li><li><a href="<?php echo esc_url( grid_link_pref( array('ubytovani','pokoje','pokoje-a-apartmany'), '#pokoje' ) ); ?>">Pokoje &amp; apartmá</a></li><li><a href="<?php echo esc_url( grid_link_pref( array('gastronomie','gastro'), '#restaurace' ) ); ?>">Gastronomie</a></li><li><a href="<?php echo esc_url( grid_link_pref( array('zazitky-u-okruhu','zazitky','aktivity'), '#zazitky' ) ); ?>">Zážitky &amp; dárkové poukazy</a></li><li><a href="<?php echo esc_url( grid_link_pref( array('sezona-2026','sezona'), '#sezona' ) ); ?>">Sezóna 2026</a></li><li><a href="<?php echo esc_url( grid_link_pref( array('firemni-akce-svatby','firemni'), '#firemni' ) ); ?>">Firemní akce &amp; svatby</a></li></ul></div>
+	      <div class="foot-col"><h4>Hotel</h4><ul><li><a href="<?php echo esc_url( grid_link_pref( array('o-nas'), '#pribeh' ) ); ?>">O hotelu</a></li><li><a href="<?php echo esc_url( grid_link_pref( array('ubytovani','pokoje','pokoje-a-apartmany'), '#pokoje' ) ); ?>">Pokoje &amp; apartmá</a></li><li><a href="<?php echo esc_url( grid_link_pref( array('gastronomie','gastro'), '#restaurace' ) ); ?>">Gastronomie</a></li><li><a href="<?php echo esc_url( grid_link_pref( array('zazitky-u-okruhu','zazitky','aktivity'), '#zazitky' ) ); ?>">Zážitky &amp; dárkové poukazy</a></li><li><a href="<?php echo esc_url( grid_link_pref( array('sezona-2026','sezona'), '#sezona' ) ); ?>">Sezóna</a></li><li><a href="<?php echo esc_url( grid_link_pref( array('firemni-akce-svatby','firemni'), '#firemni' ) ); ?>">Firemní akce &amp; svatby</a></li></ul></div>
 	      <div class="foot-col"><h4>Informace</h4><ul><li><a href="<?php echo esc_url($u_dop); ?>">Jak se k nám dostanete</a></li><li><a href="<?php echo esc_url($u_dop); ?>">Parkování &amp; shuttle bus</a></li><li><a href="<?php echo esc_url($u_kar); ?>">Kariéra</a></li><li><a href="<?php echo esc_url($u_dot); ?>">Dotazník spokojenosti</a></li><li><a href="<?php echo esc_url($u_pod); ?>">Všeobecné obchodní podmínky</a></li><li><a href="<?php echo esc_url($u_och); ?>">Ochrana osobních údajů</a></li></ul></div>
-	      <div class="foot-col"><h4>Event alert &amp; Newsletter</h4><p style="color:var(--grey);font-size:.86rem">Nezmeškej termíny sezóny 2026 a speciální balíčky.</p><form class="newsletter" onsubmit="return false"><input type="email" placeholder="Tvůj e-mail" aria-label="E-mail pro newsletter"><button type="submit" onclick="return false">Odebírat</button></form><p style="color:var(--grey-dim);font-size:.78rem;margin-top:18px">GRH s.r.o.<br>IČ: <?php echo esc_html($ico); ?> · DIČ: <?php echo esc_html($dic); ?><br><?php echo esc_html($spis); ?></p></div>
+	      <div class="foot-col"><h4>Event alert &amp; Newsletter</h4><p style="color:var(--grey);font-size:.86rem">Nezmeškej termíny sezóny a speciální balíčky.</p><form class="newsletter" onsubmit="return false"><input type="email" placeholder="Tvůj e-mail" aria-label="E-mail pro newsletter"><button type="submit" onclick="return false">Odebírat</button></form><p style="color:var(--grey-dim);font-size:.78rem;margin-top:18px">GRH s.r.o.<br>IČ: <?php echo esc_html($ico); ?> · DIČ: <?php echo esc_html($dic); ?><br><?php echo esc_html($spis); ?></p></div>
 	    </div>
 	    <div class="foot-bottom"><div class="legal"><a href="<?php echo esc_url($u_och); ?>">Ochrana osobních údajů</a><a href="<?php echo esc_url($u_coo); ?>">Cookies</a><a href="<?php echo esc_url($u_pod); ?>">Obchodní podmínky</a><span>© <?php echo esc_html( date('Y') ); ?> GRID HOTEL</span></div><a class="build-tag" href="https://www.garry.cz" target="_blank" rel="noopener">Web &amp; design — GARRY Promotion</a></div>
 	  </div>
@@ -1152,9 +1152,9 @@ function grid_sc_poukazy() {
 	ob_start(); ?>
 	<section id="poukazy" class="sec sec-dark carbon sec-pad">
 	  <div class="wrap" style="max-width:1000px">
-	    <span class="kicker">Dárkové poukazy · Sezóna 2026</span>
+	    <span class="kicker">Dárkové poukazy · Sezóna</span>
 	    <h2 style="font-size:clamp(2rem,5vw,3.6rem);margin:14px 0 16px">Darujte pobyt u Masarykova okruhu</h2>
-	    <p style="color:var(--muted)">Vážení fanoušci motorsportu, máme pro vás možnost zakoupení dárkového poukazu na sezónu 2026. Obdarujte své blízké na Vánoce, narozeniny, výročí, promoce, jako svatební dar nebo jen tak.</p>
+	    <p style="color:var(--muted)">Vážení fanoušci motorsportu, máme pro vás možnost zakoupení dárkového poukazu na sezónu. Obdarujte své blízké na Vánoce, narozeniny, výročí, promoce, jako svatební dar nebo jen tak.</p>
 	    <p style="color:var(--muted)">Vyberte si jeden ze dvou vzorů poukazu, do e-mailu uveďte, který vzor jste zvolili a jaký si přejete „Váš text" (např. „Tatínkovi"). Obratem pošleme zálohovou fakturu k platbě bankovním převodem; po přijetí platby vám elektronicky zašleme dárkový poukaz.</p>
 	    <p style="color:var(--muted);font-family:var(--f-mono);font-size:.8rem">// Poukazy jsou standardně na 1 noc — dle přání upravíme na požadovaný počet nocí.</p>
 
@@ -1616,7 +1616,7 @@ function grid_sc_onas() {
 		array( 'Zážitky u okruhu',      'Simulátor Masarykova okruhu, motokáry, škola smyku Polygonu i dárkové poukazy.', array( 'zazitky-u-okruhu','zazitky','aktivity' ), 'Zážitky' ),
 		array( 'Firemní akce &amp; svatby', 'Konference, teambuildingy, večírky i svatby s cateringem na míru a doprovodným programem.', array( 'firemni-akce-svatby','firemni' ), 'Firemní akce' ),
 		array( 'Doprava &amp; parkování', 'Pár minut z dálnice D1, parkoviště pro osobní auta i autobusy přímo u hotelu.', array( 'doprava' ), 'Jak se k nám dostanete' ),
-		array( 'Sezóna 2026',           'MotoGP víkend, vytrvalostní závody i track days — buďte přímo u dění.', array( 'sezona-2026','sezona' ), 'Program sezóny' ),
+		array( 'Sezóna',           'MotoGP víkend, vytrvalostní závody i track days — buďte přímo u dění.', array( 'sezona-2026','sezona' ), 'Program sezóny' ),
 	);
 	ob_start(); ?>
 	<section class="sec sec-dark carbon" style="padding-top:clamp(120px,16vh,180px)">

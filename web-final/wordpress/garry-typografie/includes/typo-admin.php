@@ -1357,7 +1357,7 @@ function garry_typo_render_element($key, $definition, $settings, $option_name) {
 function garry_typo_render_preview_sample() {
     ?>
     <div class="garry-typo-preview-nav" data-preview="menu">Pokoje &nbsp;·&nbsp; Zážitky &nbsp;·&nbsp; Kontakt</div>
-    <div class="garry-typo-preview-nav" data-preview="section_nav">Ubytování &nbsp;·&nbsp; Gastronomie &nbsp;·&nbsp; Sezóna 2026</div>
+    <div class="garry-typo-preview-nav" data-preview="section_nav">Ubytování &nbsp;·&nbsp; Gastronomie &nbsp;·&nbsp; Sezóna</div>
 
     <h1 data-preview="h1">Nadpis H1</h1>
     <h2 data-preview="h2">Kde po jízdě zastavíš</h2>

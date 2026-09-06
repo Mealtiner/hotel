@@ -3,7 +3,7 @@
  * Plugin Name:       GARRY – Sezónní nabídka a čekací list
  * Plugin URI:        https://www.garry.cz
  * Description:       Spravuje sezónní akce, štítky dostupnosti a čekací formulář s lokálním logem poptávek. Nabídku a voucherový formulář vloží shortcody grid_season_events a grid_voucher_form; původně vytvořeno pro GRID Hotel. Pro odesílání je nutné správně nastavit WordPress e-mail a případně CAPTCHA.
- * Version:           2.7.2
+ * Version:           2.7.3
  * Author:            GARRY Promotion
  * Author URI:        https://www.garry.cz
  * License:           Proprietary — Copyright © GARRY Promotion
@@ -20,7 +20,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
  * GARRY – Sezóna & čekací list v2 — data
  * ============================================================================ */
 
-define( 'GARRY_SEZ_VER', '2.7.2' );
+define( 'GARRY_SEZ_VER', '2.7.3' );
 define( 'GARRY_SEZ_OPT', 'garry_sezona' );
 define( 'GARRY_SEZ_LOG', 'garry_sezona_log' );
 /**
@@ -805,7 +805,10 @@ function garry_sez_fmt_range( $od, $do ) {
 	return $a->format( 'j. n.' ) . ' – ' . $b->format( 'j. n. Y' );
 }
 function garry_sez_render( $atts = array() ) {
-	$a = shortcode_atts( array( 'limit' => 5, 'karty' => 0, 'rezim' => '' ), $atts );
+	/* limit není v shortcode_atts, aby šlo rozlišit „neuvedeno" od „limit=0".
+	   Neuvedeno = použij nastavení pluginu (zkrácený výpis na titulní straně),
+	   0 = vypiš všechno (stránka Sezóna), kladné číslo = přesně tolik. */
+	$a = shortcode_atts( array( 'karty' => 0, 'rezim' => '' ), $atts );
 	$rezim = $a['rezim'] ?: 'vse';
 	$show_cards = ( $rezim === 'karty' ) || ( $rezim === 'vse' && ! empty( $a['karty'] ) );
 	$show_list  = ( $rezim === 'seznam' || $rezim === 'vse' );
@@ -819,11 +822,7 @@ function garry_sez_render( $atts = array() ) {
 		return $konec === '' || $konec >= $today;
 	} ) );
 	usort( $events, function ( $x, $y ) { return strcmp( $x['od'], $y['od'] ); } );
-	/* Počet řídí nastavení pluginu. Atribut shortcodu ho přebije jen kladnou
-	   hodnotou — stránky mají v obsahu limit="0", což dřív znamenalo „bez
-	   omezení"; teď to znamená „použij nastavení", jinak by se počet nedal
-	   změnit bez zásahu do Divi obsahu. */
-	$limit = (int) $a['limit'] > 0 ? (int) $a['limit'] : (int) ( $s['max_pripravovanych'] ?? 5 );
+	$limit = isset( $atts['limit'] ) ? (int) $atts['limit'] : (int) ( $s['max_pripravovanych'] ?? 5 );
 	if ( $limit > 0 ) $events = array_slice( $events, 0, $limit );
 	if ( ! $events ) return '<style>#sezona{display:none}</style>';
 

@@ -104,7 +104,7 @@
     window.addEventListener('resize', updateContrast); updateContrast();
   }
 
-  /* ---- Season 2026: event select -> waitlist form (ponecháno — no-op guard,
+  /* ---- Sezóna: event select -> waitlist form (ponecháno — no-op guard,
      pokud tahle konkrétní stará markup varianta na stránce není přítomná) ---- */
   var evRows = document.querySelectorAll('.ev-row');
   var wbEv = $('wb-ev') || document.querySelector('.waitbox select[data-name="akce"], .waitbox select[name="akce"]');

@@ -8,7 +8,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 /* [grid_vstupy] — T1 rozcestník; vstupy jsou ACF repeater group_grid_content (Core), zatím bez get_field wrapperu v Core API — čte se přímo pokud ACF aktivní, jinak defaults. */
 function gridc_sc_vstupy() {
 	$defaults = array(
-		array( 'num' => '01 / ZÁVODY', 'title' => 'Race víkend', 'text' => 'Spi metr od trati a vstávej do zvuku motorů. Pobyty na velké akce sezóny 2026 a čekací list.', 'cta' => 'Sezóna 2026 →', 'url' => '#sezona' ),
+		array( 'num' => '01 / ZÁVODY', 'title' => 'Race víkend', 'text' => 'Spi metr od trati a vstávej do zvuku motorů. Pobyty na velké akce sezóny a čekací list.', 'cta' => 'Sezóna →', 'url' => '#sezona' ),
 		array( 'num' => '02 / FIRMY &amp; SVATBY', 'title' => 'Akce na míru', 'text' => 'Firemní večírky, konference, oslavy i svatební hostiny s adrenalinem a cateringem na dosah.', 'cta' => 'Poptat akci →', 'url' => '#firemni' ),
 		array( 'num' => '03 / ZÁŽITEK', 'title' => 'Motorsport zážitek', 'text' => 'Simulátor Masarykova okruhu, motokáry, pitbike i škola bezpečné jízdy. Dárkové poukazy skladem.', 'cta' => 'Vybrat zážitek →', 'url' => '#zazitky' ),
 		array( 'num' => '04 / POBYT', 'title' => 'Klidný pobyt u Brna', 'text' => 'Komfort **** hotelu, výhled na trať a lesy, snadné parkování. Ideální základna pro výlety.', 'cta' => 'Prohlédnout pokoje →', 'url' => '#pokoje' ),

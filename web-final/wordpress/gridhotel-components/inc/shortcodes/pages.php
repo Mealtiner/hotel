@@ -16,7 +16,7 @@ function gridc_sc_onas() {
 		array( 'Zážitky u okruhu', 'Simulátor Masarykova okruhu, motokáry, škola smyku Polygonu i dárkové poukazy.', array( 'zazitky-u-okruhu', 'zazitky', 'aktivity' ), 'Zážitky' ),
 		array( 'Firemní akce &amp; svatby', 'Konference, teambuildingy, večírky i svatby s cateringem na míru a doprovodným programem.', array( 'firemni-akce-svatby', 'firemni' ), 'Firemní akce' ),
 		array( 'Doprava &amp; parkování', 'Pár minut z dálnice D1, parkoviště pro osobní auta i autobusy přímo u hotelu.', array( 'doprava' ), 'Jak se k nám dostanete' ),
-		array( 'Sezóna 2026', 'MotoGP víkend, vytrvalostní závody i track days — buďte přímo u dění.', array( 'sezona-2026', 'sezona' ), 'Program sezóny' ),
+		array( 'Sezóna', 'MotoGP víkend, vytrvalostní závody i track days — buďte přímo u dění.', array( 'sezona-2026', 'sezona' ), 'Program sezóny' ),
 	);
 	ob_start(); ?>
 	<section class="sec sec-dark carbon grid-component grid-component--onas" style="padding-top:clamp(120px,16vh,180px)">

@@ -13,7 +13,7 @@ $GLOBALS['GRID_SHORTCODES'] = [];
 
 /* Stránky, které na cílovém webu existují (dle DEPLOY-checklist) */
 const GRID_PAGES = [
-    'ubytovani','zazitky','gastronomie','sezona-2026','firemni-akce-svatby',
+    'ubytovani','zazitky','gastronomie','sezona','firemni-akce-svatby',
     'kontakt','jak-se-k-nam-dostanete','dotaznik-spokojenosti','ubytovaci-a-reklamacni-rad',
     'ochrana-osobnich-udaju-gdpr','cookies','o-nas','kariera','casosber-video-stavby',
     'galerie','rezervace','disclaimer','privacy-statement','vseobecne-obchodni-podminky',
@@ -80,7 +80,7 @@ $pages = [
     'page-pokoje'         => [false, ['grid_rooms','grid_final']],
     'page-zazitky'        => [false, ['grid_zazitky','grid_final']],
     'page-gastronomie'    => [false, ['grid_gastro','grid_final']],
-    'page-sezona-2026'    => [false, ['grid_season','grid_final']],
+    'page-sezona'    => [false, ['grid_season','grid_final']],
     'page-firemni-svatby' => [false, ['grid_firemni','grid_final']],
     'page-kontakt'        => [false, ['grid_kontakt']],
     'page-doprava'        => [false, ['grid_doprava']],

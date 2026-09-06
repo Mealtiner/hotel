@@ -60,16 +60,16 @@ function gridc_sc_season() {
 	<section id="sezona" class="sec sec-dark carbon sec-pad grid-component grid-component--season">
 	  <span class="sec-tag">T6</span>
 	  <div class="wrap">
-	    <div class="reveal" style="margin-bottom:46px"><span class="kicker">T6 · Sezóna 2026 · Čekací list</span><h2 style="font-size:clamp(2rem,4vw,3.6rem);margin-top:16px">Velké akce se plní rychle. Buďte na roštu první.</h2><p style="max-width:62ch;margin-top:14px;color:var(--muted)">O závodních víkendech je hotel uprostřed okruhu nejžádanějším místem v Brně. Vyberte akci, zkontrolujte dostupnost pokojů a rezervujte — nebo se zapište na čekací list. Jakmile se uvolní místnost pro vámi vybraný termín, ozveme se jako prvním.</p></div>
+	    <div class="reveal" style="margin-bottom:46px"><span class="kicker">T6 · Sezóna · Čekací list</span><h2 style="font-size:clamp(2rem,4vw,3.6rem);margin-top:16px">Velké akce se plní rychle. Buďte na roštu první.</h2><p style="max-width:62ch;margin-top:14px;color:var(--muted)">O závodních víkendech je hotel uprostřed okruhu nejžádanějším místem v Brně. Vyberte akci, zkontrolujte dostupnost pokojů a rezervujte — nebo se zapište na čekací list. Jakmile se uvolní místnost pro vámi vybraný termín, ozveme se jako prvním.</p></div>
 	    <?php echo gridc_render_module( 'season_events', 'grid_season_events', array( 'limit' => 5 ), gridc_render_season_fallback() ); ?>
-	    <?php echo gridc_section_more( array( 'sezona-2026', 'sezona' ), 'Celý program sezóny 2026' ); ?>
+	    <?php echo gridc_section_more( array( 'sezona-2026', 'sezona' ), 'Celý program sezóny' ); ?>
 	  </div>
 	</section>
 	<?php else : ?>
 	<section id="sezona" class="sec sec-light sec-pad grid-component grid-component--season">
 	  <span class="sec-tag">T6</span>
 	  <div class="wrap">
-	    <div class="reveal" style="margin-bottom:46px"><span class="kicker">T6 · Sezóna 2026 · Čekací list</span><h2 style="font-size:clamp(2rem,4vw,3.6rem);margin-top:16px">Velké akce se plní rychle. Buďte na roštu první.</h2><p style="max-width:62ch;margin-top:14px;color:var(--muted)">O závodních víkendech je hotel uprostřed okruhu nejžádanějším místem v Brně. Vyberte akci a přečtěte si detail — rezervace a čekací list jsou hned pod kartami.</p></div>
+	    <div class="reveal" style="margin-bottom:46px"><span class="kicker">T6 · Sezóna · Čekací list</span><h2 style="font-size:clamp(2rem,4vw,3.6rem);margin-top:16px">Velké akce se plní rychle. Buďte na roštu první.</h2><p style="max-width:62ch;margin-top:14px;color:var(--muted)">O závodních víkendech je hotel uprostřed okruhu nejžádanějším místem v Brně. Vyberte akci a přečtěte si detail — rezervace a čekací list jsou hned pod kartami.</p></div>
 	    <?php echo gridc_render_module( 'season_events', 'grid_season_events', array( 'limit' => 0, 'rezim' => 'karty' ), gridc_render_season_fallback() ); ?>
 	  </div>
 	</section>
@@ -86,7 +86,7 @@ gridc_register_shortcode( 'grid_season', 'gridc_sc_season' );
 
 /** Fallback dle GRID-SUITE-02 §9 — "prázdný stav bez formuláře", ne rozbitá sekce. */
 function gridc_render_season_fallback() {
-	return '<p class="description" style="color:var(--muted)">Program sezóny 2026 se právě aktualizuje. Sledujte nás nebo <a href="' . esc_url( gridc_nav_url( '#kontakt' ) ) . '">nás kontaktujte</a> pro aktuální termíny.</p>';
+	return '<p class="description" style="color:var(--muted)">Program sezóny se právě aktualizuje. Sledujte nás nebo <a href="' . esc_url( gridc_nav_url( '#kontakt' ) ) . '">nás kontaktujte</a> pro aktuální termíny.</p>';
 }
 
 /* [grid_poukazy] — dárkové poukazy, ceník 1:1 z gridhotel.cz. */
@@ -111,9 +111,9 @@ function gridc_sc_poukazy() {
 	ob_start(); ?>
 	<section id="poukazy" class="sec sec-dark carbon sec-pad grid-component grid-component--poukazy">
 	  <div class="wrap" style="max-width:1000px">
-	    <span class="kicker">Dárkové poukazy · Sezóna 2026</span>
+	    <span class="kicker">Dárkové poukazy · Sezóna</span>
 	    <h2 style="font-size:clamp(2rem,5vw,3.6rem);margin:14px 0 16px">Darujte pobyt u Masarykova okruhu</h2>
-	    <p style="color:var(--muted)">Vážení fanoušci motorsportu, máme pro vás možnost zakoupení dárkového poukazu na sezónu 2026. Obdarujte své blízké na Vánoce, narozeniny, výročí, promoce, jako svatební dar nebo jen tak.</p>
+	    <p style="color:var(--muted)">Vážení fanoušci motorsportu, máme pro vás možnost zakoupení dárkového poukazu na sezónu. Obdarujte své blízké na Vánoce, narozeniny, výročí, promoce, jako svatební dar nebo jen tak.</p>
 	    <p style="color:var(--muted)">Vyberte si jeden ze dvou vzorů poukazu, do e-mailu uveďte, který vzor jste zvolili a jaký si přejete „Váš text" (např. „Tatínkovi"). Obratem pošleme zálohovou fakturu k platbě bankovním převodem; po přijetí platby vám elektronicky zašleme dárkový poukaz.</p>
 	    <p style="color:var(--muted);font-family:var(--f-mono);font-size:.8rem">// Poukazy jsou standardně na 1 noc — dle přání upravíme na požadovaný počet nocí.</p>
 	    <h3 style="margin:30px 0 12px;color:var(--gold)">Pro jednu osobu</h3>

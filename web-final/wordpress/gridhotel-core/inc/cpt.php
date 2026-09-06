@@ -28,7 +28,7 @@ function gridcore_register_cpts() {
 			'domain_cap' => GRIDCORE_DCAP_EXPERIENCES,
 		),
 		'grid_event' => array(
-			'singular' => 'Akce sezóny', 'plural' => 'Sezóna 2026', 'slug' => 'akce',
+			'singular' => 'Akce sezóny', 'plural' => 'Sezóna', 'slug' => 'akce',
 			'icon' => 'dashicons-calendar-alt', 'thumb' => false,
 			// SKRYTO z menu: akce spravuje plugin „Sezóna & čekací list", CPT je jen datová legacy.
 			// BEZ archivu: /akce/ nikde v navigaci nevede, reálný obsah je na /sezona-2026/ (SEO: prázdný duplicitní archiv pryč).

@@ -14,7 +14,7 @@ const PAGES = [
   { name: 'ubytovani', url: 'https://gridhotel.local/ubytovani/' },
   { name: 'zazitky', url: 'https://gridhotel.local/zazitky/' },
   { name: 'gastronomie', url: 'https://gridhotel.local/gastronomie/' },
-  { name: 'sezona', url: 'https://gridhotel.local/sezona-2026/' },
+  { name: 'sezona', url: 'https://gridhotel.local/sezona/' },
   { name: 'kontakt', url: 'https://gridhotel.local/kontakt/' },
   { name: 'rezervace', url: 'https://gridhotel.local/rezervace/' },
   { name: 'doprava', url: 'https://gridhotel.local/jak-se-k-nam-dostanete/' },

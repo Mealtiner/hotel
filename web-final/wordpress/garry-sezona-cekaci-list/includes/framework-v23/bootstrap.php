@@ -30,7 +30,7 @@ function bootstrap( $plugin_file, $own_callback = null, $own_tab_label = 'Nastav
 	$descriptor = array(
 		'slug'               => 'garry-sezona-cekaci-list',
 		'name'               => 'GARRY – Sezónní nabídka a čekací list',
-		'plugin_version'     => '2.7.2',
+		'plugin_version'     => '2.7.3',
 		'framework_protocol' => Protocol::VERSION,
 		'framework_major'    => Protocol::MAJOR,
 		'framework_minimum'  => '2.4.0',
@@ -48,6 +48,7 @@ function bootstrap( $plugin_file, $own_callback = null, $own_tab_label = 'Nastav
 		'grid_capability_label' => 'Sezóna & čekací list',
 		'doc' => '<p><code>[grid_season_events limit="5" rezim="seznam"]</code> — seznam akcí + čekací list (titulní stránka: 5 nejbližších). <code>[grid_season_events limit="0" rezim="karty"]</code> — všechny budoucí akce jako karty (stránka Sezóna). <code>[grid_voucher_form]</code> — objednávka dárkového poukazu (Zážitky).</p><p>Čekací list i poukazy jedou přes <strong>Fluent Forms</strong> (mapa formulářů v option <code>grid_ff_forms</code>): select akce se plní dynamicky budoucími akcemi, odeslání se zapisuje do logu pluginu a posílá na e-mail z nastavení. Anti-spam lze napojit filtrem <code>garry_sez_verify_request</code>.</p><p>Akce, štítky a log spravuje personál v <strong>GRID Nastavení → Sezóna & čekací list</strong>.</p>',
 		'changelog' => array(
+			array( 'version' => '2.7.3', 'date' => '2026-09-06', 'notes' => 'Oprava regrese z 2.7.0: limit=0 v shortcodu zase znamena bez omezeni, takze stranka Sezona vypisuje vsechny pripravovane akce. Nastaveni maximalniho poctu se uplatnuje na zkraceny vypis, kde shortcode limit neuvadi. Rozlisit neuvedeny atribut od limit=0 slo jen tak, ze limit neni v shortcode_atts.' ),
 			array( 'version' => '2.7.2', 'date' => '2026-09-06', 'notes' => 'Uplynula akce uz nedostava odznak Publikovana (nad limit) — do limitu se pocitaji jen pripravovane akce. Uplynula ma neutralni odznak Probehla a sedy prouzek.' ),
 			array( 'version' => '2.7.1', 'date' => '2026-09-06', 'notes' => 'Perioda automatickeho importu jde nastavit: denne, dvakrat denne, tydne, jednou za 14 dni nebo mesicne. Zmena se projevi hned po ulozeni — plan se zrusi a naplanuje znovu, protoze wp_schedule_event() existujici plan neprepise.' ),
 			array( 'version' => '2.7.0', 'date' => '2026-09-06', 'notes' => 'Tydenni import zavodu z kalendare Automotodromu. Nove akce se zapisuji jako nepublikovane s priznakem nova akce, hlasi se upozornenim na nastence a v prehledu jsou podbarvene; chybejici preklady maji cervene pole. Akce se v administraci deli na pripravovane a uplynule, pribyla volba maximalniho poctu pripravovanych akci na webu (vychozi 5) a odkaz na detail akce v anglictine pro EN i DE verzi webu.' ),

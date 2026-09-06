@@ -134,7 +134,7 @@ function gridc_sc_header() {
 		array( 'label' => 'Pokoje', 'url' => '#pokoje' ),
 		array( 'label' => 'Zážitky', 'url' => '#zazitky' ),
 		array( 'label' => 'Gastronomie', 'url' => '#restaurace' ),
-		array( 'label' => 'Sezóna 2026', 'url' => '#sezona' ),
+		array( 'label' => 'Sezóna', 'url' => '#sezona' ),
 		array( 'label' => 'Firemní akce & svatby', 'url' => '#firemni' ),
 		array( 'label' => 'Kontakt', 'url' => '#kontakt' ),
 	);
@@ -199,7 +199,7 @@ function gridc_sc_footer() {
 	        <li><a href="<?php echo esc_url( gridc_link_pref( array( 'ubytovani', 'pokoje', 'pokoje-a-apartmany' ), '#pokoje' ) ); ?>">Pokoje &amp; apartmá</a></li>
 	        <li><a href="<?php echo esc_url( gridc_link_pref( array( 'gastronomie', 'gastro' ), '#restaurace' ) ); ?>">Gastronomie</a></li>
 	        <li><a href="<?php echo esc_url( gridc_link_pref( array( 'zazitky-u-okruhu', 'zazitky', 'aktivity' ), '#zazitky' ) ); ?>">Zážitky &amp; dárkové poukazy</a></li>
-	        <li><a href="<?php echo esc_url( gridc_link_pref( array( 'sezona-2026', 'sezona' ), '#sezona' ) ); ?>">Sezóna 2026</a></li>
+	        <li><a href="<?php echo esc_url( gridc_link_pref( array( 'sezona-2026', 'sezona' ), '#sezona' ) ); ?>">Sezóna</a></li>
 	        <li><a href="<?php echo esc_url( gridc_link_pref( array( 'firemni-akce-svatby', 'firemni' ), '#firemni' ) ); ?>">Firemní akce &amp; svatby</a></li>
 	      </ul></div>
 	      <div class="foot-col"><h4>Informace</h4><ul>
@@ -212,7 +212,7 @@ function gridc_sc_footer() {
 	      </ul></div>
 	      <div class="foot-col">
 	        <h4>Event alert &amp; Newsletter</h4>
-	        <p style="color:var(--grey);font-size:.86rem">Nezmeškej termíny sezóny 2026 a speciální balíčky.</p>
+	        <p style="color:var(--grey);font-size:.86rem">Nezmeškej termíny sezóny a speciální balíčky.</p>
 	        <?php echo gridc_render_newsletter_form(); ?>
 	        <p style="color:var(--grey-dim);font-size:.78rem;margin-top:18px">GRH s.r.o.<br>IČ: <?php echo esc_html( $ico ); ?> · DIČ: <?php echo esc_html( $dic ); ?><br><?php echo esc_html( $spis ); ?></p>
 	      </div>
