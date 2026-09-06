@@ -53,7 +53,11 @@
 		buttons.forEach(function (btn) {
 			btn.addEventListener('click', function () {
 				var filter = btn.getAttribute('data-filter');
-				buttons.forEach(function (b) { b.classList.toggle('active', b === btn); });
+				buttons.forEach(function (b) {
+					var active = b === btn;
+					b.classList.toggle('active', active);
+					b.setAttribute('aria-pressed', active ? 'true' : 'false');
+				});
 				items.forEach(function (it) {
 					var show = filter === 'all' || it.getAttribute('data-cat') === filter;
 					it.style.display = show ? '' : 'none';
@@ -62,8 +66,37 @@
 		});
 	}
 
+	function initGastroMenuFilters() {
+		var groups = document.querySelectorAll('.gastro-menu-filter');
+		groups.forEach(function (group) {
+			var root = group.closest('.grid-component--weekly-menu');
+			if (!root) { return; }
+			var buttons = group.querySelectorAll('[data-gastro-menu-target]');
+			var panels = root.querySelectorAll('[data-gastro-menu-panel]');
+			if (!buttons.length || !panels.length) { return; }
+			var setActive = function (target, updateHash) {
+				buttons.forEach(function (button) {
+					var active = button.getAttribute('data-gastro-menu-target') === target;
+					button.classList.toggle('active', active);
+					button.setAttribute('aria-pressed', active ? 'true' : 'false');
+				});
+				panels.forEach(function (panel) {
+					panel.hidden = target !== 'all' && panel.getAttribute('data-gastro-menu-panel') !== target;
+				});
+				if (updateHash && window.history && window.history.replaceState) {
+					var hash = target === 'all' ? '#jidelnicek' : '#jidelnicek-' + target;
+					window.history.replaceState(null, '', window.location.pathname + window.location.search + hash);
+				}
+			};
+			buttons.forEach(function (button) { button.addEventListener('click', function () { setActive(button.getAttribute('data-gastro-menu-target'), true); }); });
+			var match = window.location.hash.match(/^#jidelnicek-(hotel|paddock|bar)$/);
+			setActive(match ? match[1] : 'all', false);
+		});
+	}
+
 	ready(function () {
 		if (cfg.mobileMenu !== false) { initMobileMenu(); }
 		if (cfg.gallery !== false) { initGalleryFilter(); }
+		if (cfg.gastroMenu !== false) { initGastroMenuFilters(); }
 	});
 })();

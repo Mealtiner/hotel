@@ -153,21 +153,22 @@ Text Domain: grid-divi5-child
   .lang a{padding:2px 4px;transition:color .2s}
   .lang a.active{color:var(--offwhite)}
   .lang a:hover{color:var(--gold)}
-  .btn{font-family:var(--f-mono);font-size:.74rem;letter-spacing:.14em;text-transform:uppercase;background:var(--red) !important;color:#fff !important;padding:11px 20px;border:1px solid var(--red);cursor:pointer;transition:background .25s,transform .2s,box-shadow .25s;display:inline-block}
+  .btn{font-family:var(--f-mono);font-size:.74rem;letter-spacing:.14em;text-transform:uppercase;background:var(--red) !important;color:#fff !important;padding:11px 20px;border:1px solid var(--red);cursor:pointer;transition:background .25s,transform .2s,box-shadow .25s;display:inline-flex;align-items:center;justify-content:center;min-height:44px}
   /* padding/border !important – když je .btn opravdový Divi Button modul
      (např. sekce CÍL), Diviho vlastní hover CSS (.et_pb_button:hover) mění
      padding na 0.3em 2em 0.3em 0.7em (nesouměrné, tlačítko na hover
      poskočí/změní velikost) a border na 2px solid transparent (zdvojnásobí
      tloušťku a "vertikálně" ho zprůhlední) – bez !important to naše
      pravidlo prohrává, protože Divi svůj <style> vkládá později. */
-  .btn:hover{background:var(--red-bright) !important;box-shadow:0 0 22px rgba(194,14,26,.5);transform:translateY(-1px);padding:11px 20px !important;border:1px solid var(--red) !important}
+  .btn:hover{background:var(--red-bright) !important;box-shadow:0 0 22px rgba(194,14,26,.5);transform:translateY(-1px) scale(1.012);padding:11px 20px !important;border:1px solid var(--red) !important}
   /* !important nutné – .btn{background:var(--red)!important} má stejnou
      specificitu a bez něj by na prvcích s oběma třídami (.btn.btn-ghost,
      typicky Divi Button moduly v sekci CÍL) vždy vyhrálo plné červené
      pozadí místo průhledného stylu s obrysem. */
-  .btn-ghost{background:transparent !important;color:var(--fg);border:1px solid var(--line-c)}
-  .btn-ghost:hover{background:transparent !important;border-color:var(--red);color:var(--fg);box-shadow:none;padding:11px 20px !important;border-width:1px !important;border-style:solid !important}
-  .hamburger{display:none;flex-direction:column;gap:5px;background:none;border:none;cursor:pointer;padding:6px}
+  .btn-ghost{background:transparent !important;color:var(--fg) !important;border:1px solid var(--line-c)}
+  .btn-ghost:hover{background:transparent !important;border-color:var(--red);color:var(--fg) !important;box-shadow:none;padding:11px 20px !important;border-width:1px !important;border-style:solid !important;transform:translateY(-1px) scale(1.012)}
+  .btn:focus-visible,.sec-more:focus-visible,.gal-fbtn:focus-visible,.fluentform .ff-btn-submit:focus-visible,.fluentform button[type=submit]:focus-visible{outline:3px solid #fff;outline-offset:2px;box-shadow:0 0 0 6px #005FCC}
+  .hamburger{display:none;flex-direction:column;gap:5px;background:none;border:none;cursor:pointer;padding:6px;min-width:44px;min-height:44px;align-items:center;justify-content:center}
   .hamburger span{width:26px;height:2px;background:var(--offwhite);transition:.3s}
   .mobile-menu{display:none}
 
@@ -567,10 +568,12 @@ Text Domain: grid-divi5-child
   .pobyt-chips span{flex:0 1 auto;min-width:0;list-style:none;font-family:var(--f-mono);font-size:.68rem;letter-spacing:.04em;color:var(--muted);border:1px solid var(--line-c);border-radius:2px;padding:5px 10px;white-space:nowrap}
   .sec-dark .pobyt-chips span{border-color:rgba(255,255,255,.14)}
   /* Jemný CTA odkaz na detailní podstránku z landing sekce */
-  .sec-more{display:inline-flex;align-items:center;gap:8px;margin-top:26px;font-family:var(--f-mono);font-size:.74rem;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);border-bottom:1px solid transparent;padding-bottom:3px;transition:color .25s,border-color .25s}
-  .sec-more span{transition:transform .25s}
-  .sec-more:hover{color:var(--fg);border-bottom-color:var(--red)}
-  .sec-more:hover span{transform:translateX(4px)}
+  .sec-more{display:inline-flex;align-items:center;gap:0;margin-top:26px;min-height:44px;font-family:var(--f-mono);font-size:.74rem;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);padding:0;position:relative;transform-origin:left center;transition:color .25s,transform .2s}
+  .sec-more::after{content:"";position:absolute;left:0;bottom:8px;width:calc(100% - 2px);height:1px;background:var(--red);transition:width .2s}
+  .sec-more span{display:inline-block;margin-left:8px;font-size:1.05em;line-height:1;opacity:0;transform:translateX(-7px);transition:opacity .2s,transform .2s}
+  .sec-more:hover{color:var(--fg);transform:translateX(4px) scale(1.012)}
+  .sec-more:hover::after,.sec-more:focus-visible::after{width:calc(100% - 25px)}
+  .sec-more:hover span,.sec-more:focus-visible span{opacity:1;transform:translateX(0)}
   /* O nás — přehledová mřížka */
   .onas-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:clamp(16px,2vw,26px)}
   .onas-card{padding:clamp(20px,2.2vw,30px);border:1px solid rgba(20,22,25,.12);border-radius:4px;background:#fff}
@@ -645,7 +648,8 @@ Text Domain: grid-divi5-child
   .sec-light .exp-item p{color:var(--ink-muted)}
   .sec-light .exp-item .x-num{color:var(--red)}
   .sec-light .exp-item:hover h3,.sec-light .exp-item:hover p,.sec-light .exp-item:hover .x-num{color:#fff}
-  .sec-light .exp-item:hover .sec-more{color:#fff;border-bottom-color:rgba(255,255,255,.6)}
+  .sec-light .exp-item:hover .sec-more{color:#fff}
+  .sec-light .exp-item:hover .sec-more::after{background:rgba(255,255,255,.75)}
   .sec-light .exp-item:hover .sec-more span{color:#fff}
 
   /* ===== GASTRO (cards) ===== */
@@ -688,7 +692,8 @@ Text Domain: grid-divi5-child
   .sec-light .sez-card:hover h3,.sec-light .sez-card:hover p{color:#fff}
   .sec-light .sez-card:hover .ev-date{color:#fff}
   .sec-light .sez-card:hover .ev-status{color:#fff !important;border-color:rgba(255,255,255,.75) !important}
-  .sec-light .sez-card:hover .sec-more{color:#fff;border-bottom-color:rgba(255,255,255,.6)}
+  .sec-light .sez-card:hover .sec-more{color:#fff}
+  .sec-light .sez-card:hover .sec-more::after{background:rgba(255,255,255,.75)}
   .sec-light .sez-card:hover .sec-more span{color:#fff}
   @media(max-width:1279px){.sez-cards{grid-template-columns:repeat(2,1fr)}}
   @media(max-width:640px){.sez-cards{grid-template-columns:1fr}}
@@ -875,7 +880,7 @@ Text Domain: grid-divi5-child
     .topnav .btn{display:none}
     .hamburger{display:flex}
     .lang{display:none}
-    .mobile-menu.open{display:flex}
+    .mobile-menu.open,.mobile-menu.is-open{display:flex}
     .mobile-menu{position:fixed;inset:0;z-index:130;background:var(--graphite-deep);flex-direction:column;align-items:center;justify-content:center;gap:24px}
     .mobile-menu a{font-family:var(--f-head);text-transform:uppercase;font-size:1.6rem;color:var(--offwhite)}
     .mobile-menu .mm-close{position:absolute;top:24px;right:28px;font-size:2rem;background:none;border:none;color:var(--offwhite);cursor:pointer}
@@ -986,7 +991,7 @@ footer :focus-visible, .booking :focus-visible, .telemetry-hud :focus-visible{
 
 /* 2.5.8 Cílová velikost (min 24×24 px) pro drobné ovládací prvky */
 .lang a{ min-width:24px; min-height:24px; display:inline-flex; align-items:center; justify-content:center; }
-.hud-x, .mm-close{ min-width:24px; min-height:24px; display:inline-flex; align-items:center; justify-content:center; }
+.hud-x, .mm-close{ min-width:44px; min-height:44px; display:inline-flex; align-items:center; justify-content:center; }
 .topnav nav a{ padding:8px 0; }
 
 /* 2.3.3 Omezení pohybu — respektuje systémové nastavení */
@@ -1235,8 +1240,8 @@ body.has-section-nav .exp{ padding-right: max(0px, var(--rail-pad)); }          
 .room--m4:hover .r-feat{max-height:90px;opacity:1;margin:6px 0 16px}
 /* T3 polish — kód a CTA čitelné i na fotce (styly 1,2,4) */
 .room--m1 .r-num,.room--m2 .r-num,.room--m4 .r-num{color:var(--red-hi);text-shadow:0 1px 6px rgba(0,0,0,.75)}
-.room--m1 .btn-ghost,.room--m2 .btn-ghost,.room--m4 .btn-ghost{border-color:rgba(255,255,255,.55);color:#fff}
-.room--m1 .btn-ghost:hover,.room--m2 .btn-ghost:hover,.room--m4 .btn-ghost:hover{border-color:var(--red);background:var(--red)}
+.room--m1 .btn-ghost,.room--m2 .btn-ghost,.room--m4 .btn-ghost{border-color:rgba(255,255,255,.55);color:#fff !important}
+.room--m1 .btn-ghost:hover,.room--m2 .btn-ghost:hover,.room--m4 .btn-ghost:hover{border-color:var(--red);background:transparent !important;color:#fff !important}
 
 /* ============================================================
    DOPRAVA (jak se k nám dostanete) + PRÁVNÍ STRÁNKY
@@ -1278,9 +1283,9 @@ body.has-section-nav .exp{ padding-right: max(0px, var(--rail-pad)); }          
 .cmplz-cookiebanner .cmplz-close:hover{ color:#fff !important; }
 /* tlačítka */
 .cmplz-cookiebanner .cmplz-buttons .cmplz-btn,
-.cmplz-cookiebanner .cmplz-btn{ font-family:var(--f-mono) !important; text-transform:uppercase !important; letter-spacing:.08em !important; font-size:.8rem !important; border-radius:2px !important; transition:background .25s,border-color .25s,color .25s !important; }
+.cmplz-cookiebanner .cmplz-btn{ font-family:var(--f-mono) !important; text-transform:uppercase !important; letter-spacing:.08em !important; font-size:.8rem !important; border-radius:2px !important; min-height:44px !important; transition:background .25s,border-color .25s,color .25s,transform .2s,box-shadow .25s !important; }
 .cmplz-cookiebanner .cmplz-btn.cmplz-accept{ background:var(--red) !important; color:#fff !important; border:1px solid var(--red) !important; }
-.cmplz-cookiebanner .cmplz-btn.cmplz-accept:hover{ background:var(--red-bright) !important; box-shadow:0 0 22px rgba(194,14,26,.5) !important; }
+.cmplz-cookiebanner .cmplz-btn.cmplz-accept:hover{ background:var(--red-bright) !important; box-shadow:0 0 22px rgba(194,14,26,.5) !important; transform:translateY(-1px) scale(1.012); }
 .cmplz-cookiebanner .cmplz-btn.cmplz-deny,
 .cmplz-cookiebanner .cmplz-btn.cmplz-view-preferences,
 .cmplz-cookiebanner .cmplz-btn.cmplz-save-preferences,
@@ -1288,6 +1293,10 @@ body.has-section-nav .exp{ padding-right: max(0px, var(--rail-pad)); }          
 .cmplz-cookiebanner .cmplz-btn.cmplz-deny:hover,
 .cmplz-cookiebanner .cmplz-btn.cmplz-view-preferences:hover,
 .cmplz-cookiebanner .cmplz-btn.cmplz-save-preferences:hover{ border-color:var(--red) !important; color:#fff !important; }
+.cmplz-cookiebanner .cmplz-btn.cmplz-deny:hover,
+.cmplz-cookiebanner .cmplz-btn.cmplz-view-preferences:hover,
+.cmplz-cookiebanner .cmplz-btn.cmplz-save-preferences:hover,
+.cmplz-cookiebanner .cmplz-btn.cmplz-manage-options:hover{ transform:translateY(-1px) scale(1.012); }
 /* předvolby / kategorie */
 .cmplz-cookiebanner .cmplz-categories .cmplz-category,
 .cmplz-cookiebanner .cmplz-category{ background:rgba(255,255,255,.04) !important; border:1px solid rgba(255,255,255,.1) !important; border-radius:3px !important; }
@@ -1557,8 +1566,8 @@ body.has-section-nav .exp{ padding-right: max(0px, var(--rail-pad)); }          
 
 /* ===== GALERIE — filtr + mřížka ===== */
 .galerie-filter{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:24px}
-.gal-fbtn{font-family:var(--f-mono);font-size:.72rem;letter-spacing:.1em;text-transform:uppercase;padding:8px 16px;border:1px solid var(--line-c);background:transparent;color:var(--muted);cursor:pointer;transition:.2s}
-.gal-fbtn:hover{border-color:var(--red);color:var(--fg)}
+.gal-fbtn{font-family:var(--f-mono);font-size:.72rem;letter-spacing:.1em;text-transform:uppercase;padding:8px 16px;min-height:44px;border:1px solid var(--line-c);background:transparent;color:var(--muted);cursor:pointer;display:inline-flex;align-items:center;justify-content:center;transition:border-color .2s,color .2s,transform .2s}
+.gal-fbtn:hover{border-color:var(--red);color:var(--fg);transform:translateY(-1px) scale(1.012)}
 .gal-fbtn.active{background:var(--red);border-color:var(--red);color:#fff}
 .galerie-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:clamp(8px,1vw,14px)}
 .gal-item{overflow:hidden;border:1px solid var(--card-line);display:block;aspect-ratio:4/3}
@@ -1581,9 +1590,9 @@ body.has-section-nav .exp{ padding-right: max(0px, var(--rail-pad)); }          
 .fluentform input:focus,.fluentform select:focus,.fluentform textarea:focus{ border-color:var(--red)!important; outline:none!important; }
 .fluentform .ff-btn-submit,.fluentform button[type=submit]{
   font-family:var(--f-mono)!important; text-transform:uppercase!important; letter-spacing:.14em!important; font-size:.78rem!important;
-  background:var(--red)!important; color:#fff!important; border:1px solid var(--red)!important; border-radius:2px!important; padding:12px 24px!important; box-shadow:none!important;
+  background:var(--red)!important; color:#fff!important; border:1px solid var(--red)!important; border-radius:2px!important; padding:12px 24px!important; min-height:44px!important; box-shadow:none!important; transition:background .25s,transform .2s,box-shadow .25s!important;
 }
-.fluentform .ff-btn-submit:hover,.fluentform button[type=submit]:hover{ background:var(--red-bright)!important; }
+.fluentform .ff-btn-submit:hover,.fluentform button[type=submit]:hover{ background:var(--red-bright)!important; box-shadow:0 0 22px rgba(194,14,26,.5)!important; transform:translateY(-1px) scale(1.012); }
 .fluentform ::placeholder{ color:var(--grey-dim); }
 /* na tmavém podkladu (čekací list v Sezóně, newsletter v patičce) */
 .sec-dark .fluentform label,.waitbox .fluentform label,footer .fluentform label{ color:var(--grey)!important; }
@@ -1623,3 +1632,13 @@ footer .socials a:hover{ color:var(--gold) !important; border-color:var(--gold) 
 
 /* Divi Visual Builder: reveal obsah nikdy neskrývat (jinak sekce v editoru vypadají prázdné) */
 .et-fb .reveal, .et-bfb .reveal, .et-fb-preview .reveal, body.et-fb .reveal{ opacity:1 !important; transform:none !important; }
+
+/* Gastronomie — tři provozy jídelníčku a přístupný filtr. */
+.gcard-menu-link{ margin-top:22px; align-self:flex-start; }
+.gastro-more{ display:flex; flex-wrap:wrap; gap:18px 26px; align-items:center; }
+.gastro-menu-filter{ display:flex; flex-wrap:wrap; gap:10px; margin:0 0 clamp(28px,4vw,48px); }
+.gastro-menu-filter .gal-fbtn{ min-height:44px; }
+.gastro-menu-panel{ scroll-margin-top:120px; padding:clamp(32px,5vw,68px) 0; border-top:1px solid var(--line); }
+.gastro-menu-panel:first-of-type{ border-top:0; padding-top:0; }
+.gastro-menu-panel[hidden]{ display:none!important; }
+@media(max-width:640px){ .gastro-menu-filter .gal-fbtn{ width:100%; text-align:left; } .gcard-menu-link{ margin-top:18px; } }

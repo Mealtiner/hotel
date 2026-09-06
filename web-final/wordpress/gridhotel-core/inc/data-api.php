@@ -161,12 +161,15 @@ function gridhotel_get_gastro_locations( array $args = array() ) {
 	$out = array();
 	foreach ( $posts as $post ) {
 		$out[] = apply_filters( 'gridhotel_gastro_data', array(
-			'id'    => $post->ID,
-			'title' => get_the_title( $post ),
-			'hours' => (string) gridcore_get_field_safe( 'hours', $post->ID, '' ),
-			'text'  => (string) gridcore_get_field_safe( 'text', $post->ID, '' ),
-			'list'  => gridcore_pipe_list( (string) gridcore_get_field_safe( 'list', $post->ID, '' ) ),
-			'url'   => get_permalink( $post ),
+			'id'             => $post->ID,
+			'title'          => get_the_title( $post ),
+			'hours'          => (string) gridcore_get_field_safe( 'hours', $post->ID, '' ),
+			'text'           => (string) gridcore_get_field_safe( 'text', $post->ID, '' ),
+			'list'           => gridcore_pipe_list( (string) gridcore_get_field_safe( 'list', $post->ID, '' ) ),
+			'menu_venue'     => (string) gridcore_get_field_safe( 'menu_venue', $post->ID, '' ),
+			'menu_link_mode' => (string) gridcore_get_field_safe( 'menu_link_mode', $post->ID, 'anchor' ),
+			'menu_link_url'  => (string) gridcore_get_field_safe( 'menu_link_url', $post->ID, '' ),
+			'url'            => get_permalink( $post ),
 		), $post, $args );
 	}
 	return $out;

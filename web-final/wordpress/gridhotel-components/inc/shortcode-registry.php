@@ -27,6 +27,9 @@ function gridc_register_shortcode( $tag, $callback ) {
 		if ( function_exists( 'gridc_flag_gallery_js_needed' ) && 'grid_galerie' === $tag ) {
 			gridc_flag_gallery_js_needed();
 		}
+		if ( function_exists( 'gridc_flag_gastro_menu_needed' ) && 'grid_gastro' === $tag ) {
+			gridc_flag_gastro_menu_needed();
+		}
 
 		return apply_filters( 'gridhotel_components_shortcode_output', $output, $tag, $content );
 	} );

@@ -19,10 +19,12 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
 $GLOBALS['gridc_needs_mobile_menu'] = false;
 $GLOBALS['gridc_needs_gallery_js']  = false;
+$GLOBALS['gridc_needs_gastro_menu'] = false;
 
 add_action( 'wp_footer', function () {
 	$needs_menu    = ! empty( $GLOBALS['gridc_needs_mobile_menu'] );
 	$needs_gallery = ! empty( $GLOBALS['gridc_needs_gallery_js'] );
+	$needs_gastro  = ! empty( $GLOBALS['gridc_needs_gastro_menu'] );
 
 	if ( is_singular() && ! $needs_menu ) {
 		global $post;
@@ -37,7 +39,7 @@ add_action( 'wp_footer', function () {
 		}
 	}
 
-	if ( ! $needs_menu && ! $needs_gallery ) {
+	if ( ! $needs_menu && ! $needs_gallery && ! $needs_gastro ) {
 		return;
 	}
 
@@ -51,6 +53,7 @@ add_action( 'wp_footer', function () {
 	wp_localize_script( 'gridhotel-components', 'gridComponentsConfig', array(
 		'mobileMenu' => $needs_menu,
 		'gallery'    => $needs_gallery,
+		'gastroMenu' => $needs_gastro,
 	) );
 }, 20 );
 
@@ -65,4 +68,7 @@ function gridc_flag_mobile_menu_needed() {
 }
 function gridc_flag_gallery_js_needed() {
 	$GLOBALS['gridc_needs_gallery_js'] = true;
+}
+function gridc_flag_gastro_menu_needed() {
+	$GLOBALS['gridc_needs_gastro_menu'] = true;
 }

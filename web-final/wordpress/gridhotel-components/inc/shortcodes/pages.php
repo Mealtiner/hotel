@@ -184,8 +184,8 @@ function gridc_sc_galerie( $atts = array() ) {
 	        <p style="color:var(--muted)">Galerie je zatím prázdná — nahraj fotky v GRID Nastavení → Obecné nastavení → Galerie.</p>
 	      <?php else : ?>
 	        <div class="galerie-filter">
-	          <button class="gal-fbtn active" data-filter="all"><?php echo esc_html( $a['vse'] ); ?></button>
-	          <?php foreach ( $cats as $slug => $nazev ) : ?><button class="gal-fbtn" data-filter="<?php echo esc_attr( $slug ); ?>"><?php echo esc_html( $nazev ); ?></button><?php endforeach; ?>
+	          <button class="gal-fbtn active" type="button" data-filter="all" aria-pressed="true"><?php echo esc_html( $a['vse'] ); ?></button>
+	          <?php foreach ( $cats as $slug => $nazev ) : ?><button class="gal-fbtn" type="button" data-filter="<?php echo esc_attr( $slug ); ?>" aria-pressed="false"><?php echo esc_html( $nazev ); ?></button><?php endforeach; ?>
 	        </div>
 	        <div class="galerie-grid">
 	          <?php foreach ( $items as $it ) : ?>

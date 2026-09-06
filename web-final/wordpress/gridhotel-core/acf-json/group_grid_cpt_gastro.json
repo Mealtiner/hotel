@@ -22,6 +22,50 @@
    "type": "textarea",
    "rows": 3,
    "instructions": "Např.: Snídaně=7:00–10:00|Obědy=12:00–15:00"
+  },
+  {
+   "key": "field_ga_menu_venue",
+   "label": "Provoz jídelníčku",
+   "name": "menu_venue",
+   "type": "select",
+   "instructions": "Vyberte provoz z GARRY Nastavení → Jídelní lístek. Podle něj se v kartě vytvoří kotva na správně filtrovaný jídelníček.",
+   "choices": {
+    "": "Automaticky podle názvu provozu"
+   },
+   "default_value": "",
+   "allow_null": 1,
+   "ui": 1,
+   "return_format": "value"
+  },
+  {
+   "key": "field_ga_menu_link_mode",
+   "label": "Odkaz na jídelní lístek",
+   "name": "menu_link_mode",
+   "type": "button_group",
+   "instructions": "Kotva otevře příslušný provoz v jídelníčku na stránce Gastronomie. Vlastní odkaz použijte pro externí stránku nebo PDF.",
+   "choices": {
+    "anchor": "Kotva na jídelníček tohoto provozu",
+    "external": "Vlastní odkaz / PDF"
+   },
+   "default_value": "anchor",
+   "return_format": "value",
+   "layout": "horizontal"
+  },
+  {
+   "key": "field_ga_menu_link_url",
+   "label": "Vlastní odkaz na jídelní lístek",
+   "name": "menu_link_url",
+   "type": "url",
+   "instructions": "Zadejte úplnou URL externí stránky nebo PDF.",
+   "conditional_logic": [
+    [
+     {
+      "field": "field_ga_menu_link_mode",
+      "operator": "==",
+      "value": "external"
+     }
+    ]
+   ]
   }
  ],
  "location": [
@@ -40,5 +84,5 @@
  "instruction_placement": "label",
  "active": true,
  "description": "Fotka = Náhledový obrázek. Název = název provozu.",
- "modified": 1783126137
+ "modified": 1783209600
 }

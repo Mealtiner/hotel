@@ -1138,7 +1138,7 @@ function garry_menu_render( $atts = array() ) {
 	}
 
 	if ( ! $filled && ( ! $show_stala || empty( $s['stala'] ) ) && ( ! $show_vecerni || empty( $s['vecerni'] ) ) ) {
-		return $show_denni || $show_tyden ? '<style>#jidelnicek{display:none}</style>' : '';
+		return '';
 	}
 
 	$weekline = '';

@@ -672,11 +672,13 @@ function grid_sc_gastro() {
 	          <div class="g-hours"><?php echo esc_html( grid_row_val($it,'hours') ); ?></div>
 	          <p><?php echo esc_html( grid_row_val($it,'text') ); ?></p>
 	          <ul class="g-list"><?php foreach ( $rows as $li ) : $parts = is_array($li)?array_values($li):explode('=',$li); $lbl=isset($parts[0])?$parts[0]:''; $val=isset($parts[1])?$parts[1]:''; ?><li><?php echo wp_kses_post($lbl); ?><?php if($val!=='') echo ' <b>'.wp_kses_post($val).'</b>'; ?></li><?php endforeach; ?></ul>
+	          <?php $menu_slot = grid_gastro_menu_slot( $it ); ?>
+	          <a class="sec-more gcard-menu-link" href="<?php echo esc_url( grid_detail_url( array( 'gastronomie', 'gastro' ) ) . '#jidelnicek-' . $menu_slot ); ?>">Zobrazit jídelní lístek <span aria-hidden="true">→</span></a>
 	        </div>
 	      </div>
 	      <?php endforeach; ?>
 	    </div>
-	    <?php echo grid_section_more( array( 'gastronomie', 'gastro' ), 'Celá nabídka gastronomie' );
+	    <?php echo grid_section_more( array( 'gastronomie', 'gastro' ), 'Detail provozů' );
 	    if ( is_front_page() && grid_detail_url( array( 'gastronomie', 'gastro' ) ) ) : ?>
 	      <a class="sec-more" href="<?php echo esc_url( grid_detail_url( array( 'gastronomie', 'gastro' ) ) ); ?>#jidelnicek" style="margin-left:26px">Aktuální týdenní menu <span aria-hidden="true">→</span></a>
 	    <?php endif; ?>
@@ -688,6 +690,26 @@ function grid_sc_gastro() {
 	return ob_get_clean();
 }
 if ( ! shortcode_exists( 'grid_gastro' ) ) { add_shortcode( 'grid_gastro', 'grid_sc_gastro' ); } // GRID-SUITE-09 §5: gridhotel-components ≥ 1.0.0 registruje tenhle tag jako první (pluginy se načítají před theme) — tahle registrace je jen neaktivní záložní síť.
+
+/** Záložní větev child theme: kotva i shortcode vždy používají stejný provoz. */
+function grid_gastro_menu_slot( $item ) {
+	$title = mb_strtolower( (string) grid_row_val( $item, 'title' ) );
+	if ( false !== strpos( $title, 'paddock' ) ) return 'paddock';
+	if ( false !== strpos( $title, 'club' ) || false !== strpos( $title, 'bar' ) ) return 'bar';
+	return 'hotel';
+}
+function grid_gastro_menu_venue( $slot ) {
+	$defaults = array( 'hotel' => 'hotelova-restaurace', 'paddock' => 'paddock-restaurant', 'bar' => 'grid-club' );
+	if ( ! function_exists( 'garry_menu_venue_options' ) ) return $defaults[ $slot ];
+	$options = (array) garry_menu_venue_options();
+	if ( isset( $options[ $defaults[ $slot ] ] ) ) return $defaults[ $slot ];
+	$needles = array( 'hotel' => 'restaur', 'paddock' => 'paddock', 'bar' => 'club' );
+	foreach ( $options as $slug => $name ) if ( false !== strpos( mb_strtolower( (string) $name ), $needles[ $slot ] ) ) return $slug;
+	return '';
+}
+function grid_gastro_menu_fallback( $title ) {
+	return '<p class="description" style="color:var(--muted)">' . esc_html( $title ) . ' se právě připravuje. Pro aktuální nabídku se prosím zeptejte na recepci nebo <a href="' . esc_url( grid_nav_url( '#kontakt' ) ) . '">nás kontaktujte</a>.</p>';
+}
 
 /* Catering (samostatná služba) + týdenní jídelníček — jen na stránce Gastronomie. */
 function grid_gastro_extra() {
@@ -714,9 +736,17 @@ function grid_gastro_extra() {
 	</section>
 	<section class="sec sec-light sec-pad" id="jidelnicek">
 	  <div class="wrap">
-	    <span class="kicker">Restaurace · Týdenní menu</span>
-	    <h2 style="font-size:clamp(2rem,4vw,3.4rem);margin:14px 0 24px">Jídelníček tohoto týdne</h2>
-	    [grid_menu_tydne]
+	  <?php $menu_panels = array(
+	    'hotel' => array( 'label' => 'Restaurace · Týdenní menu', 'title' => 'Jídelníček tohoto týdne', 'type' => 'menu' ),
+	    'paddock' => array( 'label' => 'PADDOCK RESTAURANT · TÝDENNÍ MENU', 'title' => 'Jídelníček tohoto týdne', 'type' => 'menu' ),
+	    'bar' => array( 'label' => 'HOTEL BAR · NÁPOJOVÉ MENU', 'title' => 'Nápojový lístek', 'type' => 'drinks' ),
+	  ); foreach ( $menu_panels as $slot => $panel ) : $venue = grid_gastro_menu_venue( $slot ); ?>
+	    <section class="gastro-menu-panel" id="jidelnicek-<?php echo esc_attr( $slot ); ?>">
+	      <span class="kicker"><?php echo esc_html( $panel['label'] ); ?></span>
+	      <h2 style="font-size:clamp(2rem,4vw,3.4rem);margin:14px 0 24px"><?php echo esc_html( $panel['title'] ); ?></h2>
+	      <?php $out = 'drinks' === $panel['type'] ? do_shortcode( '[grid_napojovy_listek provoz="' . esc_attr( $venue ) . '"]' ) : do_shortcode( '[grid_menu_tydne provoz="' . esc_attr( $venue ) . '" typ="cely"]' ); echo $out ? $out : grid_gastro_menu_fallback( $panel['title'] ); ?>
+	    </section>
+	  <?php endforeach; ?>
 	  </div>
 	</section>
 	<?php return ob_get_clean();
@@ -1772,8 +1802,8 @@ function grid_sc_galerie( $atts = array() ) {
 		}
 		if ( ! empty( $items ) ) : ?>
 		<div class="galerie-filter">
-		  <button class="gal-fbtn active" data-filter="all"><?php echo esc_html( $a['vse'] ); ?></button>
-		  <?php foreach ( $cats as $slug => $nazev ) : ?><button class="gal-fbtn" data-filter="<?php echo esc_attr( $slug ); ?>"><?php echo esc_html( $nazev ); ?></button><?php endforeach; ?>
+		  <button class="gal-fbtn active" type="button" data-filter="all" aria-pressed="true"><?php echo esc_html( $a['vse'] ); ?></button>
+		  <?php foreach ( $cats as $slug => $nazev ) : ?><button class="gal-fbtn" type="button" data-filter="<?php echo esc_attr( $slug ); ?>" aria-pressed="false"><?php echo esc_html( $nazev ); ?></button><?php endforeach; ?>
 		</div>
 		<div class="galerie-grid">
 		  <?php foreach ( $items as $it ) : ?>
