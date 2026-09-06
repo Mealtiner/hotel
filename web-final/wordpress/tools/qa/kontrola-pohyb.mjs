@@ -1,0 +1,12 @@
+import { chromium } from 'playwright';
+import { RESOLVER_RULE, ORIGIN } from './qa-config.mjs';
+const b = await chromium.launch({ args: [`--host-resolver-rules=${RESOLVER_RULE}`] });
+const ctx = await b.newContext({ viewport: { width: 1600, height: 900 }, reducedMotion: 'reduce' });
+const p = await ctx.newPage();
+await p.goto(ORIGIN + '/kontakt/', { waitUntil: 'load', timeout: 45000 });
+const el = p.locator('a.btn').first();
+await el.hover(); await p.waitForTimeout(300);
+const r = await el.evaluate(e => { const c = getComputedStyle(e); return { transform: c.transform, trvani: c.transitionDuration }; });
+console.log('prefers-reduced-motion: reduce →', JSON.stringify(r));
+console.log(r.transform === 'none' ? '  OK: hover nevyvolava pohyb' : '  CHYBA: pohyb i pri omezenem pohybu');
+await b.close();

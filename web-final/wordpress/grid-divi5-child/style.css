@@ -153,21 +153,7 @@ Text Domain: grid-divi5-child
   .lang a{padding:2px 4px;transition:color .2s}
   .lang a.active{color:var(--offwhite)}
   .lang a:hover{color:var(--gold)}
-  .btn{font-family:var(--f-mono);font-size:.74rem;letter-spacing:.14em;text-transform:uppercase;background:var(--red) !important;color:#fff !important;padding:11px 20px;border:1px solid var(--red);cursor:pointer;transition:background .25s,transform .2s,box-shadow .25s;display:inline-flex;align-items:center;justify-content:center;min-height:44px}
-  /* padding/border !important – když je .btn opravdový Divi Button modul
-     (např. sekce CÍL), Diviho vlastní hover CSS (.et_pb_button:hover) mění
-     padding na 0.3em 2em 0.3em 0.7em (nesouměrné, tlačítko na hover
-     poskočí/změní velikost) a border na 2px solid transparent (zdvojnásobí
-     tloušťku a "vertikálně" ho zprůhlední) – bez !important to naše
-     pravidlo prohrává, protože Divi svůj <style> vkládá později. */
-  .btn:hover{background:var(--red-bright) !important;box-shadow:0 0 22px rgba(194,14,26,.5);transform:translateY(-1px) scale(1.012);padding:11px 20px !important;border:1px solid var(--red) !important}
-  /* !important nutné – .btn{background:var(--red)!important} má stejnou
-     specificitu a bez něj by na prvcích s oběma třídami (.btn.btn-ghost,
-     typicky Divi Button moduly v sekci CÍL) vždy vyhrálo plné červené
-     pozadí místo průhledného stylu s obrysem. */
-  .btn-ghost{background:transparent !important;color:var(--fg) !important;border:1px solid var(--line-c)}
-  .btn-ghost:hover{background:transparent !important;border-color:var(--red);color:var(--fg) !important;box-shadow:none;padding:11px 20px !important;border-width:1px !important;border-style:solid !important;transform:translateY(-1px) scale(1.012)}
-  .btn:focus-visible,.sec-more:focus-visible,.gal-fbtn:focus-visible,.fluentform .ff-btn-submit:focus-visible,.fluentform button[type=submit]:focus-visible{outline:3px solid #fff;outline-offset:2px;box-shadow:0 0 0 6px #005FCC}
+  /* Tlačítka řeší jednotný systém níže — hledej „TLAČÍTKA“. */
   .hamburger{display:none;flex-direction:column;gap:5px;background:none;border:none;cursor:pointer;padding:6px;min-width:44px;min-height:44px;align-items:center;justify-content:center}
   .hamburger span{width:26px;height:2px;background:var(--offwhite);transition:.3s}
   .mobile-menu{display:none}
@@ -568,12 +554,8 @@ Text Domain: grid-divi5-child
   .pobyt-chips span{flex:0 1 auto;min-width:0;list-style:none;font-family:var(--f-mono);font-size:.68rem;letter-spacing:.04em;color:var(--muted);border:1px solid var(--line-c);border-radius:2px;padding:5px 10px;white-space:nowrap}
   .sec-dark .pobyt-chips span{border-color:rgba(255,255,255,.14)}
   /* Jemný CTA odkaz na detailní podstránku z landing sekce */
-  .sec-more{display:inline-flex;align-items:center;gap:0;margin-top:26px;min-height:44px;font-family:var(--f-mono);font-size:.74rem;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);padding:0;position:relative;transform-origin:left center;transition:color .25s,transform .2s}
-  .sec-more::after{content:"";position:absolute;left:0;bottom:8px;width:calc(100% - 2px);height:1px;background:var(--red);transition:width .2s}
-  .sec-more span{display:inline-block;margin-left:8px;font-size:1.05em;line-height:1;opacity:0;transform:translateX(-7px);transition:opacity .2s,transform .2s}
-  .sec-more:hover{color:var(--fg);transform:translateX(4px) scale(1.012)}
-  .sec-more:hover::after,.sec-more:focus-visible::after{width:calc(100% - 25px)}
-  .sec-more:hover span,.sec-more:focus-visible span{opacity:1;transform:translateX(0)}
+  /* .sec-more = terciární varianta, viz systém tlačítek. */
+  .sec-more{margin-top:26px}
   /* O nás — přehledová mřížka */
   .onas-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:clamp(16px,2vw,26px)}
   .onas-card{padding:clamp(20px,2.2vw,30px);border:1px solid rgba(20,22,25,.12);border-radius:4px;background:#fff}
@@ -949,6 +931,220 @@ Text Domain: grid-divi5-child
    tabulka roztáhne celou sekci. (GRID-RESPONSIVE-01 §7) */
 .sec .et_pb_column,.sec .et_pb_module,.sec .et_pb_text_inner{min-width:0}
 
+/* ============================================================================
+   TLAČÍTKA — jednotný systém pro celý web
+   Závazná specifikace: GPT/GRID-TLACITKA-SPECIFIKACE-A-CSS-2026-09-06.md
+
+   Jedno místo pro celý web, včetně obsahu vykresleného z pluginů a včetně
+   nativního Divi 5 modulu Tlačítko. V editoru stačí u modulu Tlačítko nechat
+   výchozí stav (primární), nebo přidat třídu modulu gh-btn--secondary,
+   gh-btn--tertiary či gh-filter.
+
+   Barvu sekundární a terciární akce NEURČUJE třída tlačítka, ale povrch,
+   na kterém leží. Proto tu není žádné globální `.btn{color:#fff}` — to
+   rozbíjelo sekundární tlačítko na světlé sekci a muselo se přebíjet dalším
+   !important. Zůstává jen tam, kde Divi vnucuje vlastní generované hodnoty
+   (padding a rámeček při hoveru, jeho vlastní šipka ::after).
+   ============================================================================ */
+:root{
+  --gh-red:#C20E1A;
+  --gh-red-bright:#E11622;
+  --gh-ink:#17181B;
+  --gh-white:#FFFFFF;
+  --gh-focus-blue:#005FCC;
+  --gh-transition:200ms ease;
+  --gh-button-lift:translateY(-1px) scale(1.012);
+  /* Výchozí povrch je světlý; sekce si ho přepíší podle sebe. */
+  --gh-action-fg:var(--gh-ink);
+  --gh-action-border:#A3A19D;
+}
+
+/* --- Povrch určuje barvu akce -------------------------------------------- */
+.gh-surface--light,.sec-light{--gh-action-fg:var(--gh-ink);--gh-action-border:#A3A19D}
+.gh-surface--dark,.gh-surface--photo,.sec-dark,.hero,.sp-media,footer,.booking,
+.room--m1,.room--m2,.room--m4,.hover-card2{
+  --gh-action-fg:var(--gh-white);--gh-action-border:rgb(255 255 255 / 55%)
+}
+
+/* --- Společný základ ------------------------------------------------------
+   Mapování historických tříd: .btn → primární, .btn.btn-ghost → sekundární,
+   .sec-more → terciární, .gal-fbtn → filtr, odesílací tlačítko Fluent Forms
+   → primární. Nativní Divi tlačítko (.et_pb_button) je ve výchozím stavu
+   primární. */
+.gh-btn,.gh-filter,
+.btn,.sec-more,.gal-fbtn,
+.et_pb_button,
+.fluentform .ff-btn-submit,.fluentform button[type=submit]{
+  align-items:center;
+  box-sizing:border-box;
+  cursor:pointer;
+  display:inline-flex;
+  font-family:var(--f-mono);
+  justify-content:center;
+  letter-spacing:.13em;
+  line-height:1.2;
+  min-height:44px;
+  text-decoration:none;
+  text-transform:uppercase;
+  transition:
+    background-color var(--gh-transition),
+    border-color var(--gh-transition),
+    color var(--gh-transition),
+    box-shadow 250ms ease,
+    transform var(--gh-transition);
+}
+
+/* Divi kreslí vlastní šipku přes ::after a při hoveru mění padding i rámeček.
+   Obojí musí ustoupit, jinak tlačítko na hover poskočí a změní velikost. */
+.et_pb_button::after,.et_pb_button::before{display:none !important;content:none !important}
+.et_pb_button,.et_pb_button:hover{
+  padding:11px 20px !important;
+  border-width:1px !important;
+  border-style:solid !important;
+}
+
+/* --- Primární ------------------------------------------------------------- */
+.gh-btn--primary,
+.btn:not(.btn-ghost):not(.gh-btn--secondary):not(.gh-btn--tertiary),
+.et_pb_button:not(.btn-ghost):not(.gh-btn--secondary):not(.gh-btn--tertiary):not(.gh-filter),
+.fluentform .ff-btn-submit,.fluentform button[type=submit]{
+  background:var(--gh-red);
+  border:1px solid var(--gh-red);
+  color:var(--gh-white) !important;   /* jen na červené ploše — kontrast je daný, ne kontextový */
+  font-size:.74rem;
+  font-weight:800;
+  padding:11px 20px;
+}
+
+/* --- Sekundární — barva podle povrchu ------------------------------------- */
+.gh-btn--secondary,
+.btn.btn-ghost,
+.et_pb_button.btn-ghost,.et_pb_button.gh-btn--secondary{
+  background:transparent;
+  border:1px solid var(--gh-action-border);
+  color:var(--gh-action-fg) !important;
+  font-size:.74rem;
+  font-weight:800;
+  padding:11px 20px;
+}
+
+/* --- Terciární ------------------------------------------------------------
+   Text s červeným podtržením; šipka je dekorativní a objeví se až při
+   interakci. Podporuje značku .gh-btn__arrow i historický holý <span>. */
+.gh-btn--tertiary,.sec-more{
+  background:none;
+  border:0;
+  color:var(--gh-action-fg);
+  font-size:.74rem;
+  font-weight:780;
+  gap:0;
+  justify-content:flex-start;
+  padding:0 0 6px;
+  position:relative;
+  transform-origin:left center;
+}
+.gh-btn--tertiary::after,.sec-more::after{
+  background:var(--gh-red);
+  bottom:8px;
+  content:"";
+  height:1px;
+  left:0;
+  position:absolute;
+  transition:width var(--gh-transition);
+  width:calc(100% - 2px);
+}
+.gh-btn__arrow,.sec-more>span,.gh-btn--tertiary>span{
+  display:inline-block;
+  font-size:1.05em;
+  line-height:1;
+  margin-left:8px;
+  opacity:0;
+  transform:translateX(-7px);
+  transition:opacity var(--gh-transition),transform var(--gh-transition);
+}
+
+/* --- Filtry --------------------------------------------------------------- */
+.gh-filter,.gal-fbtn{
+  background:transparent;
+  border:1px solid var(--gh-action-border);
+  color:var(--gh-action-fg);
+  font-size:.72rem;
+  font-weight:750;
+  padding:0 14px;
+}
+.gh-filter[aria-pressed="true"],.gal-fbtn[aria-pressed="true"],.gal-fbtn.active{
+  background:var(--gh-red);
+  border-color:var(--gh-red);
+  color:var(--gh-white);
+}
+
+/* --- Hover pouze tam, kde ho zařízení umí --------------------------------- */
+@media (hover:hover) and (pointer:fine){
+  .gh-btn--primary:hover,
+  .btn:not(.btn-ghost):not(.gh-btn--secondary):not(.gh-btn--tertiary):hover,
+  .et_pb_button:not(.btn-ghost):not(.gh-btn--secondary):not(.gh-btn--tertiary):not(.gh-filter):hover,
+  .fluentform .ff-btn-submit:hover,.fluentform button[type=submit]:hover{
+    background:var(--gh-red-bright);
+    border-color:var(--gh-red-bright) !important;
+    box-shadow:0 0 22px rgb(194 14 26 / 50%);
+    color:var(--gh-white) !important;
+    transform:var(--gh-button-lift);
+  }
+  /* Sekundární NIKDY nezískává plnou červenou plochu — jen červený rámeček. */
+  .gh-btn--secondary:hover,
+  .btn.btn-ghost:hover,
+  .et_pb_button.btn-ghost:hover,.et_pb_button.gh-btn--secondary:hover{
+    background:transparent;
+    border-color:var(--gh-red) !important;
+    box-shadow:none;
+    color:var(--gh-action-fg) !important;
+    transform:var(--gh-button-lift);
+  }
+  .gh-btn--tertiary:hover,.sec-more:hover{transform:translateX(4px) scale(1.012)}
+  .gh-btn--tertiary:hover::after,.sec-more:hover::after{width:calc(100% - 25px)}
+  .gh-btn--tertiary:hover .gh-btn__arrow,.gh-btn--tertiary:hover>span,.sec-more:hover>span{
+    opacity:1;transform:translateX(0)
+  }
+  .gh-filter:hover,.gal-fbtn:hover{border-color:var(--gh-red);transform:var(--gh-button-lift)}
+}
+
+/* --- Focus: až za hoverem, ať nezmizí při kombinaci myši a klávesnice ----- */
+.gh-btn:focus-visible,.gh-filter:focus-visible,
+.btn:focus-visible,.sec-more:focus-visible,.gal-fbtn:focus-visible,
+.et_pb_button:focus-visible,
+.fluentform .ff-btn-submit:focus-visible,.fluentform button[type=submit]:focus-visible{
+  /* Bílý vnitřní a modrý vnější kroužek jsou čitelné na světlém, tmavém
+     i červeném podkladu a nad fotografií. */
+  box-shadow:0 0 0 3px var(--gh-white),0 0 0 6px var(--gh-focus-blue);
+  outline:none;
+}
+/* Klávesnice dostane u terciárního odkazu stejnou informaci jako hover. */
+.gh-btn--tertiary:focus-visible,.sec-more:focus-visible{transform:translateX(4px) scale(1.012)}
+.gh-btn--tertiary:focus-visible::after,.sec-more:focus-visible::after{width:calc(100% - 25px)}
+.gh-btn--tertiary:focus-visible .gh-btn__arrow,
+.gh-btn--tertiary:focus-visible>span,.sec-more:focus-visible>span{opacity:1;transform:translateX(0)}
+
+/* --- Mobil: tlačítko nesmí zmenšit aktivní plochu, jen odsazení ----------- */
+@media(max-width:640px){
+  .gh-btn--primary,.gh-btn--secondary,.btn,.et_pb_button{padding:11px 16px}
+  .et_pb_button,.et_pb_button:hover{padding:11px 16px !important}
+  .gh-filter,.gal-fbtn{padding:0 12px}
+}
+
+@media (prefers-reduced-motion:reduce){
+  .gh-btn,.gh-btn::after,.gh-btn__arrow,.gh-filter,
+  .btn,.sec-more,.sec-more::after,.sec-more>span,.gal-fbtn,.et_pb_button{
+    transition-duration:.01ms;
+  }
+  /* !important je tu na místě: hover pravidla výše mají kvůli řetězcům
+     :not() vyšší specificitu, a uživatelské nastavení omezeného pohybu je
+     musí přebít vždy. */
+  .gh-btn:hover,.gh-btn:focus-visible,.gh-filter:hover,
+  .btn:hover,.sec-more:hover,.sec-more:focus-visible,.gal-fbtn:hover,.et_pb_button:hover{
+    transform:none !important;
+  }
+}
+
 /* ============================================================
    WCAG 2.2 AA — přístupnost (kontrast, focus, cílová velikost)
    ============================================================ */
@@ -1240,8 +1436,13 @@ body.has-section-nav .exp{ padding-right: max(0px, var(--rail-pad)); }          
 .room--m4:hover .r-feat{max-height:90px;opacity:1;margin:6px 0 16px}
 /* T3 polish — kód a CTA čitelné i na fotce (styly 1,2,4) */
 .room--m1 .r-num,.room--m2 .r-num,.room--m4 .r-num{color:var(--red-hi);text-shadow:0 1px 6px rgba(0,0,0,.75)}
-.room--m1 .btn-ghost,.room--m2 .btn-ghost,.room--m4 .btn-ghost{border-color:rgba(255,255,255,.55);color:#fff !important}
-.room--m1 .btn-ghost:hover,.room--m2 .btn-ghost:hover,.room--m4 .btn-ghost:hover{border-color:var(--red);background:transparent !important;color:#fff !important}
+/* Karty s fotkou jsou fotografický povrch — deklarují ho proměnnými, aby
+   platila stejná pravidla jako jinde. Dřív si tu barvu tlačítka vynucovaly
+   natvrdo přes !important, což je přesně to, co má systém tlačítek nahradit. */
+.room--m1,.room--m2,.room--m4,.hover-card2{
+  --gh-action-fg:var(--gh-white);
+  --gh-action-border:rgb(255 255 255 / 55%);
+}
 
 /* ============================================================
    DOPRAVA (jak se k nám dostanete) + PRÁVNÍ STRÁNKY
@@ -1566,9 +1767,7 @@ body.has-section-nav .exp{ padding-right: max(0px, var(--rail-pad)); }          
 
 /* ===== GALERIE — filtr + mřížka ===== */
 .galerie-filter{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:24px}
-.gal-fbtn{font-family:var(--f-mono);font-size:.72rem;letter-spacing:.1em;text-transform:uppercase;padding:8px 16px;min-height:44px;border:1px solid var(--line-c);background:transparent;color:var(--muted);cursor:pointer;display:inline-flex;align-items:center;justify-content:center;transition:border-color .2s,color .2s,transform .2s}
-.gal-fbtn:hover{border-color:var(--red);color:var(--fg);transform:translateY(-1px) scale(1.012)}
-.gal-fbtn.active{background:var(--red);border-color:var(--red);color:#fff}
+/* .gal-fbtn = varianta filtr, viz systém tlačítek. */
 .galerie-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:clamp(8px,1vw,14px)}
 .gal-item{overflow:hidden;border:1px solid var(--card-line);display:block;aspect-ratio:4/3}
 .gal-item img{width:100%;height:100%;object-fit:cover;transition:transform .5s}
