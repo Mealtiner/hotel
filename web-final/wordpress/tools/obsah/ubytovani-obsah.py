@@ -32,7 +32,8 @@ CHIPS_POPIS = ("Součástí pobytu", "Included in every stay", "In jedem Aufenth
 def chips_html(l):
     i = I[l]
     polozky = "".join(f"<span>{c[i]}</span>" for c in CHIPS)
-    return f'<div class="pobyt-chips" aria-label="{CHIPS_POPIS[i]}">{polozky}</div>'
+    # role="list" — aria-label na obyčejném divu čtečky ignorují (WCAG 4.1.2)
+    return f'<div class="pobyt-chips" role="list" aria-label="{CHIPS_POPIS[i]}">{polozky}</div>'
 
 
 # --- dvojice odkazů pod kartami na titulní stránce ---

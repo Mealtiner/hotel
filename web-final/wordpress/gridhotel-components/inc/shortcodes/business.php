@@ -61,7 +61,7 @@ function gridc_sc_pribeh() {
 	      <div class="stat-row">
 	        <div class="stat"><span class="data">64</span><span>pokojů &amp; apartmá</span></div>
 	        <div class="stat"><span class="data">5,4 km</span><span>délka okruhu</span></div>
-	        <div class="stat"><span class="data">0 m</span><span>od trati</span></div>
+	        <div class="stat"><span class="data">1 m</span><span>od trati</span></div>
 	      </div>
 	      <div style="margin-top:26px"><a class="btn btn-ghost" href="<?php echo esc_url( home_url( '/o-nas/' ) ); ?>">Celý příběh hotelu →</a></div>
 	    </div>

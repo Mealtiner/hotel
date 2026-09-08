@@ -3,7 +3,7 @@
  * Plugin Name:       GARRY – GRID Components
  * Plugin URI:        https://www.garry.cz
  * Description:       Funkční shortcody webu GRID Hotel (30 z 32 sekcí přesunutých z child theme) — hero, pokoje, gastro, zážitky, sezóna, kontakt, právní texty a další. Vyžaduje GARRY – GRID Core. Součást ekosystému GARRY Promotion.
- * Version:           1.3.0
+ * Version:           1.13.0
  * Author:            GARRY Promotion
  * Author URI:        https://www.garry.cz
  * License:           Proprietary — Copyright © GARRY Promotion
@@ -15,7 +15,7 @@
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
-define( 'GRIDHOTEL_COMPONENTS_VER', '1.0.5' );
+define( 'GRIDHOTEL_COMPONENTS_VER', '1.13.0' );
 define( 'GRIDHOTEL_COMPONENTS_DIR', plugin_dir_path( __FILE__ ) );
 define( 'GRIDHOTEL_COMPONENTS_URL', plugin_dir_url( __FILE__ ) );
 define( 'GRIDHOTEL_COMPONENTS_FILE', __FILE__ );
@@ -50,6 +50,7 @@ add_action( 'plugins_loaded', function () {
 	require_once GRIDHOTEL_COMPONENTS_DIR . 'inc/module-renderer.php';
 	require_once GRIDHOTEL_COMPONENTS_DIR . 'inc/shortcode-registry.php';
 	require_once GRIDHOTEL_COMPONENTS_DIR . 'inc/assets.php';
+	require_once GRIDHOTEL_COMPONENTS_DIR . 'inc/forms.php';
 
 	foreach ( glob( GRIDHOTEL_COMPONENTS_DIR . 'inc/shortcodes/*.php' ) as $file ) {
 		require_once $file;

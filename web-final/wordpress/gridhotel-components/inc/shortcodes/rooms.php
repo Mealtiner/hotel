@@ -47,7 +47,7 @@ function gridc_render_room_cards_fallback( array $rows ) {
 	  <?php foreach ( $rows as $r ) : $feat = gridc_pipe_list( gridc_row_val( $r, 'feat' ) ); ?>
 	  <article class="room-card">
 	    <?php if ( gridc_row_val( $r, 'img' ) ) : ?><img src="<?php echo esc_url( $r['img'] ); ?>" alt="<?php echo esc_attr( gridc_row_val( $r, 'title' ) ); ?>" loading="lazy"><?php endif; ?>
-	    <h3><?php echo esc_html( gridc_row_val( $r, 'title' ) ); ?></h3>
+	    <h2><?php echo esc_html( gridc_row_val( $r, 'title' ) ); ?></h2>
 	    <p><?php echo esc_html( gridc_row_val( $r, 'desc' ) ); ?></p>
 	    <?php if ( $feat ) : ?><ul><?php foreach ( $feat as $f ) { echo '<li>' . esc_html( $f ) . '</li>'; } ?></ul><?php endif; ?>
 	    <?php if ( gridc_row_val( $r, 'url' ) ) : ?><a class="sec-more" href="<?php echo esc_url( $r['url'] ); ?>">Detail <span aria-hidden="true">→</span></a><?php endif; ?>

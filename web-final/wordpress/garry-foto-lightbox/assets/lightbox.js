@@ -368,7 +368,9 @@
 			if (!odkazDalsi) { return; }
 			var zdroj = zdrojovyPrvek && zdrojovyPrvek.getAttribute
 				? zdrojovyPrvek.getAttribute('data-glb-dalsi') : null;
-			if (!ano('dalsi') || !zdroj) { odkazDalsi.hidden = true; return; }
+			/* Bez cíle nezůstává v DOMu odkaz s prázdným href="#" — <a> bez href
+			   není odkaz, takže se neplete do sekvence ani do výpisu odkazů. */
+			if (!ano('dalsi') || !zdroj) { odkazDalsi.hidden = true; odkazDalsi.removeAttribute('href'); return; }
 			var nazev = zdrojovyPrvek.getAttribute('data-glb-dalsi-nazev') || '';
 			var sablona = d.dalsiPopisek || '';
 			odkazDalsi.hidden = false;

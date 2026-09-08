@@ -31,7 +31,7 @@ function gridc_sc_onas() {
 	      <div class="stat-row">
 	        <div class="stat"><span class="data">64</span><span>pokojů &amp; apartmá</span></div>
 	        <div class="stat"><span class="data">****</span><span>evropský standard</span></div>
-	        <div class="stat"><span class="data">0 m</span><span>od trati</span></div>
+	        <div class="stat"><span class="data">1 m</span><span>od trati</span></div>
 	      </div>
 	      <div style="margin-top:26px;display:flex;gap:14px;flex-wrap:wrap"><a class="btn" href="<?php echo esc_url( gridc_rezervace_url() ); ?>">Rezervovat pobyt</a><a class="btn btn-ghost" href="<?php echo esc_url( home_url( '/#pokoje' ) ); ?>">Pokoje</a></div>
 	    </div>

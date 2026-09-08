@@ -111,17 +111,24 @@
   var wbTitle = $('wbTitle'), wbSub = $('wbSub'), wbForm = $('wbForm');
   var wbBtn = $('wbBtn') || document.querySelector('.waitbox .ff-btn-submit');
   if(evRows.length && wbEv && wbTitle){
+    /* Texty stavů dodává plugin v data-atributech, aby seděly na jazyk stránky;
+       české znění zůstává jen jako pojistka, kdyby atributy chyběly. */
+    var wbBox = document.querySelector('.waitbox');
+    var txt = function(klic, zaloha){
+      var v = wbBox && wbBox.getAttribute('data-' + klic);
+      return v || zaloha;
+    };
     var syncWaitbox = function(name, status){
       wbTitle.innerHTML = name;
       if(status === 'full'){
-        wbSub.textContent = 'Tento termín je vyprodaný. Zapište se na čekací list — ozveme se, jakmile se pokoj uvolní.';
-        if(wbBtn) wbBtn.textContent = 'Zapsat na čekací list';
+        wbSub.textContent = txt('stav-full', 'Tento termín je vyprodaný. Zapište se na čekací list — ozveme se, jakmile se pokoj uvolní.');
+        if(wbBtn) wbBtn.textContent = txt('cta-list', 'Zapsat na čekací list');
       } else if(status === 'few'){
-        wbSub.textContent = 'Poslední volné pokoje pro tento termín. Rezervujte co nejdřív.';
-        if(wbBtn) wbBtn.textContent = 'Rezervovat pokoj';
+        wbSub.textContent = txt('stav-few', 'Poslední volné pokoje pro tento termín. Rezervujte co nejdřív.');
+        if(wbBtn) wbBtn.textContent = txt('cta-rezervace', 'Rezervovat pokoj');
       } else {
-        wbSub.textContent = 'Pro tento termín máme volné pokoje. Rezervujte svůj výhled na trať.';
-        if(wbBtn) wbBtn.textContent = 'Rezervovat pokoj';
+        wbSub.textContent = txt('stav-free', 'Pro tento termín máme volné pokoje. Rezervujte svůj výhled na trať.');
+        if(wbBtn) wbBtn.textContent = txt('cta-rezervace', 'Rezervovat pokoj');
       }
     };
     var statusOf = function(row){ var st = row.querySelector('.ev-status'); return st && st.classList.contains('full') ? 'full' : (st && st.classList.contains('few') ? 'few' : 'free'); };
@@ -131,8 +138,17 @@
         row.classList.add('sel');
         var name = row.getAttribute('data-ev');
         for(var i=0;i<wbEv.options.length;i++){ if(wbEv.options[i].value === name){ wbEv.selectedIndex = i; break; } }
+        /* Samotné přepsání selectedIndex nikoho neupozorní — vlastní rozbalovací
+           komponenta i případné skripty formuláře poslouchají na 'change'. Bez
+           něj se změnil jen nadpis a pole „Akce / termín" zůstalo na původní
+           volbě. */
+        wbEv.dispatchEvent(new Event('change', { bubbles: true }));
         syncWaitbox(name, statusOf(row));
-        var sec = $('sezona'); if(sec) sec.scrollIntoView({behavior:'smooth', block:'start'});
+        /* Cílem je samotný formulář, ne celá sekce: na stránce Sezóna je nad
+           seznamem ještě přehled akcí se stejnou kotvou a stránka odskakovala
+           nahoru místo dolů k rezervaci. */
+        var cil = wbBox || $('sezona');
+        if(cil) cil.scrollIntoView({behavior:'smooth', block:'center'});
       });
     });
     wbEv.addEventListener('change', function(){
@@ -214,4 +230,99 @@
       });
     });
   }
+})();
+
+/* ---- Srovnávací tabulka pokojů na úzkém displeji ----
+   Tabulka má šest sloupců a na mobil se nevejde. První sloupec (vlastnost)
+   zůstává přilepený vlevo, ostatní se posouvají — prstem jako dosud, nebo
+   šipkami, které skáčou po jednom sloupci a zároveň naznačují, že vpravo
+   něco je. Šipka doleva se objeví, až když je kam se vracet; doprava zmizí
+   na konci. Nad 959 px se ovládání nevykresluje, tam je vidět celá tabulka. */
+(function(){
+  var wraps = document.querySelectorAll('.rd-tablewrap');
+  if (!wraps.length) return;
+
+  Array.prototype.forEach.call(wraps, function(wrap){
+    var tabulka = wrap.querySelector('.rd-table');
+    if (!tabulka || wrap.dataset.pagerHotovo) return;
+    var hlavicky = tabulka.querySelectorAll('thead th');
+    if (hlavicky.length < 4) return;          /* vejde se, ovládání netřeba */
+    wrap.dataset.pagerHotovo = '1';
+
+    var lang = (document.documentElement.lang || 'cs').slice(0,2).toLowerCase();
+    var popisky = {
+      cs: ['Předchozí sloupec', 'Další sloupec'],
+      en: ['Previous column', 'Next column'],
+      de: ['Vorherige Spalte', 'Nächste Spalte']
+    }[lang] || ['Předchozí sloupec', 'Další sloupec'];
+
+    var pager = document.createElement('div');
+    pager.className = 'rd-pager';
+    pager.innerHTML =
+      '<button type="button" class="rd-pager-btn rd-pager-prev" aria-label="' + popisky[0] + '">&larr;</button>' +
+      '<span class="rd-pager-stav" role="status" aria-live="polite" aria-atomic="true"></span>' +
+      '<button type="button" class="rd-pager-btn rd-pager-next" aria-label="' + popisky[1] + '">&rarr;</button>';
+    wrap.parentNode.insertBefore(pager, wrap);
+
+    var prev = pager.querySelector('.rd-pager-prev');
+    var next = pager.querySelector('.rd-pager-next');
+    var stav = pager.querySelector('.rd-pager-stav');
+
+    var krok = function(){
+      /* šířka druhého sloupce = jeden typ pokoje */
+      return hlavicky[1] ? hlavicky[1].getBoundingClientRect().width : 140;
+    };
+    var maxPosun = function(){ return wrap.scrollWidth - wrap.clientWidth; };
+
+    var prekresli = function(){
+      var x = wrap.scrollLeft, max = maxPosun();
+      prev.hidden = x < 4;
+      next.hidden = x > max - 4;
+      var celkem = Math.max(1, Math.round(max / krok()) + 1);
+      var ktery = Math.min(celkem, Math.round(x / krok()) + 1);
+      stav.textContent = ktery + ' / ' + celkem;
+    };
+
+    next.addEventListener('click', function(){ wrap.scrollLeft = Math.min(maxPosun(), wrap.scrollLeft + krok()); });
+    prev.addEventListener('click', function(){ wrap.scrollLeft = Math.max(0, wrap.scrollLeft - krok()); });
+    wrap.addEventListener('scroll', prekresli, { passive: true });
+    window.addEventListener('resize', prekresli);
+    prekresli();
+  });
+})();
+
+/* ---- Upozornění na odkaz do nového okna (WCAG 3.2.5 / G201) ----
+   Ikona ↗ je dekorativní (aria-hidden), takže čtečka o novém okně neví.
+   Doplníme vizuálně skrytý text — jen tam, kde už podobná informace není. */
+(function(){
+  var texty = {
+    cs: ' (otevře se v novém okně)',
+    en: ' (opens in a new window)',
+    de: ' (wird in einem neuen Fenster geöffnet)'
+  };
+  var lang = (document.documentElement.lang || 'cs').slice(0,2).toLowerCase();
+  var text = texty[lang] || texty.cs;
+  var odkazy = document.querySelectorAll('a[target="_blank"]');
+  Array.prototype.forEach.call(odkazy, function(a){
+    if (a.querySelector('.vh-nove-okno')) { return; }
+    var popis = (a.getAttribute('aria-label') || '') + ' ' + (a.getAttribute('title') || '') + ' ' + a.textContent;
+    if (/nov[ée]m? okn|new window|neuen Fenster/i.test(popis)) { return; }
+    var s = document.createElement('span');
+    s.className = 'vh vh-nove-okno';
+    s.textContent = text;
+    a.appendChild(s);
+  });
+})();
+
+/* ---- Přeskočení na obsah: přesun fokusu (WCAG 2.4.1, 2.4.3) ----
+   Prohlížeč po skoku na kotvu nastaví jen scroll, fokus nechá na <body>,
+   takže by čtečka pokračovala od začátku stránky. Cíl má tabindex="-1",
+   stačí mu fokus dát. */
+(function(){
+  var odkaz = document.querySelector('.skip-link');
+  var cil = document.getElementById('obsah');
+  if (!odkaz || !cil) { return; }
+  odkaz.addEventListener('click', function(){
+    window.setTimeout(function(){ cil.focus({ preventScroll: false }); }, 0);
+  });
 })();

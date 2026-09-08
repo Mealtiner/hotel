@@ -23,13 +23,34 @@
 		var close = document.getElementById('mmClose');
 		if (!hamburger || !menu) { return; }
 
+		/* Otevřené menu je modální dialog přes celou obrazovku: čtečka i
+		   klávesnice v něm musí zůstat, dokud ho uživatel nezavře (WCAG 2.4.3,
+		   2.1.2). Bez toho Tab odchází do obsahu schovaného pod menu. */
+		menu.setAttribute('role', 'dialog');
+		menu.setAttribute('aria-modal', 'true');
+		if (!menu.getAttribute('aria-label')) {
+			menu.setAttribute('aria-label', hamburger.getAttribute('aria-label') || 'Menu');
+		}
+
+		var fokusovatelne = function () {
+			return Array.prototype.filter.call(
+				menu.querySelectorAll('a[href], button:not([disabled]), input, select, textarea, [tabindex]:not([tabindex="-1"])'),
+				function (el) { return el.offsetParent !== null || el === document.activeElement; }
+			);
+		};
+
 		var open = function () {
 			menu.classList.add('is-open');
 			hamburger.setAttribute('aria-expanded', 'true');
+			document.body.classList.add('menu-otevrene');
+			var prvni = fokusovatelne()[0];
+			if (prvni) { prvni.focus(); }
 		};
 		var shut = function () {
 			menu.classList.remove('is-open');
 			hamburger.setAttribute('aria-expanded', 'false');
+			document.body.classList.remove('menu-otevrene');
+			hamburger.focus();
 		};
 
 		hamburger.addEventListener('click', function () {
@@ -41,7 +62,23 @@
 			if (e.target.tagName === 'A') { shut(); }
 		});
 		document.addEventListener('keydown', function (e) {
-			if (e.key === 'Escape' && menu.classList.contains('is-open')) { shut(); }
+			if (!menu.classList.contains('is-open')) { return; }
+			if (e.key === 'Escape') { shut(); return; }
+			if (e.key !== 'Tab') { return; }
+			/* past na fokus — z posledního prvku zpět na první a naopak */
+			var prvky = fokusovatelne();
+			if (!prvky.length) { return; }
+			var prvni = prvky[0], posledni = prvky[prvky.length - 1];
+			if (!menu.contains(document.activeElement)) {
+				e.preventDefault();
+				(e.shiftKey ? posledni : prvni).focus();
+			} else if (e.shiftKey && document.activeElement === prvni) {
+				e.preventDefault();
+				posledni.focus();
+			} else if (!e.shiftKey && document.activeElement === posledni) {
+				e.preventDefault();
+				prvni.focus();
+			}
 		});
 	}
 

@@ -125,7 +125,7 @@ function gridc_sc_gastro() {
 	      <div class="gcard reveal d<?php echo (int) $d++; ?>">
 	        <div class="g-img"><img src="<?php echo esc_url( $img ); ?>" alt="<?php echo esc_attr( gridc_row_val( $it, 'title' ) ); ?>" loading="lazy"></div>
 		        <div class="g-body">
-	          <h3><?php echo esc_html( gridc_row_val( $it, 'title' ) ); ?></h3>
+	          <h2><?php echo esc_html( gridc_row_val( $it, 'title' ) ); ?></h2>
 	          <div class="g-hours"><?php echo esc_html( gridc_row_val( $it, 'hours' ) ); ?></div>
 	          <p><?php echo esc_html( gridc_row_val( $it, 'text' ) ); ?></p>
 		          <ul class="g-list"><?php foreach ( $rows as $li ) : $parts = explode( '=', $li ); $lbl = $parts[0] ?? ''; $val = $parts[1] ?? ''; ?><li><?php echo wp_kses_post( $lbl ); ?><?php if ( '' !== $val ) { echo ' <b>' . wp_kses_post( $val ) . '</b>'; } ?></li><?php endforeach; ?></ul>

@@ -105,6 +105,10 @@ Proprietární – zakázkový kód pro použití na webech agentury GARRY Promo
 
 ## Changelog
 
+### 2.3.0
+- Nový katalog nejnovějších verzí GARRY pluginů (`includes/security/security-version-catalog.php`) — vedený ručně, protože GARRY pluginy nemají update server a nativní kontrola aktualizací je pro celou rodinu vždy prázdná.
+- Kontrola GARRY-013 porovnává nasazenou verzi každého aktivního GARRY pluginu proti katalogu a hlásí zastaralé; panel „GARRY ekosystém" ukazuje počet zastaralých modulů a u každého nejnovější dostupnou verzi.
+
 ### 2.2.0
 Zpětná vazba k 2.1.0 ("neoznačovat POKRYTO bez důkazu", duplicitní doporučení, chudá "Akce nyní") + nová prioritizovaná sada kontrol (P0–P2: skutečná účinnost ochrany, obnovitelnost, vystavené soubory, opuštěné pluginy, e-mailová důvěryhodnost).
 

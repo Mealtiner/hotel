@@ -110,13 +110,7 @@ def _text_popisu(l):
 <p>Poslední ročník má i domácí příchuť: v roce 2026 vyhrál brněnský závod MotoGP Marc Márquez, přičemž na stupně vítězů se probojoval i český jezdec Filip Salač.</p>
 
 <h2>Trať v číslech</h2>
-<ul>
-<li>délka <strong>5 403,19 m</strong>, šířka 15 m</li>
-<li><strong>14 zatáček</strong> — 6 levých a 8 pravých</li>
-<li>13 rovinek, nejdelší <strong>636,56 m</strong></li>
-<li>převýšení: stoupání až 7,5 % na 917 metrech, klesání 5 % na 410 metrech</li>
-<li>traťový rekord <strong>1:54,596</strong></li>
-</ul>
+<ul><li>délka <strong>5 403,19 m</strong>, šířka 15 m</li><li><strong>14 zatáček</strong> — 6 levých a 8 pravých</li><li>13 rovinek, nejdelší <strong>636,56 m</strong></li><li>převýšení: stoupání až 7,5 % na 917 metrech, klesání 5 % na 410 metrech</li><li>traťový rekord <strong>1:54,596</strong></li></ul>
 {_mapa('Plánek Masarykova okruhu')}
 <p>Delší povídání o historii trati — od okruhu dlouhého devětadvacet kilometrů po dnešní podobu — najdete na naší stránce <a href="{o['okruh']}">Masarykův okruh</a>.</p>
 
@@ -126,24 +120,14 @@ def _text_popisu(l):
 <p><a href="{TRIBUNY}" target="_blank" rel="noopener">Přehled všech tribun na oficiálním webu <span aria-hidden="true">↗</span></a> · <a href="{PLANEK}" target="_blank" rel="noopener">Plánek okruhu <span aria-hidden="true">↗</span></a></p>
 
 <h2>Vstupenky</h2>
-<ul>
-<li>Vstupenky se prodávají výhradně přes <a href="{VSTUPNE}" target="_blank" rel="noopener">oficiální prodej</a>.</li>
-<li>Návštěvníci předchozího ročníku mají věrnostní předprodej — stačí číslo vstupenky pod QR kódem.</li>
-<li>Limit jsou 4 vstupenky na osobu.</li>
-<li>Děti do 6 let mají vstup zdarma, pro děti do 14 let jsou juniorské vstupenky na tribuny T2, T4 a T6.</li>
-</ul>
+<ul><li>Vstupenky se prodávají výhradně přes <a href="{VSTUPNE}" target="_blank" rel="noopener">oficiální prodej</a>.</li><li>Návštěvníci předchozího ročníku mají věrnostní předprodej — stačí číslo vstupenky pod QR kódem.</li><li>Limit jsou 4 vstupenky na osobu.</li><li>Děti do 6 let mají vstup zdarma, pro děti do 14 let jsou juniorské vstupenky na tribuny T2, T4 a T6.</li></ul>
 <p>Aktuální <a href="{CENIK}" target="_blank" rel="noopener">ceník vstupenek</a> se každý ročník mění — ceny i podmínky si vždy ověřte na oficiálním webu.</p>
 
 <h2>Praktické informace k víkendu</h2>
 <p>Dopravu, parkování, občerstvení i pravidla vstupu shrnuje sekce <a href="{NAVSTEVA}" target="_blank" rel="noopener">pro návštěvníky</a>. Hosté GRID Hotelu parkují zdarma přímo v areálu a snídani mají dřív, než se brány otevřou veřejnosti. Recepce je vám k dispozici nepřetržitě a poradí i s tím, kterou branou to máte k vaší tribuně nejblíž.</p>
 
 <h2>Kde zážitek pořídíte</h2>
-<ul>
-<li><a href="{VSTUPNE}" target="_blank" rel="noopener">vstupenky.motogpczechia.com</a> — vstupenky na Grand Prix</li>
-<li><a href="{WEB}" target="_blank" rel="noopener">motogpczechia.com</a> — program, novinky, informace pro návštěvníky</li>
-<li><a href="{AMD}" target="_blank" rel="noopener">automotodrombrno.cz</a> — provozovatel okruhu a zbytek závodní sezóny</li>
-<li><a href="{o['rezervace']}">Rezervace pobytu v GRID Hotelu</a> — ubytování přímo v areálu</li>
-</ul>
+<ul><li><a href="{VSTUPNE}" target="_blank" rel="noopener">vstupenky.motogpczechia.com</a> — vstupenky na Grand Prix</li><li><a href="{WEB}" target="_blank" rel="noopener">motogpczechia.com</a> — program, novinky, informace pro návštěvníky</li><li><a href="{AMD}" target="_blank" rel="noopener">automotodrombrno.cz</a> — provozovatel okruhu a zbytek závodní sezóny</li><li><a href="{o['rezervace']}">Rezervace pobytu v GRID Hotelu</a> — ubytování přímo v areálu</li></ul>
 <p class="okruh-zdroje">Zdroje faktů: oficiální web Grand Prix a provozovatele okruhu. Termíny, ceny i program se mohou měnit — rozhodující jsou vždy oficiální stránky.</p>"""
 
     if l == "en":
@@ -156,13 +140,7 @@ def _text_popisu(l):
 <p>The most recent edition had a home flavour: in 2026 Marc Márquez won the MotoGP race in Brno, and Czech rider Filip Salač made it onto the podium.</p>
 
 <h2>The track in numbers</h2>
-<ul>
-<li>length <strong>5,403.19 m</strong>, width 15 m</li>
-<li><strong>14 corners</strong> — 6 left and 8 right</li>
-<li>13 straights, the longest <strong>636.56 m</strong></li>
-<li>elevation: up to 7.5% climbing over 917 metres, 5% descent over 410 metres</li>
-<li>lap record <strong>1:54.596</strong></li>
-</ul>
+<ul><li>length <strong>5,403.19 m</strong>, width 15 m</li><li><strong>14 corners</strong> — 6 left and 8 right</li><li>13 straights, the longest <strong>636.56 m</strong></li><li>elevation: up to 7.5% climbing over 917 metres, 5% descent over 410 metres</li><li>lap record <strong>1:54.596</strong></li></ul>
 {_mapa('Map of the Masaryk Circuit')}
 <p>For the longer story of the track — from a twenty-nine-kilometre road circuit to today's layout — see our page on <a href="{o['okruh']}">the Masaryk Circuit</a>.</p>
 
@@ -172,24 +150,14 @@ def _text_popisu(l):
 <p><a href="{TRIBUNY}" target="_blank" rel="noopener">All grandstands on the official site <span aria-hidden="true">↗</span></a> · <a href="{PLANEK}" target="_blank" rel="noopener">Circuit map <span aria-hidden="true">↗</span></a></p>
 
 <h2>Tickets</h2>
-<ul>
-<li>Tickets are sold only through the <a href="{VSTUPNE}" target="_blank" rel="noopener">official ticket shop</a>.</li>
-<li>Visitors of the previous edition get a loyalty pre-sale — you need the ticket number under the QR code.</li>
-<li>The limit is 4 tickets per person.</li>
-<li>Children under 6 enter free; juniors up to 14 have their own tickets for stands T2, T4 and T6.</li>
-</ul>
+<ul><li>Tickets are sold only through the <a href="{VSTUPNE}" target="_blank" rel="noopener">official ticket shop</a>.</li><li>Visitors of the previous edition get a loyalty pre-sale — you need the ticket number under the QR code.</li><li>The limit is 4 tickets per person.</li><li>Children under 6 enter free; juniors up to 14 have their own tickets for stands T2, T4 and T6.</li></ul>
 <p>The <a href="{CENIK}" target="_blank" rel="noopener">ticket price list</a> changes every year — always check prices and conditions on the official site.</p>
 
 <h2>Practical information</h2>
 <p>Travel, parking, catering and entry rules are summed up in the <a href="{NAVSTEVA}" target="_blank" rel="noopener">visitor section</a>. GRID Hotel guests park free inside the complex and have breakfast before the gates open to the public. Reception is staffed around the clock and will tell you which gate is closest to your stand.</p>
 
 <h2>Where to arrange it</h2>
-<ul>
-<li><a href="{VSTUPNE}" target="_blank" rel="noopener">vstupenky.motogpczechia.com</a> — Grand Prix tickets</li>
-<li><a href="{WEB}" target="_blank" rel="noopener">motogpczechia.com</a> — programme, news, visitor information</li>
-<li><a href="{AMD}" target="_blank" rel="noopener">automotodrombrno.cz</a> — the circuit operator and the rest of the racing season</li>
-<li><a href="{o['rezervace']}">Book a stay at GRID Hotel</a> — accommodation inside the complex</li>
-</ul>
+<ul><li><a href="{VSTUPNE}" target="_blank" rel="noopener">vstupenky.motogpczechia.com</a> — Grand Prix tickets</li><li><a href="{WEB}" target="_blank" rel="noopener">motogpczechia.com</a> — programme, news, visitor information</li><li><a href="{AMD}" target="_blank" rel="noopener">automotodrombrno.cz</a> — the circuit operator and the rest of the racing season</li><li><a href="{o['rezervace']}">Book a stay at GRID Hotel</a> — accommodation inside the complex</li></ul>
 <p class="okruh-zdroje">Sources: the official Grand Prix and circuit websites. Dates, prices and the programme may change — the official sites always take precedence.</p>"""
 
     return f"""<h2>Warum MotoGP vom GRID Hotel aus</h2>
@@ -201,13 +169,7 @@ def _text_popisu(l):
 <p>Die letzte Ausgabe hatte auch eine heimische Note: 2026 gewann Marc Márquez das MotoGP-Rennen in Brünn, und der tschechische Fahrer Filip Salač schaffte es aufs Podium.</p>
 
 <h2>Die Strecke in Zahlen</h2>
-<ul>
-<li>Länge <strong>5.403,19 m</strong>, Breite 15 m</li>
-<li><strong>14 Kurven</strong> — 6 links und 8 rechts</li>
-<li>13 Geraden, die längste <strong>636,56 m</strong></li>
-<li>Höhenunterschied: bis zu 7,5 % Steigung über 917 Meter, 5 % Gefälle über 410 Meter</li>
-<li>Streckenrekord <strong>1:54,596</strong></li>
-</ul>
+<ul><li>Länge <strong>5.403,19 m</strong>, Breite 15 m</li><li><strong>14 Kurven</strong> — 6 links und 8 rechts</li><li>13 Geraden, die längste <strong>636,56 m</strong></li><li>Höhenunterschied: bis zu 7,5 % Steigung über 917 Meter, 5 % Gefälle über 410 Meter</li><li>Streckenrekord <strong>1:54,596</strong></li></ul>
 {_mapa('Streckenplan des Masaryk-Rings')}
 <p>Die längere Geschichte der Strecke — vom neunundzwanzig Kilometer langen Kurs bis zur heutigen Form — lesen Sie auf unserer Seite <a href="{o['okruh']}">Der Masaryk-Ring</a>.</p>
 
@@ -217,24 +179,14 @@ def _text_popisu(l):
 <p><a href="{TRIBUNY}" target="_blank" rel="noopener">Alle Tribünen auf der offiziellen Website <span aria-hidden="true">↗</span></a> · <a href="{PLANEK}" target="_blank" rel="noopener">Streckenplan <span aria-hidden="true">↗</span></a></p>
 
 <h2>Tickets</h2>
-<ul>
-<li>Tickets gibt es ausschließlich über den <a href="{VSTUPNE}" target="_blank" rel="noopener">offiziellen Verkauf</a>.</li>
-<li>Besucher der vorherigen Ausgabe haben einen Treue-Vorverkauf — nötig ist die Ticketnummer unter dem QR-Code.</li>
-<li>Das Limit liegt bei 4 Tickets pro Person.</li>
-<li>Kinder unter 6 Jahren haben freien Eintritt, für Kinder bis 14 gibt es Junior-Tickets für die Tribünen T2, T4 und T6.</li>
-</ul>
+<ul><li>Tickets gibt es ausschließlich über den <a href="{VSTUPNE}" target="_blank" rel="noopener">offiziellen Verkauf</a>.</li><li>Besucher der vorherigen Ausgabe haben einen Treue-Vorverkauf — nötig ist die Ticketnummer unter dem QR-Code.</li><li>Das Limit liegt bei 4 Tickets pro Person.</li><li>Kinder unter 6 Jahren haben freien Eintritt, für Kinder bis 14 gibt es Junior-Tickets für die Tribünen T2, T4 und T6.</li></ul>
 <p>Die <a href="{CENIK}" target="_blank" rel="noopener">Preisliste</a> ändert sich jedes Jahr — prüfen Sie Preise und Bedingungen immer auf der offiziellen Website.</p>
 
 <h2>Praktisches zum Wochenende</h2>
 <p>Anreise, Parken, Verpflegung und Einlassregeln fasst der <a href="{NAVSTEVA}" target="_blank" rel="noopener">Besucherbereich</a> zusammen. Gäste des GRID Hotels parken kostenlos auf dem Gelände und frühstücken, bevor die Tore für das Publikum öffnen. Die Rezeption ist rund um die Uhr besetzt und sagt Ihnen, welches Tor Ihrer Tribüne am nächsten liegt.</p>
 
 <h2>Wo Sie das Erlebnis buchen</h2>
-<ul>
-<li><a href="{VSTUPNE}" target="_blank" rel="noopener">vstupenky.motogpczechia.com</a> — Tickets für den Grand Prix</li>
-<li><a href="{WEB}" target="_blank" rel="noopener">motogpczechia.com</a> — Programm, Neuigkeiten, Besucherinfos</li>
-<li><a href="{AMD}" target="_blank" rel="noopener">automotodrombrno.cz</a> — Betreiber der Strecke und die übrige Rennsaison</li>
-<li><a href="{o['rezervace']}">Aufenthalt im GRID Hotel buchen</a> — Unterkunft direkt auf dem Gelände</li>
-</ul>
+<ul><li><a href="{VSTUPNE}" target="_blank" rel="noopener">vstupenky.motogpczechia.com</a> — Tickets für den Grand Prix</li><li><a href="{WEB}" target="_blank" rel="noopener">motogpczechia.com</a> — Programm, Neuigkeiten, Besucherinfos</li><li><a href="{AMD}" target="_blank" rel="noopener">automotodrombrno.cz</a> — Betreiber der Strecke und die übrige Rennsaison</li><li><a href="{o['rezervace']}">Aufenthalt im GRID Hotel buchen</a> — Unterkunft direkt auf dem Gelände</li></ul>
 <p class="okruh-zdroje">Quellen: die offiziellen Websites des Grand Prix und der Rennstrecke. Termine, Preise und Programm können sich ändern — maßgeblich sind stets die offiziellen Seiten.</p>"""
 
 

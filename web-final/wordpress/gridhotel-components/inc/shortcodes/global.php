@@ -57,12 +57,16 @@ function gridc_render_hlavni_menu( $atts = array() ) {
 		foreach ( $moje as $d ) {
 			$pod .= '<a href="' . esc_url( $d->url ) . '">' . esc_html( $d->title ) . '</a>';
 		}
+		/* aria-controls sváže rozbalovadlo s podmenu, aby čtečka věděla,
+		   co se tlačítkem otevírá (WCAG 4.1.2). */
+		$id_pod = 'ma-sub-' . $it->ID;
 		$out[] = '<div class="ma-item">'
 			. '<a class="ma-link" href="' . esc_url( $it->url ) . '">' . esc_html( $it->title ) . '</a>'
-			. '<button type="button" class="ma-toggle" aria-expanded="false" aria-label="' . esc_attr( $popisek ) . '">'
+			. '<button type="button" class="ma-toggle" aria-expanded="false" aria-controls="' . esc_attr( $id_pod ) . '"'
+			. ' aria-label="' . esc_attr( $popisek ) . '">'
 			. '<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M6 9l6 6 6-6"/></svg>'
 			. '</button>'
-			. '<div class="ma-sub">' . $pod . '</div>'
+			. '<div class="ma-sub" id="' . esc_attr( $id_pod ) . '">' . $pod . '</div>'
 			. '</div>';
 	}
 	return implode( ' ', $out );
@@ -83,6 +87,31 @@ function gridc_sc_socials() {
 }
 gridc_register_shortcode( 'grid_socials', 'gridc_sc_socials' );
 
+/**
+ * [grid_paticka_menu sloupec="hotel|informace"] — seznam odkazů v patičce.
+ *
+ * Sloupce byly napsané natvrdo v šabloně zápatí, takže se nedaly editovat.
+ * Teď je vypisuje menu WordPressu (Vzhled → Menu, pozice „Patička — …"),
+ * pro každý jazyk vlastní. Když k pozici žádné menu přiřazené není, shortcode
+ * nevrátí nic a v šabloně zůstane viditelná původní pevná varianta.
+ */
+function gridc_sc_paticka_menu( $atts = array() ) {
+	$atts   = shortcode_atts( array( 'sloupec' => 'hotel' ), $atts, 'grid_paticka_menu' );
+	$pozice = 'informace' === $atts['sloupec'] ? 'grid-paticka-informace' : 'grid-paticka-hotel';
+	if ( ! has_nav_menu( $pozice ) ) {
+		return '';
+	}
+	return (string) wp_nav_menu( array(
+		'theme_location' => $pozice,
+		'container'      => false,
+		'menu_class'     => 'foot-menu',
+		'depth'          => 1,
+		'fallback_cb'    => false,
+		'echo'           => false,
+	) );
+}
+gridc_register_shortcode( 'grid_paticka_menu', 'gridc_sc_paticka_menu' );
+
 /* [grid_paticka_kontakt] — adresní blok patičky, lokalizované labely. */
 function gridc_sc_footer_kontakt() {
 	$li = gridc_lang_index();
@@ -98,11 +127,12 @@ function gridc_sc_footer_kontakt() {
 	$tels   = gridhotel_get_option( 'tel_shuttle', '+420 775 778 718' );
 	$email  = gridhotel_get_option( 'email', 'info@gridhotel.cz' );
 	$raw    = function ( $t ) { return preg_replace( '/\s+/', '', $t ); };
-	return '<span class="data grid-component grid-component--footer-kontakt">' . esc_html( $a1 ) . '<br>' . esc_html( $a2 ) . '<br>'
+	/* Kontaktní údaje provozovatele patří do <address> (WCAG 1.3.1 / HTML sémantika). */
+	return '<address class="data grid-component grid-component--footer-kontakt">' . esc_html( $a1 ) . '<br>' . esc_html( $a2 ) . '<br>'
 		. esc_html( $L['recepce'][ $li ] ) . ': <a href="tel:' . esc_attr( $raw( $telr ) ) . '">' . esc_html( $telr ) . '</a><br>'
 		. esc_html( $L['rezervace'][ $li ] ) . ': <a href="tel:' . esc_attr( $raw( $telrez ) ) . '">' . esc_html( $telrez ) . '</a><br>'
 		. esc_html( $L['shuttle'][ $li ] ) . ': <a href="tel:' . esc_attr( $raw( $tels ) ) . '">' . esc_html( $tels ) . '</a><br>'
-		. '<a href="mailto:' . esc_attr( $email ) . '">' . esc_html( $email ) . '</a></span>';
+		. '<a href="mailto:' . esc_attr( $email ) . '">' . esc_html( $email ) . '</a></address>';
 }
 gridc_register_shortcode( 'grid_paticka_kontakt', 'gridc_sc_footer_kontakt' );
 
@@ -147,10 +177,12 @@ function gridc_sc_lang_switch() {
 	ob_start();
 	if ( empty( $lang_urls ) ) {
 		// Bez Polylang / bez dostupných URL zůstává neutrální statický popisek — žádné mrtvé "#" odkazy.
-		echo '<div class="lang" aria-label="' . esc_attr( $aria_label ) . '"><span class="active">' . esc_html( $lbl( $cur_lang ) ) . '</span></div>';
+		/* aria-label patří jen prvku s rolí — obyčejný div ho čtečky ignorují
+		   nebo hlásí nekonzistentně (WCAG 4.1.2). Proto <nav>. */
+		echo '<nav class="lang" aria-label="' . esc_attr( $aria_label ) . '"><span class="active">' . esc_html( $lbl( $cur_lang ) ) . '</span></nav>';
 		return ob_get_clean();
 	}
-	echo '<div class="lang" aria-label="' . esc_attr( $aria_label ) . '">';
+	echo '<nav class="lang" aria-label="' . esc_attr( $aria_label ) . '">';
 	foreach ( $lang_urls as $l => $u ) {
 		printf(
 			'<a href="%s"%s>%s</a>',
@@ -159,7 +191,7 @@ function gridc_sc_lang_switch() {
 			esc_html( $lbl( $l ) )
 		);
 	}
-	echo '</div>';
+	echo '</nav>';
 	return ob_get_clean();
 }
 gridc_register_shortcode( 'grid_lang_switch', 'gridc_sc_lang_switch' );
@@ -232,24 +264,39 @@ function gridc_sc_footer() {
 	        <?php echo gridc_sc_footer_kontakt(); ?>
 	        <?php echo gridc_sc_socials(); ?>
 	      </div>
-	      <div class="foot-col"><h4>Hotel</h4><ul>
+	      <?php
+	      /* Sloupce jsou menu WordPressu (Vzhled → Menu, pozice „Patička — …"),
+	         pro každý jazyk vlastní. Pevný seznam níž je záloha pro případ, že
+	         k pozici žádné menu přiřazené není — patička nikdy nezůstane prázdná. */
+	      $vypis_menu = function ( $pozice ) {
+	      	if ( ! has_nav_menu( $pozice ) ) { return false; }
+	      	wp_nav_menu( array(
+	      		'theme_location' => $pozice,
+	      		'container'      => false,
+	      		'depth'          => 1,
+	      		'fallback_cb'    => false,
+	      	) );
+	      	return true;
+	      };
+	      ?>
+	      <div class="foot-col"><h2>Hotel</h2><?php if ( ! $vypis_menu( 'grid-paticka-hotel' ) ) : ?><ul>
 	        <li><a href="<?php echo esc_url( gridc_link_pref( array( 'o-nas' ), '#pribeh' ) ); ?>">O hotelu</a></li>
 	        <li><a href="<?php echo esc_url( gridc_link_pref( array( 'ubytovani', 'pokoje', 'pokoje-a-apartmany' ), '#pokoje' ) ); ?>">Pokoje &amp; apartmá</a></li>
 	        <li><a href="<?php echo esc_url( gridc_link_pref( array( 'gastronomie', 'gastro' ), '#restaurace' ) ); ?>">Gastronomie</a></li>
 	        <li><a href="<?php echo esc_url( gridc_link_pref( array( 'zazitky-u-okruhu', 'zazitky', 'aktivity' ), '#zazitky' ) ); ?>">Zážitky &amp; dárkové poukazy</a></li>
 	        <li><a href="<?php echo esc_url( gridc_link_pref( array( 'sezona-2026', 'sezona' ), '#sezona' ) ); ?>">Sezóna</a></li>
 	        <li><a href="<?php echo esc_url( gridc_link_pref( array( 'firemni-akce-svatby', 'firemni' ), '#firemni' ) ); ?>">Firemní akce &amp; svatby</a></li>
-	      </ul></div>
-	      <div class="foot-col"><h4>Informace</h4><ul>
+	      </ul><?php endif; ?></div>
+	      <div class="foot-col"><h2>Informace</h2><?php if ( ! $vypis_menu( 'grid-paticka-informace' ) ) : ?><ul>
 	        <li><a href="<?php echo esc_url( $u_dop ); ?>">Jak se k nám dostanete</a></li>
 	        <li><a href="<?php echo esc_url( $u_dop ); ?>">Parkování &amp; shuttle bus</a></li>
 	        <li><a href="<?php echo esc_url( $u_kar ); ?>">Kariéra</a></li>
 	        <li><a href="<?php echo esc_url( $u_dot ); ?>">Dotazník spokojenosti</a></li>
 	        <li><a href="<?php echo esc_url( $u_pod ); ?>">Všeobecné obchodní podmínky</a></li>
 	        <li><a href="<?php echo esc_url( $u_och ); ?>">Ochrana osobních údajů</a></li>
-	      </ul></div>
+	      </ul><?php endif; ?></div>
 	      <div class="foot-col">
-	        <h4>Event alert &amp; Newsletter</h4>
+	        <h2>Event alert &amp; Newsletter</h2>
 	        <p style="color:var(--grey);font-size:.86rem">Nezmeškej termíny sezóny a speciální balíčky.</p>
 	        <?php echo gridc_render_newsletter_form(); ?>
 	        <p style="color:var(--grey-dim);font-size:.78rem;margin-top:18px">GRH s.r.o.<br>IČ: <?php echo esc_html( $ico ); ?> · DIČ: <?php echo esc_html( $dic ); ?><br><?php echo esc_html( $spis ); ?></p>

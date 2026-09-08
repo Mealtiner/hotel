@@ -3,7 +3,7 @@
  * Plugin Name:       GARRY – Lokální počasí a provozní stav
  * Plugin URI:        https://www.garry.cz
  * Description:       Plovoucí widget s lokálním počasím, ručním provozním stavem a volitelným odhadem podmínek z dat Open-Meteo podle nastavené GPS polohy. Vhodný pro sportoviště, areály a venkovní provozy; původně vytvořen pro GRID Hotel.
- * Version:           1.5.0
+ * Version:           1.6.0
  * Author:            GARRY Promotion
  * Author URI:        https://www.garry.cz
  * License:           Proprietary — Copyright © GARRY Promotion
@@ -21,7 +21,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
  * GARRY – Situace na trati (widget) — živá data z Open-Meteo dle GPS
  * ============================================================================ */
 
-define( 'GARRY_SIT_VER', '1.5.0' );
+define( 'GARRY_SIT_VER', '1.6.0' );
 define( 'GARRY_SIT_OPT', 'garry_sit_settings' );
 /**
  * Fáze 6 GRID Suite refaktoringu — dřív tenhle plugin neměl žádnou vlastní
@@ -221,7 +221,10 @@ add_action( 'wp_footer', function () {
 		$cls = ( $k === 'teplota' ) ? 'v hot' : 'v';
 		$dot = ( $k === 'status' ) ? '<span class="dot"></span>' : '';
 		$lbl = isset( $L['labels'][ $k ] ) ? $L['labels'][ $k ] : $f[1];
-		echo '<div class="hud-row"><span class="k">' . $dot . esc_html( $lbl ) . '</span><span class="' . $cls . '" data-field="' . esc_attr( $k ) . '">' . $val . '</span></div>';
+		/* Hodnoty se aktualizují za běhu. Stav trati, počasí a povrch se čtečce
+		   ohlásí (role="status"), hodiny ne — tikaly by každou vteřinu (WCAG 4.1.3). */
+		$zive = ( 'cas' === $k ) ? '' : ' role="status" aria-live="polite"';
+		echo '<div class="hud-row"><span class="k">' . $dot . esc_html( $lbl ) . '</span><span class="' . $cls . '" data-field="' . esc_attr( $k ) . '"' . $zive . '>' . $val . '</span></div>';
 	}
 	$rows = ob_get_clean();
 	?>

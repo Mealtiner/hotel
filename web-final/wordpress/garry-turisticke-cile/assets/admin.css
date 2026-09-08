@@ -1,0 +1,18 @@
+/* Administrace pluginu Turistické cíle. */
+.garry-tc .tc-misto{background:#fff;border:1px solid #c3c4c7;border-radius:8px;margin:0 0 10px;padding:8px 14px}
+.garry-tc .tc-misto[open]{border-color:#8c8f94}
+.garry-tc .tc-misto.tc-tazena{opacity:.5;border-style:dashed}
+.garry-tc .tc-misto > summary{cursor:pointer;display:flex;gap:12px;align-items:center;flex-wrap:wrap;padding:4px 0;list-style:none}
+.garry-tc .tc-misto > summary::-webkit-details-marker{display:none}
+.garry-tc .tc-uchyt{cursor:grab;color:#8c8f94;font-size:15px;letter-spacing:-2px;user-select:none}
+.garry-tc .tc-nazev{font-size:13px}
+.garry-tc .tc-skryto{font-size:11px;background:#f0f0f1;border:1px solid #dcdcde;border-radius:3px;padding:1px 7px;color:#646970}
+.garry-tc .tc-ovladani{margin-left:auto;display:flex;gap:10px;align-items:center}
+.garry-tc .tc-ovladani .button-link{font-size:15px;line-height:1;text-decoration:none}
+.garry-tc .tc-smazat{color:#b32d2e}
+.garry-tc .tc-telo{padding-top:10px;border-top:1px solid #eee;margin-top:8px}
+.garry-tc .tc-radek{display:flex;flex-wrap:wrap;gap:12px 18px;align-items:flex-end;margin-bottom:10px}
+.garry-tc .tc-radek:last-child{margin-bottom:0}
+.garry-tc .tc-radek label{display:flex;flex-direction:column;gap:4px;font-weight:600;font-size:12px}
+.garry-tc .tc-radek input,.garry-tc .tc-radek select,.garry-tc .tc-radek textarea{font-weight:400}
+.garry-tc table input,.garry-tc table select{max-width:100%}

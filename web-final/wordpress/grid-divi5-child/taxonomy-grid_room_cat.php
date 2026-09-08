@@ -8,6 +8,9 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
 $term = get_queried_object();
 get_header();
+/* Vlastní šablona nemá #main-content, hlavní oblast proto otevíráme sami
+   (WCAG 1.3.1, 2.4.1 — cíl odkazu „Přeskočit na obsah"). */
+echo '<main id="obsah" tabindex="-1">';
 
 /* jazyk stránky + lokalizované UI texty šablony */
 $lang = function_exists( 'pll_current_language' ) ? ( pll_current_language() ?: 'cs' ) : 'cs';
@@ -128,8 +131,8 @@ $hero_img = ! empty( $imgs ) ? $imgs[0] : '';
       </div>
       <aside class="rd-aside">
         <?php if ( $hero_img ) : ?><img class="rd-photo" src="<?php echo esc_url( $hero_img ); ?>" alt="<?php echo esc_attr( $nazev ); ?>" loading="lazy"><?php endif; ?>
-        <?php if ( $zarizeni ) : ?><div class="rd-col"><h3><?php echo esc_html( $t( 'vybaveni' ) ); ?></h3><ul class="check-list"><?php foreach ( $zarizeni as $c ) echo '<li>' . esc_html( $c ) . '</li>'; ?></ul></div><?php endif; ?>
-        <?php if ( $koupelna ) : ?><div class="rd-col"><h3><?php echo esc_html( $t( 'koupelna' ) ); ?></h3><ul class="check-list"><?php foreach ( $koupelna as $c ) echo '<li>' . esc_html( $c ) . '</li>'; ?></ul></div><?php endif; ?>
+        <?php if ( $zarizeni ) : ?><div class="rd-col"><h2><?php echo esc_html( $t( 'vybaveni' ) ); ?></h2><ul class="check-list"><?php foreach ( $zarizeni as $c ) echo '<li>' . esc_html( $c ) . '</li>'; ?></ul></div><?php endif; ?>
+        <?php if ( $koupelna ) : ?><div class="rd-col"><h2><?php echo esc_html( $t( 'koupelna' ) ); ?></h2><ul class="check-list"><?php foreach ( $koupelna as $c ) echo '<li>' . esc_html( $c ) . '</li>'; ?></ul></div><?php endif; ?>
       </aside>
     </div>
   </div>
@@ -184,4 +187,5 @@ $hero_img = ! empty( $imgs ) ? $imgs[0] : '';
   </div>
 </section>
 
-<?php get_footer();
+<?php echo '</main>';
+get_footer();

@@ -3,7 +3,7 @@
  * Plugin Name:       GARRY – Denní menu
  * Plugin URI:        https://www.garry.cz
  * Description:       Správa jídelníčku a nápojového lístku pro víc provozů (restaurace, bar…): denní menu Po–Ne, celotýdenní nabídka, stálá nabídka, večerní menu a nápojový lístek, každý provoz nezávisle, ve 3 jazycích (CZ/EN/DE).
- * Version:           1.9.0
+ * Version:           1.13.0
  * Author:            GARRY Promotion
  * Author URI:        https://www.garry.cz
  * License:           Proprietary — Copyright © GARRY Promotion
@@ -25,7 +25,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
  * dřív – jen se řídí přes enabled['tydenni'], jestli se vůbec nabízí.
  * ============================================================================ */
 
-define( 'GARRY_MENU_VER', '1.8.0' );
+define( 'GARRY_MENU_VER', '1.13.0' );
 define( 'GARRY_MENU_OPT', 'garry_menu' );
 define( 'GARRY_MENU_SCHEMA', 2 );
 
@@ -88,6 +88,22 @@ function garry_menu_napoje_default_tags() {
 		array( 'key' => 'horke-napoje',  'cz' => 'Horké nápoje a káva',   'en' => 'Hot drinks & coffee',        'de' => 'Heißgetränke & Kaffee' ),
 	);
 }
+/* Přístupnost: název jídla a jeho cena tvoří dvojici pojem–popis, proto skupina
+   vychází jako <dl>. Popisek skupiny („Polévky“…) je k seznamu připojený přes
+   aria-labelledby, aby čtečka ohlásila, o jakou část jídelníčku jde (WCAG 1.3.1). */
+function garry_gm_skupina( $lbl, $polozky ) {
+	static $poradi = 0;
+	$id   = 'gm-grp-' . ( ++$poradi );
+	$out  = '<div class="menu-grp"><span class="menu-grp-l" id="' . esc_attr( $id ) . '">' . esc_html( $lbl ) . '</span>';
+	$out .= '<dl class="menu-polozky" aria-labelledby="' . esc_attr( $id ) . '">';
+	foreach ( $polozky as $it ) {
+		$out .= '<div class="menu-item"><dt class="menu-n">' . esc_html( $it[0] ) . '</dt>';
+		if ( (string) $it[1] !== '' ) { $out .= '<dd class="menu-c">' . esc_html( $it[1] ) . '</dd>'; }
+		$out .= '</div>';
+	}
+	return $out . '</dl></div>';
+}
+
 function garry_menu_lang() {
 	if ( function_exists( 'pll_current_language' ) ) { $l = pll_current_language(); if ( $l ) return $l; }
 	return substr( (string) get_locale(), 0, 2 );
@@ -1156,15 +1172,13 @@ function garry_menu_render( $atts = array() ) {
 		foreach ( $TYPES as $tk => $tn ) {
 			$items = array_values( array_filter( $rows, function ( $r ) use ( $tk ) { return ( $r['typ'] ?? '' ) === $tk; } ) );
 			if ( ! $items ) continue;
-			echo '<div class="menu-grp"><span class="menu-grp-l">' . esc_html( $tn[ $li ] ) . '</span>';
+			$polozky = array();
 			foreach ( $items as $r ) {
 				$name = $r[ array( 'cz', 'en', 'de' )[ $li ] ] ?: $r['cz'];
 				if ( $name === '' ) continue;
-				echo '<div class="menu-item"><span class="menu-n">' . esc_html( $name ) . '</span>';
-				if ( ! empty( $r['cena'] ) ) echo '<span class="menu-c">' . esc_html( $r['cena'] ) . '</span>';
-				echo '</div>';
+				$polozky[] = array( $name, (string) ( $r['cena'] ?? '' ) );
 			}
-			echo '</div>';
+			echo garry_gm_skupina( $tn[ $li ], $polozky );
 		}
 		echo '</div>';
 	}
@@ -1185,13 +1199,7 @@ function garry_menu_render( $atts = array() ) {
 			foreach ( $s['typy'] as $ty ) {
 				if ( empty( $groups[ $ty['key'] ] ) ) continue;
 				$lbl = $ty[ array( 'cz', 'en', 'de' )[ $li ] ] ?: $ty['cz'];
-				echo '<div class="menu-grp"><span class="menu-grp-l">' . esc_html( $lbl ) . '</span>';
-				foreach ( $groups[ $ty['key'] ] as $it ) {
-					echo '<div class="menu-item"><span class="menu-n">' . esc_html( $it[0] ) . '</span>';
-					if ( $it[1] !== '' ) echo '<span class="menu-c">' . esc_html( $it[1] ) . '</span>';
-					echo '</div>';
-				}
-				echo '</div>';
+				echo garry_gm_skupina( $lbl, $groups[ $ty['key'] ] );
 			}
 			echo '</div>';
 		}
@@ -1211,13 +1219,7 @@ function garry_menu_render( $atts = array() ) {
 			foreach ( $s['vecerni_typy'] as $ty ) {
 				if ( empty( $groups[ $ty['key'] ] ) ) continue;
 				$lbl = $ty[ array( 'cz', 'en', 'de' )[ $li ] ] ?: $ty['cz'];
-				echo '<div class="menu-grp"><span class="menu-grp-l">' . esc_html( $lbl ) . '</span>';
-				foreach ( $groups[ $ty['key'] ] as $it ) {
-					echo '<div class="menu-item"><span class="menu-n">' . esc_html( $it[0] ) . '</span>';
-					if ( $it[1] !== '' ) echo '<span class="menu-c">' . esc_html( $it[1] ) . '</span>';
-					echo '</div>';
-				}
-				echo '</div>';
+				echo garry_gm_skupina( $lbl, $groups[ $ty['key'] ] );
 			}
 			echo '</div>';
 		}
@@ -1349,17 +1351,16 @@ function garry_napoje_render( $atts = array() ) {
 	if ( ! $groups ) return '';
 
 	ob_start();
+	/* Nápojový lístek měl jako jediný z nabídek chybějící nadpis — stálá
+	   i večerní nabídka ho mají, takže se blok bez něj tvářil jako pokračování
+	   předchozího menu. */
+	$KICK = array( 'Nápojový lístek', 'Drinks list', 'Getränkekarte' );
+	echo '<h3 class="menu-stala-h">' . esc_html( $KICK[ $li ] ) . '</h3>';
 	echo '<div class="menu-stala menu-napoje">';
 	foreach ( $s['napoje']['tags'] as $ty ) {
 		if ( empty( $groups[ $ty['key'] ] ) ) continue;
 		$lbl = $ty[ array( 'cz', 'en', 'de' )[ $li ] ] ?: $ty['cz'];
-		echo '<div class="menu-grp"><span class="menu-grp-l">' . esc_html( $lbl ) . '</span>';
-		foreach ( $groups[ $ty['key'] ] as $it ) {
-			echo '<div class="menu-item"><span class="menu-n">' . esc_html( $it[0] ) . '</span>';
-			if ( $it[1] !== '' ) echo '<span class="menu-c">' . esc_html( $it[1] ) . '</span>';
-			echo '</div>';
-		}
-		echo '</div>';
+		echo garry_gm_skupina( $lbl, $groups[ $ty['key'] ] );
 	}
 	echo '</div>';
 	return ob_get_clean();
@@ -1517,6 +1518,39 @@ add_action( 'et_builder_ready', function () {
 } );
 
 /* ---------------------------------------------------------------------------
+ * Sazba jídelníčku do sloupců
+ *
+ * Vykreslování dlouhých nabídek (stálá, večerní, nápoje) patří k pluginu, ne
+ * k motivu: počet sloupců podle množství položek, vyrovnané výšky, zákaz
+ * dělení položky mezi sloupce, klíč skupiny nikdy sám na konci sloupce a
+ * srovnaný vrch sloupců. CSS řeší rozvržení, skript dopočítává to, na co
+ * CSS nestačí. Bez skriptu zůstane sazba funkční, jen bez dorovnání.
+ *
+ * Assety se načtou jen tam, kde je jídelníček — podle shortcodů v obsahu.
+ * Filtrem 'garry_menu_nacist_sazbu' jde načtení vynutit (např. když se
+ * jídelníček vkládá odjinud než z obsahu stránky).
+ * ------------------------------------------------------------------------- */
+function garry_menu_je_jidelnicek_na_strance() {
+	$post = get_post();
+	$je   = false;
+	if ( $post instanceof WP_Post ) {
+		foreach ( array( 'grid_menu_provozy', 'grid_denni_menu', 'grid_napojovy_listek' ) as $sc ) {
+			if ( has_shortcode( (string) $post->post_content, $sc ) ) { $je = true; break; }
+		}
+	}
+	return (bool) apply_filters( 'garry_menu_nacist_sazbu', $je, $post );
+}
+
+add_action( 'wp_enqueue_scripts', function () {
+	if ( is_admin() || ! garry_menu_je_jidelnicek_na_strance() ) {
+		return;
+	}
+	$adr = plugins_url( 'assets/', __FILE__ );
+	wp_enqueue_style( 'garry-menu-sazba', $adr . 'jidelnicek.css', array(), GARRY_MENU_VER );
+	wp_enqueue_script( 'garry-menu-sazba', $adr . 'jidelnicek.js', array(), GARRY_MENU_VER, true );
+} );
+
+/* ---------------------------------------------------------------------------
  * [grid_menu_provozy] — jídelníček všech provozů pod sebou
  *
  * Vykreslí jednu sekci pro KAŽDÝ provoz založený v Nastavení → provozy,
@@ -1528,13 +1562,15 @@ add_action( 'et_builder_ready', function () {
  *   provozy="slug,slug"  omezí výpis jen na uvedené provozy (výchozí: všechny)
  *   uroven="h3"          úroveň nadpisu provozu (výchozí h3)
  *   pripona="MENU"       co se připojí za název provozu (výchozí „MENU")
+ *   nadpis="ne"          vynechá nadpis provozu — pro případ, kdy nadpis nese
+ *                        už samotná sekce stránky a druhý by se opakoval
  *
  * Kotva každé sekce je `jidelnicek-<slug provozu>`, takže na ni jde odkázat
  * z karet gastro provozů i odkudkoli jinde.
  * ------------------------------------------------------------------------- */
 function garry_menu_render_provozy( $atts = array() ) {
 	$atts = shortcode_atts(
-		array( 'provozy' => '', 'uroven' => 'h3', 'pripona' => '' ),
+		array( 'provozy' => '', 'uroven' => 'h3', 'pripona' => '', 'nadpis' => 'ano' ),
 		$atts,
 		'grid_menu_provozy'
 	);
@@ -1573,17 +1609,27 @@ function garry_menu_render_provozy( $atts = array() ) {
 		$napoje = ! empty( $en['napoje'] )
 			? trim( garry_napoje_render( array( 'provoz' => $slug ) ) ) : '';
 
-		printf(
-			'<section class="gastro-menu-panel" id="jidelnicek-%s" aria-labelledby="jidelnicek-%s-nadpis">',
-			esc_attr( $slug ),
-			esc_attr( $slug )
-		);
-		printf(
-			'<%1$s id="jidelnicek-%2$s-nadpis" class="gastro-menu-nadpis">%3$s</%1$s>',
-			esc_html( $uroven ),
-			esc_attr( $slug ),
-			esc_html( trim( $nazev . ' · ' . $pripona ) )
-		);
+		if ( 'ne' !== $atts['nadpis'] ) {
+			printf(
+				'<section class="gastro-menu-panel" id="jidelnicek-%s" aria-labelledby="jidelnicek-%s-nadpis">',
+				esc_attr( $slug ),
+				esc_attr( $slug )
+			);
+		} else {
+			printf(
+				'<section class="gastro-menu-panel" id="jidelnicek-%s" aria-label="%s">',
+				esc_attr( $slug ),
+				esc_attr( trim( $nazev . ' · ' . $pripona ) )
+			);
+		}
+		if ( 'ne' !== $atts['nadpis'] ) {
+			printf(
+				'<%1$s id="jidelnicek-%2$s-nadpis" class="gastro-menu-nadpis">%3$s</%1$s>',
+				esc_html( $uroven ),
+				esc_attr( $slug ),
+				esc_html( trim( $nazev . ' · ' . $pripona ) )
+			);
+		}
 
 		if ( '' === $jidlo && '' === $napoje ) {
 			echo '<p class="gastro-menu-prazdno">' . esc_html( $prazdno ) . '</p>';

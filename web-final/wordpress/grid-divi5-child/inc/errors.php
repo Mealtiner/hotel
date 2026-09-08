@@ -71,9 +71,13 @@ function grid_render_error( $code ) {
 	$btn  = array( 'cs' => 'Zpět na start', 'en' => 'Back to start', 'de' => 'Zurück zum Start' );
 	$logo = get_stylesheet_directory_uri() . '/assets/logo/grid-hotel-negativ.png';
 	if ( ! headers_sent() ) status_header( (int) $code );
+	/* Titulek dodáme filtrem, ne vlastní značkou — wp_head() vypisuje titulek
+	   přes Yoast a dokument by jinak měl dva <title> (nevalidní HTML). */
+	add_filter( 'pre_get_document_title', function () use ( $t ) {
+		return $t['k'] . ' — ' . $t['h'] . ' | GRID HOTEL';
+	}, 99 );
 	?><!DOCTYPE html><html <?php language_attributes(); ?>><head>
 	<meta charset="<?php bloginfo( 'charset' ); ?>"><meta name="viewport" content="width=device-width, initial-scale=1">
-	<title><?php echo esc_html( $t['k'] . ' — ' . $t['h'] . ' | GRID HOTEL' ); ?></title>
 	<meta name="robots" content="noindex,follow">
 	<?php wp_head(); echo grid_error_css(); ?>
 	</head><body <?php body_class( 'grid-error-body' ); ?>>

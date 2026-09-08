@@ -3,7 +3,7 @@
  * Plugin Name:       GARRY – Sekční navigace
  * Plugin URI:        https://www.garry.cz
  * Description:       Boční navigace mezi sekcemi jedné stránky s automatickým načtením kotev, vlastním pojmenováním a skrytím položek. Vhodná pro dlouhé landing pages, prezentace a obsahové stránky; původně vytvořena pro GRID Hotel jako navigace ve stylu trati.
- * Version:           1.7.0
+ * Version:           1.9.1
  * Author:            GARRY Promotion
  * Author URI:        https://www.garry.cz
  * License:           Proprietary — Copyright © GARRY Promotion
@@ -20,7 +20,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
  * GARRY – Boční posuvník (track progress) — per-stránka konfigurace
  * ============================================================================ */
 
-define( 'GARRY_SCR_VER', '1.6.0' );
+define( 'GARRY_SCR_VER', '1.9.1' );
 define( 'GARRY_SCR_OPT', 'garry_scroller' );
 
 /* Aktuální jazyk (Polylang, fallback locale) */
@@ -206,7 +206,9 @@ function garry_scr_points( $pid ) {
 		$label = isset( $labels[ $s['id'] ] ) && $labels[ $s['id'] ] !== '' ? $labels[ $s['id'] ] : $s['label'];
 		$cil = array( 'cs' => 'CÍL', 'en' => 'FINISH', 'de' => 'ZIEL' );
 		$lang = garry_scr_page_lang( $pid );
-		if ( $s['type'] === 'start' ) $num = 'START';
+		/* START patří jen titulní straně — ta začíná hero sekcí „okruh".
+		   Na podstránkách odpovídají body vodoznakům sekcí, které jdou od T1. */
+		if ( $s['type'] === 'start' && garry_scr_is_front( $pid ) ) $num = 'START';
 		elseif ( $s['type'] === 'cil' ) $num = isset( $cil[ $lang ] ) ? $cil[ $lang ] : 'CÍL';
 		else { $t++; $num = 'T' . $t; }
 		$points[] = array( 'target' => $s['id'], 'num' => $num, 'name' => $label );

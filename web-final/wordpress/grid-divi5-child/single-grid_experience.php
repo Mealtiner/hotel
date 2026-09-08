@@ -5,6 +5,9 @@
  */
 if ( ! defined( 'ABSPATH' ) ) exit;
 get_header();
+/* Vlastní šablona nemá #main-content, hlavní oblast proto otevíráme sami
+   (WCAG 1.3.1, 2.4.1 — cíl odkazu „Přeskočit na obsah"). */
+echo '<main id="obsah" tabindex="-1">';
 $rez = function_exists( 'grid_rezervace_url' ) ? grid_rezervace_url() : home_url( '/#booking' );
 
 /* jazyk + lokalizované texty šablony */
@@ -151,4 +154,5 @@ while ( have_posts() ) : the_post();
 	</section>
 	<?php
 endwhile;
+echo '</main>';
 get_footer();

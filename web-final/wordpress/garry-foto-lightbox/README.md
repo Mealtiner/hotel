@@ -115,6 +115,15 @@ lightbox otevřel. Body ukazatele jsou tlačítka s `aria-current`. Při zapnut�
 - Na frontendu se nedělá žádný dotaz do databáze — seznam snímků se sbírá
   z už vykresleného DOM.
 
-## Historie verzí
+## Historie změn
 
-**1.0.0** (2026-09-06) — první verze.
+### 1.4.0 — 2026-09-07
+- Skrytý odkaz na další galerii už nenese prázdné `href="#"` — bez cíle to není odkaz a nezasahuje do pořadí procházení.
+
+### 1.3.0 — 2026-09-07
+- Dlaždice galerie dostala `aria-label` složený z názvu fotky a pořadí („… — zvětšit fotku 2 z 8"); bez něj ji čtečka ohlásila jen jako „odkaz".
+- `alt` obrázku je prázdný, aby se stejný text nečetl dvakrát.
+
+### 1.0.0 — 2026-09-06
+- První verze.
+

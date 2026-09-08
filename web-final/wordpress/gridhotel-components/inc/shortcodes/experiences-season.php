@@ -44,7 +44,7 @@ function gridc_sc_zazitky() {
 	      $tag = $u ? 'a' : 'div';
 	      ?>
 	    <?php $prime = ! empty( $it['prime'] ); ?>
-	    <<?php echo esc_html( $tag ); ?> class="exp-item<?php echo $prime ? ' exp-item--prime' : ''; ?>"<?php if ( $u ) { echo ' href="' . esc_url( $u ) . '"'; } ?>><span class="x-num"><?php echo esc_html( gridc_row_val( $it, 'num' ) ); ?></span><?php if ( $prime ) : ?><span class="x-prime">Prime</span><?php endif; ?><h3><?php echo wp_kses_post( gridc_row_val( $it, 'title' ) ); ?></h3><p><?php echo esc_html( gridc_row_val( $it, 'text' ) ); ?></p><span class="x-link"><?php echo esc_html( gridc_row_val( $it, 'cta' ) ); ?></span></<?php echo esc_html( $tag ); ?>>
+	    <<?php echo esc_html( $tag ); ?> class="exp-item<?php echo $prime ? ' exp-item--prime' : ''; ?>"<?php if ( $u ) { echo ' href="' . esc_url( $u ) . '"'; } ?>><?php if ( $prime ) : ?><span class="x-prime">Prime</span><?php endif; ?><h2><?php echo wp_kses_post( gridc_row_val( $it, 'title' ) ); ?></h2><p><?php echo esc_html( gridc_row_val( $it, 'text' ) ); ?></p><span class="x-link"><?php echo esc_html( gridc_row_val( $it, 'cta' ) ); ?></span></<?php echo esc_html( $tag ); ?>>
 	    <?php endforeach; ?>
 	  </div>
 	  <?php $zmore = gridc_section_more( array( 'zazitky-u-okruhu', 'zazitky', 'aktivity' ), 'Všechny zážitky a poukazy' ); if ( $zmore ) { echo '<div class="wrap" style="margin-top:30px">' . $zmore . '</div>'; } ?>
@@ -203,18 +203,28 @@ function gridc_sc_zazitky_karty( $atts = array() ) {
 	    $trida  = 'exp-item' . ( $prime ? ' exp-item--prime' : '' ) . ( $poukaz ? ' exp-item--voucher' : '' );
 	    ?>
 	  <div class="<?php echo esc_attr( $trida ); ?>">
-	    <a class="entry-link" href="<?php echo esc_url( $url ); ?>" aria-label="<?php echo esc_attr( $e['title'] ); ?>"></a>
-	    <p class="x-meta"><span class="x-num"><?php echo esc_html( $poukaz ? 'voucher' : $e['number'] ); ?></span><?php if ( $prime ) : ?><span class="x-prime">Prime</span><?php endif; ?></p>
-	    <h3><?php echo wp_kses_post( $e['title'] ); ?></h3>
+	    <a class="entry-link" href="<?php echo esc_url( $url ); ?>" aria-hidden="true" tabindex="-1"></a>
+	    <?php /* Číslo zážitku (4.0, 4.1…) se nevypisuje — kartu o řádek zkracovalo
+	             a pro návštěvníka nic neznamenalo. Odlišení karty nese značka
+	             v pravém horním rohu: „Prime" u MotoGP, „voucher" u poukazů. */ ?>
+	    <?php if ( $prime ) : ?><span class="x-prime">Prime</span><?php endif; ?>
+	    <?php if ( $poukaz ) : ?><span class="x-prime x-prime--voucher">voucher</span><?php endif; ?>
+	    <h2><?php echo wp_kses_post( $e['title'] ); ?></h2>
 	    <p><?php echo esc_html( $e['text'] ); ?></p>
 	    <div class="exp-links">
 	      <?php if ( $poukaz ) : ?>
-	      <a class="sec-more" href="<?php echo esc_url( $url ); ?>"><?php echo esc_html( $T['moznosti'][ $li ] ); ?> <span aria-hidden="true">&rarr;</span></a>
+	      <a class="sec-more" href="<?php echo esc_url( $url ); ?>"><?php echo esc_html( $T['moznosti'][ $li ] ); ?><span class="vh"> &ndash; <?php echo esc_html( wp_strip_all_tags( $e['title'] ) ); ?></span> <span aria-hidden="true">&rarr;</span></a>
 	      <?php else : ?>
-	      <a class="sec-more" href="<?php echo esc_url( $url ); ?>"><?php echo esc_html( $T['detail'][ $li ] ); ?> <span aria-hidden="true">&rarr;</span></a>
-	      <?php if ( $ext ) : ?><a class="sec-more" href="<?php echo esc_url( $ext ); ?>" target="_blank" rel="noopener"><?php echo esc_html( $T['partner'][ $li ] ); ?> <span aria-hidden="true">&nearr;</span></a><?php endif; ?>
+	      <a class="sec-more" href="<?php echo esc_url( $url ); ?>"><?php echo esc_html( $T['detail'][ $li ] ); ?><span class="vh"> &ndash; <?php echo esc_html( wp_strip_all_tags( $e['title'] ) ); ?></span> <span aria-hidden="true">&rarr;</span></a>
+	      <?php if ( $ext ) : ?><a class="sec-more" href="<?php echo esc_url( $ext ); ?>" target="_blank" rel="noopener"><?php echo esc_html( $T['partner'][ $li ] ); ?><span class="vh"> &ndash; <?php echo esc_html( wp_strip_all_tags( $e['title'] ) ); ?></span> <span aria-hidden="true">&nearr;</span></a><?php endif; ?>
 	      <?php endif; ?>
 	    </div>
+	    <?php if ( $prime ) : ?>
+	    <?php /* Obrys trati je dekorace ke kartě MotoGP — název i popis nese text vedle,
+	             takže je pro čtečku prázdný (alt=""). Na širokém rozlišení stojí v pravé
+	             třetině karty, v úzkém koridoru se zalomí pod text. */ ?>
+	    <div class="exp-mapa"><img src="<?php echo esc_url( get_stylesheet_directory_uri() . '/assets/foto/grid-okruh-obrys.svg' ); ?>" alt="" width="192" height="120" loading="lazy"></div>
+	    <?php endif; ?>
 	  </div>
 	  <?php endforeach; ?>
 	</div>

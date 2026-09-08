@@ -3,7 +3,7 @@
  * Plugin Name:       GARRY – Kategorie a srovnání
  * Plugin URI:        https://www.garry.cz
  * Description:       Spravuje vícejazyčné kategorie pokojů nebo podobných položek a zobrazuje je jako karty či srovnávací tabulku. Obsah se vkládá přes shortcody grid_rooms_cards a grid_rooms_table; původně vytvořeno pro GRID Hotel.
- * Version:           1.6.0
+ * Version:           1.8.0
  * Author:            GARRY Promotion
  * Author URI:        https://www.garry.cz
  * License:           Proprietary — Copyright © GARRY Promotion
@@ -20,7 +20,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
  * GARRY – Kategorie pokojů
  * ============================================================================ */
 
-define( 'GARRY_POK_VER', '1.6.0' );
+define( 'GARRY_POK_VER', '1.8.0' );
 define( 'GARRY_POK_OPT', 'garry_pokoje' );
 
 function garry_pok_lang() {
@@ -586,7 +586,7 @@ function garry_pok_cards( $atts = array() ) {
 		$d = $d == 2 ? 1 : 2;
 		echo '<img src="' . esc_url( $r['img'] ) . '" alt="' . esc_attr( garry_pok_f( $r, 'nazev' ) ) . '">';
 		echo '<div class="r-body"><span class="r-num">' . wp_kses_post( $kod ) . '</span>';
-		echo '<h3>' . esc_html( garry_pok_f( $r, 'nazev' ) ) . '</h3>';
+		echo '<h2>' . esc_html( garry_pok_f( $r, 'nazev' ) ) . '</h2>';
 		echo '<p class="r-desc">' . esc_html( garry_pok_f( $r, 'kratky' ) ) . '</p>';
 		echo '<div class="r-feat">';
 		foreach ( (array) $r['stitky'] as $lk ) {
@@ -610,7 +610,7 @@ function garry_pok_table() {
 	$total = 0; $has = false;
 	ob_start();
 	echo '<div style="overflow-x:auto"><table class="room-table"><thead><tr>';
-	foreach ( $t['th'] as $th ) echo '<th>' . esc_html( $th ) . '</th>';
+	foreach ( $t['th'] as $th ) echo '<th scope="col">' . esc_html( $th ) . '</th>';
 	echo '</tr></thead><tbody>';
 	foreach ( $rooms as $r ) {
 		if ( empty( $r['key'] ) ) continue;
@@ -687,12 +687,12 @@ function garry_pokoje_compare_html( $current = '' ) {
 		if ( $current === $r['key'] || $current === $r['nazev_cz'] || $current === garry_pok_f( $r, 'nazev' ) ) { $cur_key = $r['key']; break; }
 	}
 	ob_start();
-	echo '<div class="rd-tablewrap"><table class="rd-table"><thead><tr><th>' . esc_html( array( 'Vlastnost', 'Feature', 'Merkmal' )[ $li ] ) . '</th>';
+	echo '<div class="rd-tablewrap"><table class="rd-table"><thead><tr><th scope="col">' . esc_html( array( 'Vlastnost', 'Feature', 'Merkmal' )[ $li ] ) . '</th>';
 	foreach ( $rooms as $r ) {
 		$name = esc_html( garry_pok_f( $r, 'nazev' ) );
 		$url  = garry_pok_term_url( $r['key'] );
 		if ( $url ) $name = '<a href="' . esc_url( $url ) . '">' . $name . '</a>';
-		echo '<th class="' . ( $r['key'] === $cur_key ? 'is-current' : '' ) . '">' . $name . '</th>';
+		echo '<th scope="col" class="' . ( $r['key'] === $cur_key ? 'is-current' : '' ) . '">' . $name . '</th>';
 	}
 	echo '</tr></thead><tbody>';
 	foreach ( $s['compare'] as $row ) {

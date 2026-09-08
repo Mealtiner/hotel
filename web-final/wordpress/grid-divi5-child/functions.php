@@ -31,19 +31,22 @@
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
-define( 'GRID_CHILD_VER', '3.2.4' );
+define( 'GRID_CHILD_VER', '3.38.0' );
 
 /* ------------------------------------------------------------------
  * 1) Styly a skripty
  * ------------------------------------------------------------------ */
 function grid_enqueue_assets() {
 
-	// Google Fonts (Saira Condensed / JetBrains Mono / Inter) — plná česká diakritika
+	/* Písma (Saira Condensed / JetBrains Mono / Inter) — plná česká diakritika.
+	   Hostujeme je lokálně: načtení z fonts.googleapis.com posílá IP adresu
+	   návštěvníka Googlu ještě před souhlasem s cookies (GDPR/ePrivacy).
+	   Soubory a @font-face generuje tools/obsah/pisma-lokalne.py. */
 	wp_enqueue_style(
 		'grid-fonts',
-		'https://fonts.googleapis.com/css2?family=Saira+Condensed:wght@500;600;700;800&family=JetBrains+Mono:wght@400;500;700&family=Inter:wght@300;400;500;600;700&display=swap',
+		get_stylesheet_directory_uri() . '/assets/css/pisma.css',
 		array(),
-		null
+		GRID_CHILD_VER
 	);
 
 	// rodičovský Divi styl
@@ -54,8 +57,135 @@ function grid_enqueue_assets() {
 
 	// JS: živý widget (hodiny + teplota), reveal, čekací list, navigace
 	wp_enqueue_script( 'grid-app', get_stylesheet_directory_uri() . '/assets/js/grid.js', array(), GRID_CHILD_VER, true );
+
+	/* Vlastní rozbalovací seznam — rezervační lišta a čekací list. Skript si
+	   sám najde, jestli je na stránce co obsloužit, takže není potřeba hlídat
+	   šablonu; kalendář (flatpickr) se naopak načítá jen na titulní straně. */
+	wp_enqueue_script( 'grid-vyber', get_stylesheet_directory_uri() . '/assets/js/vyber.js', array(), GRID_CHILD_VER, true );
+
+	/* Karty dárkových poukazů předvyplňují objednávkový formulář; skript si sám
+	   ověří, že je na stránce karta i formulář, jinak neudělá nic. */
+	wp_enqueue_script( 'grid-poukazy', get_stylesheet_directory_uri() . '/assets/js/poukazy.js', array( 'grid-vyber' ), GRID_CHILD_VER, true );
+
 }
 add_action( 'wp_enqueue_scripts', 'grid_enqueue_assets', 5 ); // PŘED Divi (priorita 10) — jinak Divi nepozná, že child styl už je zaregistrovaný, a načte ho podruhé pod handle 'divi-style-child'
+
+/* ------------------------------------------------------------------
+ * Kalendář ve formulářích — přesunuto do GRID Hotel Components 1.13.0
+ * (inc/forms.php). Motiv si jen veze knihovnu flatpickr pro rezervační
+ * lištu a i18n si vyžádá z pluginu.
+ *
+ * Původní poznámka:
+ * Kalendář ve formulářích česky / anglicky / německy
+ * ------------------------------------------------------------------
+ * Fluent Forms skládá názvy měsíců a dnů pro flatpickr ze svojí vlastní
+ * textové domény (__('Monday', 'fluentform')). Český překlad pluginu
+ * neexistuje a německý tyhle řetězce nemá, takže kalendář vycházel ve všech
+ * jazykových verzích anglicky — přestože WordPress ta jména správně zná
+ * (Pondělí / Září, Montag / September).
+ *
+ * Bereme je proto z $wp_locale přes oficiální filtr pluginu. Locale přepíná
+ * Polylang podle jazyka stránky, takže se picker přizpůsobí sám. Do formulářů
+ * v administraci se nesahá — tohle je jen zdroj názvů.
+ * ------------------------------------------------------------------ */
+/* ------------------------------------------------------------------
+ * Menu v patičce
+ * ------------------------------------------------------------------
+ * Sloupce „Hotel" a „Informace" byly napsané natvrdo v šabloně patičky.
+ * Jsou z nich běžná menu WordPressu, takže se položky přidávají a přesouvají
+ * ve Vzhled → Menu — pro každý jazyk zvlášť (Polylang přiřazuje k jedné
+ * pozici jiné menu podle jazyka). Když k pozici žádné menu přiřazené není,
+ * patička vypíše původní pevný seznam, takže nikdy nezůstane prázdná.
+ * ------------------------------------------------------------------ */
+add_action( 'after_setup_theme', function () {
+	register_nav_menus( array(
+		'grid-paticka-hotel'     => 'Patička — sloupec Hotel',
+		'grid-paticka-informace' => 'Patička — sloupec Informace',
+	) );
+} );
+
+
+
+
+/* Kalendář v rezervační liště (titulní strana). Knihovnu si motiv veze sám —
+   dosud ji na stránku tahaly jen formuláře, takže by lišta tiše přestala
+   fungovat, kdyby na stránce žádný formulář nebyl. Handle je shodný s tím,
+   který používá Fluent Forms, takže se soubor nenačte dvakrát. */
+add_action( 'wp_enqueue_scripts', function () {
+	if ( ! is_front_page() ) {
+		return;
+	}
+	$adr = get_stylesheet_directory_uri() . '/assets/vendor/flatpickr/';
+	wp_enqueue_style( 'flatpickr', $adr . 'flatpickr.min.css', array(), '4.6.9' );
+	wp_enqueue_script( 'flatpickr', $adr . 'flatpickr.min.js', array(), '4.6.9', true );
+	wp_enqueue_script( 'grid-rezervacni-lista', get_stylesheet_directory_uri() . '/assets/js/rezervacni-lista.js', array( 'flatpickr' ), GRID_CHILD_VER, true );
+
+	$formaty = array( 'cs' => 'j. n. Y', 'en' => 'j M Y', 'de' => 'j. n. Y' );
+	$jazyk   = substr( (string) determine_locale(), 0, 2 );
+	wp_localize_script( 'grid-rezervacni-lista', 'gridKalendar', array(
+		'i18n'   => function_exists( 'gridc_kalendar_i18n' ) ? gridc_kalendar_i18n() : array(),
+		'format' => $formaty[ $jazyk ] ?? $formaty['cs'],
+	) );
+}, 6 );
+
+/* Divi si samo tahá Open Sans z Google (inline CSS + soubory z fonts.gstatic.com).
+   Web ho nikde nepoužívá — všechna písma určuje child motiv — a volání odchází
+   ještě před souhlasem s cookies. Divi nabízí oficiální vypínač přes překlad
+   řetězce „on/off“, kterým se načítání celé rodiny přeskočí. */
+/* Divi 5 navíc registruje variabilní Open Sans z fonts.googleapis.com a WordPress
+   k němu přidává resource hints. Na webu se nepoužije žádný jeho řez, tak ho
+   ve frontendu odhlásíme; ve Visual Builderu ho necháváme být. */
+add_action( 'wp_enqueue_scripts', function () {
+	if ( is_admin() || isset( $_GET['et_fb'] ) ) {
+		return;
+	}
+	/* Jen odhlásit z výpisu — deregistrovat handle by shodilo případný styl,
+	   který by ho měl uvedený jako závislost. */
+	/* Divi má pro variabilní Open Sans víc handlů podle toho, jak se stránka
+	   staví. Na šablonách mimo builder (kategorie pokojů) to je
+	   et-builder-googlefonts-variable, který v seznamu chyběl — Open Sans
+	   se tam proto pořád stahoval z fonts.googleapis.com. */
+	foreach ( array( 'et-builder-googlefonts-cached-variable', 'et-builder-googlefonts-variable', 'et-builder-googlefonts-cached', 'et-builder-googlefonts', 'et-divi-open-sans' ) as $handle ) {
+		wp_dequeue_style( $handle );
+	}
+}, 100 );
+
+/* Druhý průchod: Divi 5 zařazuje písma až v et_builder_print_font() na
+   wp_footer (priorita 10), tedy dávno po wp_enqueue_scripts. Na stránkách
+   mimo builder (kategorie pokojů) se tak Open Sans dostal do fronty, i když
+   jsme ho výš odhlásili. Styly zařazené v patičce vypisuje
+   wp_print_footer_scripts na prioritě 20, takže priorita 11 je stihne. */
+add_action( 'wp_footer', function () {
+	if ( is_admin() || isset( $_GET['et_fb'] ) ) {
+		return;
+	}
+	foreach ( array( 'et-builder-googlefonts-cached-variable', 'et-builder-googlefonts-variable', 'et-builder-googlefonts-cached', 'et-builder-googlefonts', 'et-divi-open-sans' ) as $handle ) {
+		wp_dequeue_style( $handle );
+	}
+}, 11 );
+
+add_action( 'init', function () {
+	remove_action( 'wp_enqueue_scripts', 'et_builder_preconnect_google_fonts', 9 );
+} );
+
+add_filter( 'wp_resource_hints', function ( $adresy, $vztah ) {
+	if ( ! in_array( $vztah, array( 'dns-prefetch', 'preconnect' ), true ) ) {
+		return $adresy;
+	}
+	return array_values( array_filter( $adresy, function ( $a ) {
+		$url = is_array( $a ) ? ( $a['href'] ?? '' ) : $a;
+		return false === strpos( (string) $url, 'fonts.googleapis.com' )
+			&& false === strpos( (string) $url, 'fonts.gstatic.com' );
+	} ) );
+}, 10, 2 );
+
+add_filter( 'gettext_with_context', function ( $preklad, $text, $kontext, $domena ) {
+	if ( 'Divi' === $domena && 'Open Sans font: on or off' === $kontext ) {
+		return 'off';
+	}
+	return $preklad;
+}, 10, 4 );
+
 
 /**
  * 2)+3) GRID Nastavení / ACF options page — PŘESUNUTO do gridhotel-core
@@ -386,3 +516,88 @@ add_action( 'template_redirect', function () {
 	wp_safe_redirect( $url, 301 );
 	exit;
 }, 1 );
+
+/* ============================================================
+   PŘÍSTUPNOST (WCAG 2.2 AA) — audit 7. 9. 2026
+   ============================================================ */
+
+/**
+ * Viewport bez zákazu zvětšení (WCAG 1.4.4 Změna velikosti textu).
+ *
+ * Divi vypisuje `maximum-scale=1.0, user-scalable=0`, čímž slabozrakým
+ * uživatelům zakazuje přiblížení prsty. Nahrazujeme vlastní hlavičkou.
+ */
+add_action( 'init', function () {
+	remove_action( 'wp_head', 'et_add_viewport_meta' );
+} );
+add_action( 'wp_head', function () {
+	echo '<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">' . "\n";
+}, 1 );
+
+/**
+ * Odkaz „Přeskočit na obsah" (WCAG 2.4.1 Přeskočení bloků).
+ *
+ * Bez něj musí uživatel klávesnice projít celé menu (14 položek) na každé
+ * stránce. Cíl #obsah přidává grid.js na první sekci obsahu — hlavičku
+ * skládá Divi Theme Builder, takže do ní nejde vložit <main> ze šablony.
+ */
+add_action( 'wp_body_open', function () {
+	$texty = array( 'cs' => 'Přeskočit na obsah', 'en' => 'Skip to content', 'de' => 'Zum Inhalt springen' );
+	$lang  = function_exists( 'pll_current_language' ) ? ( pll_current_language() ?: 'cs' ) : 'cs';
+	$text  = isset( $texty[ $lang ] ) ? $texty[ $lang ] : $texty['cs'];
+	$popis = array( 'cs' => 'Přeskočit navigaci', 'en' => 'Skip navigation', 'de' => 'Navigation überspringen' );
+	printf(
+		'<nav class="skip-nav" aria-label="%s"><a class="skip-link" href="#obsah">%s</a></nav>' . "\n",
+		esc_attr( isset( $popis[ $lang ] ) ? $popis[ $lang ] : $popis['cs'] ),
+		esc_html( $text )
+	);
+}, 1 );
+
+/**
+ * Hlavní oblast a jedinečné landmarky (WCAG 1.3.1, 2.4.1).
+ *
+ * Divi Theme Builder obaluje hlavičku i patičku do dalšího <header>/<footer>,
+ * takže dokument má dva bannery a dvě contentinfo oblasti a obsah stránky
+ * neleží v žádném landmarku. Vnější obaly zneplatníme a obsah zabalíme
+ * do <main id="obsah">.
+ */
+add_action( 'template_redirect', function () {
+	if ( is_admin() || is_feed() || is_robots() || ( function_exists( 'et_core_is_fb_enabled' ) && et_core_is_fb_enabled() ) ) {
+		return;
+	}
+	ob_start( 'grid_a11y_landmarky' );
+} );
+
+/**
+ * Přepis obalů Theme Builderu na výstupu.
+ *
+ * Divi skládá hlavičku i patičku do <header>/<footer>, uvnitř kterých leží
+ * naše vlastní <header id="topbar"> a <footer id="kontakt"> — dokument tak má
+ * dva bannery a dvě contentinfo oblasti a obsah stránky neleží v žádné
+ * oblasti. Vnější obaly proto měníme na neutrální <div role="presentation">
+ * a #main-content balíme do <main id="obsah">, na který míří odkaz
+ * „Přeskočit na obsah". Řetězce odpovídají výstupu Divi 5.11; když se změní,
+ * filtr jen nic nenahradí a stránka zůstane funkční.
+ */
+function grid_a11y_landmarky( $html ) {
+	if ( false === strpos( $html, 'et-l--header' ) ) {
+		return $html;
+	}
+	/* Obal hlavičky i patičky zůstává <header>/<footer> — jen se z nich sundá
+	   role orientačního bodu, aby nevznikly dva bannery (vlastní lišta uvnitř
+	   je taky <header>). Dřív se tu tagy měnily na <div>: obal tím přišel
+	   o position:fixed a z-index navázané na typ elementu a celá horní lišta
+	   zmizela pod hero sekcí. */
+	$nahrady = array(
+		'<header class="et-l et-l--header">'  => '<header class="et-l et-l--header" role="presentation">',
+		'<div id="main-content">'             => '<main id="obsah" tabindex="-1"><div id="main-content">',
+		"<footer class=\"et-l et-l--footer\">" => "</main>\n\t<footer class=\"et-l et-l--footer\" role=\"presentation\">",
+	);
+	foreach ( $nahrady as $co => $cim ) {
+		$pozice = strpos( $html, $co );
+		if ( false !== $pozice ) {
+			$html = substr_replace( $html, $cim, $pozice, strlen( $co ) );
+		}
+	}
+	return $html;
+}

@@ -4,7 +4,7 @@ Theme URI: https://www.garry.cz
 Author: GARRY Promotion
 Author URI: https://www.garry.cz
 Description: Prémiová child šablona pro Divi 5 vytvořená na míru pro GRID Hotel — **** hotel a restauraci přímo v areálu Autodromu Brno u Masarykova okruhu. Designový systém „Circuit Line": vlastní barevná paleta a typografie s plnou českou diakritikou, karbonová textura tmavých sekcí, živý telemetry widget (čas + teplota trati), sekce Sezóna s čekacím listem a obsah řízený přes ACF. Navrhla a vyvinula fluidní marketingová agentura GARRY Promotion.
-Version: 3.2.4
+Version: 3.38.0
 Requires at least: 6.4
 Tested up to: 6.8
 Requires PHP: 8.0
@@ -115,6 +115,13 @@ Text Domain: grid-divi5-child
      to, v jakém Divi obalu se prvek nachází. */
   h1,h2,h3{font-family:var(--f-head) !important}
   p{font-family:var(--f-body) !important}
+  /* Výjimky: nadpisy, které nejsou nadpisy „na pohled" — jsou to drobné
+     verzálkové popisky ve stejném duchu jako .kicker nebo klíč skupiny
+     v jídelníčku, a proto patří do mono. Vynucené pravidlo výš je přebíjelo
+     na Saira Condensed, takže se rozcházely se zbytkem mikropopisků. */
+  .amenity-groups h3,
+  .foot-col h2,.foot-col h3,
+  .menu-stala-h{font-family:var(--f-mono) !important}
   .data{font-family:var(--f-mono);letter-spacing:.06em}
 
   /* ===== TOP NAV ===== */
@@ -424,6 +431,10 @@ Text Domain: grid-divi5-child
   .sec h2{font-size:clamp(2rem,4vw,3.6rem) !important}
   .sec-pad{padding:clamp(80px,12vh,150px) 0}
   .sec-tag{position:absolute;top:clamp(40px,7vh,80px);left:var(--gutter);font-family:var(--f-head);font-size:clamp(3rem,9vw,7rem);font-weight:800;color:transparent;-webkit-text-stroke:1px var(--stroke);line-height:.8;z-index:0;pointer-events:none}
+  /* První sekce podstránky začíná hned pod fixní hlavičkou, takže se do ní
+     vodoznak opíral. Odsazení se počítá od její výšky, ne od horní hrany
+     stránky — u dalších sekcí je nad značkou přirozeně místo. */
+  body:not(.home) .et_pb_section:first-of-type .sec-tag{top:calc(69px + clamp(40px,7vh,80px))}
   /* Když je .sec-tag vložený jako vlastní Divi Text modul (atomizované
      sekce), Diviho vlastní .et_pb_text_inner/.et_pb_text mají
      position:relative – to je BLÍŽ než .sec, takže se watermark přišpendlí
@@ -482,9 +493,8 @@ Text Domain: grid-divi5-child
   .bk-submit .btn{height:100%;display:flex;align-items:center;white-space:nowrap}
 
   /* ===== VSTUPY (channels) ===== */
-  #vstupy h2{max-width:50%}
-  #zazitky h2{max-width:50%}
-  #proc-grid h2{max-width:50%}
+  /* Nadpisy sekcí se dřív držely na půlce šířky. Na přání klienta jdou
+     na všech rozlišeních přes celou šířku — proto tu žádné max-width není. */
   /* .entries má na rozdíl od .wrap/.exp vlastní viditelný rámeček kolem
      celé karetní řady (border+overflow:hidden, karty se dotýkají, gap:0) –
      kdyby dostal levý/pravý odstup jako padding (jako .wrap), vznikla by
@@ -520,11 +530,17 @@ Text Domain: grid-divi5-child
   .entry:hover .e-num{color:#fff}
   .entry h3{font-size:clamp(1.5rem,2.3vw,2.1rem);margin:14px 0 10px}
   .entry p{font-size:.9rem;color:var(--muted);transition:color .35s}
-  .entry:hover p,.entry:hover h3{color:#fff}
+  .entry:hover p,.entry:hover :is(h2,h3){color:#fff}
   /* karta je div + overlay odkaz (bloky v <a> rozbíjel wpautop) */
   .entry{cursor:pointer}
   .entry .entry-link{position:absolute;inset:0;z-index:2;font-size:0}
-  .entry .e-arrow{margin-top:auto;padding-top:18px;font-family:var(--f-mono);font-size:.72rem;letter-spacing:.14em;color:var(--muted);transition:color .35s}
+  /* Odkaz „Prohlédnout pokoje →" má u všech karet sedět stejně vysoko nad
+     spodní hranou. Flex kontejnerem je .entry a jeho položkami jsou moduly
+     Divi, ne samotný <span> — margin-top:auto na spanu proto nic nedělal
+     a odkaz plaval podle délky perexu (57 / 89 / 113 / 87 px odspodu).
+     Volný prostor si proto bere poslední modul karty. */
+  .entry > .et_pb_module:last-child{margin-top:auto}
+  .entry .e-arrow{padding-top:18px;font-family:var(--f-mono);font-size:.72rem;letter-spacing:.14em;color:var(--muted);transition:color .35s}
   .entry:hover .e-arrow{color:#fff}
 
   /* ===== SPLIT SCREEN ===== */
@@ -602,18 +618,22 @@ Text Domain: grid-divi5-child
   /* Na tmavém povrchu se drobný červený text píše #FF5A50, ne #C20E1A —
      viz barevná zásada webu. Tmavá varianta má na fotce kontrast pod 2:1. */
   .room .r-num{font-family:var(--f-mono);font-size:.68rem;letter-spacing:.16em;color:#FF5A50}
-  .room h3{font-size:clamp(1.6rem,2.6vw,2.3rem);margin:8px 0 6px;color:#fff}
+  /* Nadpis karty je od verze 3.9 <h2> (dřív <h3>) — pravidlo musí platit pro
+     obě úrovně, jinak nadpis spadne na obecné h1,h2,h3{color:var(--fg)}
+     a na světlé sekci zčerná. Platí i pro odsazení, na kterém stojí vysunutí
+     nadpisu při hoveru. */
+  .room :is(h2,h3){font-size:clamp(1.6rem,2.6vw,2.3rem);margin:8px 0 6px;color:#fff}
   .room .r-desc{font-size:.9rem;color:#D8D6D4;max-width:44ch;margin-bottom:14px}
   .room .r-feat{display:flex;gap:10px;flex-wrap:wrap;font-family:var(--f-mono);font-size:.66rem;letter-spacing:.08em;color:var(--offwhite);text-transform:uppercase;margin:6px 0 16px}
   .room .r-feat span{padding:4px 9px;border:1px solid rgba(255,255,255,.30);border-radius:2px}
   .room .r-foot{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px}
   .room .r-price{font-family:var(--f-mono);color:var(--offwhite);font-size:.82rem}
   .room .r-price b{color:var(--gold)}
-  .room.feat{grid-column:span 2;min-height:380px}
+  .room.feat{grid-column:span 2;min-height:480px}
   /* Kategorií pokojů je pět, mřížka je dvousloupcová — poslední karta by jinak
      zůstala sama v levém sloupci a řádek by působil nedokončeně. Roztáhne se
      tedy přes obě pole, stejně jako karta .feat. */
-  .rooms>.room:last-child:nth-child(odd){grid-column:1 / -1;min-height:380px}
+  .rooms>.room:last-child:nth-child(odd){grid-column:1 / -1;min-height:480px}
   .rooms-note{margin-top:22px;font-family:var(--f-mono);font-size:.72rem;letter-spacing:.06em;color:var(--muted)}
   /* Štítky se zalamují do dalšího řádku místo vodorovného posuvu. Posuv
      schovával štítky mimo obrazovku bez viditelného vodítka a v němčině
@@ -640,17 +660,23 @@ Text Domain: grid-divi5-child
   .okruh-cisla dd{margin:0;color:var(--fg);font-size:.98rem;font-variant-numeric:tabular-nums;text-align:right}
   .okruh-mapa{margin:0}
   .okruh-mapa img{width:100%;height:auto;display:block}
+  /* Textová alternativa k plánku — čísla zatáček jsou v kresbě, ne v textu. */
+  .okruh-mapa-popis{margin-top:12px;color:var(--muted);font-size:.86rem;line-height:1.7}
 
   /* Historie: svislá osa s letopočty. Číslo roku nese orientaci, proto je
      v brandové barvě a monospace jako ostatní číselné údaje na webu. */
-  .okruh-milniky{list-style:none;margin:clamp(24px,3vw,40px) 0 0;padding:0;display:grid;gap:0}
+  /* Zdvojená třída schválně: Divi má na `.et-l--body ol` číslování, které by
+     jinak vyhrálo a nad každým letopočtem svítilo „1.", „2." — vedle vlastních
+     puntíků na časové ose. */
+  .okruh-milniky.okruh-milniky{list-style:none;margin:clamp(24px,3vw,40px) 0 0;padding:0;display:grid;gap:0}
   .okruh-milniky li{position:relative;padding:0 0 26px 30px;border-left:1px solid var(--line-c)}
   .okruh-milniky li:last-child{padding-bottom:0}
-  .okruh-milniky li::before{content:"";position:absolute;left:-5px;top:6px;width:9px;height:9px;border-radius:50%;background:var(--red)}
-  .sec-dark .okruh-milniky li::before{background:#FF5A50}
-  .okruh-milniky .ok-rok{display:block;font-family:var(--f-mono);font-size:.72rem;letter-spacing:.14em;color:var(--red)}
-  .sec-dark .okruh-milniky .ok-rok{color:#FF5A50}
-  .okruh-milniky h3{font-size:1.15rem;margin:6px 0 6px;color:var(--fg)}
+  /* Puntík i letopočet drží brandovou červenou i na tmavé sekci — na webu má
+     být jen jedna červená (dřív tu byla světlejší varianta #FF5A50). */
+  .okruh-milniky li::before{content:"";position:absolute;left:-5px;top:9px;width:9px;height:9px;border-radius:50%;background:var(--red)}
+  /* Letopočet je stejně velký jako název milníku, jen červený a v monu. */
+  .okruh-milniky .ok-rok{display:block;font-family:var(--f-mono);font-size:1.15rem;line-height:1.2;letter-spacing:.08em;color:var(--red)}
+  .okruh-milniky h3{font-size:1.15rem;margin:4px 0 6px;color:var(--fg)}
   .okruh-milniky p{margin:0;color:var(--muted);font-size:.92rem;line-height:1.6;max-width:74ch}
 
   /* Vítězové: hustý sloupcový výpis, čte se jako listina. */
@@ -676,7 +702,11 @@ Text Domain: grid-divi5-child
   .okoli-lead__dist{font-family:var(--f-mono);font-size:.68rem;letter-spacing:.14em;text-transform:uppercase;color:var(--red)}
   .okoli-lead__text h3{font-size:clamp(1.5rem,2.6vw,2.1rem);color:var(--ink,#16181B);margin:10px 0 14px}
   .okoli-lead__text p{color:var(--muted);font-size:.95rem;line-height:1.65;margin:0 0 12px}
+  /* Fotka začíná až u nadpisu, ne u popisku „0 km · přímo v areálu" nad ním.
+     Odsazení odpovídá výšce bloku popisku i s mezerou pod ním; v úzkém
+     koridoru se sloupce skládají pod sebe (fotka jde první), tam neplatí. */
   .okoli-lead__foto{margin:0;overflow:hidden;border-radius:4px}
+  @media(min-width:960px){ .okoli-lead__foto{margin-top:53px} }
   .okoli-lead__foto img{display:block;width:100%;height:100%;max-height:420px;object-fit:cover}
   .okoli-filtr{display:flex;flex-wrap:wrap;gap:10px;margin:0 0 clamp(20px,2.4vw,30px)}
   .okoli-filtr .gh-filter span{opacity:.55;margin-left:6px;font-variant-numeric:tabular-nums}
@@ -684,7 +714,7 @@ Text Domain: grid-divi5-child
   .okoli-card{min-width:0;padding:clamp(18px,2vw,24px);border:1px solid rgba(20,22,25,.12);border-radius:4px;background:#fff}
   .okoli-card[hidden]{display:none}
   .okoli-card__dist{font-family:var(--f-mono);font-size:.66rem;letter-spacing:.12em;text-transform:uppercase;color:var(--red)}
-  .okoli-card h4{font-size:1.02rem;color:var(--ink,#16181B);margin:8px 0 7px;line-height:1.3}
+  .okoli-card h3{font-size:1.02rem;color:var(--ink,#16181B);margin:8px 0 7px;line-height:1.3}
   .okoli-card p{color:var(--muted);font-size:.87rem;line-height:1.55;margin:0}
   .et_pb_text .okoli-card p,.et_pb_text .okoli-lead__text p{margin:0 0 12px}
   .et_pb_text .okoli-card p{margin:0}
@@ -761,8 +791,8 @@ Text Domain: grid-divi5-child
   .amenity-groups h3{display:flex;align-items:center;gap:9px;font-family:var(--f-mono);font-size:.7rem;letter-spacing:.12em;text-transform:uppercase;color:var(--fg);margin:0 0 10px;padding-bottom:8px;border-bottom:1px solid var(--line-c)}
   /* Piktogram skupiny — stejná role jako na Bookingu: zrychluje orientaci
      v dlouhém výčtu. Nese ho ikona, ne text, proto aria-hidden. */
+  /* Ikony drží brandovou červenou i na tmavé sekci — jedna červená na webu. */
   .amenity-groups .ag-ikona{flex:none;width:18px;height:18px;fill:none;stroke:var(--red);stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}
-  .sec-dark .amenity-groups .ag-ikona{stroke:#FF5A50}
   .amenity-groups ul{list-style:none;margin:0;padding:0;display:grid;gap:6px}
   .amenity-groups li{min-width:0;overflow-wrap:anywhere;position:relative;padding-left:20px;color:var(--muted);font-size:.88rem;line-height:1.45}
   .amenity-groups li::before{content:"·";position:absolute;left:6px;color:var(--red);font-weight:700}
@@ -777,7 +807,6 @@ Text Domain: grid-divi5-child
      informace, ikona je jen návěstí (aria-hidden). */
   .know-list--ikony dt{display:flex;align-items:center;gap:9px}
   .know-list--ikony .kl-ikona{flex:none;width:17px;height:17px;fill:none;stroke:var(--red);stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
-  .sec-dark .know-list--ikony .kl-ikona{stroke:#FF5A50}
 
   /* Dva terciární odkazy vedle sebe (titulní strana pod kartami pokojů). */
   .sec-more-radek{display:flex;flex-wrap:wrap;align-items:center;gap:14px clamp(20px,3vw,44px);margin-top:26px}
@@ -829,12 +858,18 @@ Text Domain: grid-divi5-child
 
   /* ===== EXPERIENCES ===== */
   .exp{display:grid !important;grid-template-columns:repeat(3,1fr) !important;gap:clamp(14px,1.6vw,22px);max-width:var(--maxw) !important;margin:0 auto !important;padding:0 var(--gutter)}
-  .exp-item{padding:clamp(30px,3.4vw,46px) clamp(18px,1.8vw,28px);border:1px solid var(--line-c);position:relative;transition:background .35s;min-height:250px;display:flex;flex-direction:column}
+  .exp-item{padding:clamp(24px,2.6vw,36px) clamp(18px,1.8vw,28px);border:1px solid var(--line-c);position:relative;transition:background .35s;min-height:220px;display:flex;flex-direction:column}
   .exp-item:hover{background:rgba(255,255,255,.03)}
   .exp-item .x-num{font-family:var(--f-mono);font-size:.66rem;letter-spacing:.16em;color:var(--red)}
-  .exp-item h3{font-size:1.35rem;margin:16px 0 10px;line-height:1.18}
-  .sez-cards h3,.sez-card h3{line-height:1.18}
+  /* Horní odsazení nadpisu dřív oddělovalo číslo zážitku; bez něj by karta
+     nahoře jen zbytečně dýchala, proto je nula. */
+  .exp-item h2,.exp-item h3{font-size:1.35rem;margin:0 0 10px;line-height:1.18}
+  .sez-cards :is(h2,h3){line-height:1.18}
   .exp-item p{font-size:.85rem;color:var(--muted)}
+  /* Karta poskládaná z modulů Divi (sekce „Proč GRID") má jako flex položky
+     moduly, ne samotný <span> — margin-top:auto na odkazu proto nefungoval
+     a odkazy plavaly podle délky perexu. Volný prostor bere poslední modul. */
+  .exp-item > .et_pb_module:last-child{margin-top:auto}
   .exp-item .x-link{margin-top:auto;padding-top:16px;font-family:var(--f-mono);font-size:.7rem;letter-spacing:.12em;color:var(--muted);transition:color .25s}
   .exp-item:hover .x-link{color:var(--red)}
   /* karty zážitků: overlay odkaz na detail + řádek odkazů (nad overlayem) */
@@ -854,9 +889,39 @@ Text Domain: grid-divi5-child
   .exp-item--prime{grid-column:1 / -1;background:linear-gradient(135deg,rgba(194,14,26,.20) 0%,rgba(194,14,26,.07) 55%,rgba(194,14,26,0) 100%);border-color:rgba(194,14,26,.55)}
   .exp-item--prime:hover{background:linear-gradient(135deg,rgba(194,14,26,.28) 0%,rgba(194,14,26,.10) 55%,rgba(194,14,26,0) 100%)}
   .exp-item--prime h3{font-size:clamp(1.5rem,2.6vw,2.1rem)}
-  .exp-item .x-meta{margin:0;display:flex;align-items:center;gap:0}
   .exp-item--prime p{max-width:62ch;font-size:.95rem}
-  .x-prime{display:inline-block;margin-left:12px;padding:3px 9px;border:1px solid rgba(194,14,26,.65);border-radius:2px;background:rgba(194,14,26,.18);font-family:var(--f-mono);font-size:.6rem;letter-spacing:.16em;text-transform:uppercase;color:var(--fg);vertical-align:middle}
+  /* Obrys trati v pravé třetině karty MotoGP. SVG je už v brandové červené,
+     takže se nepřebarvuje. Pod 960 px se karta skládá pod sebe a plánek
+     přirozeně padne pod text — proto je v pořadí až za odkazy. */
+  .exp-mapa img{display:block;width:100%;height:auto;transition:filter .45s}
+  /* Při hoveru se karta přelije červenou, ve které brandově červený obrys
+     zanikne — přebarvíme ho na bílou. Je to <img> se SVG, takže na `fill`
+     zvenčí nedosáhneme; filtr ho udělá plně bílým bez ohledu na výchozí barvu. */
+  .exp-item--prime:hover .exp-mapa img{filter:brightness(0) invert(1)}
+  @media(min-width:960px){
+    .exp-item--prime{display:grid;grid-template-columns:minmax(0,2fr) minmax(0,1fr);
+      column-gap:clamp(20px,2.6vw,40px);align-items:center}
+    .exp-item--prime > :not(.exp-mapa):not(.entry-link){grid-column:1}
+    /* Plánek se roztáhne přes všechny řádky a obrázek v něm centruje flex.
+       Kdyby se centroval sám (align-self:center), nafoukl by si první řádek
+       mřížky na svou výšku a zůstal by přilepený nahoře. */
+    /* `1 / -1` by tu nefungovalo: řádky mřížky jsou implicitní, takže -1 míří
+       na konec explicitní mřížky a plánek by zůstal jen v prvním řádku. */
+    .exp-item--prime .exp-mapa{grid-column:2;grid-row:1 / span 99;align-self:stretch;
+      display:flex;align-items:center;min-height:0}
+  }
+  @media(max-width:959px){
+    /* Pod textem stačí plánek jako doplněk — přes celou šířku karty by
+       přebil samotný obsah. */
+    .exp-mapa{margin-top:20px;max-width:min(300px,60%)}
+  }
+  /* Značka karty sedí v pravém horním rohu, mimo tok — karta tím nepřišla
+     o řádek navíc po odebrání čísla zážitku. Odsazení kopíruje padding karty. */
+  .x-prime{position:absolute;top:clamp(14px,1.6vw,22px);right:clamp(14px,1.6vw,22px);z-index:2;
+    padding:3px 9px;border:1px solid rgba(194,14,26,.65);border-radius:2px;background:rgba(194,14,26,.18);
+    font-family:var(--f-mono);font-size:.6rem;letter-spacing:.16em;text-transform:uppercase;color:var(--fg);
+    line-height:1.6;pointer-events:none}
+  .x-prime--voucher{border-color:rgba(202,167,95,.65);background:rgba(202,167,95,.18)}
   /* karta dárkových poukazů: není to zážitek, jen rozcestník na sekci poukazů —
      drží velikost běžné karty, ale odlišuje se zlatým akcentem místo červeného */
   .exp-item--voucher{border-color:rgba(202,167,95,.55);
@@ -870,21 +935,24 @@ Text Domain: grid-divi5-child
   .sec-light .exp-item::before{content:"";position:absolute;inset:0;background:var(--red);transform:translateY(100%);transition:transform .45s cubic-bezier(.16,1,.3,1);z-index:0}
   .sec-light .exp-item:hover::before{transform:translateY(0)}
   .sec-light .exp-item:hover{background:#fff}
+  /* Přímé potomky karty zvedá nad červenou výplň hoveru — značka v rohu si ale
+     musí nechat absolutní pozici, jinak spadne zpátky do toku. */
   .sec-light .exp-item>*{position:relative;z-index:1;transition:color .35s}
+  .sec-light .exp-item>.x-prime{position:absolute}
   .sec-light .exp-item .entry-link{z-index:2}
   .sec-light .exp-item .exp-links{z-index:3}
-  .sec-light .exp-item h3{color:var(--ink)}
+  .sec-light .exp-item h2,.sec-light .exp-item h3{color:var(--ink)}
   .sec-light .exp-item p{color:var(--ink-muted)}
   .sec-light .exp-item .x-num{color:var(--red)}
-  .sec-light .exp-item:hover h3,.sec-light .exp-item:hover p,.sec-light .exp-item:hover .x-num{color:#fff}
+  .sec-light .exp-item:hover :is(h2,h3),.sec-light .exp-item:hover p,.sec-light .exp-item:hover .x-num{color:#fff}
   .sec-light .exp-item:hover .sec-more{color:#fff}
   .sec-light .exp-item:hover .sec-more::after{background:rgba(255,255,255,.75)}
   .sec-light .exp-item:hover .sec-more span{color:#fff}
   /* Zvýrazněné karty ve světlé sekci — musí stát až za pravidly výše, která
      kartám nastavují bílé pozadí a šedý rámeček přes zkratku `border`. */
   .sec-light .exp-item--prime{background:linear-gradient(135deg,rgba(194,14,26,.15) 0%,rgba(194,14,26,.05) 55%,#fff 100%) !important;border-color:rgba(194,14,26,.55)}
-  .sec-light .exp-item--prime .x-prime{color:var(--ink)}
-  .sec-light .exp-item--prime:hover .x-prime{color:#fff;border-color:rgba(255,255,255,.6);background:rgba(255,255,255,.18)}
+  .sec-light .exp-item--prime .x-prime,.sec-light .exp-item--voucher .x-prime{color:var(--ink)}
+  .sec-light .exp-item--prime:hover .x-prime,.sec-light .exp-item--voucher:hover .x-prime{color:#fff;border-color:rgba(255,255,255,.6);background:rgba(255,255,255,.18)}
   .sec-light .exp-item--voucher{background:linear-gradient(135deg,rgba(202,167,95,.16) 0%,rgba(202,167,95,.05) 60%,#fff 100%) !important;border-color:rgba(202,167,95,.6)}
   .sec-light .exp-item--voucher .x-num{color:#8a6f2e}
   .sec-light .exp-item--voucher .sec-more{color:#8a6f2e}
@@ -908,7 +976,7 @@ Text Domain: grid-divi5-child
      sám aplikuje padding:0 se stejnou/vyšší prioritou, takže bez !important
      text ležel přímo na okraji karty. */
   .gcard .g-body{padding:clamp(22px,2.4vw,30px) !important;display:flex;flex-direction:column;flex:1}
-  .gcard h3{font-size:1.6rem;margin:0 0 6px !important}
+  .gcard h2,.gcard h3{font-size:1.6rem;margin:0 0 6px !important}
   .gcard .g-hours{font-family:var(--f-mono);font-size:.68rem;letter-spacing:.08em;color:var(--red);margin:0 0 12px !important}
   .gcard p{font-size:.9rem;color:var(--muted);margin:0 !important}
   .gcard .g-list{list-style:none;margin-top:14px;font-family:var(--f-mono);font-size:.78rem;color:var(--muted)}
@@ -920,16 +988,21 @@ Text Domain: grid-divi5-child
   .sez-cards{display:grid;grid-template-columns:repeat(3,1fr);gap:clamp(14px,1.8vw,24px);margin-bottom:clamp(40px,6vh,64px)}
   .sez-card{background:var(--card);border:1px solid var(--card-line);border-radius:2px;padding:clamp(20px,2.2vw,30px);display:flex;flex-direction:column;gap:10px}
   .sez-card-top{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
-  .sez-card h3{font-size:clamp(1.2rem,1.8vw,1.5rem)}
+  .sez-card h2,.sez-card h3{font-size:clamp(1.2rem,1.8vw,1.5rem)}
   .sez-card p{font-size:.9rem;color:var(--muted);flex:1}
-  .sez-card-links{display:flex;gap:18px;flex-wrap:wrap}
+  /* Karta akce byla zbytečně vysoká: oba odkazy si nesly odsazení 26 px shora
+     (obecné .sec-more), mezi sebou měly 18 px a pod druhým zůstával plný
+     spodní padding. Blok odkazů má teď vlastní, menší rozestupy. */
+  .sez-card-links{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}
+  .sez-card-links .sec-more{margin-top:0}
+  .sez-card{padding-bottom:clamp(16px,1.6vw,22px)}
   /* světlá sekce: karty jako T1 — bílé, hover = červená výplň zespodu, texty bílé (WCAG AA) */
   .sec-light .sez-card{background:#fff;border:1px solid var(--line-c);position:relative;overflow:hidden}
   .sec-light .sez-card::before{content:"";position:absolute;inset:0;background:var(--red);transform:translateY(100%);transition:transform .45s cubic-bezier(.16,1,.3,1);z-index:0}
   .sec-light .sez-card:hover::before{transform:translateY(0)}
   .sec-light .sez-card>*{position:relative;z-index:1;transition:color .35s}
-  .sec-light .sez-card h3{color:var(--ink)}
-  .sec-light .sez-card:hover h3,.sec-light .sez-card:hover p{color:#fff}
+  .sec-light .sez-card h2,.sec-light .sez-card h3{color:var(--ink)}
+  .sec-light .sez-card:hover :is(h2,h3),.sec-light .sez-card:hover p{color:#fff}
   .sec-light .sez-card:hover .ev-date{color:#fff}
   .sec-light .sez-card:hover .ev-status{color:#fff !important;border-color:rgba(255,255,255,.75) !important}
   .sec-light .sez-card:hover .sec-more{color:#fff}
@@ -978,7 +1051,11 @@ Text Domain: grid-divi5-child
      slova. Barva čísla zůstává var(--red) (BEZ (--fg)) – to je zavedený
      akcent T7 na světlé sekci, není součástí požadavku na sladění. */
   .b2b-grid{display:grid !important;grid-template-columns:repeat(2,1fr) !important;gap:clamp(14px,2vw,22px);margin:22px 0}
-  .b2b-card{background:var(--card);border:1px solid var(--card-line);padding:clamp(10px,1.2vw,16px);border-radius:2px}
+  /* Číslo i popisek sedí na vodorovném i svislém středu rámečku. Dřív bylo
+     centrování jen v úzkém koridoru, na širokém rozlišení text vlevo nahoře. */
+  .b2b-card{background:var(--card);border:1px solid var(--card-line);padding:clamp(10px,1.2vw,16px);border-radius:2px;
+    display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:4px}
+  .b2b-card .et_pb_text_inner,.b2b-card p{text-align:center;width:100%;margin:0}
   .b2b-card .data{font-size:clamp(1.3rem,2.2vw,2rem);color:var(--red);display:block;font-weight:700;line-height:1;margin-bottom:10px;white-space:nowrap}
   .b2b-card span{font-family:var(--f-mono);font-size:.64rem;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
   .b2b-tags{display:flex;flex-wrap:wrap;gap:10px;margin:6px 0 4px}
@@ -1031,7 +1108,13 @@ Text Domain: grid-divi5-child
   .final .wrap{position:relative;z-index:2}
   .final h2{font-size:clamp(2.6rem,7vw,6.5rem);font-weight:800;color:#fff}
   .final p{color:var(--grey);max-width:52ch;margin:18px auto 32px}
-  .final .fc-actions{display:flex;gap:14px;justify-content:center;flex-wrap:wrap}
+  /* Řada akčních tlačítek: vedle sebe a na střed, s přirozeným zalomením pod
+     sebe, jakmile se do šířky nevejdou. Divi jinak dává každému tlačítku
+     vlastní sloupec přes celou šířku, takže stála pod sebou i na desktopu.
+     V úzkém koridoru (≤959 px) je přebíjí blok níž, kde jdou na plnou šířku. */
+  .final .fc-actions,.et_pb_row.fc-actions{display:flex;gap:14px;justify-content:center;flex-wrap:wrap;align-items:center}
+  .et_pb_row.fc-actions>.et_pb_column{width:auto !important;flex:0 0 auto;margin:0 !important}
+  .et_pb_row.fc-actions .et_pb_button_module_wrapper{width:auto}
 
   /* ===== FOOTER ===== */
   footer{background:var(--graphite-deep);border-top:1px solid var(--line);padding:clamp(60px,8vh,90px) 0 30px;color:var(--grey)}
@@ -1039,7 +1122,7 @@ Text Domain: grid-divi5-child
   .foot-brand img{height:42px;margin-bottom:20px}
   .foot-brand p{color:var(--grey);font-size:.9rem;max-width:36ch}
   .foot-brand .data{display:block;margin-top:16px;font-size:.78rem;color:var(--grey-dim);letter-spacing:.04em;line-height:1.9}
-  .foot-col h4{font-family:var(--f-mono);font-size:.7rem;letter-spacing:.16em;text-transform:uppercase;color:var(--gold);margin-bottom:18px;font-weight:700}
+  .foot-col h2,.foot-col h3,.foot-col h4{font-family:var(--f-mono);font-size:.7rem;letter-spacing:.16em;text-transform:uppercase;color:var(--gold);margin-bottom:18px;font-weight:700}
   .foot-col ul{list-style:none;display:flex;flex-direction:column;gap:11px}
   .foot-col a,.foot-col .fc-line{font-size:.86rem;color:var(--grey);transition:color .2s}
   .foot-col a:hover{color:var(--offwhite)}
@@ -1188,16 +1271,18 @@ Text Domain: grid-divi5-child
    overflow-wrap: normal, takže se slovo nezalomí a roztáhne řádek —
    výsledkem bylo přetečení celé stránky o desítky pixelů jen v němčině.
 
-   Řeší se jednou, globálně, ne per stránku: stránky mají lang atribut
-   (de-DE), takže hyphens:auto umí slovo rozdělit na slabiky se spojovníkem;
-   break-word je pojistka, když se slabikování nepovede.
+   Dělení spojovníkem se nepoužívá (přání klienta): slovo, které se na řádek
+   nevejde, se celé přesune na nový řádek. break-word zůstává jako pojistka
+   pro slovo delší než celý řádek — jinak by přeteklo stránku.
    ============================================================ */
 .et_pb_module_header,
 .et_pb_heading .et_pb_heading_container > :where(h1,h2,h3,h4,h5,h6),
 .sec :where(h1,h2,h3,h4,h5,h6),
 .legal-body :where(h1,h2,h3,h4,h5,h6){
   overflow-wrap:break-word;
-  hyphens:auto;
+  word-break:normal;
+  -webkit-hyphens:none;
+  hyphens:none;
 }
 /* Odkazy, e-maily a URL nemají kde zalomit — smí se lámat kdekoli. */
 .sec a[href^="mailto:"],.sec a[href^="tel:"],.sec a[href^="http"],
@@ -1238,7 +1323,7 @@ Text Domain: grid-divi5-child
 
 /* --- Povrch určuje barvu akce -------------------------------------------- */
 .gh-surface--light,.sec-light{--gh-action-fg:var(--gh-ink);--gh-action-border:#A3A19D}
-.gh-surface--dark,.gh-surface--photo,.sec-dark,.hero,.sp-media,footer,.booking,
+.gh-surface--dark,.gh-surface--photo,.sec-dark,.hero,.sp-media,footer,.booking,.mobile-menu,
 .room--m1,.room--m2,.room--m4,.hover-card2{
   --gh-action-fg:var(--gh-white);--gh-action-border:rgb(255 255 255 / 55%)
 }
@@ -1437,11 +1522,15 @@ Text Domain: grid-divi5-child
 .sec-dark .x-num,
 .exp-item .x-num,
 .exp-item:hover .x-link,
-.ev-date,
+/* .ev-date sem nepatří — datum termínu má být brandová červená (#C20E1A),
+   ne světlejší varianta pro tmavé plochy. Padá tím na .ev-date výš. */
 .ev-row:hover .ev-cta,
 .review .stars,
 .ev-status.full{ color:var(--red-hi); }
 .ev-status.full{ border-color:rgba(255,90,80,.6); }
+/* Světlá varianta závěrečné sekce (stránka „O nás") je na papírovém pozadí —
+   tam patří brandová červená, ne světlejší varianta pro tmavé plochy. */
+.sec-light.final .kicker{ color:var(--red); }
 /* Hero kicker zůstává BÍLÝ a výrazný (přes fotku) — má přednost před a11y červenou */
 .hero .hero-content .kicker{ color:#fff; }
 .socials a:hover{ border-color:var(--red-hi); color:var(--red-hi); }
@@ -1625,7 +1714,7 @@ body.has-section-nav .exp{ padding-right: max(0px, var(--rail-pad)); }          
 /* Vybavení pokoje + V soukromé koupelně — dva sloupce pod náhledovou fotkou */
 .rd-aside{display:grid;grid-template-columns:1fr 1fr;gap:0 26px;align-items:start}
 .rd-aside .rd-photo{grid-column:1/-1}
-.rd-aside .rd-col h3{margin-top:20px}
+.rd-aside .rd-col h2,.rd-aside .rd-col h3{margin-top:20px}
 @media(max-width:640px){.rd-aside{grid-template-columns:1fr}}
 .rd-facts{display:flex;flex-wrap:wrap;gap:10px 22px;margin:0 0 20px;font-family:var(--f-mono);font-size:.82rem;color:var(--grey)}
 .rd-facts span{display:inline-flex;align-items:center;gap:6px;padding:6px 12px;border:1px solid rgba(255,255,255,.16);border-radius:2px;max-width:100%;min-width:0;overflow-wrap:anywhere}
@@ -1703,10 +1792,20 @@ body.has-section-nav .exp{ padding-right: max(0px, var(--rail-pad)); }          
 /* STYL 2 — hover: fotka se přebarví (prosvítá pod barvou) + popis.
    GLOBÁLNÍ PRVEK `.hover-card2` — vybraný klientem, použitelný i mimo pokoje:
    stačí kartě s fotkou dát třídy `hover-card2` (+ position:relative a <img>). */
-.room--m2::before,.hover-card2::before{content:"";position:absolute;inset:0;z-index:1;background:linear-gradient(155deg,rgba(194,14,26,.85),rgba(14,15,17,.93));opacity:0;transition:opacity .45s}
+/* Přechody přes fotku vedou shora dolů a rozdělují kartu na pětiny: prvních
+   20 % drží plnou barvu, pak se plynule přelévá a posledních 20 % je zase
+   jednolitých. Dřív začínal přechod až v polovině výšky a na úzké kartě
+   vznikala přes fotku viditelná dělicí čára. */
+.room--m2::before,.hover-card2::before{content:"";position:absolute;inset:0;z-index:1;
+  background:linear-gradient(180deg,
+    rgba(194,14,26,.85) 0%,rgba(194,14,26,.85) 20%,
+    rgba(14,15,17,.93) 80%,rgba(14,15,17,.93) 100%);
+  opacity:0;transition:opacity .45s}
 .room--m2:hover::before,.hover-card2:hover::before{opacity:1}
 .room--m2:hover img,.hover-card2:hover img{transform:scale(1.05);filter:saturate(.5)}
-.room--m2::after,.hover-card2::after{background:linear-gradient(180deg,rgba(14,15,17,0) 45%,rgba(14,15,17,.9) 100%)}
+.room--m2::after,.hover-card2::after{background:linear-gradient(180deg,
+  rgba(14,15,17,0) 0%,rgba(14,15,17,0) 20%,
+  rgba(14,15,17,.9) 80%,rgba(14,15,17,.9) 100%)}
 .hover-card2{position:relative;overflow:hidden}
 .hover-card2 img{transition:transform .45s cubic-bezier(.16,1,.3,1),filter .45s}
 
@@ -1715,7 +1814,7 @@ body.has-section-nav .exp{ padding-right: max(0px, var(--rail-pad)); }          
 .room--m3 img{position:relative;height:250px}
 .room--m3::after{display:none}
 .room--m3 .r-body{background:var(--card);color:var(--ink)}
-.room--m3 h3{color:var(--ink)}
+.room--m3 :is(h2,h3){color:var(--ink)}
 .room--m3 .r-desc{color:var(--ink-muted);max-width:none}
 .room--m3 .r-feat{color:var(--ink-muted)}
 .room--m3 .r-feat span{border-color:rgba(20,22,25,.16)}
@@ -1854,7 +1953,17 @@ body.has-section-nav .exp{ padding-right: max(0px, var(--rail-pad)); }          
 
 /* ===== DÁRKOVÉ POUKAZY ===== */
 .vou-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
-.vou-card{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.12);border-left:3px solid var(--red);border-radius:4px;padding:20px 18px}
+.vou-card{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.12);border-left:3px solid var(--red);border-radius:4px;padding:20px 18px;
+  transition:background .3s,border-color .3s}
+/* Karta předvyplňuje druh poukazu ve formuláři níž, chová se tedy jako
+   ovládací prvek — hover i fokus to musí dát najevo. */
+.vou-card[role="button"]{cursor:pointer}
+.vou-card[role="button"]:hover,.vou-card[role="button"]:focus-visible{
+  background:linear-gradient(135deg,rgba(194,14,26,.28) 0%,rgba(194,14,26,.10) 60%,rgba(194,14,26,.04) 100%);
+  border-color:rgba(194,14,26,.55)}
+.vou-card[role="button"]:focus-visible{outline:2px solid var(--red);outline-offset:3px}
+.vou-card.je-vybrana{border-color:var(--red);background:rgba(194,14,26,.16)}
+@media(prefers-reduced-motion:reduce){.vou-card{transition:none}}
 .vou-price{font-family:var(--f-head);font-size:1.7rem;font-weight:800;color:#fff;display:block;line-height:1}
 .vou-card h4{font-family:var(--f-mono);font-size:.72rem;letter-spacing:.12em;text-transform:uppercase;color:var(--gold);margin:10px 0 6px}
 .vou-card p{color:var(--muted);font-size:.86rem;line-height:1.5;margin:0}
@@ -1863,6 +1972,14 @@ body.has-section-nav .exp{ padding-right: max(0px, var(--rail-pad)); }          
 .vou-order a{color:var(--red-hi,#FF5A50)}
 .vou-note{color:var(--grey-dim);font-size:.82rem}
 @media(max-width:640px){.vou-grid{grid-template-columns:1fr}}
+
+/* Odstavce, které mají v obsahu inline max-width:50%, drží polovinu šířky i na
+   úzkém displeji — tam je z toho sloupec na polovinu obrazovky. Inline styl
+   přebije jen !important. Nadpisů se to netýká, ty mají poloviční šířku
+   záměrně (viz .sec-light.final h2). */
+@media(max-width:959px){
+  .et_pb_text_inner p[style*="max-width:50%"]{max-width:100% !important}
+}
 
 /* ===== REZERVACE — zástupný prvek ===== */
 .rezervace-box{border:1px dashed rgba(202,167,95,.5);border-radius:6px;padding:clamp(30px,5vw,64px) 24px;background:rgba(255,255,255,.03);margin-top:10px}
@@ -1880,7 +1997,7 @@ body.has-section-nav .exp{ padding-right: max(0px, var(--rail-pad)); }          
 .bkmock-tab{border:1px solid var(--red);color:var(--red);border-radius:4px;padding:6px 16px;font-size:.85rem;font-weight:600}
 .bkmock-topright{font-size:.8rem;color:#666}
 .bkmock-head{display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap;padding:16px 18px;background:#fff;border-bottom:1px solid #ececee}
-.bkmock-head h3{margin:0;font-size:1.15rem;text-transform:none;color:#16181B}
+.bkmock-head h2,.bkmock-head h3{margin:0;font-size:1.15rem;text-transform:none;color:#16181B}
 .bkmock-promo{display:flex;gap:8px;align-items:center}
 .bkmock-promo input{border:1px solid #d5d5d7;border-radius:4px;padding:8px 12px;font-size:.85rem;background:#fff;max-width:200px}
 .bkmock-datebar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;padding:14px 18px;background:#fafafa;border-bottom:1px solid #ececee}
@@ -1895,7 +2012,7 @@ body.has-section-nav .exp{ padding-right: max(0px, var(--rail-pad)); }          
 .bkmock-unavail{position:absolute;inset:0;background:rgba(20,22,25,.55);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;text-align:center;border-radius:4px;padding:16px}
 .bkmock-unavail span{color:#fff;font-weight:600}
 .bkmock-unavail em{background:var(--red);color:#fff;font-style:normal;padding:8px 14px;border-radius:4px;font-size:.8rem}
-.bkmock-cbody h4{margin:0 0 6px;font-size:1.3rem;text-transform:none;color:#16181B}
+.bkmock-cbody h3,.bkmock-cbody h4{margin:0 0 6px;font-size:1.3rem;text-transform:none;color:#16181B}
 .bkmock-cmeta{font-size:.82rem;color:#666;margin-bottom:10px}
 .bkmock-cbody ul{list-style:none;padding:0;margin:0 0 12px;display:grid;gap:5px}
 .bkmock-cbody li{position:relative;padding-left:18px;font-size:.85rem;color:#444}
@@ -1988,25 +2105,36 @@ body.has-section-nav .exp{ padding-right: max(0px, var(--rail-pad)); }          
 /* Newsletter v patičce — kompaktní řádek bez labelu */
 .foot-col .fluentform .ff-el-input--label{display:none}
 .foot-col .fluentform{width:100%}
-.foot-col .fluentform form{display:flex;align-items:stretch;width:100%;border:1px solid var(--line);margin-top:14px}
-.foot-col .fluentform .ff-el-group{margin:0}
-.foot-col .fluentform .ff-el-group:not(.ff_submit_btn_wrapper){flex:1;min-width:0}
-.foot-col .fluentform .ff_submit_btn_wrapper{flex:0 0 auto}
-.foot-col .fluentform .ff-el-form-control{background:transparent;border:none!important;box-shadow:none!important;padding:11px 14px;color:var(--offwhite);font-size:.85rem}
-.foot-col .fluentform .ff-btn-submit{height:100%;background:var(--red);border:none;color:#fff;padding:0 16px;font-size:.78rem;letter-spacing:.1em}
+/* E-mail, souhlas a tlačítko jdou pod sebou — do jednoho řádku se ve sloupci
+   patičky vejde jen pole s tlačítkem, na souhlas už místo není. Rámeček proto
+   nese samotné pole, ne celý formulář. */
+.foot-col .fluentform form{display:flex;flex-direction:column;align-items:stretch;width:100%;gap:10px;margin-top:14px}
+.foot-col .fluentform .ff-el-group{margin:0;width:100%}
+.foot-col .fluentform .ff_submit_btn_wrapper{width:100%}
+.foot-col .fluentform .ff-el-form-control{width:100%;background:transparent;border:1px solid var(--line)!important;box-shadow:none!important;padding:11px 14px;color:var(--offwhite);font-size:.85rem}
+.foot-col .fluentform .ff-btn-submit{width:100%;background:var(--red);border:none;color:#fff;padding:12px 16px;font-size:.78rem;letter-spacing:.1em}
+/* Souhlas je souvislá věta, ne popisek pole — drobnější text a menší mezera. */
+.foot-col .fluentform .ff-el-tc label.ff_tc_label > .ff_t_c{font-size:.76rem;line-height:1.5;color:var(--grey-dim)}
+.foot-col .fluentform .ff-el-form-check.ff-el-tc{margin:0}
 .foot-col .fluentform .ff-message-success{border-color:var(--gold);background:rgba(202,167,95,.1);color:var(--gold)}
 /* Stálá nabídka (jídelní lístek) — 4 vyrovnané sloupce dle počtu položek */
 .menu-stala-h{font-family:var(--f-mono);font-size:.8rem;font-weight:600;letter-spacing:.18em;text-transform:uppercase;color:var(--red);margin:48px 0 18px}
-.menu-stala{columns:4;column-gap:22px}
-.menu-stala .menu-grp{display:block;break-inside:avoid;-webkit-column-break-inside:avoid;background:#fff;border:1px solid rgba(20,22,25,.12);border-radius:6px;padding:16px 18px;margin:0 0 22px}
-.menu-stala .menu-grp-l{display:block;font-family:var(--f-head);font-weight:700;font-size:1.02rem;letter-spacing:.02em;text-transform:uppercase;color:var(--ink,#16181B);border-bottom:2px solid var(--red);padding-bottom:7px;margin-bottom:9px}
-@media(max-width:1279px){.menu-stala{columns:2}}
-@media(max-width:640px){.menu-stala{columns:1}}
+/* Mezi jednotlivými nabídkami (stálá / večerní / nápoje) musí být vidět předěl —
+   nadpis další nabídky si odstup nese sám shora, karta pod ním ho potřebuje zdola. */
+.menu-stala{margin-bottom:clamp(28px,3.5vw,48px)}
+.menu-stala:last-child{margin-bottom:0}
+/* Sazba jídelníčku do sloupců (počet sloupců, vyrovnání výšek, zalomení
+   položek a klíčů) je součástí pluginu GARRY – Denní menu:
+   garry-denni-menu/assets/jidelnicek.css + jidelnicek.js. */
+
 .menu-day{border:1px solid rgba(20,22,25,.1);border-radius:6px;padding:18px 18px 10px;background:#fff}
 .menu-day h3{font-size:1.1rem;color:var(--ink,#16181B);margin:0 0 12px;padding-bottom:8px;border-bottom:2px solid var(--red)}
 .menu-grp{margin-bottom:12px}
 .menu-grp-l{display:block;font-family:var(--f-mono);font-size:.64rem;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-bottom:6px}
 .menu-item{display:flex;justify-content:space-between;gap:12px;padding:4px 0;align-items:baseline}
+/* Jídelníček je <dl> (jídlo = dt, cena = dd); vizuál zůstává beze změny. */
+.menu-polozky{margin:0}
+.menu-polozky dt,.menu-polozky dd{margin:0}
 .menu-n{color:var(--ink,#16181B);font-size:.9rem}
 .menu-n small{display:block;color:var(--muted);font-size:.78rem}
 .menu-a{color:var(--muted);font-style:normal;font-size:.72rem}
@@ -2036,7 +2164,9 @@ body.has-section-nav .exp{ padding-right: max(0px, var(--rail-pad)); }          
    by je chytlo obecné .sec h2 a „Adresa" by byla stejně velká jako nadpis sekce. */
 .k-block h2,.k-block h3{font-size:1.15rem;margin-bottom:6px}
 .sec .k-block h2{font-size:1.15rem !important}
-.k-block p{color:var(--muted);font-size:.95rem;line-height:1.7}
+.k-block p,.k-block address{color:var(--muted);font-size:.95rem;line-height:1.7}
+/* <address> nese kontaktní údaje sémanticky, vizuálně ale zůstává běžný text. */
+address{font-style:normal;margin:0}
 .k-block a{color:var(--red)}
 .k-block a:hover{color:var(--red-bright)}
 .k-block .btn-ghost{margin-top:10px}
@@ -2055,12 +2185,26 @@ body.has-section-nav .exp{ padding-right: max(0px, var(--rail-pad)); }          
 .dp-route b{display:block;font-family:var(--f-mono);font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;color:var(--red);margin-bottom:4px}
 .dp-route span{color:var(--muted);font-size:.94rem;line-height:1.6}
 .dp-air-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:clamp(16px,2vw,24px);margin-top:26px}
-.dp-airport{border:1px solid var(--card-line);padding:22px;border-radius:2px;background:var(--card)}
-.dp-airport .dp-head{display:flex;align-items:baseline;justify-content:space-between;gap:12px;margin-bottom:10px}
+/* Štítek vzdálenosti sedí v pravém horním rohu karty, ne v jednom řádku
+   s názvem — dlouhé názvy letišť ho jinak tlačily dolů a řádky se rozjížděly. */
+.dp-airport{position:relative;border:1px solid var(--card-line);padding:22px;border-radius:2px;background:var(--card)}
+.dp-airport .dp-head{display:block;margin-bottom:10px;padding-right:96px}
+.dp-airport .dp-badge{position:absolute;top:18px;right:18px}
+/* Karta je poskládaná z modulů Divi a ty si nastavují position:relative —
+   štítek by se pak umístil vůči svému modulu, ne vůči kartě. */
+.dp-airport .et_pb_text:has(.dp-badge),
+.dp-airport .et_pb_text:has(.dp-badge) .et_pb_text_inner,
+.dp-airport .et_pb_column:has(.dp-badge),
+.dp-airport .et_pb_row:has(.dp-badge){position:static}
+/* Sloupec, ve kterém štítek původně seděl, už nemá co držet. */
+.dp-airport .dp-head .et_pb_column:has(.dp-badge){flex:0 0 0;min-width:0;padding:0}
 .dp-airport h4{font-family:var(--f-head);text-transform:uppercase;font-size:1.15rem;color:var(--fg);letter-spacing:.02em}
 .dp-badge{font-family:var(--f-mono);font-size:.7rem;color:var(--red-hi);border:1px solid rgba(255,90,80,.45);padding:3px 9px;border-radius:2px;white-space:nowrap}
 .dp-airport p{color:var(--muted);font-size:.9rem;margin-bottom:6px;line-height:1.6}
 .dp-airport .dp-vign{display:inline-block;margin-top:6px;font-family:var(--f-mono);font-size:.66rem;color:var(--grey-dim);text-transform:uppercase;letter-spacing:.08em}
+/* Navigace a web letiště — dva odkazy v patě karty, na úzkém pod sebou. */
+.dp-airport .dp-akce{display:flex;flex-wrap:wrap;gap:8px 22px;margin-top:14px}
+.dp-airport .dp-akce .sec-more{margin-top:0}
 @media(max-width:959px){.dp-cols,.dp-air-grid{grid-template-columns:1fr}}
 
 /* ===== GALERIE — filtr + mřížka ===== */
@@ -2172,3 +2316,542 @@ footer .socials a:hover{ color:var(--gold) !important; border-color:var(--gold) 
 .gastro-menu-panel:last-child{margin-bottom:0}
 .gastro-menu-nadpis{margin:0 0 22px;padding-bottom:14px;border-bottom:1px solid var(--line-c)}
 .gastro-menu-prazdno{color:var(--muted);font-family:var(--f-mono);font-size:.86rem;margin:0}
+
+/* ============================================================
+   ÚZKÉ REŽIMY — tablet na výšku (≤ 959 px) a mobil (≤ 640 px)
+   Zadání 7. 9. 2026. Vše je uvnitř těchto dvou dotazů, širší
+   rozlišení se nemění. Blok je záměrně na konci souboru, aby
+   přebil dřívější pravidla stejné specificity.
+   ============================================================ */
+@media(max-width:959px){
+
+  /* --- NADPISY -------------------------------------------------
+     Na širokém rozlišení se nadpisy sekcí drží na půlce šířky.
+     V úzkém koridoru to nechává skoro prázdný pravý sloupec,
+     takže se pouští na celou šířku. Zároveň se ruší vynucené
+     zalomení <br> (psané pro široký layout) a dělení slov
+     spojovníkem — nadpis se láme po celých slovech. */
+  /* Zalomení v nadpisu (<span class="zlom">) se na mobilu chová jako mezera —
+     viz definice u .zlom níž. Ostatní <br> v nadpisech se schovají. */
+  .sec:not(.hero) :where(h1,h2,h3) br{display:none}
+
+  /* --- REZERVAČNÍ LIŠTA ---------------------------------------
+     Datum se v prohlížeči centruje samo, výběry hostů a pokoje
+     zůstávaly vlevo. Sjednoceno na střed, CTA přes celou šířku. */
+  .bk-field{align-items:center;text-align:center}
+  .bk-field label{text-align:center}
+  .bk-field input,.bk-field select{text-align:center;text-align-last:center}
+  .bk-note{justify-content:center;text-align:center}
+  .bk-submit{flex:1 1 100%;padding:12px 0}
+  .bk-submit .btn{width:100%;max-width:none !important;height:auto;justify-content:center;text-align:center;padding:15px 18px}
+
+  /* --- DĚLENÉ SEKCE (T2, T7, catering, o nás, firemní) --------
+     Řádek měl vpravo odsazení o šířku okraje, takže za fotkou
+     vykukoval pruh pozadí. Fotka jde od kraje ke kraji, odsazení
+     přebírá textová část. */
+  .split,.et_pb_row.split{padding-left:0 !important;padding-right:0 !important}
+  .split>.sp-media{width:100%;max-width:100%}
+  .split>.sp-content{padding-left:var(--gutter) !important;padding-right:var(--gutter) !important}
+
+  /* --- KARTY: celý rámeček ------------------------------------
+     Na širokém rozlišení se pravý okraj karet schovává záměrně
+     (karty na sebe navazují). V jednom nebo dvou sloupcích to ale
+     vypadá jako uříznutá karta, proto se rámeček vrací. */
+  .entry,.exp-item,.entry:nth-child(2),.exp-item:nth-child(2n){border-right:1px solid var(--line-c)}
+
+  /* --- ODKAZY NA KONCI SEKCÍ na střed --------------------------
+     Nejdřív se vycentrují všechny, pak se výjimky uvnitř karet
+     vrátí doleva (v kartě má odkaz zůstat u textu). */
+  .sec .sec-more-radek{justify-content:center;text-align:center}
+  .sec .et_pb_text_inner>p:has(>.sec-more),
+  .sec .et_pb_text_inner>.wrap:has(>.sec-more),
+  .sec .et_pb_text_inner>div:has(>.sec-more){text-align:center}
+  .sec :is(.onas-card,.exp-item,.b2b-card,.sez-card,.room,.entry,.gcard)
+    .et_pb_text_inner>p:has(>.sec-more){text-align:left}
+
+  /* --- ŘÁDKY TLAČÍTEK ------------------------------------------
+     Dvojice tlačítek vedle sebe se do úzkého sloupce nevejde a
+     zůstávala u levého okraje. Skládají se pod sebe přes celou
+     šířku; závěrečná CTA sekce (.final) si nechává svoje tři
+     tlačítka vycentrovaná vedle sebe. */
+  .sec .fc-actions{justify-content:center}
+  .sec .rd-actions,.sec .doprava-actions,.sec:not(.final) .fc-actions{
+    display:flex !important;flex-direction:column;align-items:stretch;gap:12px}
+  .sec .rd-actions>*,.sec .doprava-actions>*,.sec:not(.final) .fc-actions>*{
+    width:100% !important;max-width:100% !important;flex:none !important;margin:0 !important}
+  /* Divi drží tlačítkům `max-width:max-content` (.et_pb_button:not(.et_block_module)),
+     takže samotné width:100% nic neudělá — musí se uvolnit i max-width. */
+  .sec .rd-actions .et_pb_button_module_wrapper,.sec .doprava-actions .et_pb_button_module_wrapper,
+  .sec:not(.final) .fc-actions .et_pb_button_module_wrapper{width:100% !important}
+  .sec .rd-actions .btn,.sec .doprava-actions .btn,.sec:not(.final) .fc-actions .btn{
+    width:100% !important;max-width:none !important;justify-content:center;text-align:center}
+
+  /* Vodoznak sekce (velké „T1") u první sekce podstránky mizel pod
+     napevno umístěnou hlavičkou — posune se pod ni. */
+  body:not(.home) .et_pb_section:first-of-type .sec-tag{top:104px}
+
+  /* --- SROVNÁVACÍ TABULKA (T3) ---------------------------------
+     Tabulka je širší než displej. První sloupec s vlastnostmi zůstává
+     přilepený vlevo, ostatní se posouvají prstem nebo šipkami nad
+     tabulkou (ovládání dokresluje grid.js). */
+  .rd-tablewrap{position:relative;scroll-behavior:smooth;-webkit-overflow-scrolling:touch}
+  .rd-table :is(th,td):first-child{position:sticky;left:0;z-index:2;background:var(--paper)}
+  .sec-dark .rd-table :is(th,td):first-child,
+  .sec-dark.carbon .rd-table :is(th,td):first-child{background:var(--graphite-deep)}
+  .rd-pager{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:0 0 12px}
+  .rd-pager-btn{width:44px;height:44px;flex:none;display:flex;align-items:center;justify-content:center;
+    background:none;border:1px solid var(--line-c);border-radius:2px;color:var(--fg);
+    font-size:1.1rem;line-height:1;cursor:pointer;transition:border-color .2s,color .2s}
+  .rd-pager-btn:hover{border-color:var(--red);color:var(--red)}
+  .rd-pager-btn[hidden]{display:flex;visibility:hidden}
+  .rd-pager-stav{font-family:var(--f-mono);font-size:.7rem;letter-spacing:.14em;color:var(--muted)}
+
+  /* Srovnávací tabulka v režimu karet: pevné šířky sloupců z desktopu
+     dělaly z hodnot 50px sloupečky a text se lámal po znacích. */
+  .room-table tbody td:nth-child(n){width:auto}
+
+  /* Karta pokoje: „Detail & vybavení" přes celou šířku karty. */
+  .room .r-foot{display:block}
+  .room .r-foot .btn{width:100% !important;max-width:none !important;justify-content:center;text-align:center}
+
+  /* --- STATISTICKÉ KARTY 50 / 64 / BAR / P ---------------------
+     Číslo i popisek na vodorovný i svislý střed rámečku. */
+  .b2b-card{min-height:104px}
+  .b2b-card .data{white-space:normal}
+
+  /* Stejné zarovnání i pro trojici .stat v T2/T7 — a hlavně zrušené
+     white-space:nowrap, kvůli kterému „5,4 km" přetékalo přes rámeček. */
+  .stat{display:flex;flex-direction:column;align-items:center;justify-content:center;
+    text-align:center;gap:4px;min-height:104px}
+  .stat .data{white-space:normal}
+
+  /* Dvojice tlačítek na konci dělené sekce (T2) na střed. */
+  .sp-content .et_pb_text_inner div:has(>.btn){justify-content:center}
+}
+
+/* --- MOBIL (≤ 640 px) ---------------------------------------- */
+@media(max-width:640px){
+  /* Řádek akce sezóny: štítek obsazenosti vlevo, rezervace vpravo
+     na jednom řádku — místo dvou samostatných řádků pod sebou. */
+  .ev-meta{flex-direction:row;flex-wrap:nowrap;justify-content:space-between;
+    align-items:center;width:100%;gap:12px;text-align:left;margin-top:4px}
+  .ev-cta{font-size:.8rem;letter-spacing:.06em;color:var(--red);white-space:nowrap}
+  .ev-status{flex:none}
+
+  /* Kontakt: bloky pod sebou přes celou šířku, ne dva sloupce. */
+  /* Kontaktní bloky pod sebou: řádek má nowrap, bez povolení zalomení
+     by se sloupce jen zúžily. */
+  .sec .k-blockrow{flex-wrap:wrap}
+  .sec .k-block{flex:1 1 100% !important;max-width:100% !important;width:100% !important}
+}
+
+/* Zalomení nadpisu psané pro široký layout: na širokém rozlišení se chová
+   jako <br>, na tabletu na výšku a na mobilu jako obyčejná mezera, aby se
+   nadpis lámal po slovech přes celou šířku. */
+.zlom{display:block;height:0;overflow:hidden}
+@media(max-width:959px){ .zlom{display:inline;height:auto;overflow:visible} }
+
+/* Zalomení, které se má projevit jen na úzkém displeji (opak .zlom):
+   na širokém rozlišení je to obyčejná mezera, na tabletu na výšku
+   a na mobilu zalomí řádek. */
+.zlom-uzky{display:inline}
+@media(max-width:959px){ .zlom-uzky{display:block;height:0;overflow:hidden} }
+
+/* Ovládání srovnávací tabulky patří jen do úzkých režimů — nad 959 px
+   je vidět celá tabulka a šipky by mátly. */
+@media(min-width:960px){ .rd-pager{display:none} }
+
+/* Karty letišť (stránka Jak se k nám dostanete) jsou vnořené Divi řádky
+   a těm Divi nastavuje `padding:0` pravidlem o vyšší specificitě, takže
+   text seděl natěsno na rámečku. Platí na všech rozlišeních. */
+.et_flex_row .dp-airport.dp-airport{padding:clamp(18px,2vw,26px)}
+
+/* ============================================================
+   ROZBALENÉ HAMBURGER MENU (≤ 959 px)
+   Logo vlevo nahoře, jemné červené světlo z pravého horního rohu
+   (od křížku) a pevná spodní lišta s akcemi. Položky menu se rolují
+   pod lištou, takže delší menu nic neschová.
+   ============================================================ */
+@media(max-width:959px){
+  .mobile-menu{
+    /* radiální nádech červené od rohu s křížkem, mizí zhruba ve třetině šířky */
+    background:
+      radial-gradient(circle at 100% 0%,
+        rgba(194,14,26,.30) 0%,
+        rgba(194,14,26,.14) 12%,
+        rgba(194,14,26,.05) 22%,
+        rgba(194,14,26,0) 34%),
+      var(--graphite-deep);
+    padding-top:96px;
+    padding-bottom:calc(190px + env(safe-area-inset-bottom,0px));
+  }
+  .mm-logo{position:absolute;top:24px;left:var(--gutter);display:block;z-index:2}
+  .mm-logo img{height:30px;width:auto;display:block}
+  .mobile-menu .mm-close{top:26px;right:var(--gutter);z-index:2}
+  .mm-obsah{width:100%;max-width:420px;display:flex;flex-direction:column}
+
+  /* spodní lišta */
+  .mm-spodek{position:fixed;left:0;right:0;bottom:0;z-index:3;
+    display:flex;flex-direction:column;gap:10px;
+    padding:14px var(--gutter) calc(14px + env(safe-area-inset-bottom,0px));
+    background:linear-gradient(180deg,rgba(14,15,17,.86) 0%,var(--graphite-deep) 42%);
+    border-top:1px solid var(--line)}
+  .mm-radek{display:flex;align-items:center;gap:10px}
+  .mm-spodek .btn{margin:0;max-width:none !important;justify-content:center;text-align:center}
+  /* Rezervovat přes celou šířku, písmem i řezem jako položky menu */
+  /* Základ primárního tlačítka je .btn:not(...):not(...):not(...), tedy čtyři
+     třídy. Aby velikost písma prošla, musí být selektor ještě konkrétnější. */
+  .mobile-menu .mm-spodek .mm-rezervovat.mm-rezervovat.mm-rezervovat{width:100%;font-family:var(--f-head);font-size:1.6rem;
+    letter-spacing:.06em;padding:14px 18px;line-height:1.1}
+  /* Ghost tlačítka stojí na tmavém povrchu — barvu textu i rámečku musí nést
+     samy, jinak zdědí tmavou variantu a na černém pozadí zmizí. */
+  .mobile-menu .mm-navigovat.mm-navigovat,.mobile-menu .mm-volat.mm-volat{flex:0 0 30%;width:30%;
+    padding:13px 6px;font-size:.72rem;letter-spacing:.1em;color:var(--offwhite);
+    border-color:rgba(255,255,255,.35)}
+  .mm-navigovat:hover,.mm-volat:hover{color:#fff;border-color:var(--red)}
+  /* jazyky mezi tlačítky */
+  .mm-radek .lang{flex:1 1 auto;display:flex;justify-content:center;gap:14px;margin:0}
+  .mm-radek .lang a,.mm-radek .lang span{font-family:var(--f-mono);font-size:.78rem;letter-spacing:.12em;
+    text-transform:uppercase;color:var(--grey)}
+  .mm-radek .lang .active{color:var(--red)}
+  /* původní volné tlačítko a jazyky uvnitř seznamu položek už nejsou potřeba */
+  .mobile-menu>.btn,.mobile-menu>.lang{display:none}
+}
+
+/* ============================================================
+   PŘÍSTUPNOST — odkaz na přeskočení navigace (WCAG 2.4.1)
+   Skrytý mimo obrazovku, při fokusu naskočí nad hlavičku.
+   ============================================================ */
+.skip-nav{position:fixed;top:0;left:0;z-index:200}
+.skip-link{position:fixed;top:0;left:0;z-index:200;transform:translateY(-120%);
+  display:inline-block;padding:14px 22px;background:var(--red);color:#fff;
+  font-family:var(--f-mono);font-size:.8rem;letter-spacing:.1em;text-transform:uppercase;
+  border-bottom-right-radius:2px;transition:transform .15s ease-out}
+.skip-link:focus{transform:translateY(0);outline:2px solid #fff;outline-offset:-6px}
+main#obsah:focus{outline:none}
+@media (prefers-reduced-motion:reduce){.skip-link{transition:none}}
+
+/* ============================================================
+   PŘÍSTUPNOST — kontrast a fokus (audit 7. 9. 2026)
+   ============================================================ */
+
+/* Hamburger byl jediný ovládací prvek bez viditelného fokusu (WCAG 2.4.7). */
+.hamburger:focus-visible{outline:2px solid var(--red);outline-offset:3px}
+
+/* Boční lišta nad světlou sekcí: aktivní bod měl zlatou #b8954a = 2,52:1
+   na papírovém podkladu (WCAG 1.4.3). Ztmaveno na hodnotu ≥ 4,5:1.
+   Neaktivní body už správné barvy měly (#6b6f76 a #33363a). */
+.tp-point.tp-on-light.active .tp-num{color:#755C22}
+.tp-label.tp-on-light{color:#5B5F66}
+
+/* Počty u filtrů byly ztlumené na 55 % krytí — na červené i papírové ploše
+   tím spadly pod 4,5:1. */
+.okoli-filtr .gh-filter span,.gh-filter span,.gal-fbtn span{opacity:.82}
+
+/* Poznámka k auditu: „Rezervovat →" u akce sezóny, štítky vzdálenosti a další
+   drobné červené prvky mají na černém pozadí kontrast pod 4,5:1. Ponecháváme
+   je v brandové červené — web má mít jednu červenou, rozhodnutí klienta. */
+
+/* Popisky HUD (šedá na tmavě šedé, 3,49–3,60:1). */
+.telemetry-hud .hud-row .k,.hud-row .k{color:#B5B3B0}
+
+
+
+/* Hláška zablokovaného obsahu (Complianz) — bílá na #808080 = 3,94:1. */
+.cmplz-blocked-content-notice{background:#3A3B3D !important;color:#fff !important}
+.cmplz-blocked-content-notice a{color:#FFB3AE !important}
+
+/* Ukázkový rezervační widget na /rezervace/. */
+.bkmock-wm span{color:#E9C9CC}
+.bkmock small,.sec .bkmock small{color:#6B6E74}
+
+/* Cíle dotyku pod 24 × 24 px (WCAG 2.2 — 2.5.8). */
+.ev-ext{display:inline-flex;align-items:center;justify-content:center;
+  min-width:24px;min-height:24px;padding:4px}
+/* Datumová pole přebírá flatpickr a mění je na type="text" — cíl dotyku
+   (WCAG 2.5.8) i vyrovnání s výběry proto musí platit i pro ně. */
+.bk-field input[type="date"],.bk-field input.flatpickr-input,.bk-field select{min-height:40px}
+.cmplz-cookiebanner .cmplz-close{min-width:24px;min-height:24px;display:flex;
+  align-items:center;justify-content:center}
+.fluentform .ff-el-form-check input[type="radio"],
+.fluentform .ff-el-form-check input[type="checkbox"]{width:20px;height:20px}
+.fluentform .ff-el-form-check label{min-height:24px;display:inline-flex;align-items:center;padding:4px 6px}
+
+/* Karty se při zvětšených rozestupech textu ořezávaly (WCAG 1.4.12).
+   Popis pokoje je ale záměrně schovaný do hoveru — max-height:none by tenhle
+   mechanismus vypnul a nadpis by přestal vyjíždět nahoru. Řeší se proto jen
+   rozvinutý stav: strop je v em, takže roste spolu s velikostí i rozestupy
+   textu, a nemá tedy co oříznout. */
+.entry{overflow:visible}
+.room:hover .r-desc{max-height:32em}
+
+/* Název akce v řádku sezóny je od verze 2.8.0 tlačítko (dřív byl řádek
+   role="button" s odkazem uvnitř — vnořené interaktivní prvky). Vizuálně
+   zůstává textem. */
+.ev-vybrat{display:inline;padding:0;margin:0;background:none;border:none;
+  font:inherit;color:inherit;letter-spacing:inherit;text-align:left;cursor:pointer}
+.ev-vybrat:hover{color:var(--red)}
+.ev-vybrat:focus-visible{outline:2px solid var(--red);outline-offset:3px}
+
+/* Vizuálně skrytý text pro čtečky (upozornění na nové okno, popisky). */
+.vh{position:absolute !important;width:1px;height:1px;padding:0;margin:-1px;
+  overflow:hidden;clip:rect(0 0 0 0);clip-path:inset(50%);white-space:nowrap;border:0}
+
+/* Nadpisy karet přešly z h3 na h2 (přeskakovaly úroveň pod h1 podstránky).
+   Vizuálně musí zůstat jako dřív — globální `.sec h2` je s !important. */
+.sec :is(.exp-item,.gcard,.room,.sez-card,.rd-col,.b2b-card,.onas-card) h2{
+  font-size:inherit !important;text-transform:none}
+.sec .exp-item h2{font-size:1.35rem !important}
+.sec .exp-item--prime h2{font-size:clamp(1.5rem,2.6vw,2.1rem) !important}
+.sec .gcard h2{font-size:1.6rem !important}
+.sec .room .r-body h2{font-size:clamp(1.6rem,2.6vw,2.3rem) !important;margin:8px 0 6px;color:#fff}
+.sec .sez-card h2{font-size:1.5rem !important}
+.sec .rd-col h2{font-size:1.15rem !important}
+
+/* ============================================================
+   SOUHLAS SE ZPRACOVÁNÍM ÚDAJŮ (pole s třídou ff_gdpr_field)
+   ============================================================
+   Fluent Forms vykresluje GDPR souhlas stejnou strukturou jako škálu 1–5
+   (.ff-el-form-check-label), takže po ní dědil rámeček kolem celého bloku
+   i červenou výplň přes celou plochu po zaškrtnutí. Souhlas ale není volba
+   ze sady: rámeček nemá, jde přes celou šířku formuláře a barevné je jen
+   samotné zaškrtávátko. Text souhlasu je souvislá věta, ne popisek pole —
+   proto běžné písmo místo verzálek v monu.
+   ============================================================ */
+
+/* přes oba sloupce mřížky (kontakt, firemní poptávka, poukazy) */
+.k-form .fluentform .ff-el-group:has(.ff_gdpr_field),
+#firemni .fluentform .ff-el-group:has(.ff_gdpr_field),
+.vou-form .fluentform .ff-el-group:has(.ff_gdpr_field){grid-column:1/-1}
+
+.fluentform .ff-el-form-check.ff-el-tc{display:block;margin:2px 0 6px}
+.fluentform .ff-el-tc label.ff_tc_label,
+.fluentform .ff-el-form-check label.ff_tc_label{display:flex;align-items:flex-start;gap:11px;
+  border:0;border-radius:0;background:none;padding:0;min-height:0;cursor:pointer}
+.fluentform .ff-el-form-check label.ff_tc_label:hover{border:0}
+.fluentform .ff-el-form-check label.ff_tc_label:has(input:checked){background:none;border:0;color:inherit}
+.fluentform .ff-el-tc label.ff_tc_label > .ff_tc_checkbox{display:block;flex:0 0 auto;padding:0;line-height:1}
+.fluentform .ff-el-tc label.ff_tc_label > .ff_t_c{display:block;padding:0;
+  font-family:var(--f-body) !important;font-size:.86rem;font-weight:400;
+  letter-spacing:normal;text-transform:none;line-height:1.6;color:var(--muted)}
+
+/* Vlastní zaškrtávátko: v klidu stejný rámeček jako ostatní pole formuláře
+   (--line-c, tedy i na tmavé sekci správně), po zaškrtnutí plná červená plocha.
+   Nativní accent-color umí jen výplň, obrys by zůstal v barvě prohlížeče. */
+.fluentform .ff-el-form-check-input.ff_gdpr_field{appearance:none;-webkit-appearance:none;
+  width:20px;height:20px;flex:0 0 20px;margin:2px 0 0;position:relative;cursor:pointer;
+  border:1px solid var(--line-c);border-radius:2px;background:#fff;
+  transition:background .2s,border-color .2s}
+.fluentform .ff-el-form-check-input.ff_gdpr_field:hover{border-color:var(--red)}
+.fluentform .ff-el-form-check-input.ff_gdpr_field:checked{background:var(--red);border-color:var(--red)}
+.fluentform .ff-el-form-check-input.ff_gdpr_field:checked::after{content:"";position:absolute;
+  left:6px;top:2px;width:5px;height:10px;border:solid #fff;border-width:0 2px 2px 0;
+  transform:rotate(45deg)}
+.fluentform .ff-el-form-check-input.ff_gdpr_field:focus-visible{outline:2px solid var(--red);outline-offset:2px}
+
+/* tmavé sekce (čekací list, poukazy) — políčko musí zůstat vidět na grafitu */
+.sec-dark .fluentform .ff-el-form-check-input.ff_gdpr_field{background:rgba(255,255,255,.06)}
+.sec-dark .fluentform .ff-el-form-check-input.ff_gdpr_field:checked{background:var(--red)}
+
+/* ============================================================
+   KALENDÁŘ VE FORMULÁŘÍCH (flatpickr) — brandové barvy
+   ============================================================
+   Výchozí flatpickr má modrý výběr a šedý kroužek u dnešního dne. Selektory
+   jsou o třídu specifičtější než jeho vlastní, takže není potřeba !important.
+   ============================================================ */
+.flatpickr-calendar .flatpickr-day:hover,
+.flatpickr-calendar .flatpickr-day:focus{background:var(--red);border-color:var(--red);color:#fff}
+.flatpickr-calendar .flatpickr-day.today{border-color:var(--red)}
+.flatpickr-calendar .flatpickr-day.today:hover,
+.flatpickr-calendar .flatpickr-day.today:focus{background:var(--red);border-color:var(--red);color:#fff}
+.flatpickr-calendar .flatpickr-day.selected,
+.flatpickr-calendar .flatpickr-day.selected:hover,
+.flatpickr-calendar .flatpickr-day.selected:focus{background:var(--red);border-color:var(--red);color:#fff}
+/* dny mimo zobrazený měsíc a nedostupné termíny zůstávají tlumené */
+.flatpickr-calendar .flatpickr-day.prevMonthDay:hover,
+.flatpickr-calendar .flatpickr-day.nextMonthDay:hover{background:rgba(194,14,26,.55);border-color:transparent;color:#fff}
+.flatpickr-calendar .flatpickr-day.flatpickr-disabled:hover{background:transparent;border-color:transparent;color:inherit}
+/* šipky na přepínání měsíce */
+.flatpickr-calendar .flatpickr-months .flatpickr-prev-month:hover svg,
+.flatpickr-calendar .flatpickr-months .flatpickr-next-month:hover svg{fill:var(--red)}
+
+/* ============================================================
+   ROZBALOVACÍ SEZNAM V REZERVAČNÍ LIŠTĚ
+   ============================================================
+   Nativní <select> otevírá panel kreslený operačním systémem, který se nedá
+   obarvit — v tmavé liště svítil bíle s modrým výběrem. Vlastní komponenta
+   (viz assets/js/rezervacni-lista.js) drží stejné barvy jako zbytek lišty;
+   původní <select> zůstává v DOMu jako zdroj hodnot, jen se schová.
+   ============================================================ */
+/* Rezervační lišta leží uvnitř Divi sekce, která nemá vlastní z-index —
+   sekce pod ní jsou v DOMu později, takže by jejich nadpisy překryly rozbalený
+   seznam bez ohledu na to, jak vysoký z-index má samotná lišta. Vrstvení se
+   proto musí zvednout až na úrovni celé sekce. */
+.et_pb_section:has(.booking){position:relative;z-index:120}
+.gsel{position:relative}
+.gsel .gsel-nativni{position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;
+  clip-path:inset(50%);white-space:nowrap;border:0}
+.gsel-tlacitko{display:flex;align-items:center;justify-content:space-between;gap:10px;width:100%;
+  min-height:40px;padding:0;background:transparent;border:none;cursor:pointer;
+  font-family:var(--f-body);font-size:.95rem;color:var(--offwhite);text-align:left}
+.gsel-tlacitko:focus-visible{outline:2px solid var(--red);outline-offset:3px}
+.gsel-sipka{flex:0 0 auto;width:9px;height:9px;border-right:1.5px solid var(--grey);
+  border-bottom:1.5px solid var(--grey);transform:rotate(45deg) translate(-2px,-2px);transition:border-color .2s}
+.gsel-tlacitko:hover .gsel-sipka,.gsel-tlacitko[aria-expanded="true"] .gsel-sipka{border-color:var(--red)}
+
+/* Dvě třídy v selektoru schválně — Divi má na `.et-l--body ul` odrážky
+   a odsazení, které by jinak vyhrálo nad jednotřídním pravidlem. */
+.gsel .gsel-seznam{position:absolute;top:calc(100% + 10px);left:-14px;right:-14px;z-index:200;margin:0;padding:6px;
+  list-style:none;background:var(--graphite);border:1px solid var(--line);border-radius:3px;
+  box-shadow:0 18px 40px rgba(0,0,0,.5);max-height:min(52vh,320px);overflow-y:auto}
+.gsel .gsel-volba{padding:9px 12px;list-style:none;border-radius:2px;cursor:pointer;white-space:nowrap;
+  font-family:var(--f-body);font-size:.92rem;color:var(--offwhite);transition:background .15s,color .15s}
+.gsel-volba.je-aktivni{background:var(--red);color:#fff}
+.gsel-volba[aria-selected="true"]{font-weight:700}
+.gsel-volba[aria-selected="true"]::after{content:"✓";float:right;margin-left:14px;color:var(--gold)}
+.gsel-volba.je-aktivni[aria-selected="true"]::after{color:#fff}
+@media(prefers-reduced-motion:reduce){.gsel-volba,.gsel-sipka{transition:none}}
+
+/* Vlastní rozbalovací seznam na světlém povrchu (poptávka firemních akcí).
+   Barvu určuje povrch, ne třída — tmavá varianta výš zůstává výchozí a tahle
+   ji přebíjí jen uvnitř .sec-light. */
+.sec-light .gsel-tlacitko{color:var(--fg)}
+.sec-light .gsel-sipka{border-color:var(--muted)}
+.sec-light .gsel-tlacitko:hover .gsel-sipka,
+.sec-light .gsel-tlacitko[aria-expanded="true"] .gsel-sipka{border-color:var(--red)}
+.sec-light .gsel .gsel-seznam{background:#fff;border-color:var(--line-c);box-shadow:0 18px 40px rgba(20,22,25,.16)}
+.sec-light .gsel .gsel-volba{color:var(--fg)}
+.sec-light .gsel-volba.je-aktivni{background:var(--red);color:#fff}
+.sec-light .gsel-volba[aria-selected="true"]::after{color:var(--red)}
+.sec-light .gsel-volba.je-aktivni[aria-selected="true"]::after{color:#fff}
+
+/* Fluent Forms na světlém povrchu — poptávka firemních akcí stojí v sekci
+   sec-light, zatímco čekací list a poukazy jsou v tmavých. */
+.sec-light .fluentform .ff-el-form-control{background:rgba(20,22,25,.03);border:1px solid var(--line-c);color:var(--fg)}
+.sec-light .fluentform .ff-el-input--label label{color:var(--muted)}
+
+/* Závěrečná výzva na světlém pozadí (stránka „O nás"): nadpis je dlouhá věta,
+   přes celou šířku sekce se čte špatně. Drží se na polovině a zalomí se; sekce
+   na titulní straně (tmavá varianta) zůstává beze změny. */
+.sec-light.final h2{max-width:50%;margin-inline:auto}
+@media(max-width:959px){ .sec-light.final h2{max-width:none} }
+
+/* Divi drží modulům nadpisu `max-width:max-content` (stejně jako tlačítkům),
+   takže se nadpis sekce nemohl roztáhnout na šířku sloupce a zalomil se dřív,
+   než bylo potřeba. Nadpisy sekcí jdou po celé šířce — viz zásada výš. */
+.sec .et_pb_heading{max-width:none}
+
+/* ============================================================
+   JÍDELNÍČEK NA TMAVÉ SEKCI
+   ============================================================
+   Stránka Gastronomie má menu rozdělené na tři sekce a prostřední
+   (Paddock) sedí na tmavém podkladu. Karty jsou původně navržené pro
+   papírové pozadí — na černé by svítily jako bílé bloky, proto se
+   překlápějí do tmavé varianty. Červené podtržení skupin zůstává.
+   ============================================================ */
+.sec-dark .menu-day,
+.sec-dark .menu-stala{background:rgba(255,255,255,.04);border-color:rgba(255,255,255,.12)}
+.sec-dark .menu-day h3,
+.sec-dark .menu-stala .menu-grp-l{color:var(--offwhite)}
+.sec-dark .menu-n,
+.sec-dark .menu-c,
+.sec-dark .menu-polozky dt,
+.sec-dark .menu-polozky dd{color:var(--offwhite)}
+.sec-dark .menu-n small{color:var(--grey)}
+.sec-dark .menu-a{color:var(--gold)}
+.sec-dark .menu-grp-l{color:var(--grey)}
+.sec-dark .gastro-menu-panel{border-top-color:rgba(255,255,255,.12)}
+.sec-dark .menu-pozn,.sec-dark .gastro-menu-prazdno{color:var(--grey)}
+
+/* ============================================================
+   VLAJKOVÁ AKCE SEZÓNY (prime)
+   ============================================================
+   Karta se chová jako prime karta zážitků: jde přes celou šířku mřížky,
+   má červené podbarvení, značku v rohu a obrys trati v pravé třetině.
+   V úzkém koridoru se plánek zalomí pod text.
+   ============================================================ */
+.sez-cards .sez-card--prime{grid-column:1 / -1;position:relative;
+  background:linear-gradient(135deg,rgba(194,14,26,.20) 0%,rgba(194,14,26,.07) 55%,rgba(194,14,26,0) 100%);
+  border-color:rgba(194,14,26,.55)}
+.sec-light .sez-cards .sez-card--prime{
+  background:linear-gradient(135deg,rgba(194,14,26,.15) 0%,rgba(194,14,26,.05) 55%,#fff 100%)}
+.sez-card--prime h2,.sez-card--prime h3{font-size:clamp(1.5rem,2.6vw,2.1rem)}
+.sez-card--prime p{max-width:62ch}
+/* Text tvoří vlastní sloupec (.sez-card-obsah), plánek druhý — dva flex prvky
+   v poměru 2 : 1. Mřížka by tu byla vratká: karta má proměnný počet prvků
+   (datum a značka jen někdy) a plánek přes všechny řádky by si výšku
+   dopočítával sám ze sebe. */
+.sez-card--prime{flex-direction:row;align-items:center;gap:clamp(20px,2.6vw,40px)}
+.sez-card--prime .sez-card-obsah{flex:2 1 0;min-width:0;display:flex;flex-direction:column;gap:10px}
+.sez-card--prime .exp-mapa{flex:1 1 0;min-width:0}
+/* Značka v rohu — přebít pravidlo, které dává přímým potomkům karty relative. */
+.sez-card--prime>.x-prime,.sec-light .sez-card--prime>.x-prime{position:absolute}
+/* Horní řádek karty: datum a obsazenost vedle sebe vlevo, vpravo zůstává
+   místo pro značku. Datum zatím chybí (ročník bez termínu) a až se doplní,
+   řádek se jen rozšíří — nic se nepřeskládá. */
+.sez-card--prime .sez-card-top{display:flex;align-items:center;gap:12px;flex-wrap:wrap;
+  padding-right:90px;margin-bottom:4px}
+/* Hover přelije kartu červenou: obrys trati by v ní zanikl a značka ztratila
+   čitelnost, oboje se proto překlápí do bílé. */
+.sez-card--prime .exp-mapa img{transition:filter .45s}
+.sez-card--prime:hover .exp-mapa img{filter:brightness(0) invert(1)}
+.sez-card--prime:hover>.x-prime,
+.sec-light .sez-card--prime:hover>.x-prime{color:#fff;border-color:rgba(255,255,255,.65);
+  background:rgba(255,255,255,.18)}
+@media(max-width:959px){
+  .sez-card--prime{flex-direction:column;align-items:flex-start}
+  .sez-card--prime .exp-mapa{max-width:min(300px,60%)}
+}
+
+/* Řádek vlajkové akce v seznamu termínů — decentní zvýraznění, ne druhá karta. */
+.ev-row--prime{background:rgba(194,14,26,.08);border-left:3px solid var(--red)}
+.sec-light .ev-row--prime{background:rgba(194,14,26,.06)}
+.ev-row--prime .ev-name .ev-vybrat{font-weight:700}
+
+/* Sloupce patičky jsou od verze 3.29 menu WordPressu. Divi dává seznamům
+   v obsahu odrážky a odsazení (`.et-l--footer ul`), takže položky odskakovaly
+   od nadpisu sloupce — zdvojená třída to přebíjí bez !important. */
+.foot-col .foot-menu.foot-menu,
+.foot-col ul{list-style:none;margin:0;padding:0}
+.foot-col .foot-menu li{margin:0;padding:0}
+
+/* Kontakty v patičce (telefony, e-mail) jsou odkazy — dokud se na ně nenajede,
+   nejsou od okolního textu k rozeznání. Podtržení se ukáže na hover i při
+   fokusu z klávesnice, aby signál nebyl jen pro myš. */
+.foot-brand .data a{text-decoration:none;transition:color .2s}
+.foot-brand .data a:hover,
+.foot-brand .data a:focus-visible{color:var(--offwhite);text-decoration:underline;text-underline-offset:3px}
+/* Odkazy ve sloupcích menu se chovají stejně. */
+.foot-col a:hover,.foot-col a:focus-visible{text-decoration:underline;text-underline-offset:3px}
+
+/* ============================================================
+   DOPRAVA — bloky s kartami (stránka Jak se k nám dostanete)
+   ============================================================
+   Trasy byly dřív pod sebou v jednom sloupci. Teď jsou to karty:
+   první řádek nese čtyři trasy autem, druhý dva bloky vedle sebe
+   (hromadná doprava, parkování a taxi) po dvou kartách — na širokém
+   rozlišení jsou tedy v obou řádcích čtyři karty vedle sebe.
+   ============================================================ */
+.dp-bloky{display:flex;flex-direction:column;gap:clamp(32px,4vw,56px)}
+.dp-radek2{display:grid;grid-template-columns:1fr 1fr;gap:clamp(24px,2.6vw,40px)}
+.dp-blok > h2{font-size:clamp(1.5rem,2.6vw,2.1rem);margin:0 0 clamp(14px,1.6vw,22px)}
+.dp-mrizka{display:grid;gap:clamp(14px,1.6vw,22px)}
+.dp-mrizka--4{grid-template-columns:repeat(4,minmax(0,1fr))}
+.dp-mrizka--2{grid-template-columns:repeat(2,minmax(0,1fr))}
+.dp-karta{display:flex;flex-direction:column;background:var(--card);border:1px solid var(--card-line);
+  border-radius:2px;padding:clamp(18px,2vw,26px);min-width:0}
+.dp-karta h3{font-family:var(--f-head);text-transform:uppercase;font-size:1.05rem;color:var(--fg);
+  letter-spacing:.02em;margin:0 0 10px;line-height:1.2}
+.dp-karta p{color:var(--muted);font-size:.9rem;line-height:1.6;margin:0 0 8px}
+.dp-karta p:last-of-type{margin-bottom:0}
+.dp-karta .sec-more{margin-top:auto;padding-top:14px}
+
+@media(max-width:1279px){
+  .dp-mrizka--4{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media(max-width:959px){
+  .dp-radek2{grid-template-columns:1fr}
+}
+@media(max-width:640px){
+  .dp-mrizka--4,.dp-mrizka--2{grid-template-columns:1fr}
+}

@@ -84,6 +84,23 @@ ukazuje `voucher`, nevede na detail ani na web pořadatele, ale na kotvu
 `[grid_zazitky_karty misto="homepage|prehled"]` — výpis se pak řídí výhradně
 přepínači u zážitku v administraci (stránky 99/378/379 a 337/382/383).
 
+## Responzivita úzkých režimů (7. 9. 2026)
+
+Úpravy pro tablet na výšku (≤ 959 px) a mobil (≤ 640 px) jsou v `style.css`
+v bloku na konci souboru; širší rozlišení se nemění. K obsahu patří tři skripty:
+
+- `nadpisy-zlom.py` — `<br>` v nadpisech nahradí `<span class="zlom">`, které
+  se na širokém rozlišení chová jako zalomení a na úzkém jako mezera
+- `kickery-zlom.py` — vloží `<span class="zlom-uzky">` (opačné chování) do
+  dlouhých kickerů „T1 · Ubytování · 60 pokojů…" a „T5 · Gastronomie · …"
+- `sloucit-radky.py` — sloučí dva Divi řádky se stejnou třídou do jednoho
+  (karty firemních akcí `onas-grid`, karty letišť `dp-air-grid`), aby se
+  chovaly jako jedna mřížka na všech rozlišeních
+- `hamburger-spodni-listu.py` — přestaví rozbalené menu v šabloně hlavičky
+  (logo, pevná spodní lišta Rezervovat / Navigovat + jazyky + Volat)
+
+Ovládání srovnávací tabulky (šipky po sloupcích) je v `assets/js/grid.js`.
+
 ## Spuštění
 
 ```sh

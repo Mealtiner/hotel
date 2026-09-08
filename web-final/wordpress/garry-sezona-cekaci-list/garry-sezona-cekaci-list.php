@@ -3,7 +3,7 @@
  * Plugin Name:       GARRY – Sezónní nabídka a čekací list
  * Plugin URI:        https://www.garry.cz
  * Description:       Spravuje sezónní akce, štítky dostupnosti a čekací formulář s lokálním logem poptávek. Nabídku a voucherový formulář vloží shortcody grid_season_events a grid_voucher_form; původně vytvořeno pro GRID Hotel. Pro odesílání je nutné správně nastavit WordPress e-mail a případně CAPTCHA.
- * Version:           2.7.3
+ * Version:           2.11.0
  * Author:            GARRY Promotion
  * Author URI:        https://www.garry.cz
  * License:           Proprietary — Copyright © GARRY Promotion
@@ -20,7 +20,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
  * GARRY – Sezóna & čekací list v2 — data
  * ============================================================================ */
 
-define( 'GARRY_SEZ_VER', '2.7.3' );
+define( 'GARRY_SEZ_VER', '2.11.0' );
 define( 'GARRY_SEZ_OPT', 'garry_sezona' );
 define( 'GARRY_SEZ_LOG', 'garry_sezona_log' );
 /**
@@ -108,6 +108,9 @@ function garry_sez_get() {
 		if ( ! is_array( $e ) ) { unset( $o['events'][ $i ] ); continue; }
 		$o['events'][ $i ] = wp_parse_args( $e, array(
 			'url_en' => '', 'publikovano' => 1, 'nova' => 0, 'zdroj' => 'rucne', 'nacteno' => '',
+			/* Vlajková akce sezóny — vykresluje se jako široká karta v čele
+			   výpisu, v seznamu termínů a ve formuláři je také první. */
+			'prime' => 0,
 		) );
 	}
 	$o['events'] = array_values( $o['events'] );
@@ -123,7 +126,13 @@ function garry_sez_rozdel_akce( array $akce ) {
 		if ( $konec === '' || $konec >= $dnes ) $pripravovane[ $i ] = $e;
 		else $uplynule[ $i ] = $e;
 	}
-	uasort( $pripravovane, function ( $x, $y ) { return strcmp( $x['od'] ?? '', $y['od'] ?? '' ); } );
+	uasort( $pripravovane, function ( $x, $y ) {
+		/* Vlajková akce jde na první místo bez ohledu na datum. */
+		$px = empty( $x['prime'] ) ? 1 : 0;
+		$py = empty( $y['prime'] ) ? 1 : 0;
+		if ( $px !== $py ) { return $px <=> $py; }
+		return strcmp( $x['od'] ?? '', $y['od'] ?? '' );
+	} );
 	uasort( $uplynule, function ( $x, $y ) { return strcmp( $y['od'] ?? '', $x['od'] ?? '' ); } );
 	return array( $pripravovane, $uplynule );
 }
@@ -356,6 +365,7 @@ function garry_sez_sanitize( $in ) {
 			'den'  => sanitize_textarea_field( $e['den'][ $i ] ?? '' ),
 			'dde'  => sanitize_textarea_field( $e['dde'][ $i ] ?? '' ),
 			'url_en' => esc_url_raw( $e['url_en'][ $i ] ?? '' ),
+			'prime'       => empty( $e['prime'][ $i ] ) ? 0 : 1,
 			'publikovano' => empty( $e['publikovano'][ $i ] ) ? 0 : 1,
 			/* Příznak „nová akce" zhasne v okamžiku publikace — dokud akce visí
 			   nepublikovaná, zůstává v upozornění na nástěnce. */
@@ -554,7 +564,10 @@ function garry_sez_admin_page() {
 	        </div>
 	        <div class="sez-event-body" style="padding-top:10px;border-top:1px solid #eee;margin-top:8px">
 	        <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin-bottom:10px">
-	          <label>Od <input type="date" name="<?php echo $O; ?>[events][od][]" value="<?php echo esc_attr( $ev['od'] ); ?>"></label>
+	          <label class="sez-prime" title="Vlajková akce sezóny — vypíše se v čele karet i seznamu a zvýrazní se">
+            <input type="checkbox" name="<?php echo $O; ?>[events][prime][<?php echo (int) $poradi_pole; ?>]" value="1" <?php checked( ! empty( $ev['prime'] ) ); ?>> Prime
+          </label>
+          <label>Od <input type="date" name="<?php echo $O; ?>[events][od][]" value="<?php echo esc_attr( $ev['od'] ); ?>"></label>
 	          <label>Do <input type="date" name="<?php echo $O; ?>[events][do][]" value="<?php echo esc_attr( $ev['do'] ); ?>"></label>
 	          <label>Obsazenost <select name="<?php echo $O; ?>[events][stav][]" class="sez-ev-stav">
 	            <?php foreach ( $states as $k => $st ) printf( '<option value="%s" %s>%s</option>', esc_attr( $k ), selected( $ev['stav'], $k, false ), esc_html( $st['cz'] ) ); ?>
@@ -821,7 +834,14 @@ function garry_sez_render( $atts = array() ) {
 		$konec = $e['do'] ?: $e['od'];
 		return $konec === '' || $konec >= $today;
 	} ) );
-	usort( $events, function ( $x, $y ) { return strcmp( $x['od'], $y['od'] ); } );
+	usort( $events, function ( $x, $y ) {
+		/* Vlajková akce stojí v čele výpisu i seznamu termínů, ať má datum
+		   kdykoli (nebo vůbec). */
+		$px = empty( $x['prime'] ) ? 1 : 0;
+		$py = empty( $y['prime'] ) ? 1 : 0;
+		if ( $px !== $py ) { return $px <=> $py; }
+		return strcmp( $x['od'], $y['od'] );
+	} );
 	$limit = isset( $atts['limit'] ) ? (int) $atts['limit'] : (int) ( $s['max_pripravovanych'] ?? 5 );
 	if ( $limit > 0 ) $events = array_slice( $events, 0, $limit );
 	if ( ! $events ) return '<style>#sezona{display:none}</style>';
@@ -859,41 +879,93 @@ function garry_sez_render( $atts = array() ) {
 			array( 'Event details', 'Booking & waiting list' ),
 			array( 'Event-Details', 'Buchung & Warteliste' ),
 		)[ $li ]; ?>
-	<div class="sez-cards">
+	<?php
+	/* Přístupnost: skupina karet je seznam s popiskem, aby čtečka ohlásila,
+	   co je to za blok a kolik položek obsahuje (WCAG 1.3.1). */
+	$popis_karty = array( 'Nadcházející akce na okruhu', 'Upcoming events at the circuit', 'Kommende Veranstaltungen an der Rennstrecke' )[ $li ];
+	?>
+	<div class="sez-cards" role="list" aria-label="<?php echo esc_attr( $popis_karty ); ?>">
 	  <?php foreach ( $events as $e ) :
 			$name  = $e[ array( 'cz', 'en', 'de' )[ $li ] ] ?: $e['cz'];
 			$perex = $e[ array( 'pcz', 'pen', 'pde' )[ $li ] ] ?: $e['pcz'];
 			$st = $STATES[ $e['stav'] ] ?? null; if ( ! $st ) continue; ?>
-	  <div class="sez-card">
-	    <div class="sez-card-top"><span class="ev-date"><?php echo esc_html( garry_sez_fmt_range( $e['od'], $e['do'] ) ); ?></span>
+	  <?php
+	  $je_prime = ! empty( $e['prime'] );
+	  $datum    = garry_sez_fmt_range( $e['od'], $e['do'] );
+	  ?>
+	  <div class="sez-card<?php echo $je_prime ? ' sez-card--prime' : ''; ?>" role="listitem">
+	    <?php if ( $je_prime ) : ?><span class="x-prime">Prime</span><div class="sez-card-obsah"><?php endif; ?>
+	    <div class="sez-card-top"><?php if ( $datum !== '' ) : ?><span class="ev-date"><?php echo esc_html( $datum ); ?></span><?php endif; ?>
 	    <span class="ev-status <?php echo esc_attr( sanitize_html_class( $e['stav'] ) . ' ' . $st['legacy'] ); ?>"><?php echo esc_html( garry_sez_state_label( $st, $li ) ); ?></span></div>
-	    <h3><?php echo esc_html( $name ); ?></h3>
+	    <h2><?php echo esc_html( $name ); ?></h2>
 	    <?php $detail = $e[ array( 'dcz', 'den', 'dde' )[ $li ] ] ?? ''; if ( $detail === '' ) $detail = ( $e['dcz'] ?? '' ) ?: $perex; ?>
 	    <p><?php echo esc_html( $detail ); ?></p>
 	    <div class="sez-card-links">
 	      <?php $odkaz_akce = garry_sez_url_akce( $e, $li ); ?><?php if ( $odkaz_akce ) : ?><a class="sec-more" href="<?php echo esc_url( $odkaz_akce ); ?>" target="_blank" rel="noopener"><?php echo esc_html( $tx[0] ); ?> <span aria-hidden="true">↗</span></a><?php endif; ?>
 	      <a class="sec-more" href="#cekaci-list"><?php echo esc_html( $tx[1] ); ?> <span aria-hidden="true">↓</span></a>
 	    </div>
+	    <?php if ( $je_prime ) : ?>
+	    </div><?php /* .sez-card-obsah — text vlajkové karty tvoří vlastní sloupec */ ?>
+	    <?php /* Obrys trati je dekorace — název i popis nese text vedle, proto alt="". */ ?>
+	    <div class="exp-mapa"><img src="<?php echo esc_url( get_stylesheet_directory_uri() . '/assets/foto/grid-okruh-obrys.svg' ); ?>" alt="" width="192" height="120" loading="lazy"></div>
+	    <?php endif; ?>
 	  </div>
 	  <?php endforeach; ?>
 	</div>
 	<?php endif; ?>
 	<?php if ( $show_list ) : ?>
 	<div class="season"<?php echo $rezim === 'vse' ? ' id="cekaci-list"' : ''; ?>>
-	  <div class="ev-list reveal d1 in" id="evList">
+	  <?php $popis_seznam = array( 'Termíny akcí a dostupnost pokojů', 'Event dates and room availability', 'Veranstaltungstermine und Zimmerverfügbarkeit' )[ $li ]; ?>
+	  <div class="ev-list reveal d1 in" id="evList" role="list" aria-label="<?php echo esc_attr( $popis_seznam ); ?>">
 	    <?php foreach ( $events as $e ) :
 			$name  = $e[ array( 'cz', 'en', 'de' )[ $li ] ] ?: $e['cz'];
 			$perex = $e[ array( 'pcz', 'pen', 'pde' )[ $li ] ] ?: $e['pcz'];
 			$st = $STATES[ $e['stav'] ] ?? null; if ( ! $st ) continue; ?>
-	    <div class="ev-row" role="button" tabindex="0" data-ev="<?php echo esc_attr( $name ); ?>">
+	    <?php
+	    /* Přístupnost: řádek byl <div role="button">, uvnitř kterého ležel odkaz
+	       na web pořadatele — vnořené interaktivní prvky (WCAG 4.1.2). Ovládacím
+	       prvkem je teď samotný název akce jako <button>; řádek zůstává klikací
+	       jen pro myš (nemá roli ani tabindex, takže do sekvence nevstupuje). */
+	    $popis_vyber = array(
+	    	sprintf( 'Vybrat termín %s pro rezervaci', $name ),
+	    	sprintf( 'Select the %s date for booking', $name ),
+	    	sprintf( 'Termin %s für die Buchung wählen', $name ),
+	    )[ $li ];
+	    $popis_web = array( 'Web pořadatele (nové okno)', "Organiser's website (new window)", 'Website des Veranstalters (neues Fenster)' )[ $li ];
+	    ?>
+	    <div class="ev-row<?php echo empty( $e['prime'] ) ? '' : ' ev-row--prime'; ?>" role="listitem" data-ev="<?php echo esc_attr( $name ); ?>">
 	      <span class="ev-date"><?php echo esc_html( garry_sez_fmt_range( $e['od'], $e['do'] ) ); ?></span>
-	      <span class="ev-name"><?php echo esc_html( $name ); ?><small><?php echo esc_html( $perex ); ?><?php $odkaz_akce = garry_sez_url_akce( $e, $li ); ?><?php if ( $odkaz_akce ) : ?> <a class="ev-ext" href="<?php echo esc_url( $odkaz_akce ); ?>" target="_blank" rel="noopener" onclick="event.stopPropagation()">↗</a><?php endif; ?></small></span>
+	      <span class="ev-name"><button type="button" class="ev-vybrat" data-ev="<?php echo esc_attr( $name ); ?>" aria-label="<?php echo esc_attr( $popis_vyber ); ?>"><?php echo esc_html( $name ); ?></button><small><?php echo esc_html( $perex ); ?><?php $odkaz_akce = garry_sez_url_akce( $e, $li ); ?><?php if ( $odkaz_akce ) : ?> <a class="ev-ext" href="<?php echo esc_url( $odkaz_akce ); ?>" target="_blank" rel="noopener" aria-label="<?php echo esc_attr( $popis_web ); ?>" onclick="event.stopPropagation()"><span aria-hidden="true">↗</span></a><?php endif; ?></small></span>
 	      <span class="ev-meta"><span class="ev-status <?php echo esc_attr( sanitize_html_class( $e['stav'] ) . ' ' . $st['legacy'] ); ?>"><?php echo esc_html( garry_sez_state_label( $st, $li ) ); ?></span>
 	      <span class="ev-cta"><?php echo esc_html( garry_sez_state_cta( $st, $li ) ); ?></span></span>
 	    </div>
 	    <?php endforeach; ?>
 	  </div>
-	  <div class="waitbox reveal d2 in">
+	  <?php
+	  /* Texty pro jednotlivé stavy termínu si bere skript motivu z data-atributů —
+	     dřív je měl natvrdo česky, takže se na anglické a německé verzi po kliknutí
+	     na termín objevila čeština. */
+	  $stavy = array(
+	  	array( 'Pro tento termín máme volné pokoje. Rezervujte svůj výhled na trať.',
+	  	       'Poslední volné pokoje pro tento termín. Rezervujte co nejdřív.',
+	  	       'Tento termín je vyprodaný. Zapište se na čekací list — ozveme se, jakmile se pokoj uvolní.',
+	  	       'Rezervovat pokoj', 'Zapsat na čekací list' ),
+	  	array( 'We have rooms available for this date. Book your view of the track.',
+	  	       'Only a few rooms left for this date. Book as soon as you can.',
+	  	       "This date is sold out. Join the waiting list — we'll be in touch as soon as a room opens up.",
+	  	       'Book a room', 'Join the waiting list' ),
+	  	array( 'Für diesen Termin haben wir freie Zimmer. Buchen Sie Ihren Blick auf die Strecke.',
+	  	       'Für diesen Termin sind nur noch wenige Zimmer frei. Buchen Sie möglichst bald.',
+	  	       'Dieser Termin ist ausverkauft. Tragen Sie sich in die Warteliste ein — wir melden uns, sobald ein Zimmer frei wird.',
+	  	       'Zimmer buchen', 'Auf die Warteliste' ),
+	  )[ $li ];
+	  ?>
+	  <div class="waitbox reveal d2 in"
+	    data-stav-free="<?php echo esc_attr( $stavy[0] ); ?>"
+	    data-stav-few="<?php echo esc_attr( $stavy[1] ); ?>"
+	    data-stav-full="<?php echo esc_attr( $stavy[2] ); ?>"
+	    data-cta-rezervace="<?php echo esc_attr( $stavy[3] ); ?>"
+	    data-cta-list="<?php echo esc_attr( $stavy[4] ); ?>">
 	    <span class="kicker"><?php echo $t[0]; ?></span>
 	    <h3 id="wbTitle"><?php echo esc_html( $t[1] ); ?></h3>
 	    <p class="wb-sub" id="wbSub"><?php echo esc_html( $t[2] ); ?></p>
@@ -1093,16 +1165,28 @@ add_filter( 'fluentform/rendering_field_data_select', function ( $data, $form ) 
 	if ( ( $data['attributes']['name'] ?? '' ) !== 'akce' ) return $data;
 	$li = array( 'cs' => 0, 'en' => 1, 'de' => 2 )[ $hit[1] ] ?? 0;
 	$today = current_time( 'Y-m-d' );
+	$akce = garry_sez_get()['events'];
+	/* Stejné pořadí jako ve výpisu na webu: vlajková akce první, pak podle data. */
+	usort( $akce, function ( $x, $y ) {
+		$px = empty( $x['prime'] ) ? 1 : 0;
+		$py = empty( $y['prime'] ) ? 1 : 0;
+		if ( $px !== $py ) { return $px <=> $py; }
+		return strcmp( $x['od'] ?? '', $y['od'] ?? '' );
+	} );
 	$opts = array();
-	foreach ( garry_sez_get()['events'] as $e ) {
+	foreach ( $akce as $e ) {
 		/* Nepublikovaná akce se nesmí nabízet ani tady — čekací list by přijímal
 		   přihlášky na termín, který na webu ještě není. */
 		if ( empty( $e['publikovano'] ) ) continue;
-		if ( ( ( $e['do'] ?: $e['od'] ) ) < $today ) continue;
+		$konec = $e['do'] ?: $e['od'];
+		/* Akce bez data (typicky ohlášený ročník bez termínu) se nefiltruje —
+		   prázdný řetězec by se v porovnání choval jako dávno minulý. */
+		if ( '' !== $konec && $konec < $today ) continue;
 		$name = $e[ array( 'cz', 'en', 'de' )[ $li ] ] ?: $e['cz'];
 		if ( $name === '' ) continue;
+		$datum = garry_sez_fmt_range( $e['od'], $e['do'] );
 		$opts[] = array(
-			'label'      => $name . ' · ' . garry_sez_fmt_range( $e['od'], $e['do'] ),
+			'label'      => '' !== $datum ? $name . ' · ' . $datum : $name,
 			'value'      => $name,
 			'calc_value' => '',
 		);

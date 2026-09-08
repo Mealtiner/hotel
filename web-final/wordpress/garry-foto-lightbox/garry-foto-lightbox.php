@@ -3,7 +3,7 @@
  * Plugin Name:       GARRY – Foto lightbox
  * Plugin URI:        https://www.garry.cz
  * Description:       Lightbox pro fotogalerie s nastavitelným pozadím (plná barva i přechody), logem webu, popiskem nad snímkem, doprovodnými informacemi pod ním a vodorovným ukazatelem pořadí ve stylu trackovače na trati. Shortcode, Elementor widget i Divi modul.
- * Version:           1.2.0
+ * Version:           1.4.0
  * Author:            GARRY Promotion
  * Author URI:        https://www.garry.cz
  * License:           Proprietary — Copyright © GARRY Promotion
@@ -15,7 +15,7 @@
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
-define( 'GFLB_VERSION', '1.2.0' );
+define( 'GFLB_VERSION', '1.4.0' );
 define( 'GFLB_FILE', __FILE__ );
 define( 'GFLB_DIR', plugin_dir_path( __FILE__ ) );
 define( 'GFLB_URL', plugin_dir_url( __FILE__ ) );
@@ -443,7 +443,7 @@ function gflb_render_kontejner() {
   <div class="glb-nahledy" hidden>
     <div class="glb-nahledy-pas"></div>
   </div>
-  <a class="glb-dalsi" href="#" hidden>
+  <a class="glb-dalsi" hidden>
     <span class="glb-dalsi-text"></span>
     <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M9 4l8 8-8 8"/></svg>
   </a>
@@ -507,19 +507,36 @@ function gflb_sc_galerie( $atts = array() ) {
 		'<div class="glb-galerie" data-glb-skupina="%s" style="--glb-sloupce:%d;--glb-mezera:%dpx">',
 		esc_attr( $skupina ), $sloupce, $mezera
 	);
+	$poradi = 1;
+	$celkem = count( $ids );
 	foreach ( $ids as $id ) {
 		$plna = wp_get_attachment_image_url( $id, $a['velikost'] );
 		if ( ! $plna ) continue;
 		$priloha = get_post( $id );
+		/* Přístupnost: dlaždice je odkaz, který otevírá lightbox. Bez názvu
+		   ji čtečka ohlásí jen jako „odkaz". Název skládáme z titulku fotky
+		   a pořadí, alt obrázku necháváme prázdný, aby se text nečetl dvakrát. */
+		$titulek = $priloha ? $priloha->post_title : '';
+		$popisek = $priloha ? wp_get_attachment_caption( $id ) : '';
+		$nazev   = trim( $popisek ? $popisek : $titulek );
+		$nazev   = sprintf(
+			/* translators: 1: název fotky, 2: pořadí, 3: počet fotek */
+			_x( '%1$s — zvětšit fotku %2$d z %3$d', 'popis dlaždice galerie', 'garry-foto-lightbox' ),
+			$nazev ? $nazev : __( 'Fotka', 'garry-foto-lightbox' ),
+			$poradi,
+			$celkem
+		);
 		printf(
-			'<a href="%s" class="glb-dlazdice" data-lightbox="%s" data-popisek="%s" data-popis="%s" data-titulek="%s">%s</a>',
+			'<a href="%s" class="glb-dlazdice" data-lightbox="%s" data-popisek="%s" data-popis="%s" data-titulek="%s" aria-label="%s">%s</a>',
 			esc_url( $plna ),
 			esc_attr( $skupina ),
-			esc_attr( $priloha ? wp_get_attachment_caption( $id ) : '' ),
+			esc_attr( $popisek ),
 			esc_attr( $priloha ? $priloha->post_content : '' ),
-			esc_attr( $priloha ? $priloha->post_title : '' ),
-			wp_get_attachment_image( $id, $a['nahled'], false, array( 'loading' => 'lazy', 'alt' => get_post_meta( $id, '_wp_attachment_image_alt', true ) ) )
+			esc_attr( $titulek ),
+			esc_attr( $nazev ),
+			wp_get_attachment_image( $id, $a['nahled'], false, array( 'loading' => 'lazy', 'alt' => '' ) )
 		);
+		$poradi++;
 	}
 	echo '</div>';
 	return ob_get_clean();

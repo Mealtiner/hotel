@@ -23,6 +23,7 @@ final class FrameworkBridge {
 		'dashicons-admin-appearance'   => 'f100',
 		'dashicons-admin-comments'     => 'f117',
 		'dashicons-admin-multisite'    => 'f541',
+		'dashicons-location-alt'       => 'f507',
 		'dashicons-editor-textcolor'   => 'f215',
 		'dashicons-editor-expand'      => 'f211',
 		'dashicons-editor-contract'    => 'f506',

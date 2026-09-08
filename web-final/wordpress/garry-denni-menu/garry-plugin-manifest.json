@@ -2,7 +2,7 @@
   "schema_version": "2.3",
   "slug": "garry-denni-menu",
   "name": "GARRY – Týdenní menu",
-  "plugin_version": "1.9.0",
+  "plugin_version": "1.13.0",
   "framework_protocol": "2.4.0",
   "framework_minimum": "2.4.0",
   "icon": {

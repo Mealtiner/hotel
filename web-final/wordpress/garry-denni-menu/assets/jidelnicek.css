@@ -1,0 +1,30 @@
+/* GARRY – Denní menu: sazba dlouhých nabídek do sloupců.
+ *
+ * Patří k pluginu, ne k motivu — vykreslování jídelníčku (počet sloupců,
+ * vyrovnání výšek, zalamování položek a klíčů) je věc pluginu, aby se
+ * chovalo stejně kdekoli se nabídka vypíše.
+ */
+/* Stálá nabídka, večerní menu a nápojový lístek jsou JEDNA dlouhá karta.
+   Uvnitř se sází do sloupců (4 / 3 / 2 / 1 podle šířky) a prohlížeč je sám
+   vyrovná na stejnou výšku — každý sloupec tedy nese zhruba 1/N celého menu.
+   Skupiny se přes sloupce lámat smějí (jinak by výšky nešly srovnat), ale
+   jednotlivá položka nikdy: `break-inside:avoid` na .menu-item drží název
+   i cenu pohromadě. Popisek skupiny se nesmí utrhnout na konec sloupce bez
+   položek pod sebou, proto `break-after:avoid`. */
+.menu-stala{columns:4;column-gap:clamp(22px,2.4vw,38px);
+  background:#fff;border:1px solid rgba(20,22,25,.12);border-radius:6px;
+  padding:clamp(18px,2vw,28px)}
+/* Odstup mezi skupinami je padding, ne margin: margin na zlomu sloupce
+   prohlížeč přenese na začátek dalšího sloupce a klíč pak odskočil dolů,
+   zatímco sousední sloupce začínaly u horní hrany. */
+.menu-stala .menu-grp{display:block;margin:0;padding:0 0 clamp(20px,2.2vw,30px);break-inside:auto}
+.menu-stala .menu-grp:last-child{padding-bottom:0}
+.menu-stala .menu-grp-l{display:block;font-family:var(--f-head);font-weight:700;font-size:1.02rem;letter-spacing:.02em;text-transform:uppercase;color:var(--ink,#16181B);border-bottom:2px solid var(--red);padding-bottom:7px;margin-bottom:9px;
+  break-after:avoid;-webkit-column-break-after:avoid;break-inside:avoid}
+.menu-stala .menu-item{break-inside:avoid;-webkit-column-break-inside:avoid}
+/* Skupina, která pokračuje v dalším sloupci, nesmí začínat přilepená k hornímu
+   okraji — první položka po zlomu si drží stejný odstup jako pod popiskem. */
+.menu-stala .menu-polozky{margin:0}
+@media(max-width:1279px){.menu-stala{columns:3}}
+@media(max-width:959px){.menu-stala{columns:2}}
+@media(max-width:640px){.menu-stala{columns:1}}

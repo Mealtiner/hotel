@@ -503,7 +503,9 @@ function grid_sc_booking() {
 	    <div class="bk-field"><label for="bk-in">Příjezd</label><input type="date" id="bk-in" value="2026-08-07"></div>
 	    <div class="bk-field"><label for="bk-out">Odjezd</label><input type="date" id="bk-out" value="2026-08-09"></div>
 	    <div class="bk-field"><label for="bk-guests">Hosté</label><select id="bk-guests"><option>1 host</option><option selected>2 hosté</option><option>3 hosté</option><option>4 hosté</option><option>5+ hostů</option></select></div>
-	    <div class="bk-field"><label for="bk-pokoj">Typ pokoje</label><select id="bk-pokoj"><option>Standard</option><option selected>Superior</option><option>Superior Plus</option><option>Apartmá</option></select></div>
+	    <?php /* Nabídka typů pokojů je dynamická (kategorie pokojů) — viz
+	             [grid_vyber_pokoje] v pluginu Components. */ ?>
+	    <?php echo do_shortcode( '[grid_vyber_pokoje]' ); ?>
 	    <div class="bk-note">Nejlepší cena<br>přímo u hotelu</div>
 	    <div class="bk-submit"><a class="btn" href="<?php echo esc_url( grid_rezervace_url() ); ?>">Zkontrolovat dostupnost</a></div>
 	  </form>
@@ -561,7 +563,7 @@ function grid_sc_pribeh() {
 	      <div class="stat-row">
 	        <div class="stat"><span class="data">64</span><span>pokojů &amp; apartmá</span></div>
 	        <div class="stat"><span class="data">5,4 km</span><span>délka okruhu</span></div>
-	        <div class="stat"><span class="data">0 m</span><span>od trati</span></div>
+	        <div class="stat"><span class="data">1 m</span><span>od trati</span></div>
 	      </div>
 	      <div style="margin-top:26px"><a class="btn btn-ghost" href="<?php echo esc_url( home_url('/o-nas/') ); ?>">Celý příběh hotelu →</a></div>
 	    </div>
@@ -794,13 +796,21 @@ function grid_menu_tydne() {
 	        <?php
 	        $grp_lbl = array( 'polevky' => 'Polévky', 'hlavni' => 'Hlavní chody', 'dezerty' => 'Dezerty', 'napoje' => 'Nápoje' );
 	        foreach ( $grp_lbl as $k => $lbl ) : if ( empty( $d[ $k ] ) ) continue; ?>
-	        <div class="menu-grp"><span class="menu-grp-l"><?php echo esc_html( $lbl ); ?></span>
+	        <?php
+	        /* Přístupnost: jídlo a jeho cena jsou dvojice pojem–popis, ne dva
+	           nesouvisející texty. Skupina je popsaná svým vlastním nadpiskem
+	           přes aria-labelledby (WCAG 1.3.1). */
+	        $grp_id = 'menu-' . sanitize_html_class( $d['den'] ) . '-' . $k;
+	        ?>
+	        <div class="menu-grp"><span class="menu-grp-l" id="<?php echo esc_attr( $grp_id ); ?>"><?php echo esc_html( $lbl ); ?></span>
+	          <dl class="menu-polozky" aria-labelledby="<?php echo esc_attr( $grp_id ); ?>">
 	          <?php foreach ( $d[ $k ] as $item ) : ?>
 	          <div class="menu-item">
-	            <span class="menu-n"><?php echo esc_html( $item['nazev'] ); ?><?php if ( ! empty( $item['alergeny'] ) ) : ?> <em class="menu-a">(<?php echo esc_html( $item['alergeny'] ); ?>)</em><?php endif; ?><?php if ( ! empty( $item['popis'] ) ) : ?><small><?php echo esc_html( $item['popis'] ); ?></small><?php endif; ?></span>
-	            <?php if ( ! empty( $item['cena'] ) ) : ?><span class="menu-c"><?php echo esc_html( $item['cena'] ); ?></span><?php endif; ?>
+	            <dt class="menu-n"><?php echo esc_html( $item['nazev'] ); ?><?php if ( ! empty( $item['alergeny'] ) ) : ?> <em class="menu-a"><span class="vh">alergeny: </span>(<?php echo esc_html( $item['alergeny'] ); ?>)</em><?php endif; ?><?php if ( ! empty( $item['popis'] ) ) : ?><small><?php echo esc_html( $item['popis'] ); ?></small><?php endif; ?></dt>
+	            <?php if ( ! empty( $item['cena'] ) ) : ?><dd class="menu-c"><?php echo esc_html( $item['cena'] ); ?></dd><?php endif; ?>
 	          </div>
 	          <?php endforeach; ?>
+	          </dl>
 	        </div>
 	        <?php endforeach; ?>
 	      </div>
@@ -1011,9 +1021,9 @@ function grid_sc_footer() {
 	        [grid_paticka_kontakt]
 	        [grid_socials]
 	      </div>
-	      <div class="foot-col"><h4>Hotel</h4><ul><li><a href="<?php echo esc_url( grid_link_pref( array('o-nas'), '#pribeh' ) ); ?>">O hotelu</a></li><li><a href="<?php echo esc_url( grid_link_pref( array('ubytovani','pokoje','pokoje-a-apartmany'), '#pokoje' ) ); ?>">Pokoje &amp; apartmá</a></li><li><a href="<?php echo esc_url( grid_link_pref( array('gastronomie','gastro'), '#restaurace' ) ); ?>">Gastronomie</a></li><li><a href="<?php echo esc_url( grid_link_pref( array('zazitky-u-okruhu','zazitky','aktivity'), '#zazitky' ) ); ?>">Zážitky &amp; dárkové poukazy</a></li><li><a href="<?php echo esc_url( grid_link_pref( array('sezona-2026','sezona'), '#sezona' ) ); ?>">Sezóna</a></li><li><a href="<?php echo esc_url( grid_link_pref( array('firemni-akce-svatby','firemni'), '#firemni' ) ); ?>">Firemní akce &amp; svatby</a></li></ul></div>
-	      <div class="foot-col"><h4>Informace</h4><ul><li><a href="<?php echo esc_url($u_dop); ?>">Jak se k nám dostanete</a></li><li><a href="<?php echo esc_url($u_dop); ?>">Parkování &amp; shuttle bus</a></li><li><a href="<?php echo esc_url($u_kar); ?>">Kariéra</a></li><li><a href="<?php echo esc_url($u_dot); ?>">Dotazník spokojenosti</a></li><li><a href="<?php echo esc_url($u_pod); ?>">Všeobecné obchodní podmínky</a></li><li><a href="<?php echo esc_url($u_och); ?>">Ochrana osobních údajů</a></li></ul></div>
-	      <div class="foot-col"><h4>Event alert &amp; Newsletter</h4><p style="color:var(--grey);font-size:.86rem">Nezmeškej termíny sezóny a speciální balíčky.</p><form class="newsletter" onsubmit="return false"><input type="email" placeholder="Tvůj e-mail" aria-label="E-mail pro newsletter"><button type="submit" onclick="return false">Odebírat</button></form><p style="color:var(--grey-dim);font-size:.78rem;margin-top:18px">GRH s.r.o.<br>IČ: <?php echo esc_html($ico); ?> · DIČ: <?php echo esc_html($dic); ?><br><?php echo esc_html($spis); ?></p></div>
+	      <div class="foot-col"><h2>Hotel</h2><ul><li><a href="<?php echo esc_url( grid_link_pref( array('o-nas'), '#pribeh' ) ); ?>">O hotelu</a></li><li><a href="<?php echo esc_url( grid_link_pref( array('ubytovani','pokoje','pokoje-a-apartmany'), '#pokoje' ) ); ?>">Pokoje &amp; apartmá</a></li><li><a href="<?php echo esc_url( grid_link_pref( array('gastronomie','gastro'), '#restaurace' ) ); ?>">Gastronomie</a></li><li><a href="<?php echo esc_url( grid_link_pref( array('zazitky-u-okruhu','zazitky','aktivity'), '#zazitky' ) ); ?>">Zážitky &amp; dárkové poukazy</a></li><li><a href="<?php echo esc_url( grid_link_pref( array('sezona-2026','sezona'), '#sezona' ) ); ?>">Sezóna</a></li><li><a href="<?php echo esc_url( grid_link_pref( array('firemni-akce-svatby','firemni'), '#firemni' ) ); ?>">Firemní akce &amp; svatby</a></li></ul></div>
+	      <div class="foot-col"><h2>Informace</h2><ul><li><a href="<?php echo esc_url($u_dop); ?>">Jak se k nám dostanete</a></li><li><a href="<?php echo esc_url($u_dop); ?>">Parkování &amp; shuttle bus</a></li><li><a href="<?php echo esc_url($u_kar); ?>">Kariéra</a></li><li><a href="<?php echo esc_url($u_dot); ?>">Dotazník spokojenosti</a></li><li><a href="<?php echo esc_url($u_pod); ?>">Všeobecné obchodní podmínky</a></li><li><a href="<?php echo esc_url($u_och); ?>">Ochrana osobních údajů</a></li></ul></div>
+	      <div class="foot-col"><h2>Event alert &amp; Newsletter</h2><p style="color:var(--grey);font-size:.86rem">Nezmeškej termíny sezóny a speciální balíčky.</p><form class="newsletter" onsubmit="return false"><input type="email" placeholder="Tvůj e-mail" aria-label="E-mail pro newsletter"><button type="submit" onclick="return false">Odebírat</button></form><p style="color:var(--grey-dim);font-size:.78rem;margin-top:18px">GRH s.r.o.<br>IČ: <?php echo esc_html($ico); ?> · DIČ: <?php echo esc_html($dic); ?><br><?php echo esc_html($spis); ?></p></div>
 	    </div>
 	    <div class="foot-bottom"><div class="legal"><a href="<?php echo esc_url($u_och); ?>">Ochrana osobních údajů</a><a href="<?php echo esc_url($u_coo); ?>">Cookies</a><a href="<?php echo esc_url($u_pod); ?>">Obchodní podmínky</a><span>© <?php echo esc_html( date('Y') ); ?> GRID HOTEL</span></div><a class="build-tag" href="https://www.garry.cz" target="_blank" rel="noopener">Web &amp; design — GARRY Promotion</a></div>
 	  </div>
@@ -1145,7 +1155,7 @@ function grid_sc_poukazy() {
 		$h = '<div class="vou-grid">';
 		foreach ( $rows as $r ) {
 			$h .= '<div class="vou-card"><span class="vou-price">' . esc_html( $r[0] ) . '&nbsp;Kč</span>'
-			   . '<h4>' . esc_html( $r[1] ) . '</h4><p>' . esc_html( $r[2] ) . '</p></div>';
+			   . '<h3>' . esc_html( $r[1] ) . '</h3><p>' . esc_html( $r[2] ) . '</p></div>';
 		}
 		return $h . '</div>';
 	};
@@ -1220,23 +1230,23 @@ function grid_sc_doprava() {
 	    <h2 style="font-size:clamp(2rem,4vw,3.4rem);margin:14px 0 6px">Nejbližší letiště</h2>
 	    <div class="dp-air-grid">
 	      <div class="dp-airport">
-	        <div class="dp-head"><h4>Letiště Brno</h4><span class="dp-badge">25 km</span></div>
+	        <div class="dp-head"><h3>Letiště Brno</h3><span class="dp-badge">25 km</span></div>
 	        <p>Použijte dálnici D1 a exit 182 Kývalka, poté sledujte směrovky „Grand Prix" či „Paddock".</p>
 	        <span class="dp-vign">Dálniční známka: CZ</span>
 	      </div>
 	      <div class="dp-airport">
-	        <div class="dp-head"><h4>Praha – Ruzyně</h4><span class="dp-badge">210 km</span></div>
+	        <div class="dp-head"><h3>Praha – Ruzyně</h3><span class="dp-badge">210 km</span></div>
 	        <p>Pražský okruh, dále dálnice D1 a exit 178 Ostrovačice, poté směrovky „Grand Prix" či „Paddock".</p>
 	        <span class="dp-vign">Dálniční známka: CZ</span>
 	      </div>
 	      <div class="dp-airport">
-	        <div class="dp-head"><h4>Vídeň – Schwechat</h4><span class="dp-badge">160–200 km</span></div>
+	        <div class="dp-head"><h3>Vídeň – Schwechat</h3><span class="dp-badge">160–200 km</span></div>
 	        <p><strong style="color:var(--fg)">Trasa 1:</strong> A4 (E85) směr Bratislava → D2 do Brna → D1, exit 182 Kývalka (200 km).</p>
 	        <p><strong style="color:var(--fg)">Trasa 2:</strong> A4 → A23 → S1 → A5 → silnice 7 směr Brno → I/52 (R52) → D1 směr Praha, exit 182 Kývalka (160 km).</p>
 	        <span class="dp-vign">Dálniční známky: AT, SK, CZ</span>
 	      </div>
 	      <div class="dp-airport">
-	        <div class="dp-head"><h4>Bratislava</h4><span class="dp-badge">150 km</span></div>
+	        <div class="dp-head"><h3>Bratislava</h3><span class="dp-badge">150 km</span></div>
 	        <p>Dálnicí D2 do Brna a poté dálnicí D1 směr Praha, exit 182 Kývalka.</p>
 	        <span class="dp-vign">Dálniční známky: SK, CZ</span>
 	      </div>
@@ -1295,7 +1305,9 @@ function grid_sc_rezervace() {
 	    <p style="max-width:70ch;color:var(--muted);margin-bottom:28px">Takto bude vypadat online rezervace přímo na webu. <strong style="color:var(--ink)">Níže je ukázka — ostrý rezervační systém (Bookolo) se vloží při nasazení na ostrém webu.</strong></p>
 
 	    <div class="bkmock" aria-hidden="true">
-	      <div class="bkmock-wm"><span>UKÁZKA</span><small>rezervační systém se nasadí na ostrém webu</small></div>
+	      <?php /* Vodoznak je dekorace nad ukázkovým widgetem — pro čtečky skrytý,
+	         informaci nese text sekce (WCAG 1.4.3 se na skrytý obsah nevztahuje). */ ?>
+	      <div class="bkmock-wm" aria-hidden="true"><span>UKÁZKA</span><small>rezervační systém se nasadí na ostrém webu</small></div>
 
 	      <div class="bkmock-topbar">
 	        <span class="bkmock-tab">Pokoje</span>
@@ -1321,7 +1333,7 @@ function grid_sc_rezervace() {
 	          <div class="bkmock-card">
 	            <div class="bkmock-cimg" style="background-image:url('<?php echo esc_url( $m['img'] ); ?>')"><?php if ( $un ) : ?><div class="bkmock-unavail"><span>Pokoj není dostupný ve vybraném termínu</span><em>Zobrazit ceny a dostupnost</em></div><?php endif; ?></div>
 	            <div class="bkmock-cbody">
-	              <h4><?php echo esc_html( $m['name'] ); ?></h4>
+	              <h3><?php echo esc_html( $m['name'] ); ?></h3>
 	              <div class="bkmock-cmeta">Max <?php echo (int) $m['cap']; ?> &nbsp;·&nbsp; Min <?php echo esc_html( $m['m2'] ); ?> m²</div>
 	              <ul><?php foreach ( $bullets as $b ) echo '<li>' . esc_html( $b ) . '</li>'; ?></ul>
 	              <span class="bkmock-detail">Detail pokoje</span>
@@ -1631,7 +1643,7 @@ function grid_sc_onas() {
 	      <div class="stat-row">
 	        <div class="stat"><span class="data">64</span><span>pokojů &amp; apartmá</span></div>
 	        <div class="stat"><span class="data">****</span><span>evropský standard</span></div>
-	        <div class="stat"><span class="data">0 m</span><span>od trati</span></div>
+	        <div class="stat"><span class="data">1 m</span><span>od trati</span></div>
 	      </div>
 	      <div style="margin-top:26px;display:flex;gap:14px;flex-wrap:wrap"><a class="btn" href="<?php echo esc_url( grid_rezervace_url() ); ?>">Rezervovat pobyt</a><a class="btn btn-ghost" href="<?php echo esc_url( home_url('/#pokoje') ); ?>">Pokoje</a></div>
 	    </div>

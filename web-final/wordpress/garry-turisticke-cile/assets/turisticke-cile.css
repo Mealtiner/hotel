@@ -1,0 +1,25 @@
+/* GARRY – Turistické cíle: karty míst v okolí.
+ *
+ * Mřížka, rámečky a typografie karet patří webu (child motiv je má u třídy
+ * .okoli-card), tady je jen to, co přináší plugin: ikona štítku v rohu,
+ * odkaz na web lokality a chování karty při najetí.
+ */
+.okoli-card{position:relative;display:flex;flex-direction:column;transition:background .3s,border-color .3s}
+.okoli-card__ikona{position:absolute;top:clamp(14px,1.6vw,20px);right:clamp(14px,1.6vw,20px);
+  display:block;line-height:0;pointer-events:none}
+.okoli-card .tc-ikona{width:20px;height:20px;fill:none;stroke:var(--red,#C20E1A);stroke-width:1.5;
+  stroke-linecap:round;stroke-linejoin:round;transition:stroke .3s}
+.okoli-card h4{padding-right:34px}
+
+/* Karta reaguje na najetí stejně jako ostatní karty webu — červené podbarvení. */
+.okoli-card:hover{background:linear-gradient(135deg,rgba(194,14,26,.10) 0%,rgba(194,14,26,.03) 60%,rgba(194,14,26,0) 100%);
+  border-color:rgba(194,14,26,.45)}
+
+.okoli-card__odkaz{margin-top:auto;padding-top:12px;font-family:var(--f-mono,monospace);font-size:.7rem;
+  letter-spacing:.12em;text-transform:uppercase;color:var(--red,#C20E1A);text-decoration:none;
+  align-self:flex-start}
+.okoli-card__odkaz:hover,.okoli-card__odkaz:focus-visible{text-decoration:underline;text-underline-offset:3px}
+
+@media(prefers-reduced-motion:reduce){
+  .okoli-card,.okoli-card .tc-ikona{transition:none}
+}
