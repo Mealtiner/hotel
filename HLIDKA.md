@@ -1,12 +1,11 @@
 # Hlídka — grid-hotel
 
-*Poslední kontrola 2026-09-08 04:29. Generuje `hlidka.py`, needituj ručně.*
+*Poslední kontrola 2026-09-08 04:59. Generuje `hlidka.py`, needituj ručně.*
 
-**Stav: nesoulad, poznamka, rozpor**
+**Stav: nesoulad, poznamka**
 
 | Úroveň | Kontrola | Co |
 |---|---|---|
-| rozpor | git | 29 commitů neodesláno, nejnovější 1 h starý |
 | nesoulad | verze | gridhotel-components: hlavička 1.8.0, manifest 1.0.5 |
 | nesoulad | verze | gridhotel-core: hlavička 2.4.0, manifest 2.0.2 |
 | poznamka | pravidla | CLAUDE.md chybí — druhý nástroj nemá co číst |
